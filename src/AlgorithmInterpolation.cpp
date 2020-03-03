@@ -76,7 +76,7 @@ T** AlgorithmInterpolation<T>::naturalSpline(Vec2<T>* points, size_t pointsCount
 		z[i] = (alpha[i] - (h[i - 1] * z[i - 1])) / l[i];
 	}
 
-	for (int j = pointsCount - 2; j >= T(0); j--)
+	for (size_t j = pointsCount - 2; j >= T(0); j--)
 	{
 		c[j] = z[j] - u[j] * c[j + 1];
 		b[j] = (points[j + 1][1] - points[j][1]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
@@ -195,7 +195,7 @@ T** AlgorithmInterpolation<T>::fixedSpline(Vec2<T>* points, size_t pointsCount, 
 		d[j] = (c[j + 1] - c[j]) / (T(3) * h[j]);
 	}
 
-	for (sizsp_uinte_t i = 0; i < n; i++)
+	for (sp_uint i = 0; i < n; i++)
 	{
 		result[i][0] = points[i][1];
 		result[i][1] = b[i];
