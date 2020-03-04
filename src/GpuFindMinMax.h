@@ -14,8 +14,8 @@ namespace OpenML
 	private:
 		sp_uint findMinMaxProgramIndex;
 		GpuDevice* gpu = NULL;
-		sp_uint globalWorkSize[3];
-		sp_uint localWorkSize[3];
+		sp_size globalWorkSize[3];
+		sp_size localWorkSize[3];
 		sp_uint threadsCount;
 		sp_uint groupStride;
 

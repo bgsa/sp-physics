@@ -24,11 +24,11 @@ namespace OpenML
 		delete fileManager;
 	}
 
-	cl_mem GpuCommands::creteIndexes(GpuDevice* gpu, sp_uint length)
+	cl_mem GpuCommands::creteIndexes(GpuDevice* gpu, sp_size length)
 	{
-		const sp_uint globalWorkSize[3] = { nextPowOf2(std::min(gpu->maxWorkGroupSize, length)), 0 , 0 };
-		const sp_uint localWorkSize[3] = { std::max(nextPowOf2(length) / gpu->maxWorkGroupSize, size_t(1)), 0, 0 };
-		const sp_uint groupCount = globalWorkSize[0] / localWorkSize[0];
+		const sp_size globalWorkSize[3] = { nextPowOf2(std::min((sp_size)gpu->maxWorkGroupSize, length)), 0 , 0 };
+		const sp_size localWorkSize[3] = { std::max((sp_uint) (nextPowOf2(length) / gpu->maxWorkGroupSize), 1U), 0, 0 };
+		const sp_size groupCount = globalWorkSize[0] / localWorkSize[0];
 
 		GpuCommand* commandInitIndexes = gpu->commandManager->createCommand();
 
@@ -48,9 +48,9 @@ namespace OpenML
 
 	cl_mem GpuCommands::findMaxGPUBuffer(GpuDevice* gpu, float* input, size_t n, size_t strider, size_t offset)
 	{
-		const sp_uint globalWorkSize[3] = { gpu->maxWorkGroupSize, 0 , 0 };
-		const sp_uint localWorkSize[3] = { nextPowOf2(n) / gpu->maxWorkGroupSize, 0, 0 };
-		const sp_uint groupCount = gpu->maxWorkGroupSize / localWorkSize[0];
+		const sp_size globalWorkSize[3] = { gpu->maxWorkGroupSize, 0 , 0 };
+		const sp_size localWorkSize[3] = { nextPowOf2(n) / gpu->maxWorkGroupSize, 0, 0 };
+		const sp_size groupCount = gpu->maxWorkGroupSize / localWorkSize[0];
 
 		cl_mem outputBuffer = gpu->createBuffer(SIZEOF_FLOAT * groupCount, CL_MEM_READ_WRITE);
 
@@ -69,12 +69,12 @@ namespace OpenML
 		return  outputBuffer;
 	}
 
-	float* GpuCommands::findMinMaxGPU(GpuDevice* gpu, float* input, size_t n, size_t strider, size_t offset)
+	float* GpuCommands::findMinMaxGPU(GpuDevice* gpu, float* input, sp_size n, sp_size strider, sp_size offset)
 	{
 		float* output = ALLOC_ARRAY(float, 2);
-		const sp_uint globalWorkSize[3] = { nextPowOf2(std::min(gpu->maxWorkGroupSize, n)), 0 , 0 };
-		const sp_uint localWorkSize[3] = { std::max(nextPowOf2(n) / gpu->maxWorkGroupSize, size_t(1)), 0, 0 };
-		const sp_uint groupCount = globalWorkSize[0] / localWorkSize[0];
+		const sp_size globalWorkSize[3] = { nextPowOf2(std::min((sp_size)gpu->maxWorkGroupSize, n)), 0 , 0 };
+		const sp_size localWorkSize[3] = { std::max(nextPowOf2(n) / gpu->maxWorkGroupSize, sp_size(1)), 0, 0 };
+		const sp_size groupCount = globalWorkSize[0] / localWorkSize[0];
 
 		cl_mem outputBuffer = gpu->createBuffer(SIZEOF_FLOAT * groupCount * 2, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE);
 
@@ -108,9 +108,9 @@ namespace OpenML
 
 	void GpuCommands::findMinMaxIndexesGPU(GpuDevice* gpu, cl_mem elements, cl_mem indexes, cl_mem indexesLength, cl_mem offset, size_t indexesLengthCpu, size_t striderCpu, cl_mem output)
 	{
-		const sp_uint globalWorkSize[3] = { nextPowOf2(std::min(gpu->maxWorkGroupSize, indexesLengthCpu)), 0 , 0 };
-		const sp_uint localWorkSize[3] = { gpu->getLocalWorkSize(indexesLengthCpu) , 0, 0 };
-		const sp_uint threadLength = gpu->getThreadLength(indexesLengthCpu);
+		const sp_size globalWorkSize[3] = { nextPowOf2(std::min( (sp_size)gpu->maxWorkGroupSize, indexesLengthCpu)), 0 , 0 };
+		const sp_size localWorkSize[3] = { gpu->getLocalWorkSize(indexesLengthCpu) , 0, 0 };
+		const sp_size threadLength = gpu->getThreadLength(indexesLengthCpu);
 
 		//const size_t globalWorkSize[3] = { 1024, 0 , 0 };
 		//const size_t localWorkSize[3] = { 64, 0, 0 };

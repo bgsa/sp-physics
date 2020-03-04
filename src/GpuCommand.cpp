@@ -92,7 +92,7 @@ GpuCommand* GpuCommand::swapInputParameter(sp_uint index1, sp_uint index2)
 	inputParameters[index1] = inputParameters[index2];
 	inputParameters[index2] = temp1;
 
-	sp_uint temp2 = inputParametersSize[index1];
+	sp_size temp2 = inputParametersSize[index1];
 	inputParametersSize[index1] = inputParametersSize[index2];
 	inputParametersSize[index2] = temp2;
 
@@ -150,7 +150,7 @@ GpuCommand* GpuCommand::build(const sp_char* source, sp_size sourceSize, const s
 	return buildFromProgram(program, kernelName);
 }
 
-GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_uint* globalWorkSize, const sp_uint* localWorkSize, const sp_uint* globalOffset)
+GpuCommand* GpuCommand::execute(sp_size workDimnmsion, const sp_size* globalWorkSize, const sp_size* localWorkSize, const sp_size* globalOffset)
 {
 	assert(isPowerOf2(*globalWorkSize));
 	//assert(isPowerOf2(*localWorkSize));

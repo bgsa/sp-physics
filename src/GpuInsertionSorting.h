@@ -21,8 +21,8 @@ namespace OpenML
 		cl_mem inputLengthGpu = NULL;
 		cl_mem outputGpu = NULL;
 
-		sp_uint globalWorkSize[3];
-		sp_uint localWorkSize[3];
+		sp_size globalWorkSize[3];
+		sp_size localWorkSize[3];
 
 	public:
 

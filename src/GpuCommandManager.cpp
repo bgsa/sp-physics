@@ -45,7 +45,7 @@ sp_uint GpuCommandManager::cacheProgram(const char* source, size_t sourceSize, c
 	HANDLE_OPENCL_BUILD_ERROR(clBuildProgram(program, 1, &deviceId, options, NULL, NULL), program, deviceId);
 
 	ALLOC_RELEASE(options);
-	return cachedPrograms.size() - 1;
+	return (sp_uint) cachedPrograms.size() - 1;
 }
 
 void GpuCommandManager::executeReadBuffer(cl_mem gpuBuffer, size_t bufferSize, void* cpuBuffer, bool waitToFinish)

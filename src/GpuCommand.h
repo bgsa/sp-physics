@@ -52,7 +52,7 @@ namespace OpenML
 		GpuCommand* buildFromProgram(cl_program program, const sp_char* kernelName);
 		GpuCommand* build(const sp_char* source, sp_size sourceSize, const sp_char* kernelName, const sp_char* buildOptions = NULL);
 
-		GpuCommand* execute(sp_uint workDimnmsion, const sp_uint* globalWorkSize, const sp_uint* localWorkSize, const sp_uint* globalOffset = NULL);
+		GpuCommand* execute(sp_size workDimnmsion, const sp_size* globalWorkSize, const sp_size* localWorkSize, const sp_size* globalOffset = NULL);
 
 		void fetch(void* buffer);
 

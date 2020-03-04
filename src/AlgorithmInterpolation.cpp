@@ -344,7 +344,7 @@ Vec4<T>* AlgorithmInterpolation<T>::getInterpolationPolynomialUsingBezier(Vec2<T
 
 namespace OpenML
 {
-	template class AlgorithmInterpolation<int>;
-	template class AlgorithmInterpolation<float>;
-	template class AlgorithmInterpolation<double>;
+	template class AlgorithmInterpolation<sp_int>;
+	template class AlgorithmInterpolation<sp_float>;
+	template class AlgorithmInterpolation<sp_double>;
 }

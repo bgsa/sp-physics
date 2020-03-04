@@ -157,9 +157,9 @@ namespace OpenML
 	///<summary>
 	///Get a digit of the number given by value parameter and the index
 	///</summary>
-	inline sp_int API_INTERFACE digit(sp_int value, sp_int index)
+	inline sp_short API_INTERFACE digit(sp_int value, sp_int index)
 	{
-		sp_int result = sp_int(value / std::pow(DECIMAL_BASE, index)) % DECIMAL_BASE;
+		sp_short result = (sp_short)((sp_uint)(value / std::pow(DECIMAL_BASE, index)) % DECIMAL_BASE);
 
 		assert(result >= 0 && result < 10);
 		return result;
@@ -167,9 +167,9 @@ namespace OpenML
 	///<summary>
 	///Get a digit of the number given by value parameter and the index
 	///</summary>
-	inline sp_uint API_INTERFACE digit(sp_uint value, sp_uint index)
+	inline sp_short API_INTERFACE digit(sp_uint value, sp_uint index)
 	{
-		size_t result = size_t(value / std::pow(DECIMAL_BASE, index)) % DECIMAL_BASE;
+		sp_short result = (sp_short)((sp_uint)(value / std::pow(DECIMAL_BASE, index)) % DECIMAL_BASE);
 
 		assert(result >= 0 && result < 10);
 		return result;
@@ -177,9 +177,19 @@ namespace OpenML
 	///<summary>
 	///Get a digit of the number given by value parameter and the index
 	///</summary>
-	inline sp_int API_INTERFACE digit(sp_float value, sp_int index)
+	inline sp_short API_INTERFACE digit(sp_float value, sp_int index)
 	{
-		sp_int result = sp_int(value / std::pow(DECIMAL_BASE, index)) % DECIMAL_BASE;
+		sp_short result = (sp_short)( (sp_uint)(value / std::pow(DECIMAL_BASE, index)) % DECIMAL_BASE);
+
+		assert(result >= 0 && result < 10);
+		return result;
+	}
+	///<summary>
+	///Get a digit of the number given by value parameter and the index
+	///</summary>
+	inline sp_short API_INTERFACE digit(sp_size value, sp_int index)
+	{
+		sp_short result = (sp_short)((sp_uint)(value / std::pow(DECIMAL_BASE, index)) % DECIMAL_BASE);
 
 		assert(result >= 0 && result < 10);
 		return result;
@@ -231,6 +241,19 @@ namespace OpenML
 	inline sp_int API_INTERFACE nextPowOf2(sp_int value)
 	{
 		sp_int rval = 1;
+
+		while (rval < value)
+			rval = rval << 1; // multiply by 2
+
+		return rval;
+	}
+
+	///<summary>
+	///Get the next number power of 2
+	///</summary>
+	inline sp_size API_INTERFACE nextPowOf2(sp_size value)
+	{
+		sp_size rval = 1;
 
 		while (rval < value)
 			rval = rval << 1; // multiply by 2
@@ -303,9 +326,9 @@ namespace OpenML
 	///<summary>
 	///Get the count of digits of the number given by value parameter
 	///</summary>
-	inline size_t API_INTERFACE digitCount(sp_int value)
+	inline sp_short API_INTERFACE digitCount(sp_int value)
 	{
-		size_t len = 1;
+		sp_short len = 1;
 
 		if (value < 0)
 			value *= -1;
@@ -318,9 +341,9 @@ namespace OpenML
 	///<summary>
 	///Get the count of digits of the number given by value parameter
 	///</summary>
-	inline size_t API_INTERFACE digitCount(size_t value)
+	inline sp_size API_INTERFACE digitCount(sp_size value)
 	{
-		size_t len = 1;
+		sp_size len = 1;
 
 		for (len = 0; value > 0; len++)
 			value = value / 10;
