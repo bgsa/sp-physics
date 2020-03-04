@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0.0)
 
 if (POLICY CMP0054)
     cmake_policy(SET CMP0054 NEW)
@@ -11,16 +11,23 @@ endif()
 set (MAJOR_VERSION 0)
 set (MINOR_VERSION 1)
 set (PATCH_VERSION 0)
-project(SpPhysics VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}))
+project(SpPhysics VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
 
-option(OPERATING_SYSTEM "Defined which operating system will be built for" "WINDOWS")
-option(ARCH_BITS        "Defined the compilation to 64 bits"   "64")
-option(OPENCL_ENABLED   "Defined if OpenCL will be used" ON)
+option(OPERATING_SYSTEM "Define which operating system will be built for" "WINDOWS")
+option(ARCH_BITS        "Define the compilation to 64 bits"   "64")
+option(OPENCL_ENABLED   "Define if OpenCL will be enabled"   ON)
+option(OPENCL_DIR       "Define the OpenCL home folder OR Environment Var %OPENCL_HOME% Ex.: C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v9.2" $ENV{OPENCL_HOME})
 
-set (MAJOR_VERSION 0)
-set (MINOR_VERSION 1)
-set (PATCH_VERSION 0)
-set (PROJECT_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
+if ( "${OPENCL_DIR}" STREQUAL "OFF" )
+	set (OPENCL_DIR $ENV{OPENCL_HOME})
+endif()
+
+set (PROJECT_DIR  ${CMAKE_CURRENT_SOURCE_DIR})
+set (SOLUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_DIR}/lib)
+set (SP_FOUNDATION_DIR ${SOLUTION_DIR}/sp-foundation)
+set (VENDOR_DIR ${SOLUTION_DIR}/vendor)
 
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_C_STANDARD_REQUIRED ON)
@@ -32,72 +39,101 @@ if ( ${ARCH_BITS} STREQUAL "64" )
 	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -m64 -std=c11" )
 	set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m64 -std=c++11" )
 else()
-	set(ARCH "x86")	
+	set (ARCH "x86")	
 	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -m32 -std=c11" )
 	set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m32 -std=c++11" )
 endif()
 
-message(STATUS "Building ${PROJECT_NAME} ...")
+if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
+	set (GLFW_LIB_NAME "glfw3.lib")
+	set (IMGUI_LIB_NAME "imgui.lib")
+	set (SP_FOUNDATION_LIB_NAME "SpFoundation.lib")
+	set (CUSTOM_DEFINITIONS "-D_CRT_SECURE_NO_WARNINGS")
+	set (OPENCL_INCLUDE_DIRS ${OPENCL_DIR}/include)	
+	set (OPENCL_LIBRARY "OpenCL.lib")
 
-find_package(OpenCL REQUIRED)
+	if ( ${ARCH_BITS} STREQUAL "64" )	
+		set (OPENCL_LIB_DIRS ${OPENCL_DIR}/lib/x64)
+	else()
+		set (OPENCL_LIB_DIRS ${OPENCL_DIR}/lib/Win32)
+	endif()
 
-if ( ${QT_ENABLED} )
-	find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
-	set (MOC_HEADERS	${CMAKE_SOURCE_DIR})
-	qt5_wrap_cpp(MOC_SOURCES ${CMAKE_SOURCE_DIR})
+elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" OR ${OPERATING_SYSTEM} STREQUAL "UNIX" )
+	set (GLFW_LIB_NAME "libglfw3.a")
+	set (IMGUI_LIB_NAME "libimgui.a")
+	set (SP_FOUNDATION_LIB_NAME "libSpFoundation.a")
+	set (CUSTOM_DEFINITIONS "-Wno-dangling-else")	
+
+	find_package(GLEW   REQUIRED)
+	find_package(OpenCL REQUIRED)
+
+else()
+    message(FATAL_ERROR "Operating System not defined!")
 endif()
+
+find_package(OpenGL REQUIRED)
+
+file(GLOB HEADERS "src/*.h")
+file(GLOB SOURCES "src/*.cpp")
 
 include_directories(
-	../sp-foundation/src
+	${HEADERS}
+	${SP_FOUNDATION_DIR}/src
+	${VENDOR_DIR}/include
+	${VENDOR_DIR}/glfw/include
+	${VENDOR_DIR}
+	${OPENCL_INCLUDE_DIRS}
+	/usr/local/include
 )
+
+message(${OPENCL_INCLUDE_DIRS})
+message(${OPENCL_LIB_DIRS})
 
 link_directories(
-	../lib/Release
+	${VENDOR_DIR}/lib
+	${VENDOR_DIR}/lib/Release
+	${SP_FOUNDATION_DIR}/lib/Release
+	${SP_FOUNDATION_DIR}/lib/Debug
+	/usr/bin/x86_64-linux-gnu
+	/usr/local/lib
+	${OPENCL_LIB_DIRS}
 )
 
-file(GLOB HEADERS "${CMAKE_SOURCE_DIR}/*.h")
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/*.cpp")
-
-if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-    add_definitions(-ENV_32BITS -DDEBUG -DAPI_EXPORT -DMAJOR_COLUMN_ORDER -DOPENGL -DWINDOWS -D_CRT_SECURE_NO_WARNINGS)
-endif()
-if ( ${OPERATING_SYSTEM} STREQUAL "LINUX" )
-    add_definitions(-ENV_32BITS -DDEBUG -DAPI_EXPORT -DMAJOR_COLUMN_ORDER -DOPENGL -DLINUX)
-endif()
-if ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-    add_definitions(-ENV_32BITS -DDEBUG -DAPI_EXPORT -DMAJOR_COLUMN_ORDER -DOPENGL -DUNIX)
-endif()
-
-if(BUILD_SHARED_LIBS)
+if ( ${BUILD_SHARED_LIBS} )
 	add_library(${PROJECT_NAME} SHARED ${SOURCES})
 else()
 	add_library(${PROJECT_NAME} STATIC ${SOURCES})
 endif()
 
-# Enable C++11 long long for compilers that are capable of it
-if(NOT ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} STRLESS 3.1 AND ";${CMAKE_CXX_COMPILE_FEATURES};" MATCHES ";cxx_long_long_type;")
-	target_compile_features(${PROJECT_NAME} PUBLIC cxx_long_long_type)
+if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
+    add_definitions(-DENV_32BITS -DAPI_EXPORT -DOPENGL -DGLFW_ENABLED -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DWINDOWS)
+elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" )
+    add_definitions(-DENV_32BITS -DAPI_EXPORT -DOPENGL -DGLFW_ENABLED -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DLINUX)
+elseif ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
+    add_definitions(-DENV_32BITS -DAPI_EXPORT -DOPENGL -DGLFW_ENABLED -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DUNIX)
+else()
+    message(FATAL_ERROR "Operating System not defined!")
 endif()
 
-if ( (NOT ${MAJOR_COLUMN_ORDER}) AND (NOT ${MAJOR_ROW_ORDER}))
-	target_compile_definitions(${PROJECT_NAME} PRIVATE MAJOR_COLUMN_ORDER=1)
-else()
-	if ( ${MAJOR_COLUMN_ORDER} )
-		target_compile_definitions(${PROJECT_NAME} PRIVATE MAJOR_COLUMN_ORDER=1)
-	else()
-		target_compile_definitions(${PROJECT_NAME} PRIVATE MAJOR_ROW_ORDER=1)
-	endif()
-endif()	
-
-set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(${PROJECT_NAME} PROPERTIES ENABLE_EXPORTS ON)
-
-target_link_libraries(${PROJECT_NAME}
-	SpFoundation.lib
+target_link_libraries(${PROJECT_NAME} 
+	${OPENGL_LIBRARY}
+	${GLEW_LIBRARIES}
+	${GLFW_LIB_NAME}
+	${IMGUI_LIB_NAME}
+	${SP_FOUNDATION_LIB_NAME}
+	${OPENCL_LIBRARY}
 )
 
-if ( ${QT_ENABLED} )
-	target_link_libraries(${PROJECT_NAME} Qt5::Core Qt5::Gui Qt5::Widgets)	
+if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
+	target_link_libraries(${PROJECT_NAME} glew32s.lib)
+elseif ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
+	target_link_libraries(${PROJECT_NAME}
+	    "-framework Cocoa"
+	    "-framework IOKit"
+	    "-framework CoreVideo"
+	)
 endif()
 
-MESSAGE(STATUS "START COMPLETED!" )
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)
