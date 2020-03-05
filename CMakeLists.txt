@@ -45,8 +45,6 @@ else()
 endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-#	set (GLFW_LIB_NAME "glfw3.lib")
-#	set (IMGUI_LIB_NAME "imgui.lib")
 	set (SP_FOUNDATION_LIB_NAME "SpFoundation.lib")
 	set (CUSTOM_DEFINITIONS "-D_CRT_SECURE_NO_WARNINGS")
 	set (OPENCL_INCLUDE_DIRS ${OPENCL_DIR}/include)	
@@ -59,19 +57,11 @@ if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 	endif()
 
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" OR ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-#	set (GLFW_LIB_NAME "libglfw3.a")
-#	set (IMGUI_LIB_NAME "libimgui.a")
 	set (SP_FOUNDATION_LIB_NAME "libSpFoundation.a")
 	set (CUSTOM_DEFINITIONS "-Wno-dangling-else")	
-
-#	find_package(GLEW   REQUIRED)
-	find_package(OpenCL REQUIRED)
-
 else()
     message(FATAL_ERROR "Operating System not defined!")
 endif()
-
-find_package(OpenGL REQUIRED)
 
 file(GLOB SOURCES "src/*.cpp")
 
@@ -79,7 +69,6 @@ include_directories(
 	./src
 	${SP_FOUNDATION_DIR}/src
 	${VENDOR_DIR}/include
-#	${VENDOR_DIR}/glfw/include
 	${VENDOR_DIR}
 	${OPENCL_INCLUDE_DIRS}
 	/usr/local/include
@@ -112,17 +101,11 @@ else()
 endif()
 
 target_link_libraries(${PROJECT_NAME} 
-#	${OPENGL_LIBRARY}
-#	${GLEW_LIBRARIES}
-#	${GLFW_LIB_NAME}
-#	${IMGUI_LIB_NAME}
 	${SP_FOUNDATION_LIB_NAME}
 	${OPENCL_LIBRARY}
 )
 
-if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-#	target_link_libraries(${PROJECT_NAME} glew32s.lib)
-elseif ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
+if ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
 	target_link_libraries(${PROJECT_NAME}
 	    "-framework Cocoa"
 	    "-framework IOKit"

@@ -23,12 +23,6 @@ cmake .. -G "Unix Makefiles"               \
 
 cmake --build . --config $BUILD_TYPE
 
-if [ "$SHARED_LIB" == "OFF" ]; then
-        cp src/libglfw3.a   ../../lib
-else
-        cp src/libglfw3.so  ../../lib
-fi
-
 cd ../
 
 if [ -d $BUILD_DIR ]; then
