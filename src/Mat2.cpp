@@ -1,9 +1,7 @@
 #include "Mat2.h"
 
-using namespace OpenML;
-
 template <typename T>
-Mat2<T>::Mat2(T defaultValue)
+Mat2<T>::Mat2(const T defaultValue)
 {
 	static T emptyMatrix[MAT2_SIZE] = {
 		defaultValue, defaultValue,
@@ -20,7 +18,7 @@ Mat2<T>::Mat2(T* values)
 }
 
 template <typename T>
-Mat2<T>::Mat2(T value11, T value12,	T value21, T value22)
+Mat2<T>::Mat2(const T value11, const T value12,	const T value21, const T value22)
 {
 	values[0] = value11;
 	values[1] = value12;
@@ -49,12 +47,9 @@ T* Mat2<T>::getValues()
 }
 
 template <typename T>
-T Mat2<T>::getValue(int x, int y)
+T Mat2<T>::getValue(const sp_int x, const sp_int y)
 {
-	x--;
-	y--;
-
-	return values[y * MAT2_ROWSIZE + x];
+	return values[ (y-1) * MAT2_ROWSIZE + (x-1)];
 }
 
 template <typename T>
@@ -172,7 +167,7 @@ Vec2<T> Mat2<T>::multiply(const Vec2<T>& vector) const
 }
 
 template <typename T>
-Mat2<T> Mat2<T>::createScale(T xScale, T yScale)
+Mat2<T> Mat2<T>::createScale(const T xScale, const T yScale)
 {
 	Mat2<T> result = Mat2<T>::identity();
 
@@ -182,14 +177,14 @@ Mat2<T> Mat2<T>::createScale(T xScale, T yScale)
 }
 
 template <typename T>
-void Mat2<T>::scale(T xScale, T yScale)
+void Mat2<T>::scale(const T xScale, const T yScale)
 {
 	values[0] *= xScale;
 	values[3] *= yScale;
 }
 
 template <typename T>
-Mat2<T> Mat2<T>::createTranslate(T x, T y)
+Mat2<T> Mat2<T>::createTranslate(const T x, const T y)
 {
 	Mat2<T> result = Mat2<T>::identity();
 
@@ -211,7 +206,7 @@ T Mat2<T>::determinant() const
 }
 
 template <typename T>
-AutovalueAutovector2<T> Mat2<T>::getAutovalueAndAutovector(const unsigned short maxIteration) const
+AutovalueAutovector2<T> Mat2<T>::getAutovalueAndAutovector(const sp_ushort maxIteration) const
 {
 	Mat2<T> matrix = *this;
 	Vec2<T> autovector = { T(1), T(1) };
@@ -228,7 +223,7 @@ AutovalueAutovector2<T> Mat2<T>::getAutovalueAndAutovector(const unsigned short 
 }
 
 template <typename T>
-size_t Mat2<T>::sizeInBytes() const
+sp_size Mat2<T>::sizeInBytes() const
 {
 	return MAT2_SIZE * sizeof(T);
 }
@@ -238,13 +233,13 @@ Mat2<T> Mat2<T>::clone() const
 {
 	Mat2<T> result;
 
-	memcpy(&result, this, sizeof(Mat2<T>));
+	std::memcpy(&result, this, sizeof(Mat2<T>));
 
 	return result;
 }
 
 template <typename T>
-T& Mat2<T>::operator[](int index)
+T& Mat2<T>::operator[](sp_int index)
 {
 	assert(index >= 0 && index < MAT2_SIZE);
 
@@ -252,7 +247,7 @@ T& Mat2<T>::operator[](int index)
 }
 
 template <typename T>
-T Mat2<T>::operator[](int index) const
+T Mat2<T>::operator[](sp_int index) const
 {
 	assert(index >= 0 && index < MAT2_SIZE);
 
@@ -319,11 +314,11 @@ Vec2<T> Mat2<T>::operator*(const Vec2<T>& vector) const
 template <typename T>
 void Mat2<T>::operator*=(const Mat2<T>& matrix)
 {
-	memcpy(&this->values, multiply(matrix).values, sizeof(this->values));
+	std::memcpy(&this->values, multiply(matrix).values, sizeof(this->values));
 }
 
 template <typename T>
-Mat2<T> Mat2<T>::operator/(T value) 
+Mat2<T> Mat2<T>::operator/(const T value) const
 {
 	return Mat2<T> {
 		values[0] / value,
@@ -334,7 +329,7 @@ Mat2<T> Mat2<T>::operator/(T value)
 }
 
 template <typename T>
-void Mat2<T>::operator/=(T value)
+void Mat2<T>::operator/=(const T value)
 {
 	values[0] /= value;
 	values[1] /= value;
@@ -343,7 +338,7 @@ void Mat2<T>::operator/=(T value)
 }
 
 template <typename T>
-std::string Mat2<T>::toString()
+std::string Mat2<T>::toString() const
 {
 	return Mat<T>::toString(values, MAT2_SIZE);
 }
@@ -351,7 +346,7 @@ std::string Mat2<T>::toString()
 
 namespace OpenML
 {
-	template class Mat2<int>;
-	template class Mat2<float>;
-	template class Mat2<double>;
+	template class Mat2<sp_int>;
+	template class Mat2<sp_float>;
+	template class Mat2<sp_double>;
 }

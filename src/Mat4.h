@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAT4_HEADER
+#define MAT4_HEADER
 
 #include "OpenML.h"
 #include "Mat.h"
@@ -30,7 +31,7 @@ namespace OpenML
 		/// Default constructor
 		/// Load a empty matrix = 0
 		/// </summary>
-		API_INTERFACE Mat4(T defaultValue = T(0));
+		API_INTERFACE Mat4(const T defaultValue = T(0));
 
 		/// <summary>
 		/// Construct the matrix from 4 vectors
@@ -46,10 +47,10 @@ namespace OpenML
 		/// Constructor with initialized values - COL ORDER
 		/// </summary>
 		API_INTERFACE Mat4(
-			T value11, T value21, T value31, T value41,
-			T value12, T value22, T value32, T value42,
-			T value13, T value23, T value33, T value43,
-			T value14, T value24, T value34, T value44);
+			const T value11, const T value21, const T value31, const T value41,
+			const T value12, const T value22, const T value32, const T value42,
+			const T value13, const T value23, const T value33, const T value43,
+			const T value14, const T value24, const T value34, const T value44);
 
 		/// <summary>
 		/// Get the values from current matrix
@@ -61,7 +62,7 @@ namespace OpenML
 		/// COLUMN MAJOR ORDER
 		/// X and Y: 1 index base
 		/// </summary>
-		API_INTERFACE T getValue(int x, int y);
+		API_INTERFACE T getValue(const sp_int x, const sp_int y) const;
 
 		/// <summary>
 		/// Get the X axis
@@ -111,13 +112,13 @@ namespace OpenML
 		/// Get the determinant from index i,j
 		/// Zero-Index based
 		/// </summary>
-		API_INTERFACE T determinantIJ(int i, int j) const;
+		API_INTERFACE T determinantIJ(const sp_int i, const sp_int j) const;
 
 		/// <summary>
 		/// Get the cofactor of the index i,j
 		/// Zero-Index based
 		/// </summary>
-		API_INTERFACE T cofactorIJ(int i, int j) const;
+		API_INTERFACE T cofactorIJ(const sp_int i, const  sp_int j) const;
 
 		/// <summary>
 		/// Get the determinant from matrix
@@ -142,33 +143,33 @@ namespace OpenML
 		/// <summary>
 		/// Create a scaled matrix
 		/// </summary>
-		API_INTERFACE static Mat4<T> createScale(T xScale, T yScale, T zScale);
+		API_INTERFACE static Mat4<T> createScale(const T xScale, const T yScale, const T zScale);
 
 		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
-		API_INTERFACE void scale(T xScale, T yScale, T zScale);
+		API_INTERFACE void scale(const T xScale, const T yScale, const T zScale);
 
 		/// <summary>
 		/// Create a rotation matrix
 		/// Example: x = 1.0 to rotate over X axis; x = 0.0 to not rotate over X axis
 		/// </summary>
-		API_INTERFACE static Mat4<T> createRotate(T angleRadians, T x, T y, T z);
+		API_INTERFACE static Mat4<T> createRotate(const T angleRadians, const T x, const T y, const T z);
 
 		/// <summary>
 		/// Craete a translation matrix
 		/// </summary>
-		API_INTERFACE static Mat4<T> createTranslate(T x, T y, T z);
+		API_INTERFACE static Mat4<T> createTranslate(const T x, const T y, const T z);
 
 		/// <summary>
 		/// Craete a orthographic matrix projection
 		/// </summary>
-		API_INTERFACE static Mat4<T> createOrthographicMatrix(T xMin, T xMax, T yMin, T yMax, T zMin, T zMax);
+		API_INTERFACE static Mat4<T> createOrthographicMatrix(const T xMin, const T xMax, const T yMin, const T yMax, const T zMin, const T zMax);
 
 		/// <summary>
 		/// Get the size in Bytes of Mat4
 		/// </summary>
-		API_INTERFACE size_t sizeInBytes() const;
+		API_INTERFACE sp_size sizeInBytes() const;
 
 		/// <summary>
 		/// Clone this matrix
@@ -183,7 +184,7 @@ namespace OpenML
 		/// <summary>
 		/// Subtract a scalar from this matrix
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator-(T value) const;
+		API_INTERFACE inline Mat4<T> operator-(const T value) const;
 
 		/// <summary>
 		/// Subtract this matrix to another one
@@ -193,7 +194,7 @@ namespace OpenML
 		/// <summary>
 		/// Sum a scalar to this matrix
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator+(T value) const;
+		API_INTERFACE inline Mat4<T> operator+(const T value) const;
 		
 		/// <summary>
 		/// Sum the matrix to another one
@@ -203,7 +204,7 @@ namespace OpenML
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// </summary>
-		API_INTERFACE Mat4<T> operator*(T value) const;
+		API_INTERFACE Mat4<T> operator*(const T value) const;
 
 		/// <summary>
 		/// Multiply the matrix to another one
@@ -223,37 +224,37 @@ namespace OpenML
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator/(T value);
+		API_INTERFACE inline Mat4<T> operator/(const T value) const;
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline void operator/=(T value);
+		API_INTERFACE inline void operator/=(const T value);
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// </summary>
-		API_INTERFACE bool operator==(const Mat4<T>& matrix) const;
+		API_INTERFACE sp_bool operator==(const Mat4<T>& matrix) const;
 
 		/// <summary>
 		/// Compare this matrix to another one. Compare each component.
 		/// </summary>
-		API_INTERFACE bool operator==(T value) const;
+		API_INTERFACE sp_bool operator==(const T value) const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// </summary>
-		API_INTERFACE bool operator!=(const Mat4<T>& matrix) const;
+		API_INTERFACE sp_bool operator!=(const Mat4<T>& matrix) const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T& operator[](int index);
+		API_INTERFACE T& operator[](const sp_int index);
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T operator[](int index) const;
+		API_INTERFACE T operator[](const sp_int index) const;
 
 		/// <summary>
 		/// Auto convertion to void *
@@ -281,7 +282,7 @@ namespace OpenML
 		/// <summary>
 		/// Get the matrix content as string
 		/// </summary>
-		API_INTERFACE std::string toString();
+		API_INTERFACE std::string toString() const;
 
 		/// <summary>
 		/// Decompose the matrix to Lower and Upper matrix
@@ -296,7 +297,7 @@ namespace OpenML
 		/// <summary>
 		/// Get the autovalue of the matrix
 		/// </summary>
-		API_INTERFACE AutovalueAutovector4<T> getAutovalueAndAutovector(const unsigned short maxIteration = 5) const;
+		API_INTERFACE AutovalueAutovector4<T> getAutovalueAndAutovector(const sp_short maxIteration = 5) const;
 
 		/*
 		/// <summary>
@@ -306,8 +307,10 @@ namespace OpenML
 		*/
 	};
 
-	typedef Mat4<int> Mat4i;
-	typedef Mat4<float> Mat4f;
-	typedef Mat4<double> Mat4d;
+	typedef Mat4<sp_int> Mat4i;
+	typedef Mat4<sp_float> Mat4f;
+	typedef Mat4<sp_double> Mat4d;
 
 }
+
+#endif // !MAT4_HEADER

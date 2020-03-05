@@ -64,8 +64,8 @@ GpuCommandManager::~GpuCommandManager()
 	HANDLE_OPENCL_ERROR(clFlush(commandQueue));
 	HANDLE_OPENCL_ERROR(clFinish(commandQueue));
 
-	for each (cl_program program in cachedPrograms)
-		HANDLE_OPENCL_ERROR(clReleaseProgram(program));
+	for (sp_uint i = 0 ; i < cachedPrograms.size() ; i++ )
+		HANDLE_OPENCL_ERROR(clReleaseProgram(cachedPrograms[i]));
 
 	HANDLE_OPENCL_ERROR(clReleaseCommandQueue(commandQueue));
 }

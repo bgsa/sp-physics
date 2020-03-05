@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LINE_3D_HEADER
+#define LINE_3D_HEADER
 
 #include "Vec3.h"
 #include "Plane3D.h"
@@ -116,3 +117,5 @@ namespace OpenML
 	};
 
 }
+
+#endif // !LINE_3D_HEADER

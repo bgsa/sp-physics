@@ -29,7 +29,7 @@ namespace OpenML
 
 		API_INTERFACE static std::vector<cl_platform_id> getPlatforms();
 
-		API_INTERFACE static cl_platform_id GpuContext::getDefaultPlatforms();
+		API_INTERFACE static cl_platform_id getDefaultPlatforms();
 		
 		~GpuContext();
 	};

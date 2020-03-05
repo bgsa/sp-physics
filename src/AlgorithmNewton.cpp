@@ -20,7 +20,7 @@ T AlgorithmNewton<T>::solve(T approximation, T functor(T), T derivedFunctor(T), 
 
 namespace OpenML
 {
-	template class AlgorithmNewton<int>;
-	template class AlgorithmNewton<float>;
-	template class AlgorithmNewton<double>;
+	template class AlgorithmNewton<sp_int>;
+	template class AlgorithmNewton<sp_float>;
+	template class AlgorithmNewton<sp_double>;
 }

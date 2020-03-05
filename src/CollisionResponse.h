@@ -27,4 +27,4 @@ namespace OpenML
 
 }
 
-#endif COLLISION_RESPONSE
+#endif // !COLLISION_RESPONSE

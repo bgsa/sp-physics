@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ALGORITHM_SORTING_HEADER
+#define ALGORITHM_SORTING_HEADER
 
 #include "OpenML.h"
 #include <algorithm>
@@ -69,3 +70,5 @@ namespace OpenML
 	};
 
 }
+
+#endif // !ALGORITHM_SORTING_HEADER

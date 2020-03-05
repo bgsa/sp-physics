@@ -1,16 +1,14 @@
 #include "Vec2.h"
 
-using namespace OpenML;
-
 template <typename T>
-Vec2<T>::Vec2(T value)
+Vec2<T>::Vec2(const T value)
 {
 	x = value;
 	y = value;
 }
 
 template <typename T>
-Vec2<T>::Vec2(T x, T y)
+Vec2<T>::Vec2(const T x, const T y)
 {
 	this->x = x;
 	this->y = y;
@@ -126,7 +124,7 @@ T Vec2<T>::distance(const Vec2<T>& vector) const
 }
 
 template <typename T>
-Vec2<T> Vec2<T>::fractional()
+Vec2<T> Vec2<T>::fractional() const
 {
 	return Vec2<T> {
 		T(x - floor(x)),
@@ -159,7 +157,7 @@ Vec2<T> Vec2<T>::clone() const
 }
 
 template <typename T>
-Vec2<T> Vec2<T>::operator*(T value) const
+Vec2<T> Vec2<T>::operator*(const T value) const
 {
 	return Vec2<T>(
 		x * value,
@@ -168,7 +166,7 @@ Vec2<T> Vec2<T>::operator*(T value) const
 }
 
 template <typename T>
-Vec2<T> Vec2<T>::operator/(T value) const
+Vec2<T> Vec2<T>::operator/(const T value) const
 {
 	return Vec2<T> (
 		x / value,
@@ -186,7 +184,7 @@ Vec2<T> Vec2<T>::operator+(const Vec2<T>& vector) const
 }
 
 template <typename T>
-Vec2<T> Vec2<T>::operator+(T value) const
+Vec2<T> Vec2<T>::operator+(const T value) const
 {
 	return Vec2<T>(
 		x + value,
@@ -204,7 +202,7 @@ Vec2<T> Vec2<T>::operator-(const Vec2<T>& vector) const
 }
 
 template <typename T>
-Vec2<T> Vec2<T>::operator-(T value) const
+Vec2<T> Vec2<T>::operator-(const T value) const
 {
 	return Vec2<T> (
 		x - value,
@@ -229,7 +227,7 @@ bool Vec2<T>::operator==(const Vec2<T>& vector) const
 }
 
 template <typename T>
-bool Vec2<T>::operator==(T value) const
+bool Vec2<T>::operator==(const T value) const
 {
 	return x == value 
 		&& y == value;
@@ -243,14 +241,14 @@ bool Vec2<T>::operator!=(const Vec2<T>& vector) const
 }
 
 template <typename T>
-bool Vec2<T>::operator!=(T value) const
+bool Vec2<T>::operator!=(const T value) const
 {
 	return x != value
 		|| y != value;
 }
 
 template <typename T>
-T& Vec2<T>::operator[](int index)
+T& Vec2<T>::operator[](const sp_int index)
 {
 	assert(index >= 0 && index < VEC2_SIZE);
 
@@ -258,7 +256,7 @@ T& Vec2<T>::operator[](int index)
 }
 
 template <typename T>
-T Vec2<T>::operator[](int index) const
+T Vec2<T>::operator[](const sp_int index) const
 {
 	assert(index >= 0 && index < VEC2_SIZE);
 
@@ -299,7 +297,7 @@ std::istream& Vec2<T>::deserialize(std::istream& inputStream)
 
 namespace OpenML
 {
-	template class Vec2<int>;
-	template class Vec2<float>;
-	template class Vec2<double>;
+	template class Vec2<sp_int>;
+	template class Vec2<sp_float>;
+	template class Vec2<sp_double>;
 }

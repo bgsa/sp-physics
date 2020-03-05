@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VEC2_HEADER
+#define VEC2_HEADER
 
 #include "OpenML.h"
 
@@ -15,12 +16,12 @@ namespace OpenML
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		API_INTERFACE inline Vec2(T value = T(0));
+		API_INTERFACE inline Vec2(const T value = T(0));
 
 		/// <summary>
 		/// Constructor with parameters
 		/// </summary>
-		API_INTERFACE inline Vec2(T x, T y);
+		API_INTERFACE inline Vec2(const T x, const T y);
 		
 		/// <summary>
 		/// Get the component values in the vector
@@ -91,7 +92,7 @@ namespace OpenML
 		/// <summary>
 		/// Get the fractionals values from the vector (component-wise)
 		/// <summary>
-		API_INTERFACE Vec2<T> fractional();
+		API_INTERFACE Vec2<T> fractional() const;
 
 		/// <summary>
 		/// Find a orthogonal projection between two vectors
@@ -107,12 +108,12 @@ namespace OpenML
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// <summary>
-		API_INTERFACE inline Vec2<T> operator*(T value) const;
+		API_INTERFACE inline Vec2<T> operator*(const T value) const;
 
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// </summary>
-		API_INTERFACE friend Vec2<T> operator*(T value, const Vec2<T>& vector)
+		API_INTERFACE friend Vec2<T> operator*(const T value, const Vec2<T>& vector)
 		{
 			return vector * value;
 		}
@@ -120,7 +121,7 @@ namespace OpenML
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// </summary>
-		API_INTERFACE inline Vec2<T> operator/(T value) const;
+		API_INTERFACE inline Vec2<T> operator/(const T value) const;
 
 		/// <summary>
 		/// Sum this vector to another one
@@ -130,7 +131,7 @@ namespace OpenML
 		/// <summary>
 		/// Sum a scalar to this vector
 		/// <summary>
-		API_INTERFACE inline Vec2<T> operator+(T value) const;
+		API_INTERFACE inline Vec2<T> operator+(const T value) const;
 
 		/// <summary>
 		/// Subtract this vector to another one
@@ -140,7 +141,7 @@ namespace OpenML
 		/// <summary>
 		/// Subtract a scalar from this vector
 		/// <summary>
-		API_INTERFACE inline Vec2<T> operator-(T value) const;
+		API_INTERFACE inline Vec2<T> operator-(const T value) const;
 
 		/// <summary>
 		/// Get negative vector
@@ -155,7 +156,7 @@ namespace OpenML
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// <summary>
-		API_INTERFACE inline bool operator==(T value) const;
+		API_INTERFACE inline bool operator==(const T value) const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
@@ -165,16 +166,25 @@ namespace OpenML
 		/// <summary>
 		/// Compare this vector to scalar (for each component)
 		/// </summary>
-		API_INTERFACE inline bool operator!=(T value) const;
+		API_INTERFACE inline bool operator!=(const T value) const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE inline T& operator[](int index);
+		API_INTERFACE inline T& operator[](const sp_int index);
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE inline T operator[](int index) const;
+		API_INTERFACE inline T operator[](const sp_int index) const;
+
+		/// <summary>
+		/// Get a index from the vector
+		/// <summary>
+		API_INTERFACE inline T& operator[](const sp_uint index);
+		/// <summary>
+		/// Get a index from the vector
+		/// <summary>
+		API_INTERFACE inline T operator[](const sp_uint index) const;
 
 		/// <summary>
 		/// Auto convertion to void *
@@ -197,3 +207,5 @@ namespace OpenML
 	typedef Vec2<double> Vec2d;
 
 }
+
+#endif // !VEC2_HEADER

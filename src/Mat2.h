@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAT2_HEADER
+#define MAT2_HEADER
 
 #include "OpenML.h"
 
@@ -25,7 +26,7 @@ namespace OpenML
 		/// Default constructor
 		/// Load a empty matrix = 0
 		/// </summary>
-		API_INTERFACE inline Mat2(T defaultValue = T(0));
+		API_INTERFACE inline Mat2(const T defaultValue = T(0));
 
 		/// <summary>
 		/// Constructor with initialized values
@@ -35,7 +36,7 @@ namespace OpenML
 		/// <summary>
 		/// Constructor with initialized values - COL ORDER
 		/// </summary>
-		API_INTERFACE inline Mat2(T value11, T value12, T value21, T value22);
+		API_INTERFACE inline Mat2(const T value11, const T value12, const T value21, const T value22);
 
 		/// <summary>
 		/// Get the values from current matrix
@@ -47,7 +48,7 @@ namespace OpenML
 		/// COLUMN MAJOR ORDER
 		/// X and Y: 1 index base
 		/// </summary>
-		API_INTERFACE inline T getValue(int x, int y);
+		API_INTERFACE inline T getValue(const sp_int x, const sp_int y);
 
 		/// <summary>
 		/// Get the X axis
@@ -94,17 +95,17 @@ namespace OpenML
 		/// <summary>
 		/// Create a scaled matrix
 		/// </summary>
-		API_INTERFACE static Mat2<T> createScale(T xScale, T yScale);
+		API_INTERFACE static Mat2<T> createScale(const T xScale, const T yScale);
 
 		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
-		API_INTERFACE inline void scale(T xScale, T yScale);
+		API_INTERFACE inline void scale(const T xScale, const T yScale);
 
 		/// <summary>
 		/// Craete a translation matrix
 		/// </summary>
-		API_INTERFACE static Mat2<T> createTranslate(T x, T y);
+		API_INTERFACE static Mat2<T> createTranslate(const T x, const T y);
 
 		/// <summary>
 		/// Get the deeterminant of the Matrix
@@ -114,12 +115,12 @@ namespace OpenML
 		/// <summary>
 		/// Get the autovalue of the matrix
 		/// </summary>
-		API_INTERFACE inline AutovalueAutovector2<T> getAutovalueAndAutovector(const unsigned short maxIteration = 5) const;
+		API_INTERFACE inline AutovalueAutovector2<T> getAutovalueAndAutovector(const sp_ushort maxIteration = 5) const;
 
 		/// <summary>
 		/// Get the size in Bytes of Mat3
 		/// </summary>
-		API_INTERFACE inline size_t sizeInBytes() const;
+		API_INTERFACE inline sp_size sizeInBytes() const;
 
 		/// <summary>
 		/// Clone this matrix
@@ -129,12 +130,12 @@ namespace OpenML
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T& operator[](int index);
+		API_INTERFACE inline T& operator[](sp_int index);
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T operator[](int index) const;
+		API_INTERFACE inline T operator[](sp_int index) const;
 
 		/// <summary>
 		/// Auto convertion to void *
@@ -180,7 +181,7 @@ namespace OpenML
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline Mat2<T> operator/(T value);
+		API_INTERFACE inline Mat2<T> operator/(T value) const;
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
@@ -190,12 +191,14 @@ namespace OpenML
 		/// <summary>
 		/// Get the matrix content as string
 		/// </summary>
-		API_INTERFACE inline std::string toString();
+		API_INTERFACE inline std::string toString() const;
 
 	};
 
-	typedef Mat2<int>	 Mat2i;
-	typedef Mat2<float>  Mat2f;
-	typedef Mat2<double> Mat2d;
+	typedef Mat2<sp_int>	 Mat2i;
+	typedef Mat2<sp_float>  Mat2f;
+	typedef Mat2<sp_double> Mat2d;
 
 }
+
+#endif // !MAT2_HEADER

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "Line3D.h"
 
 Line3D::Line3D() {	};
@@ -88,7 +86,7 @@ Vec3f* Line3D::findIntersection(const Line3D& line2) const
 
 	float s = numerador / denominador;
 	int valueSign = sign(s);
-	s = std::fabsf(s);
+	s = fabsf(s);
 
 	if (s >= 0.0f && s <= 1.0f)
 		return ALLOC_NEW(Vec3f)(da * s * valueSign + point1);
@@ -100,14 +98,14 @@ Vec3f Line3D::closestPointOnTheLine(const Vec3f& target) const
 {
 	Vec3f lineDirection = point2 - point1;
 	
-	// Project target onto lineDirection, computing parameterized position closestPoint(t) = point1 + t*(point2 – point1) 
+	// Project target onto lineDirection, computing parameterized position closestPoint(t) = point1 + t*(point2 ï¿½ point1) 
 	float t = (target - point1).dot(lineDirection) / lineDirection.dot(lineDirection);
 
 	// If outside segment, clamp t (and therefore d) to the closest endpoint 
 	t = clamp(t, 0.0f, 1.0f); // clamp t from 0.0 to 1.0
 	
-	//closestPoint(t) = point1 + t * (point2 – point1)
-	Vec3f closestPoint = point1 + t*lineDirection;
+	//closestPoint(t) = point1 + t * (point2 ï¿½ point1)
+	Vec3f closestPoint = point1 + lineDirection * t;
 
 	return closestPoint;
 }
@@ -151,7 +149,7 @@ Vec3f* Line3D::findIntersectionOnSegment(const Plane3D& plane) const
 	// If t in [0..1] compute and return intersection point 
 	if (t >= 0.0f && t <= 1.0f) 
 	{
-		Vec3f intersectionPoint = point1 + t * lineDirection;
+		Vec3f intersectionPoint = point1 + lineDirection * t;
 		return ALLOC_NEW(Vec3f)(intersectionPoint);
 	}
 
@@ -168,7 +166,7 @@ Vec3f* Line3D::findIntersectionOnRay(const Plane3D& plane) const
 	// put the Ray on the Plane (X), Compute the t value for the directed line ab intersecting the plane.
 	float t = -(plane.normalVector.dot(point1) + d) / plane.normalVector.dot(lineDirection);
  
-	Vec3f intersectionPoint = point1 + t * lineDirection;
+	Vec3f intersectionPoint = point1 + lineDirection * t;
 	return ALLOC_NEW(Vec3f)(intersectionPoint);
 }
 
@@ -180,7 +178,7 @@ DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const Sphere& spher
 	float b = point1ToSphere.dot(lineDirection);
 	float c = point1ToSphere.dot(point1ToSphere) - (sphere.ray * sphere.ray);
 	
-	// Exit if r’s origin outside sphere (c > 0) and ray pointing away from sphere (b > 0) 
+	// Exit if rï¿½s origin outside sphere (c > 0) and ray pointing away from sphere (b > 0) 
 	if (c > 0.0f && b > 0.0f)
 		return DetailedCollisionStatus<float>(CollisionStatus::OUTSIDE);
 	
@@ -190,7 +188,7 @@ DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const Sphere& spher
 	if (discriminant < 0.0f) // the quadratic equation has not real root
 		return DetailedCollisionStatus<float>(CollisionStatus::OUTSIDE);
 
-	float sqrtDisctiminant = std::sqrtf(discriminant);
+	float sqrtDisctiminant = sqrtf(discriminant);
 
 	// Ray now found to intersect sphere, compute smallest t value of intersection 
 	float t1 = -b - sqrtDisctiminant;   // -b - sqrt(b^2 - c)
@@ -199,7 +197,7 @@ DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const Sphere& spher
 	if (t1 < 0.0f)
 		t1 = 0.0f;
 
-	Vec3f intersectionPoint1 = point1 + t1 * lineDirection;
+	Vec3f intersectionPoint1 = point1 + lineDirection * t1;
 	
 	if (isCloseEnough(discriminant, 0.0f)) 
 		return DetailedCollisionStatus<float>(CollisionStatus::INLINE, intersectionPoint1);
@@ -209,7 +207,7 @@ DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const Sphere& spher
 	// Ray now found to intersect sphere in 2 points, compute bigger t value of intersection 
 	float t2 = -b + sqrtDisctiminant;   // -b + sqrt(b^2 - c)
 	
-	Vec3f intersectionPoint2 = point1 + t2 * lineDirection;
+	Vec3f intersectionPoint2 = point1 + lineDirection * t2;
 
 	return DetailedCollisionStatus<float>(CollisionStatus::INSIDE, intersectionPoint1, intersectionPoint2);
 }
@@ -267,7 +265,7 @@ DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const AABB& aabb) c
 	} 
 	
 	// Ray intersects all 3 slabs. Return point (q) and intersection t value (tmin) 
-	return DetailedCollisionStatus<float>(CollisionStatus::INSIDE, point1 + tmin * lineDirection, point1 + tmax * lineDirection);
+	return DetailedCollisionStatus<float>(CollisionStatus::INSIDE, point1 + lineDirection * tmin, point1 + lineDirection * tmax);
 }
 
 CollisionStatus Line3D::hasIntersectionOnSegment(const AABB& aabb) const
@@ -344,5 +342,5 @@ float Line3D::squaredDistance(const Vec3f& target) const
 
 float Line3D::distance(const Vec3f& target) const
 {
-	return std::sqrtf(squaredDistance(target));
+	return sqrtf(squaredDistance(target));
 }

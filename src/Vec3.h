@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VEC3_HEADER
+#define VEC3_HEADER
 
 #include "OpenML.h"
 
@@ -15,11 +16,11 @@ namespace OpenML
 		/// <summary>
 		/// Default construct
 		/// </summary>
-		API_INTERFACE inline Vec3(T defaultValue = T(0));
+		API_INTERFACE inline Vec3(const T defaultValue = T(0));
 		/// <summary>
 		/// Construct with args
 		/// </summary>
-		API_INTERFACE inline Vec3(T x, T y, T z);
+		API_INTERFACE inline Vec3(const T x, const T y, const T z);
 		/// <summary>
 		/// Default construct
 		/// </summary>
@@ -89,32 +90,32 @@ namespace OpenML
 		/// <summary>
 		/// Rotate the vector on X axis, given an angle
 		/// </summary>
-		API_INTERFACE inline Vec3<T> rotateX(float angle);
+		API_INTERFACE inline Vec3<T> rotateX(sp_float angle);
 
 		/// <summary>
 		/// Rotate the vector on X axis, given an angle and the reference point (rotate around this point)
 		/// </summary>
-		API_INTERFACE inline Vec3<T> rotateX(float angle, Vec3<T> referencePoint);
+		API_INTERFACE inline Vec3<T> rotateX(sp_float angle, Vec3<T> referencePoint);
 
 		/// <summary>
 		/// Rotate the vector on Y axis, given an angle
 		/// </summary>
-		API_INTERFACE inline Vec3<T> rotateY(float angle);
+		API_INTERFACE inline Vec3<T> rotateY(sp_float angle);
 
 		/// <summary>
 		/// Rotate the vector on Y axis, given an angle and the reference point (rotate around this point)
 		/// </summary>
-		API_INTERFACE inline Vec3<T> rotateY(float angle, Vec3<T> referencePoint);
+		API_INTERFACE inline Vec3<T> rotateY(sp_float angle, Vec3<T> referencePoint);
 
 		/// <summary>
 		/// Rotate the vector on Z axis, given an angle
 		/// </summary>
-		API_INTERFACE inline Vec3<T> rotateZ(float angle);
+		API_INTERFACE inline Vec3<T> rotateZ(sp_float angle);
 
 		/// <summary>
 		/// Rotate the vector on Z axis, given an angle and the reference point (rotate around this point)
 		/// </summary>
-		API_INTERFACE inline Vec3<T> rotateZ(float angle, Vec3<T> referencePoint);
+		API_INTERFACE inline Vec3<T> rotateZ(sp_float angle, Vec3<T> referencePoint);
 
 		/// <summary>
 		/// Cross Product - return a perpendicular vector, regards two vectors => u x v
@@ -167,45 +168,37 @@ namespace OpenML
 		/// <summary>
 		/// Clone the vector to a new instance
 		/// </summary>
-		API_INTERFACE inline Vec3<T> clone() const;
+		API_INTERFACE inline Vec3<T> clone();
 
 		/// <summary>
 		/// Sum the value to vector
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator+=(T value);
+		API_INTERFACE inline Vec3<T> operator+=(const T value);
 		
 		/// <summary>
 		/// Subtract the value to vector
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator-=(T value) const;
+		API_INTERFACE inline Vec3<T> operator-=(const T value);
 
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator/(T value) const;
+		API_INTERFACE inline Vec3<T> operator/(const T value) const;
 		
 		/// <summary>
 		/// Divide the each component by other component's vector
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator/(Vec3<T> vector) const;
+		API_INTERFACE inline Vec3<T> operator/(const Vec3<T> vector);
 
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator*(T value) const;
-
-		/// <summary>
-		/// Multiply the vector to a scalar
-		/// </summary>
-		API_INTERFACE friend Vec3<T> operator*(T value, const Vec3<T>& vector) 
-		{
-			return vector * value;
-		}
+		API_INTERFACE inline Vec3<T> operator*(const T value) const;
 
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// <summary>
-		API_INTERFACE void operator*=(T value);
+		API_INTERFACE void operator*=(const T value);
 		
 		/// <summary>
 		/// Multiply the vector to another one using Cross Product
@@ -215,32 +208,17 @@ namespace OpenML
 		/// <summary>
 		/// Sum this vector to another one
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator+(const Vec3<T>& vector);
-
-		/// <summary>
-		/// Sum this vector to another one
-		/// </summary>
 		API_INTERFACE inline Vec3<T> operator+(const Vec3<T>& vector) const;
 
 		/// <summary>
 		/// Sum this vector to another one
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator+=(Vec3<T>& vector);
+		API_INTERFACE inline Vec3<T> operator+=(const Vec3<T>& vector);
 
 		/// <summary>
 		/// Sum a scalar to this vector
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator+(T value);
-
-		/// <summary>
-		/// Sum a scalar to this vector
-		/// </summary>
-		API_INTERFACE inline Vec3<T> operator+(T value) const;
-
-		/// <summary>
-		/// Subtract this vector to another one
-		/// </summary>
-		API_INTERFACE inline Vec3<T> operator-(const Vec3<T>& vector);
+		API_INTERFACE inline Vec3<T> operator+(const T value) const;
 
 		/// <summary>
 		/// Subtract this vector to another one
@@ -250,17 +228,7 @@ namespace OpenML
 		/// <summary>
 		/// Get the negative vector
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator-();
-
-		/// <summary>
-		/// Get the negative vector
-		/// </summary>
 		API_INTERFACE inline Vec3<T> operator-() const;
-
-		/// <summary>
-		/// Subtract this vector to another one
-		/// </summary>
-		API_INTERFACE inline void operator-=(const Vec3<T>& vector);
 
 		/// <summary>
 		/// Subtract this vector to another one
@@ -270,7 +238,7 @@ namespace OpenML
 		/// <summary>
 		/// Subtract a scalar from this vector
 		/// </summary>
-		API_INTERFACE inline Vec3<T> operator-(T value);
+		API_INTERFACE inline Vec3<T> operator-(const T value) const;
 
 		/// <summary>
 		/// Assign operator
@@ -280,31 +248,40 @@ namespace OpenML
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// </summary>
-		API_INTERFACE inline bool operator==(const Vec3<T>& vector) const;
+		API_INTERFACE inline sp_bool operator==(const Vec3<T>& vector) const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// </summary>
-		API_INTERFACE inline bool operator==(T value) const;
+		API_INTERFACE inline sp_bool operator==(const T value) const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// </summary>
-		API_INTERFACE inline bool operator!=(const Vec3<T>& vector) const;
+		API_INTERFACE inline sp_bool operator!=(const Vec3<T>& vector) const;
 
 		/// <summary>
 		/// Compare this vector to scalar (for each component)
 		/// </summary>
-		API_INTERFACE inline bool operator!=(T value) const;
+		API_INTERFACE inline sp_bool operator!=(const T value) const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T& operator[](int index);
+		API_INTERFACE inline T& operator[](sp_int index);
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T operator[](int index) const;
+		API_INTERFACE inline T operator[](sp_int index) const;
+
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T& operator[](sp_uint index);
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T operator[](sp_uint index) const;
 
 		/// <summary>
 		/// Auto convertion to void *
@@ -323,8 +300,10 @@ namespace OpenML
 
 	};
 
-	typedef Vec3<int> Vec3i;
-	typedef Vec3<float> Vec3f;
-	typedef Vec3<double> Vec3d;
+	typedef Vec3<sp_int> Vec3i;
+	typedef Vec3<sp_float> Vec3f;
+	typedef Vec3<sp_double> Vec3d;
 
 }
+
+#endif // !VEC3_HEADER

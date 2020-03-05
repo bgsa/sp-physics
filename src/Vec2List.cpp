@@ -14,19 +14,19 @@ Vec2List<T>::Vec2List(const std::vector<Vec2<T>> &list)
 }
 
 template <typename T>
-void Vec2List<T>::add(Vec2<T> &value) 
+void Vec2List<T>::add(const Vec2<T>& value) 
 {
 	list.push_back(value);
 }
 
 template <typename T>
-size_t Vec2List<T>::size() 
+size_t Vec2List<T>::size() const
 {
 	return list.size();
 }
 
 template <typename T>
-Vec2<T>* Vec2List<T>::findMinX() 
+Vec2<T>* Vec2List<T>::findMinX()
 {
 	if (size() == 0)
 		return nullptr;
@@ -94,12 +94,12 @@ Vec2<T>* Vec2List<T>::findMaxY()
 }
 
 template <typename T>
-void Vec2List<T>::sortByAxis(Vec2<T>* arr, size_t left, size_t right, int axisIndex)
+void Vec2List<T>::sortByAxis(Vec2<T>* arr, sp_size left, sp_size right, sp_int axisIndex)
 {
-	size_t i = left, j = right;
+	sp_size i = left, j = right;
 	Vec2<T> tmp;
-	Vec2<T> pivot = arr[ (size_t) (left + right) / 2 ];
-	size_t nextAxis = axisIndex == 0 ? axisIndex + 1 : axisIndex - 1;
+	Vec2<T> pivot = arr[ (sp_size) (left + right) / 2 ];
+	sp_size nextAxis = axisIndex == 0 ? axisIndex + 1 : axisIndex - 1;
 
 	while (i <= j) 
 	{
@@ -169,7 +169,7 @@ Vec2<T> nextToTop(std::stack<Vec2<T>> values)
 }
 
 template <typename T>
-std::stack<Vec2<T>> Vec2List<T>::convexUpperHull()
+std::stack<Vec2<T>> Vec2List<T>::convexUpperHull() const
 {
 	Vec2<T> point1 = list[0];
 	Vec2<T> point2 = list[1];
@@ -181,7 +181,7 @@ std::stack<Vec2<T>> Vec2List<T>::convexUpperHull()
 	upperHull.push(point1);
 	upperHull.push(point2);
 	
-	for (size_t i = 2; i < list.size(); i++)
+	for (sp_size i = 2; i < list.size(); i++)
 	{
 		point1 = nextToTop(upperHull);
 		point2 = upperHull.top();
@@ -223,19 +223,19 @@ std::stack<Vec2<T>> Vec2List<T>::convexUpperHull()
 }
 
 template <typename T>
-std::stack<Vec2<T>> Vec2List<T>::convexLowerHull()
+std::stack<Vec2<T>> Vec2List<T>::convexLowerHull() const
 {
 	Vec2<T> point1 = list[list.size() - 1];
 	Vec2<T> point2 = list[list.size() - 2];
 	Vec2<T> currentPoint = list[list.size() - 3];
 	T determinant = T(0);
-	bool isCounterClockwise = false;
+	sp_bool isCounterClockwise = false;
 
 	std::stack<Vec2<T>> lowerHull;
 	lowerHull.push(point1);
 	lowerHull.push(point2);
 
-	for (size_t i = list.size() - 3; i != std::numeric_limits<size_t>::max() ; i--)
+	for (sp_size i = list.size() - 3; i != std::numeric_limits<size_t>::max() ; i--)
 	{
 		point1 = nextToTop(lowerHull);
 		point2 = lowerHull.top();
@@ -277,7 +277,7 @@ std::stack<Vec2<T>> Vec2List<T>::convexLowerHull()
 }
 
 template <typename T>
-Vec2List<T> Vec2List<T>::convexHull()
+Vec2List<T> Vec2List<T>::convexHull() const
 {
 	std::stack<Vec2<T>> upperHull = convexUpperHull();
 	std::stack<Vec2<T>> lowerHull = convexLowerHull();
@@ -305,7 +305,7 @@ Vec2List<T> Vec2List<T>::convexHull()
 
 namespace OpenML
 {
-	template class Vec2List<int>;
-	template class Vec2List<float>;
-	template class Vec2List<double>;
+	template class Vec2List<sp_int>;
+	template class Vec2List<sp_float>;
+	template class Vec2List<sp_double>;
 }

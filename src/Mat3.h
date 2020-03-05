@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MAT3_HEADER
+#define MAT3_HEADER
 
 #include "OpenML.h"
 #include <cstring>
@@ -28,7 +29,7 @@ namespace OpenML
 		/// Default constructor
 		/// Load a empty matrix = 0
 		/// </summary>
-		API_INTERFACE inline Mat3(T defaultValue = T(0));
+		API_INTERFACE inline Mat3(const T defaultValue = T(0));
 
 		/// <summary>
 		/// Constructor with initialized values
@@ -39,9 +40,9 @@ namespace OpenML
 		/// Constructor with initialized values - COL ORDER
 		/// </summary>
 		API_INTERFACE inline Mat3(
-			T value11, T value21, T value31,
-			T value12, T value22, T value32,
-			T value13, T value23, T value33);
+			const T value11, const T value21, const T value31,
+			const T value12, const T value22, const T value32,
+			const T value13, const T value23, const T value33);
 
 		/// <summary>
 		/// Get the values from current matrix
@@ -53,12 +54,12 @@ namespace OpenML
 		/// COLUMN MAJOR ORDER
 		/// X and Y: 1 index base
 		/// </summary>
-		API_INTERFACE inline T getValue(int x, int y);
+		API_INTERFACE inline T getValue(const sp_int x, const sp_int y) const;
 
 		/// <summary>
 		/// Get the axis
 		/// </summary>
-		API_INTERFACE inline Vec3<T> getAxis(int index) const;
+		API_INTERFACE inline Vec3<T> getAxis(const sp_int index) const;
 
 		/// <summary>
 		/// Get the X axis
@@ -109,34 +110,34 @@ namespace OpenML
 		/// Get the determinant from index i,j
 		/// Zero-Index based
 		/// </summary>
-		API_INTERFACE inline T determinantIJ(size_t i, size_t j) const;
+		API_INTERFACE inline T determinantIJ(const sp_size i, const sp_size j) const;
 
 		/// <summary>
 		/// Get the cofactor of the index i,j
 		/// Zero-Index based
 		/// </summary>
-		API_INTERFACE inline T cofactorIJ(size_t i, size_t j) const;
+		API_INTERFACE inline T cofactorIJ(const sp_size i, const sp_size j) const;
 
 		/// <summary>
 		/// Create a scaled matrix
 		/// </summary>
-		API_INTERFACE static Mat3<T> createScale(T xScale, T yScale, T zScale);
+		API_INTERFACE static Mat3<T> createScale(const T xScale, const T yScale, const T zScale);
 
 		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
-		API_INTERFACE inline void scale(T xScale, T yScale, T zScale);
+		API_INTERFACE inline void scale(const T xScale, const T yScale, const T zScale);
 
 		/// <summary>
 		/// Create a rotation matrix
 		/// Example: x = 1.0 to rotate over X axis; x = 0.0 to not rotate over X axis
 		/// </summary>
-		API_INTERFACE static Mat3<T> createRotate(T angleRadians, T x, T y, T z);
+		API_INTERFACE static Mat3<T> createRotate(const T angleRadians, const T x, const T y, const T z);
 
 		/// <summary>
 		/// Craete a translation matrix
 		/// </summary>
-		API_INTERFACE static Mat3<T> createTranslate(T x, T y, T z);
+		API_INTERFACE static Mat3<T> createTranslate(const T x, const T y, const T z);
 
 		/// <summary>
 		/// Craete a translation matrix
@@ -151,17 +152,17 @@ namespace OpenML
 		/// <summary>
 		/// Get the inverse matrix from current matrix => A^-1
 		/// <summary>
-		API_INTERFACE Mat3<T> invert();
+		API_INTERFACE Mat3<T> invert() const;
 
 		/// <summary>
 		/// Check if the matrix is identity
 		/// </summary>
-		API_INTERFACE inline bool isIdentity() const;
+		API_INTERFACE inline sp_bool isIdentity() const;
 
 		/// <summary>
 		/// Get the size in Bytes of Mat3
 		/// </summary>
-		API_INTERFACE inline size_t sizeInBytes() const;
+		API_INTERFACE inline sp_size sizeInBytes() const;
 
 		/// <summary>
 		/// Clone this matrix
@@ -171,12 +172,32 @@ namespace OpenML
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T& operator[](int index);
+		API_INTERFACE inline T& operator[](const sp_int index);
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T operator[](int index) const;
+		API_INTERFACE inline T operator[](const sp_int index) const;
+
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T& operator[](const sp_uint index);
+
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T operator[](const sp_uint index) const;
+		
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T& operator[](const sp_size index);
+
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T operator[](const sp_size index) const;
 
 		/// <summary>
 		/// Auto convertion to void *
@@ -222,32 +243,32 @@ namespace OpenML
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline Mat3<T> operator/(T value);
+		API_INTERFACE inline Mat3<T> operator/(const T value) const;
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline void operator/=(T value);
+		API_INTERFACE inline void operator/=(const T value);
 
 		/// <summary>
 		/// Check the matrix is equal the other
 		/// </summary>
-		API_INTERFACE inline bool operator==(const Mat3<T>& matrix);
+		API_INTERFACE inline sp_bool operator==(const Mat3<T>& matrix) const;
 
 		/// <summary>
 		/// Check the matrix is equal the other
 		/// </summary>
-		API_INTERFACE inline bool operator==(T value);
+		API_INTERFACE inline sp_bool operator==(const T value) const;
 
 		/// <summary>
 		/// Check the matrix is different the other
 		/// </summary>
-		API_INTERFACE inline bool operator!=(const Mat3<T>& matrix);
+		API_INTERFACE inline sp_bool operator!=(const Mat3<T>& matrix) const;
 
 		/// <summary>
 		/// Get the matrix content as string
 		/// </summary>
-		API_INTERFACE inline std::string toString();
+		API_INTERFACE inline std::string toString() const;
 
 		/// <summary>
 		/// Decompose the matrix to Lower and Upper matrix
@@ -262,12 +283,14 @@ namespace OpenML
 		/// <summary>
 		/// Get the autovalue of the matrix
 		/// </summary>
-		API_INTERFACE AutovalueAutovector3<T> getAutovalueAndAutovector(const unsigned short maxIteration = 5) const;
+		API_INTERFACE AutovalueAutovector3<T> getAutovalueAndAutovector(const sp_ushort maxIteration = 5) const;
 
 	};
 
-	typedef Mat3<int> Mat3i;
-	typedef Mat3<float> Mat3f;
-	typedef Mat3<double> Mat3d;
+	typedef Mat3<sp_int> Mat3i;
+	typedef Mat3<sp_float> Mat3f;
+	typedef Mat3<sp_double> Mat3d;
 
 }
+
+#endif // ! MAT3_HEADER

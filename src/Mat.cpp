@@ -1,24 +1,24 @@
 #include "Mat.h"
 
 template <typename T>
-void Mat<T>::gaussianElimination(T *matrix, int rowSize)
+void Mat<T>::gaussianElimination(T *matrix, const sp_int rowSize)
 {
-	int       i = 0;
-	int       j = 0;
-	const int m = rowSize - 1;
+	sp_int       i = 0;
+	sp_int       j = 0;
+	const sp_int m = rowSize - 1;
 
 	while (i < m && j < rowSize)
 	{
-		int maxi = i;
+		sp_int maxi = i;
 		
-		for (int k = i + 1; k < m; ++k)
+		for (sp_int k = i + 1; k < m; ++k)
 			if (abs(matrix[k * rowSize + j]) > abs(matrix[maxi * rowSize + j]))
 				maxi = k;
 
 		if (matrix[maxi * rowSize + j] != T(0))
 		{
 			if (i != maxi)
-				for (int k = 0; k < rowSize; k++)
+				for (sp_int k = 0; k < rowSize; k++)
 				{
 					const T aux = matrix[i * rowSize + k];
 					matrix[i * rowSize + k] = matrix[maxi * rowSize + k];
@@ -27,10 +27,10 @@ void Mat<T>::gaussianElimination(T *matrix, int rowSize)
 
 			const T aIj = matrix[i * rowSize + j];
 
-			for (int k = 0; k < rowSize; k++)
+			for (sp_int k = 0; k < rowSize; k++)
 				matrix[i * rowSize + k] /= aIj;
 
-			for (int u = i + 1; u < m; u++)
+			for (sp_int u = i + 1; u < m; u++)
 			{
 				const T aUj = matrix[u * rowSize + j];
 
@@ -50,7 +50,7 @@ void Mat<T>::gaussianElimination(T *matrix, int rowSize)
 }
 
 template <typename T>
-Mat3<T> Mat<T>::getPerspectiveTransform2D(Vec2<T> sourcePoints[4], Vec2<T> targetPoints[4])
+Mat3<T> Mat<T>::getPerspectiveTransform2D(const Vec2<T> sourcePoints[4], const Vec2<T> targetPoints[4])
 {
 	T homographyMatrix[8][9] = 
 	{
@@ -77,7 +77,7 @@ Mat3<T> Mat<T>::getPerspectiveTransform2D(Vec2<T> sourcePoints[4], Vec2<T> targe
 
 namespace OpenML 
 {
-	template class Mat<int>;
-	template class Mat<float>;
-	template class Mat<double>;
+	template class Mat<sp_int>;
+	template class Mat<sp_float>;
+	template class Mat<sp_double>;
 }

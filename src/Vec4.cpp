@@ -1,9 +1,7 @@
 #include "Vec4.h"
 
-using namespace OpenML;
-
 template <typename T>
-Vec4<T>::Vec4(T defaultValue)
+Vec4<T>::Vec4(const T defaultValue)
 {
 	x = defaultValue;
 	y = defaultValue;
@@ -12,7 +10,7 @@ Vec4<T>::Vec4(T defaultValue)
 }
 
 template <typename T>
-Vec4<T>::Vec4(Vec2<T> xyComponents, Vec2<T> zwComponents)
+Vec4<T>::Vec4(const Vec2<T>& xyComponents, const Vec2<T>& zwComponents)
 {
 	x = xyComponents.x;
 	y = xyComponents.y;
@@ -30,7 +28,7 @@ Vec4<T>::Vec4(const Vec3<T>& vector, T w)
 }
 
 template <typename T>
-Vec4<T>::Vec4(T x, T y, T z, T w) 
+Vec4<T>::Vec4(const T x,const  T y, const T z, const T w)
 {
 	this->x = x;
 	this->y = y;
@@ -109,7 +107,7 @@ void Vec4<T>::subtract(const Vec4<T>& vector)
 }
 
 template <typename T>
-void Vec4<T>::scale(T scale)
+void Vec4<T>::scale(const T scale)
 {
 	x *= scale;
 	y *= scale;
@@ -178,13 +176,13 @@ Vec4<T> Vec4<T>::clone() const
 }
 
 template <typename T>
-Vec3<T> Vec4<T>::toVec3() 
+Vec3<T> Vec4<T>::toVec3() const
 {
 	return Vec3<T>(x, y, z);
 }
 
 template <typename T>
-Vec4<T> Vec4<T>::operator*(T value)
+Vec4<T> Vec4<T>::operator*(const T value)
 {
 	return Vec4<T>(
 		x * value,
@@ -195,7 +193,7 @@ Vec4<T> Vec4<T>::operator*(T value)
 }
 
 template <typename T>
-Vec4<T> Vec4<T>::operator*(T value) const
+Vec4<T> Vec4<T>::operator*(const T value) const
 {
 	return Vec4<T>(
 		x * value,
@@ -206,7 +204,7 @@ Vec4<T> Vec4<T>::operator*(T value) const
 }
 
 template <typename T>
-Vec4<T> Vec4<T>::operator/(T value) const
+Vec4<T> Vec4<T>::operator/(const T value) const
 {
 	return Vec4<T> (
 		x / value,
@@ -217,7 +215,7 @@ Vec4<T> Vec4<T>::operator/(T value) const
 }
 
 template <typename T>
-void Vec4<T>::operator/=(T value)
+void Vec4<T>::operator/=(const T value)
 {
 	x /= value;
 	y /= value;
@@ -237,7 +235,7 @@ Vec4<T> Vec4<T>::operator+(const Vec4<T>& vector) const
 }
 
 template <typename T>
-Vec4<T> Vec4<T>::operator+(T value) const
+Vec4<T> Vec4<T>::operator+(const T value) const
 {
 	return Vec4<T>(
 		x + value,
@@ -259,7 +257,7 @@ Vec4<T> Vec4<T>::operator-(const Vec4<T>& vector) const
 }
 
 template <typename T>
-Vec4<T> Vec4<T>::operator-(T value) const
+Vec4<T> Vec4<T>::operator-(const T value) const
 {
 	return Vec4<T>(
 		x - value,
@@ -351,7 +349,7 @@ bool Vec4<T>::operator==(const Vec4<T>& vector) const
 }
 
 template <typename T>
-bool Vec4<T>::operator==(T value) const
+bool Vec4<T>::operator==(const T value) const
 {
 	return x == value
 		&& y == value
@@ -369,7 +367,7 @@ bool Vec4<T>::operator!=(const Vec4<T>& vector) const
 }
 
 template <typename T>
-T& Vec4<T>::operator[](int index)
+T& Vec4<T>::operator[](const sp_int index)
 {
 	assert(index >= 0 && index < VEC4_SIZE);
 
@@ -377,7 +375,23 @@ T& Vec4<T>::operator[](int index)
 }
 
 template <typename T>
-T Vec4<T>::operator[](int index) const
+T Vec4<T>::operator[](const sp_int index) const
+{
+	assert(index >= 0 && index < VEC4_SIZE);
+
+	return reinterpret_cast<const T*>(this)[index];
+}
+
+template <typename T>
+T& Vec4<T>::operator[](const sp_uint index)
+{
+	assert(index >= 0 && index < VEC4_SIZE);
+
+	return reinterpret_cast<T*>(this)[index];
+}
+
+template <typename T>
+T Vec4<T>::operator[](const sp_uint index) const
 {
 	assert(index >= 0 && index < VEC4_SIZE);
 
@@ -402,15 +416,9 @@ Vec4<T>::operator T*()
 	return reinterpret_cast<T*>(this);
 }
 
-template <typename T>
-Vec3<T> Vec4<T>::toVec3() const 
-{
-	return Vec3<T>(x, y, z);
-}
-
 namespace OpenML
 {
-	template class Vec4<int>;
-	template class Vec4<float>;
-	template class Vec4<double>;
+	template class Vec4<sp_int>;
+	template class Vec4<sp_float>;
+	template class Vec4<sp_double>;
 }

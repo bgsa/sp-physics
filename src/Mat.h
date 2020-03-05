@@ -1,7 +1,7 @@
-#pragma once
+#ifndef MAT_HEADER
+#define MAT_HEADER
 
 #include "OpenML.h"
-#include "Mat3.h"
 #include <iomanip>
 
 namespace OpenML
@@ -11,18 +11,18 @@ namespace OpenML
 	{
 	protected:
 
-		std::string toString(T* values, int size, int precision = 4)
+		std::string toString(const T* values, const sp_int size, const sp_int precision = 4) const
 		{
 			std::string content;
-			size_t total = (int)(size * size);
+			sp_size total = (sp_size)(size * size);
 
-			for (size_t i = 0; i < total; i++)
+			for (sp_size i = 0; i < total; i++)
 			{
 				std::stringstream stream;
 				stream << std::fixed << std::setprecision(precision) << values[i];
 				std::string numberAsString = stream.str();
 
-				bool isPositive = values[i] >= 0;
+				sp_bool isPositive = values[i] >= 0;
 
 				if (isPositive)
 					numberAsString = " " + numberAsString;
@@ -38,13 +38,15 @@ namespace OpenML
 			
 	public:
 
-		static void gaussianElimination(T *matrix, int rowSize);
+		static void gaussianElimination(T *matrix, const sp_int rowSize);
 
 		/// <summary>
 		/// Get the Homography Matrix (the transformation perspective matrix from a plane to another one)
 		/// <summary>
-		static Mat3<T> getPerspectiveTransform2D(Vec2<T> sourcePoints[4], Vec2<T> targetPoints[4]);	
+		static Mat3<T> getPerspectiveTransform2D(const Vec2<T> sourcePoints[4], const Vec2<T> targetPoints[4] );
 
 	};
 	
 }
+
+#endif // !MAT_HEADER

@@ -1,16 +1,14 @@
 #include "Vec3.h"
 
-using namespace OpenML;
-
 template <typename T>
-Vec3<T>::Vec3(T defaultValue) {
+Vec3<T>::Vec3(const T defaultValue) {
 	x = defaultValue;
 	y = defaultValue;
 	z = defaultValue;
 }
 
 template <typename T>
-Vec3<T>::Vec3(T x, T y, T z) {
+Vec3<T>::Vec3(const T x, const T y, const T z) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
@@ -130,7 +128,7 @@ void Vec3<T>::scale(T scale)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::rotateX(float angle)
+Vec3<T> Vec3<T>::rotateX(sp_float angle)
 {
 	return Vec3<T>(
 			x,
@@ -140,7 +138,7 @@ Vec3<T> Vec3<T>::rotateX(float angle)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::rotateX(float angle, Vec3<T> referencePoint)
+Vec3<T> Vec3<T>::rotateX(sp_float angle, Vec3<T> referencePoint)
 {
 	Vec3<T> direction = this->subtract(referencePoint);
 	angle *= -1.0f;
@@ -153,7 +151,7 @@ Vec3<T> Vec3<T>::rotateX(float angle, Vec3<T> referencePoint)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::rotateY(float angle)
+Vec3<T> Vec3<T>::rotateY(sp_float angle)
 {
 	return Vec3<T>(
 		T(x * cosf(angle) + z * sinf(angle)),
@@ -163,7 +161,7 @@ Vec3<T> Vec3<T>::rotateY(float angle)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::rotateY(float angle, Vec3<T> referencePoint)
+Vec3<T> Vec3<T>::rotateY(sp_float angle, Vec3<T> referencePoint)
 {
 	Vec3<T> direction = this->subtract(referencePoint);
 	angle *= -1.0f;
@@ -176,7 +174,7 @@ Vec3<T> Vec3<T>::rotateY(float angle, Vec3<T> referencePoint)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::rotateZ(float angle)
+Vec3<T> Vec3<T>::rotateZ(sp_float angle)
 {
 	return Vec3<T>(
 			T(x * cosf(angle) - y * sinf(angle)),
@@ -186,7 +184,7 @@ Vec3<T> Vec3<T>::rotateZ(float angle)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::rotateZ(float angle, Vec3<T> referencePoint)
+Vec3<T> Vec3<T>::rotateZ(sp_float angle, Vec3<T> referencePoint)
 {
 	Vec3<T> direction = this->subtract(referencePoint);
 
@@ -287,13 +285,13 @@ Vec3<T> Vec3<T>::fractional()
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::clone() const
+Vec3<T> Vec3<T>::clone()
 {
 	return Vec3<T>(x, y, z);
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator/(T value) const
+Vec3<T> Vec3<T>::operator/(const T value) const
 {
 	return Vec3<T>(
 		x / value,
@@ -303,7 +301,7 @@ Vec3<T> Vec3<T>::operator/(T value) const
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator/(Vec3<T> vector) const
+Vec3<T> Vec3<T>::operator/(const Vec3<T> vector)
 {
 	return Vec3<T>(
 		x / vector.x,
@@ -313,7 +311,7 @@ Vec3<T> Vec3<T>::operator/(Vec3<T> vector) const
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator*(T value) const
+Vec3<T> Vec3<T>::operator*(const T value) const
 {
 	return Vec3<T>(
 		x * value,
@@ -323,7 +321,7 @@ Vec3<T> Vec3<T>::operator*(T value) const
 }
 
 template <typename T>
-void Vec3<T>::operator*=(T value)
+void Vec3<T>::operator*=(const T value)
 {
 	x *= value;
 	y *= value;
@@ -337,16 +335,6 @@ Vec3<T> Vec3<T>::operator*(const Vec3<T>& vector) const
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator+(const Vec3<T>& vector)
-{
-	return Vec3<T>(
-		x + vector.x,
-		y + vector.y,
-		z + vector.z
-		);
-}
-
-template <typename T>
 Vec3<T> Vec3<T>::operator+(const Vec3<T>& vector) const
 {
 	return Vec3<T>(
@@ -357,7 +345,7 @@ Vec3<T> Vec3<T>::operator+(const Vec3<T>& vector) const
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator+=(Vec3<T>& vector)
+Vec3<T> Vec3<T>::operator+=(const Vec3<T>& vector)
 {
 	x += vector.x;
 	y += vector.y;
@@ -367,32 +355,12 @@ Vec3<T> Vec3<T>::operator+=(Vec3<T>& vector)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator+(T value)
+Vec3<T> Vec3<T>::operator+(const T value) const
 {
 	return Vec3<T>(
 		x + value,
 		y + value,
 		z + value
-		);
-}
-
-template <typename T>
-Vec3<T> Vec3<T>::operator+(T value) const
-{
-	return Vec3<T>(
-		x + value,
-		y + value,
-		z + value
-		);
-}
-
-template <typename T>
-Vec3<T> Vec3<T>::operator-(const Vec3<T>& vector)
-{
-	return Vec3<T>(
-		x - vector.x,
-		y - vector.y,
-		z - vector.z
 		);
 }
 
@@ -407,14 +375,6 @@ Vec3<T> Vec3<T>::operator-(const Vec3<T>& vector) const
 }
 
 template <typename T>
-void Vec3<T>::operator-=(const Vec3<T>& vector)
-{
-	x -= vector.x;
-	y -= vector.y;
-	z -= vector.z;
-}
-
-template <typename T>
 Vec3<T> Vec3<T>::operator-=(const Vec3<T>& vector) const
 {
 	return Vec3<T>(
@@ -425,22 +385,12 @@ Vec3<T> Vec3<T>::operator-=(const Vec3<T>& vector) const
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator-(T value)
+Vec3<T> Vec3<T>::operator-(const T value) const
 {
 	return Vec3<T>(
 		x - value,
 		y - value,
 		z - value
-		);
-}
-
-template <typename T>
-Vec3<T> Vec3<T>::operator-()
-{
-	return Vec3<T>(
-		-x,
-		-y,
-		-z
 		);
 }
 
@@ -463,7 +413,7 @@ bool Vec3<T>::operator==(const Vec3<T>& vector) const
 }
 
 template <typename T>
-bool Vec3<T>::operator==(T value) const
+sp_bool Vec3<T>::operator==(const T value) const
 {
 	return x == value
 		&& y == value
@@ -471,7 +421,7 @@ bool Vec3<T>::operator==(T value) const
 }
 
 template <typename T>
-bool Vec3<T>::operator!=(const Vec3<T>& vector) const
+sp_bool Vec3<T>::operator!=(const Vec3<T>& vector) const
 {
 	return x != vector.x
 		|| y != vector.y
@@ -479,7 +429,7 @@ bool Vec3<T>::operator!=(const Vec3<T>& vector) const
 }
 
 template <typename T>
-bool Vec3<T>::operator!=(T value) const
+sp_bool Vec3<T>::operator!=(const T value) const
 {
 	return x != value
 		|| y != value
@@ -487,15 +437,29 @@ bool Vec3<T>::operator!=(T value) const
 }
 
 template <typename T>
-T& Vec3<T>::operator[](int index)
+T& Vec3<T>::operator[](sp_int index)
 {
 	assert(index >= 0 && index < VEC3_SIZE);
 
 	return reinterpret_cast<T*>(this)[index];
 }
+template <typename T>
+T Vec3<T>::operator[](sp_int index) const
+{
+	assert(index >= 0 && index < VEC3_SIZE);
+
+	return reinterpret_cast<const T*>(this)[index];
+}
 
 template <typename T>
-T Vec3<T>::operator[](int index) const
+T& Vec3<T>::operator[](sp_uint index)
+{
+	assert(index >= 0 && index < VEC3_SIZE);
+
+	return reinterpret_cast<T*>(this)[index];
+}
+template <typename T>
+T Vec3<T>::operator[](sp_uint index) const
 {
 	assert(index >= 0 && index < VEC3_SIZE);
 
@@ -505,7 +469,7 @@ T Vec3<T>::operator[](int index) const
 template <typename T>
 Vec3<T>::operator void*() const
 {
-	return (void*)(this);
+	return (void*) this;
 }
 
 template <typename T>
@@ -521,7 +485,7 @@ Vec3<T>::operator T*()
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator+=(T value) 
+Vec3<T> Vec3<T>::operator+=(const T value) 
 {
 	return Vec3<T>(
 		x + value,
@@ -531,7 +495,7 @@ Vec3<T> Vec3<T>::operator+=(T value)
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator-=(T value)  const
+Vec3<T> Vec3<T>::operator-=(const T value)
 {
 	return Vec3<T>(
 		x - value,
@@ -552,7 +516,7 @@ Vec3<T>& Vec3<T>::operator=(const Vec3<T>& vector)
 
 namespace OpenML
 {
-	template class Vec3<int>;
-	template class Vec3<float>;
-	template class Vec3<double>;
+	template class Vec3<sp_int>;
+	template class Vec3<sp_float>;
+	template class Vec3<sp_double>;
 }

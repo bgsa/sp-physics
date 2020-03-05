@@ -8,21 +8,21 @@ Vec3List<T>::Vec3List()
 }
 
 template <typename T>
-Vec3List<T>::Vec3List(Vec3<T>* points, int count)
+Vec3List<T>::Vec3List(Vec3<T>* points, const sp_int count)
 {
 	this->points = points;
 	this->count = count;
 }
 
 template <typename T>
-int* Vec3List<T>::findExtremePointsAlongDirection(const Vec3<T>& direction) const
+sp_int* Vec3List<T>::findExtremePointsAlongDirection(const Vec3<T>& direction) const
 {
 	T minProjection = std::numeric_limits<T>().max();
 	T maxProjection = -minProjection;
 
-	int* result = ALLOC_ARRAY(int, 2);
+	sp_int* result = ALLOC_ARRAY(int, 2);
 		
-	for (int i = 0; i < count; i++) 
+	for (sp_uint i = 0; i < count; i++) 
 	{ 
 		// Project vector from origin to point onto direction vector 
 		T projection = points[i].dot(direction);
@@ -44,25 +44,25 @@ int* Vec3List<T>::findExtremePointsAlongDirection(const Vec3<T>& direction) cons
 }
 
 template <typename T>
-int* Vec3List<T>::findExtremePointsAlongAxisX() const
+sp_int* Vec3List<T>::findExtremePointsAlongAxisX() const
 {
 	return findExtremePointsAlongDirection(Vec3<T>(T(1), T(0), T(0)));
 }
 
 template <typename T>
-int* Vec3List<T>::findExtremePointsAlongAxisY() const
+sp_int* Vec3List<T>::findExtremePointsAlongAxisY() const
 {
 	return findExtremePointsAlongDirection(Vec3<T>(T(0), T(1), T(0)));
 }
 
 template <typename T>
-int* Vec3List<T>::findExtremePointsAlongAxisZ() const
+sp_int* Vec3List<T>::findExtremePointsAlongAxisZ() const
 {
 	return findExtremePointsAlongDirection(Vec3<T>(T(0), T(0), T(1)));
 }
 
 template <typename T>
-int* Vec3List<T>::findExtremePointsAlongAxisXYZ() const
+sp_int* Vec3List<T>::findExtremePointsAlongAxisXYZ() const
 {
 	T maxValue = std::numeric_limits<T>().max();
 
@@ -125,11 +125,11 @@ int* Vec3List<T>::findExtremePointsAlongAxisXYZ() const
 }
 
 template <typename T>
-T Vec3List<T>::covarianceOnAxis(int axisIndex) const
+T Vec3List<T>::covarianceOnAxis(const sp_int axisIndex) const
 { 
 	T u = T(0);
 	
-	for (int i = 0; i < count; i++) 
+	for (sp_uint i = 0; i < count; i++) 
 		u += points[i][axisIndex];
 	u /= count; 
 
@@ -149,12 +149,12 @@ Mat3<T> Vec3List<T>::covariance() const
 	T e00 = T(0), e11 = T(0), e22 = T(0), e01 = T(0), e02 = T(0), e12 = T(0);
 	
 	// Compute the center of mass (centroid) of the points 
-	for (int i = 0; i < count; i++)
+	for (sp_uint i = 0; i < count; i++)
 		centerOfMass += points[i];
 	centerOfMass *= oon;
 	
 	// Compute covariance elements 
-	for (int i = 0; i < count; i++) 
+	for (sp_uint i = 0; i < count; i++) 
 	{ 
 		// Translate points so center of mass is at origin 
 		Vec3<T> p = points[i] - centerOfMass;
@@ -181,10 +181,10 @@ int* Vec3List<T>::closestPoint_UsingBruteForce() const
 {
 	T minimunDistance = std::numeric_limits<T>().max();
 
-	int* result = ALLOC_ARRAY(int, 2);
+	sp_int* result = ALLOC_ARRAY(sp_int, 2);
 
-	for (int i = 0; i < count; i++)
-		for (int j = i+1; j < count; j++)
+	for (sp_uint i = 0; i < count; i++)
+		for (sp_uint j = i+1; j < count; j++)
 		{
 			T currentDistance = points[i].squaredDistance(points[j]);
 
@@ -213,7 +213,7 @@ Vec3List<T>::~Vec3List()
 
 namespace OpenML
 {
-	template class Vec3List<int>;
-	template class Vec3List<float>;
-	template class Vec3List<double>;
+	template class Vec3List<sp_int>;
+	template class Vec3List<sp_float>;
+	template class Vec3List<sp_double>;
 }

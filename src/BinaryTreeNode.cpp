@@ -1,6 +1,71 @@
 #include "BinaryTreeNode.h"
 
 template <typename T>
+void preOrder(BinaryTreeNode<T>* node, std::vector<T>& list)
+{
+	list.push_back(node->value);
+
+	if (node->leftNode() != nullptr)
+		preOrder(node->leftNode(), list);
+
+	if (node->rightNode() != nullptr)
+		preOrder(node->rightNode(), list);
+}
+
+template <typename T>
+void postOrder(BinaryTreeNode<T>* node, std::vector<T>& list)
+{
+	if (node->leftNode() != nullptr)
+		postOrder(node->leftNode(), list);
+
+	if (node->rightNode() != nullptr)
+		postOrder(node->rightNode(), list);
+
+	list.push_back(node->value);
+}
+
+template <typename T>
+void inOrder(BinaryTreeNode<T>* node, std::vector<T>& list)
+{
+	if (node->leftNode() != nullptr)
+		inOrder(node->leftNode(), list);
+
+	list.push_back(node->value);
+
+	if (node->rightNode() != nullptr)
+		inOrder(node->rightNode(), list);
+}
+
+template <typename T>
+void levelOrder(BinaryTreeNode<T>* node, std::vector<T>& list, int level)
+{
+	if (node == nullptr)
+		return;
+
+	if (level == 1)
+		list.push_back(node->value);
+	else 
+		if (level > 1)
+		{
+			levelOrder(node->leftNode(), list, level - 1);
+			levelOrder(node->rightNode(), list, level - 1);
+		}
+}
+
+template <typename T>
+void leafsSearch(BinaryTreeNode<T>* node, std::vector<T>& list)
+{
+	if (node == nullptr)
+		return;
+	
+	leafsSearch(node->leftNode(), list);
+	leafsSearch(node->rightNode(), list);
+
+	if (node->isLeaf())
+		list.push_back(node->value);
+}
+
+template <typename T>
 BinaryTreeNode<T>::BinaryTreeNode()
 {
 }
@@ -183,71 +248,6 @@ std::vector<T> BinaryTreeNode<T>::leafs()
 	leafsSearch(this, list);
 
 	return list;
-}
-
-template <typename T>
-void preOrder(BinaryTreeNode<T>* node, std::vector<T>& list)
-{
-	list.push_back(node->value);
-
-	if (node->leftNode() != nullptr)
-		preOrder(node->leftNode(), list);
-
-	if (node->rightNode() != nullptr)
-		preOrder(node->rightNode(), list);
-}
-
-template <typename T>
-void postOrder(BinaryTreeNode<T>* node, std::vector<T>& list)
-{
-	if (node->leftNode() != nullptr)
-		postOrder(node->leftNode(), list);
-
-	if (node->rightNode() != nullptr)
-		postOrder(node->rightNode(), list);
-
-	list.push_back(node->value);
-}
-
-template <typename T>
-void inOrder(BinaryTreeNode<T>* node, std::vector<T>& list)
-{
-	if (node->leftNode() != nullptr)
-		inOrder(node->leftNode(), list);
-
-	list.push_back(node->value);
-
-	if (node->rightNode() != nullptr)
-		inOrder(node->rightNode(), list);
-}
-
-template <typename T>
-void levelOrder(BinaryTreeNode<T>* node, std::vector<T>& list, int level)
-{
-	if (node == nullptr)
-		return;
-
-	if (level == 1)
-		list.push_back(node->value);
-	else 
-		if (level > 1)
-		{
-			levelOrder(node->leftNode(), list, level - 1);
-			levelOrder(node->rightNode(), list, level - 1);
-		}
-}
-
-template <typename T>
-void leafsSearch(BinaryTreeNode<T>* node, std::vector<T>& list)
-{
-	if (node == nullptr)
-		return;
-	
-	leafsSearch(node->leftNode(), list);
-	leafsSearch(node->rightNode(), list);
-
-	if (node->isLeaf())
-		list.push_back(node->value);
 }
 
 template <typename T>

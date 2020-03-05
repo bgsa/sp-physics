@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VEC2_LIST_HEADER
+#define VEC2_LIST_HEADER
 
 #include "Vec2.h"
 #include <stack>
@@ -14,8 +15,8 @@ namespace OpenML
 	private:
 		std::vector<Vec2<T>> list;
 
-		std::stack<Vec2<T>> convexUpperHull();
-		std::stack<Vec2<T>> convexLowerHull();
+		std::stack<Vec2<T>> convexUpperHull() const;
+		std::stack<Vec2<T>> convexLowerHull() const;
 
 	public:
 
@@ -32,12 +33,12 @@ namespace OpenML
 		/// <summary>
 		/// Add the vetor to list
 		/// </summary>	
-		API_INTERFACE inline void add(Vec2<T> &value);
+		API_INTERFACE inline void add(const Vec2<T>& value);
 
 		/// <summary>
 		/// Get the size of the list
 		/// </summary>	
-		API_INTERFACE inline size_t size();
+		API_INTERFACE inline size_t size() const;
 
 		/// <summary>
 		/// Find the vector that contains the minimum X value
@@ -82,7 +83,7 @@ namespace OpenML
 		/// <summary>
 		/// Get te convex Upper hull from point list
 		/// </summary>		
-		API_INTERFACE Vec2List<T> convexHull();
+		API_INTERFACE Vec2List<T> convexHull() const;
 
 	};
 
@@ -91,3 +92,5 @@ namespace OpenML
 	typedef Vec2List<double> Vec2dList;
 
 }
+
+#endif // !VEC2_LIST_HEADER

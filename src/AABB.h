@@ -37,11 +37,6 @@ namespace OpenML
 		///<summary>
 		///Get the center of AABB
 		///</summary>
-		API_INTERFACE inline Vec3f center();
-
-		///<summary>
-		///Get the center of AABB
-		///</summary>
 		API_INTERFACE inline Vec3f center() const;
 
 		///<summary>

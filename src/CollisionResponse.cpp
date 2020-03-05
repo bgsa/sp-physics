@@ -1,6 +1,5 @@
 #include "CollisionResponse.h"
 
-
 CollisionResponse::CollisionResponse() 
 {
 	;
@@ -15,8 +14,11 @@ void CollisionResponse::separeteSpheres(Sphere* sphere1, Sphere* sphere2)
 {
 	float factor = ((sphere1->ray + sphere2->ray) - sphere2->center.distance(sphere1->center)) * 0.5f;
 	
-	sphere1->center += sphere1->particleSystem->particles[0].direction() * -factor;
-	sphere2->center += sphere2->particleSystem->particles[0].direction() * -factor;
+	Vec3f center1 = sphere1->particleSystem->particles[0].direction() * -factor;
+	Vec3f center2 = sphere2->particleSystem->particles[0].direction() * -factor;
+
+	sphere1->center += center1;
+	sphere2->center += center2;
 
 	sphere1->particleSystem->particles[0].position = sphere1->center;
 	sphere2->particleSystem->particles[0].position = sphere2->center;
@@ -62,8 +64,8 @@ CollisionResponse* CollisionResponse::handle(Sphere* sphere1, Sphere* sphere2)
 	Vec3f nr1 = ((particle1.position - particle1.previousPosition) + (particle1.position - contactPoint)).normalize();
 	Vec3f nr2 = ((particle2.position - particle2.previousPosition) + (particle2.position - contactPoint)).normalize();
 
-	response->object1Impulse = (j * nr1) * particle1.inverseMass;
-	response->object2Impulse = (j * nr2) * particle2.inverseMass;
+	response->object1Impulse = (nr1 * j) * particle1.inverseMass;
+	response->object2Impulse = (nr2 * j) * particle2.inverseMass;
 
 	return response;
 }

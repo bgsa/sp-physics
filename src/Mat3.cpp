@@ -1,9 +1,7 @@
 #include "Mat3.h"
 
-using namespace OpenML;
-
 template <typename T>
-Mat3<T>::Mat3(T defaultValue)
+Mat3<T>::Mat3(const T defaultValue)
 {
 	static T emptyMatrix[MAT3_SIZE] = {
 		defaultValue, defaultValue, defaultValue,
@@ -11,19 +9,20 @@ Mat3<T>::Mat3(T defaultValue)
 		defaultValue, defaultValue, defaultValue
 	};
 
-	memcpy(&values, emptyMatrix, sizeof(values));
+	std::memcpy(&values, emptyMatrix, sizeof(values));
 }
 
 template <typename T>
 Mat3<T>::Mat3(T* values)
 {
-	memcpy(&this->values, values, sizeof(this->values));
+	std::memcpy(&this->values, values, sizeof(this->values));
 }
 
 template <typename T>
-Mat3<T>::Mat3(T value11, T value21, T value31,
-	T value12, T value22, T value32,
-	T value13, T value23, T value33)
+Mat3<T>::Mat3(
+	const T value11, const T value21, const T value31,
+	const T value12, const T value22, const T value32,
+	const T value13, const T value23, const T value33)
 {
 	values[0] = value11;
 	values[1] = value21;
@@ -43,16 +42,13 @@ T* Mat3<T>::getValues()
 }
 
 template <typename T>
-T Mat3<T>::getValue(int x, int y)
+T Mat3<T>::getValue(const sp_int x, const sp_int y) const
 {
-	x--;
-	y--;
-
-	return values[y * MAT3_ROWSIZE + x];
+	return values[(y-1) * MAT3_ROWSIZE + (x-1)];
 }
 
 template <typename T>
-Vec3<T> Mat3<T>::getAxis(int index) const
+Vec3<T> Mat3<T>::getAxis(const sp_int index) const
 {
 #if MAJOR_COLUMN_ORDER
 
@@ -231,17 +227,17 @@ Vec3<T> Mat3<T>::multiply(const Vec3<T>& vector) const
 }
 
 template <typename T>
-T Mat3<T>::determinantIJ(size_t i, size_t j) const
+T Mat3<T>::determinantIJ(const sp_size i, const sp_size j) const
 {
 	T* matrixValues = ALLOC_ARRAY(T, 4);
-	size_t index = 0;
+	sp_size index = 0;
 
-	for (size_t row = 0; row < MAT3_ROWSIZE; row++)
+	for (sp_size row = 0; row < MAT3_ROWSIZE; row++)
 	{
 		if (i == row)
 			continue;
 
-		for (size_t column = 0; column < MAT3_ROWSIZE; column++)
+		for (sp_size column = 0; column < MAT3_ROWSIZE; column++)
 		{
 			if (j == column)
 				continue;
@@ -258,7 +254,7 @@ T Mat3<T>::determinantIJ(size_t i, size_t j) const
 }
 
 template <typename T>
-T Mat3<T>::cofactorIJ(size_t i, size_t j) const
+T Mat3<T>::cofactorIJ(const sp_size i, const sp_size j) const
 {
 	T determinantIJValue = determinantIJ(i, j);
 
@@ -269,7 +265,7 @@ T Mat3<T>::cofactorIJ(size_t i, size_t j) const
 }
 
 template <typename T>
-Mat3<T> Mat3<T>::createScale(T xScale, T yScale, T zScale)
+Mat3<T> Mat3<T>::createScale(const T xScale, const T yScale, const T zScale)
 {
 	Mat3<T> result = Mat3<T>::identity();
 
@@ -279,7 +275,7 @@ Mat3<T> Mat3<T>::createScale(T xScale, T yScale, T zScale)
 }
 
 template <typename T>
-void Mat3<T>::scale(T xScale, T yScale, T zScale)
+void Mat3<T>::scale(const T xScale, const T yScale, const T zScale)
 {
 	values[0] *= xScale;
 	values[4] *= yScale;
@@ -287,34 +283,31 @@ void Mat3<T>::scale(T xScale, T yScale, T zScale)
 }
 
 template <typename T>
-Mat3<T> Mat3<T>::createRotate(T angleRadians, T x, T y, T z)
-{
-	T mag, sine, cosine;
-	T xx, yy, zz, xy, yz, zx, xs, ys, zs, one_c;
+Mat3<T> Mat3<T>::createRotate(const T angleRadians, const T x, const T y, const T z)
+{	
+	const T sine = T(sin(angleRadians));
+	const T cosine = T(cos(angleRadians));
 
-	sine = T(sin(angleRadians));
-	cosine = T(cos(angleRadians));
-
-	mag = T(sqrt(x*x + y * y + z * z));
+	const T mag = T(sqrt(x*x + y * y + z * z));
 
 	if (mag == 0.0f)
 		return Mat3::identity();
 
 	// Rotation matrix is normalized
-	x /= mag;
-	y /= mag;
-	z /= mag;
+	const T x1 = x / mag;
+	const T y1 = y / mag;
+	const T z1 = z / mag;
 
-	xx = x * x;
-	yy = y * y;
-	zz = z * z;
-	xy = x * y;
-	yz = y * z;
-	zx = z * x;
-	xs = x * sine;
-	ys = y * sine;
-	zs = z * sine;
-	one_c = T(1) - cosine;
+	const T xx = x1 * x1;
+	const T yy = y1 * y1;
+	const T zz = z1 * z1;
+	const T xy = x1 * y1;
+	const T yz = y1 * z1;
+	const T zx = z1 * x1;
+	const T xs = x1 * sine;
+	const T ys = y1 * sine;
+	const T zs = z1 * sine;
+	const T one_c = T(1) - cosine;
 
 	Mat3<T> result;
 
@@ -334,7 +327,7 @@ Mat3<T> Mat3<T>::createRotate(T angleRadians, T x, T y, T z)
 }
 
 template <typename T>
-Mat3<T> Mat3<T>::createTranslate(T x, T y, T z)
+Mat3<T> Mat3<T>::createTranslate(const T x, const T y, const T z)
 {
 	Mat3<T> result = Mat3<T>::identity();
 
@@ -385,7 +378,7 @@ T Mat3<T>::determinant() const
 }
 
 template <typename T>
-Mat3<T> Mat3<T>::invert()
+Mat3<T> Mat3<T>::invert() const
 {
 	Mat3<T> matrixInverse;
 	T detij;
@@ -407,7 +400,7 @@ Mat3<T> Mat3<T>::invert()
 }
 
 template <typename T>
-bool Mat3<T>::isIdentity() const
+sp_bool Mat3<T>::isIdentity() const
 {
 	Mat3<T> identityMatrix = Mat3<T>::identity();
 
@@ -419,7 +412,7 @@ bool Mat3<T>::isIdentity() const
 }
 
 template <typename T>
-size_t Mat3<T>::sizeInBytes() const
+sp_size Mat3<T>::sizeInBytes() const
 {
 	return MAT3_SIZE * sizeof(T);
 }
@@ -435,7 +428,14 @@ Mat3<T> Mat3<T>::clone() const
 }
 
 template <typename T>
-T& Mat3<T>::operator[](int index)
+T& Mat3<T>::operator[](sp_int index)
+{
+	assert(index >= 0 && index < MAT3_SIZE);
+
+	return values[index];
+}
+template <typename T>
+T Mat3<T>::operator[](sp_int index) const
 {
 	assert(index >= 0 && index < MAT3_SIZE);
 
@@ -443,7 +443,29 @@ T& Mat3<T>::operator[](int index)
 }
 
 template <typename T>
-T Mat3<T>::operator[](int index) const
+T& Mat3<T>::operator[](sp_uint index)
+{
+	assert(index >= 0 && index < MAT3_SIZE);
+
+	return values[index];
+}
+template <typename T>
+T Mat3<T>::operator[](sp_uint index) const
+{
+	assert(index >= 0 && index < MAT3_SIZE);
+
+	return values[index];
+}
+
+template <typename T>
+T& Mat3<T>::operator[](sp_size index)
+{
+	assert(index >= 0 && index < MAT3_SIZE);
+
+	return values[index];
+}
+template <typename T>
+T Mat3<T>::operator[](sp_size index) const
 {
 	assert(index >= 0 && index < MAT3_SIZE);
 
@@ -514,7 +536,7 @@ void Mat3<T>::operator*=(const Mat3<T>& matrix)
 }
 
 template <typename T>
-Mat3<T> Mat3<T>::operator/(T value)
+Mat3<T> Mat3<T>::operator/(const T value) const
 {
 	return Mat3<T> {
 		values[0] / value, values[1] / value, values[2] / value,
@@ -524,16 +546,16 @@ Mat3<T> Mat3<T>::operator/(T value)
 }
 
 template <typename T>
-void Mat3<T>::operator/=(T value)
+void Mat3<T>::operator/=(const T value)
 {
-	for (int i = 0; i < MAT3_SIZE; i++)
+	for (sp_int i = 0; i < MAT3_SIZE; i++)
 		values[i] /= value;
 }
 
 template <typename T>
-bool Mat3<T>::operator==(const Mat3<T>& matrix)
+sp_bool Mat3<T>::operator==(const Mat3<T>& matrix) const
 {
-	for (int i = 0; i < MAT3_SIZE; i++)
+	for (sp_int i = 0; i < MAT3_SIZE; i++)
 		if (values[i] != matrix[i])
 			return false;
 
@@ -541,9 +563,9 @@ bool Mat3<T>::operator==(const Mat3<T>& matrix)
 }
 
 template <typename T>
-bool Mat3<T>::operator!=(const Mat3<T>& matrix)
+sp_bool Mat3<T>::operator!=(const Mat3<T>& matrix) const
 {
-	for (int i = 0; i < MAT3_SIZE; i++)
+	for (sp_int i = 0; i < MAT3_SIZE; i++)
 		if (values[i] != matrix[i])
 			return true;
 
@@ -551,9 +573,9 @@ bool Mat3<T>::operator!=(const Mat3<T>& matrix)
 }
 
 template <typename T>
-bool Mat3<T>::operator==(T value)
+sp_bool Mat3<T>::operator==(const T value) const
 {
-	for (int i = 0; i < MAT3_SIZE; i++)
+	for (sp_int i = 0; i < MAT3_SIZE; i++)
 		if (values[i] != value)
 			return false;
 
@@ -561,7 +583,7 @@ bool Mat3<T>::operator==(T value)
 }
 
 template <typename T>
-std::string Mat3<T>::toString()
+std::string Mat3<T>::toString() const
 {
 	return Mat<T>::toString(values, MAT3_SIZE);
 }
@@ -576,13 +598,13 @@ Mat3<T>* Mat3<T>::decomposeLU() const
 	std::vector<Mat3<T>> elementarInverseMatrixes;
 	Mat3<T> elementarInverseMatrix;
 
-	int rowSize = MAT3_ROWSIZE;
-	int colSize = MAT3_ROWSIZE;
+	sp_int rowSize = MAT3_ROWSIZE;
+	sp_int colSize = MAT3_ROWSIZE;
 
 #if MAJOR_COLUMN_ORDER
-	int pivotRowIndex = 0;
+	sp_int pivotRowIndex = 0;
 
-	for (int column = 0; column < colSize; column++)
+	for (sp_int column = 0; column < colSize; column++)
 	{
 		T pivot = upperMatrix[pivotRowIndex * rowSize + column];
 		T pivotOperator = 1 / pivot;
@@ -594,7 +616,7 @@ Mat3<T>* Mat3<T>::decomposeLU() const
 		elementarInverseMatrix[pivotRowIndex * rowSize + column] = pivot;
 		elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
-		for (int lowerColumns = column + 1; lowerColumns < rowSize; lowerColumns++)
+		for (sp_int lowerColumns = column + 1; lowerColumns < rowSize; lowerColumns++)
 		{
 			pivot = upperMatrix[pivotRowIndex * rowSize + lowerColumns];
 			pivotOperator = -pivot;
@@ -610,29 +632,29 @@ Mat3<T>* Mat3<T>::decomposeLU() const
 		pivotRowIndex++;
 	}
 
-	for (int i = 0; size_t(i) < elementarInverseMatrixes.size(); i++)
+	for (sp_int i = 0; sp_size(i) < elementarInverseMatrixes.size(); i++)
 		lowerMatrix *= elementarInverseMatrixes[i];
 #else
-	size_t pivotColumnIndex = 0;
+	sp_size pivotColumnIndex = 0;
 
-	for (size_t line = 0; line < rowSize; line++)
+	for (sp_size line = 0; line < rowSize; line++)
 	{
 		T pivot = upperMatrix[line * rowSize + pivotColumnIndex];
 		T pivotOperator = 1 / pivot;
 
-		for (int column = 0; column < colSize; column++)
+		for (sp_int column = 0; column < colSize; column++)
 			upperMatrix[line * rowSize + column] *= pivotOperator;
 
 		elementarInverseMatrix = Mat3<T>::identity();
 		elementarInverseMatrix[line * rowSize + pivotColumnIndex] = pivot;
 		elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
-		for (int lowerLines = line + 1; lowerLines < rowSize; lowerLines++)
+		for (sp_int lowerLines = line + 1; lowerLines < rowSize; lowerLines++)
 		{
 			pivot = upperMatrix[lowerLines * rowSize + pivotColumnIndex];
 			pivotOperator = -pivot;
 
-			for (int column = 0; column < colSize; column++)
+			for (sp_int column = 0; column < colSize; column++)
 				upperMatrix[lowerLines * rowSize + column] += pivotOperator * upperMatrix[line * rowSize + column];
 
 			elementarInverseMatrix = Mat3<T>::identity();
@@ -643,7 +665,7 @@ Mat3<T>* Mat3<T>::decomposeLU() const
 		pivotColumnIndex++;
 	}
 
-	for (int i = 0; size_t(i) < elementarInverseMatrixes.size(); i++)
+	for (sp_int i = 0; sp_size(i) < elementarInverseMatrixes.size(); i++)
 		lowerMatrix *= elementarInverseMatrixes[i];
 #endif
 
@@ -665,7 +687,7 @@ Mat3<T>* Mat3<T>::decomposeLDU() const
 	int diagonalIndex = 0;
 
 #if MAJOR_COLUMN_ORDER
-	for (int column = 0; column < MAT3_ROWSIZE; column++)
+	for (sp_int column = 0; column < MAT3_ROWSIZE; column++)
 	{
 		T pivot = upperMatrix[diagonalIndex * MAT3_ROWSIZE + column];
 
@@ -677,7 +699,7 @@ Mat3<T>* Mat3<T>::decomposeLDU() const
 		diagonalIndex++;
 	}
 #else
-	for (int row = 0; row < MAT3_ROWSIZE; row++)
+	for (sp_int row = 0; row < MAT3_ROWSIZE; row++)
 	{
 		T pivot = upperMatrix[row * MAT3_ROWSIZE + diagonalIndex];
 
@@ -700,13 +722,13 @@ Mat3<T>* Mat3<T>::decomposeLDU() const
 }
 
 template <typename T>
-AutovalueAutovector3<T> Mat3<T>::getAutovalueAndAutovector(const unsigned short maxIteration) const
+AutovalueAutovector3<T> Mat3<T>::getAutovalueAndAutovector(const sp_ushort maxIteration) const
 {
 	Mat3<T> matrix = *this;
 	Vec3<T> autovector = { T(1), T(1), T(1) };
 	T autovalue;
 
-	for (unsigned short iterationIndex = 0; iterationIndex < maxIteration; iterationIndex++)
+	for (sp_short iterationIndex = 0; iterationIndex < maxIteration; iterationIndex++)
 	{
 		Vec3<T> ax = matrix * autovector;
 		autovalue = ax.maximum();
@@ -718,7 +740,7 @@ AutovalueAutovector3<T> Mat3<T>::getAutovalueAndAutovector(const unsigned short 
 
 namespace OpenML
 {
-	template class Mat3<int>;
-	template class Mat3<float>;
-	template class Mat3<double>;
+	template class Mat3<sp_int>;
+	template class Mat3<sp_float>;
+	template class Mat3<sp_double>;
 }

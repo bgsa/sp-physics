@@ -23,11 +23,6 @@ AABB::AABB(Vec3f minPoint, float width, float height, float depth)
 		);
 }
 
-Vec3f AABB::center()
-{
-	return (maxPoint + minPoint) * 0.5f;
-}
-
 Vec3f AABB::center() const
 {
 	return (maxPoint + minPoint) * 0.5f;

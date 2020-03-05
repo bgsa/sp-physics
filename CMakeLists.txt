@@ -45,8 +45,8 @@ else()
 endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-	set (GLFW_LIB_NAME "glfw3.lib")
-	set (IMGUI_LIB_NAME "imgui.lib")
+#	set (GLFW_LIB_NAME "glfw3.lib")
+#	set (IMGUI_LIB_NAME "imgui.lib")
 	set (SP_FOUNDATION_LIB_NAME "SpFoundation.lib")
 	set (CUSTOM_DEFINITIONS "-D_CRT_SECURE_NO_WARNINGS")
 	set (OPENCL_INCLUDE_DIRS ${OPENCL_DIR}/include)	
@@ -59,12 +59,12 @@ if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 	endif()
 
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" OR ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-	set (GLFW_LIB_NAME "libglfw3.a")
-	set (IMGUI_LIB_NAME "libimgui.a")
+#	set (GLFW_LIB_NAME "libglfw3.a")
+#	set (IMGUI_LIB_NAME "libimgui.a")
 	set (SP_FOUNDATION_LIB_NAME "libSpFoundation.a")
 	set (CUSTOM_DEFINITIONS "-Wno-dangling-else")	
 
-	find_package(GLEW   REQUIRED)
+#	find_package(GLEW   REQUIRED)
 	find_package(OpenCL REQUIRED)
 
 else()
@@ -73,21 +73,17 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
-file(GLOB HEADERS "src/*.h")
 file(GLOB SOURCES "src/*.cpp")
 
 include_directories(
-	${HEADERS}
+	./src
 	${SP_FOUNDATION_DIR}/src
 	${VENDOR_DIR}/include
-	${VENDOR_DIR}/glfw/include
+#	${VENDOR_DIR}/glfw/include
 	${VENDOR_DIR}
 	${OPENCL_INCLUDE_DIRS}
 	/usr/local/include
 )
-
-message(${OPENCL_INCLUDE_DIRS})
-message(${OPENCL_LIB_DIRS})
 
 link_directories(
 	${VENDOR_DIR}/lib
@@ -106,26 +102,26 @@ else()
 endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-    add_definitions(-DENV_32BITS -DAPI_EXPORT -DOPENGL -DGLFW_ENABLED -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DWINDOWS)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DWINDOWS)
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" )
-    add_definitions(-DENV_32BITS -DAPI_EXPORT -DOPENGL -DGLFW_ENABLED -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DLINUX)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DLINUX)
 elseif ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-    add_definitions(-DENV_32BITS -DAPI_EXPORT -DOPENGL -DGLFW_ENABLED -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DUNIX)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DUNIX)
 else()
     message(FATAL_ERROR "Operating System not defined!")
 endif()
 
 target_link_libraries(${PROJECT_NAME} 
-	${OPENGL_LIBRARY}
-	${GLEW_LIBRARIES}
-	${GLFW_LIB_NAME}
-	${IMGUI_LIB_NAME}
+#	${OPENGL_LIBRARY}
+#	${GLEW_LIBRARIES}
+#	${GLFW_LIB_NAME}
+#	${IMGUI_LIB_NAME}
 	${SP_FOUNDATION_LIB_NAME}
 	${OPENCL_LIBRARY}
 )
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-	target_link_libraries(${PROJECT_NAME} glew32s.lib)
+#	target_link_libraries(${PROJECT_NAME} glew32s.lib)
 elseif ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
 	target_link_libraries(${PROJECT_NAME}
 	    "-framework Cocoa"

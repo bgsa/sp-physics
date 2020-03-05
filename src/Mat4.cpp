@@ -1,11 +1,9 @@
 #include "Mat4.h"
 
-using namespace OpenML;
-
 template <typename T>
-Mat4<T>::Mat4(T defaultValue)
+Mat4<T>::Mat4(const T defaultValue)
 {
-	for (size_t i = 0; i < MAT4_SIZE; i++)
+	for (sp_ushort i = 0; i < MAT4_SIZE; i++)
 		values[i] = defaultValue;
 }
 
@@ -58,14 +56,15 @@ Mat4<T>::Mat4(const Vec4<T>& vector1, const Vec4<T>& vector2, const Vec4<T>& vec
 template <typename T>
 Mat4<T>::Mat4(T* values)
 {
-	memcpy(&this->values, values, sizeof(this->values));
+	std::memcpy(&this->values, values, sizeof(this->values));
 }
 
 template <typename T>
-Mat4<T>::Mat4(T value11, T value21, T value31, T value41,
-	T value12, T value22, T value32, T value42,
-	T value13, T value23, T value33, T value43,
-	T value14, T value24, T value34, T value44)
+Mat4<T>::Mat4(
+	const T value11, const T value21, const T value31, const T value41,
+	const T value12, const T value22, const T value32, const T value42,
+	const T value13, const T value23, const T value33, const T value43,
+	const T value14, const T value24, const T value34, const T value44)
 {
 	values[0] = value11;
 	values[1] = value21;
@@ -95,12 +94,9 @@ T* Mat4<T>::getValues()
 }
 
 template <typename T>
-T Mat4<T>::getValue(int x, int y)
+T Mat4<T>::getValue(const sp_int x, const sp_int y) const
 {
-	x--;
-	y--;
-
-	return values[y * MAT4_ROWSIZE + x];
+	return values[(y-1) * MAT4_ROWSIZE + (x-1)];
 }
 
 template <typename T>
@@ -216,7 +212,7 @@ Mat4<T> Mat4<T>::identity()
 	};
 
 	Mat4<T> result;
-	memcpy(&result, identityMatrix, sizeof(values));
+	std::memcpy(&result, identityMatrix, sizeof(values));
 
 	return result;
 }
@@ -263,7 +259,7 @@ Mat4<T> Mat4<T>::transpose() const
 template <typename T>
 T Mat4<T>::determinantIJ(int i, int j) const
 {
-	int x, y, ii, jj;
+	sp_int x, y, ii, jj;
 	T ret, mat[3][3];
 
 	x = 0;
@@ -294,7 +290,7 @@ T Mat4<T>::determinantIJ(int i, int j) const
 }
 
 template <typename T>
-T Mat4<T>::cofactorIJ(int i, int j) const
+T Mat4<T>::cofactorIJ(const sp_int i, const sp_int j) const
 {
 	T determinantIJValue = determinantIJ(i, j);
 
@@ -309,7 +305,7 @@ T Mat4<T>::determinant() const
 {
 	T det = T(0);
 
-	for (int i = 0; i < MAT4_ROWSIZE; i++)
+	for (sp_int i = 0; i < MAT4_ROWSIZE; i++)
 	{
 		det += (i & 0x1) ? 
 			  (-values[i] * determinantIJ(0, i)) 
@@ -422,7 +418,7 @@ Mat4<T> Mat4<T>::invert() const
 {
 	Mat4<T> mInverse;
 
-	int i, j;
+	sp_int i, j;
 	T det = T(0);
 	T detij;
 
@@ -447,7 +443,7 @@ Mat4<T> Mat4<T>::invert() const
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::createScale(T xScale, T yScale, T zScale)
+Mat4<T> Mat4<T>::createScale(const T xScale, const T yScale, const T zScale)
 {
 	Mat4<T> result = Mat4<T>::identity();
 
@@ -457,7 +453,7 @@ Mat4<T> Mat4<T>::createScale(T xScale, T yScale, T zScale)
 }
 
 template <typename T>
-void Mat4<T>::scale(T xScale, T yScale, T zScale)
+void Mat4<T>::scale(const T xScale, const T yScale, const T zScale)
 {
 	values[0] *= xScale;
 	values[5] *= yScale;
@@ -465,34 +461,31 @@ void Mat4<T>::scale(T xScale, T yScale, T zScale)
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::createRotate(T angleRadians, T x, T y, T z)
+Mat4<T> Mat4<T>::createRotate(const T angleRadians, const T x, const T y, const T z)
 {
-	T mag, sineAngle, cosineAngle;
-	T xx, yy, zz, xy, yz, zx, xs, ys, zs, one_c;
+	const T sineAngle = T(sin(angleRadians));
+	const T cosineAngle = T(cos(angleRadians));
 
-	sineAngle = T(sin(angleRadians));
-	cosineAngle = T(cos(angleRadians));
-
-	mag = T(sqrt(x*x + y * y + z * z));
+	const T mag = T(sqrt(x*x + y * y + z * z));
 
 	if (mag == 0.0f)
 		return Mat4::identity();
 
 	// Rotation matrix is normalized
-	x /= mag;
-	y /= mag;
-	z /= mag;
+	const T x1 = x / mag;
+	const T y1 = y / mag;
+	const T z1 = z / mag;
 
-	xx = x * x;
-	yy = y * y;
-	zz = z * z;
-	xy = x * y;
-	yz = y * z;
-	zx = z * x;
-	xs = x * sineAngle;
-	ys = y * sineAngle;
-	zs = z * sineAngle;
-	one_c = T(1) - cosineAngle;
+	const T xx = x * x;
+	const T yy = y * y;
+	const T zz = z * z;
+	const T xy = x * y;
+	const T yz = y * z;
+	const T zx = z * x;
+	const T xs = x * sineAngle;
+	const T ys = y * sineAngle;
+	const T zs = z * sineAngle;
+	const T one_c = T(1) - cosineAngle;
 
 	Mat4<T> result;
 
@@ -522,7 +515,7 @@ Mat4<T> Mat4<T>::createRotate(T angleRadians, T x, T y, T z)
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::createTranslate(T x, T y, T z)
+Mat4<T> Mat4<T>::createTranslate(const T x, const T y, const T z)
 {
 	Mat4<T> result = Mat4<T>::identity();
 
@@ -540,7 +533,7 @@ Mat4<T> Mat4<T>::createTranslate(T x, T y, T z)
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::createOrthographicMatrix(T xMin, T xMax, T yMin, T yMax, T zMin, T zMax)
+Mat4<T> Mat4<T>::createOrthographicMatrix(const T xMin, const T xMax, const T yMin, const T yMax, const T zMin, const T zMax)
 {
 	Mat4<T> projectionMatrix = Mat4<T>::identity();
 
@@ -556,7 +549,7 @@ Mat4<T> Mat4<T>::createOrthographicMatrix(T xMin, T xMax, T yMin, T yMax, T zMin
 }
 
 template <typename T>
-size_t Mat4<T>::sizeInBytes() const
+sp_size Mat4<T>::sizeInBytes() const
 {
 	return MAT4_SIZE * sizeof(T);
 }
@@ -566,17 +559,17 @@ Mat4<T> Mat4<T>::clone() const
 {
 	Mat4<T> result;
 
-	memcpy(&result, this, sizeof(Mat4<T>));
+	std::memcpy(&result, this, sizeof(Mat4<T>));
 
 	return result;
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::operator*(T value)  const
+Mat4<T> Mat4<T>::operator*(const T value)  const
 {
 	Mat4<T> result;
 
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		result[i] = values[i] * value;
 
 	return result;
@@ -585,7 +578,7 @@ Mat4<T> Mat4<T>::operator*(T value)  const
 template <typename T>
 void Mat4<T>::operator*=(const Mat4<T> &matrix)
 {
-	memcpy(&this->values, multiply(matrix).values, sizeof(this->values));
+	std::memcpy(&this->values, multiply(matrix).values, sizeof(this->values));
 }
 
 template <typename T>
@@ -601,7 +594,7 @@ Vec4<T> Mat4<T>::operator*(const Vec4<T> &vector) const
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::operator/(T value)
+Mat4<T> Mat4<T>::operator/(const T value) const
 {
 	return Mat4<T> {
 		values[0] / value, values[1] / value, values[2] / value, values[3] / value,
@@ -612,7 +605,7 @@ Mat4<T> Mat4<T>::operator/(T value)
 }
 
 template <typename T>
-void Mat4<T>::operator/=(T value)
+void Mat4<T>::operator/=(const T value)
 {
 	for (size_t i = 0; i < MAT4_SIZE; i++)
 		values[i] /= value;
@@ -623,7 +616,7 @@ Mat4<T> Mat4<T>::operator-() const
 {
 	Mat4<T> result;
 
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		result[i] = -values[i];
 
 	return result;
@@ -641,11 +634,11 @@ Mat4<T> Mat4<T>::operator+(const Mat4<T>& matrix) const
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::operator+(T value) const
+Mat4<T> Mat4<T>::operator+(const T value) const
 {
 	Mat4<T> result;
 
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		result[i] = values[i] + value;
 
 	return result;
@@ -656,27 +649,27 @@ Mat4<T> Mat4<T>::operator-(const Mat4<T>& matrix) const
 {
 	Mat4<T> result;
 
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		result[i] = values[i] - matrix[i];
 
 	return result;
 }
 
 template <typename T>
-Mat4<T> Mat4<T>::operator-(T value) const
+Mat4<T> Mat4<T>::operator-(const T value) const
 {
 	Mat4<T> result;
 
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		result[i] = values[i] - value;
 
 	return result;
 }
 
 template <typename T>
-bool Mat4<T>::operator==(const Mat4<T>& matrix) const
+sp_bool Mat4<T>::operator==(const Mat4<T>& matrix) const
 {
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		if (values[i] != matrix[i])
 			return false;
 
@@ -684,9 +677,9 @@ bool Mat4<T>::operator==(const Mat4<T>& matrix) const
 }
 
 template <typename T>
-bool Mat4<T>::operator==(T value) const
+sp_bool Mat4<T>::operator==(const T value) const
 {
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		if (values[i] != value)
 			return false;
 
@@ -694,9 +687,9 @@ bool Mat4<T>::operator==(T value) const
 }
 
 template <typename T>
-bool Mat4<T>::operator!=(const Mat4<T>& matrix) const
+sp_bool Mat4<T>::operator!=(const Mat4<T>& matrix) const
 {
-	for (int i = 0; i < MAT4_SIZE; i++)
+	for (sp_int i = 0; i < MAT4_SIZE; i++)
 		if (values[i] != matrix[i])
 			return true;
 
@@ -704,7 +697,7 @@ bool Mat4<T>::operator!=(const Mat4<T>& matrix) const
 }
 
 template <typename T>
-T& Mat4<T>::operator[](int index)
+T& Mat4<T>::operator[](const sp_int index)
 {
 	assert(index >= 0 && index < MAT4_SIZE);
 
@@ -712,7 +705,7 @@ T& Mat4<T>::operator[](int index)
 }
 
 template <typename T>
-T Mat4<T>::operator[](int index) const
+T Mat4<T>::operator[](const sp_int index) const
 {
 	assert(index >= 0 && index < MAT4_SIZE);
 
@@ -748,7 +741,7 @@ Mat3<T> Mat4<T>::toMat3() const
 }
 
 template <typename T>
-std::string Mat4<T>::toString()
+std::string Mat4<T>::toString() const
 {
 	return Mat<T>::toString(values, MAT4_SIZE);
 }
@@ -767,21 +760,21 @@ Mat4<T>* Mat4<T>::decomposeLU() const
 	int colSize = MAT4_ROWSIZE;
 
 #if MAJOR_COLUMN_ORDER
-	int pivotRowIndex = 0;
+	sp_int pivotRowIndex = 0;
 
-	for (int column = 0; column < colSize; column++)
+	for (sp_int column = 0; column < colSize; column++)
 	{
 		T pivot = upperMatrix[pivotRowIndex * rowSize + column];
 		T pivotOperator = 1 / pivot;
 
-		for (int row = 0; row < rowSize; row++)
+		for (sp_int row = 0; row < rowSize; row++)
 			upperMatrix[row * rowSize + column] *= pivotOperator;
 
 		elementarInverseMatrix = Mat4<T>::identity();
 		elementarInverseMatrix[pivotRowIndex * rowSize + column] = pivot;
 		elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
-		for (int lowerColumns = column + 1; lowerColumns < rowSize; lowerColumns++)
+		for (sp_int lowerColumns = column + 1; lowerColumns < rowSize; lowerColumns++)
 		{
 			pivot = upperMatrix[pivotRowIndex * rowSize + lowerColumns];
 			pivotOperator = -pivot;
@@ -797,24 +790,24 @@ Mat4<T>* Mat4<T>::decomposeLU() const
 		pivotRowIndex++;
 	}
 
-	for (int i = 0; size_t(i) < elementarInverseMatrixes.size(); i++)
+	for (sp_int i = 0; sp_size(i) < elementarInverseMatrixes.size(); i++)
 		lowerMatrix *= elementarInverseMatrixes[i];
 #else
-	int pivotColumnIndex = 0;
+	sp_int pivotColumnIndex = 0;
 
-	for (int line = 0; line < rowSize; line++)
+	for (sp_int line = 0; line < rowSize; line++)
 	{
 		T pivot = upperMatrix[line * rowSize + pivotColumnIndex];
 		T pivotOperator = 1 / pivot;
 
-		for (int column = 0; column < colSize; column++)
+		for (sp_int column = 0; column < colSize; column++)
 			upperMatrix[line * rowSize + column] *= pivotOperator;
 
 		elementarInverseMatrix = Mat4<T>::identity();
 		elementarInverseMatrix[line * rowSize + pivotColumnIndex] = pivot;
 		elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
-		for (int lowerLines = line + 1; lowerLines < rowSize; lowerLines++)
+		for (sp_int lowerLines = line + 1; lowerLines < rowSize; lowerLines++)
 		{
 			pivot = upperMatrix[lowerLines * rowSize + pivotColumnIndex];
 			pivotOperator = -pivot;
@@ -830,7 +823,7 @@ Mat4<T>* Mat4<T>::decomposeLU() const
 		pivotColumnIndex++;
 	}
 
-	for (int i = 0; size_t(i) < elementarInverseMatrixes.size(); i++)
+	for (sp_int i = 0; sp_size(i) < elementarInverseMatrixes.size(); i++)
 		lowerMatrix *= elementarInverseMatrixes[i];
 #endif
 
@@ -852,25 +845,25 @@ Mat4<T>* Mat4<T>::decomposeLDU() const
 	unsigned short diagonalIndex = 0;
 
 #if MAJOR_COLUMN_ORDER
-	for (int column = 0; column < MAT4_ROWSIZE; column++)
+	for (sp_int column = 0; column < MAT4_ROWSIZE; column++)
 	{
 		T pivot = upperMatrix[diagonalIndex * MAT4_ROWSIZE + column];
 
 		diagonalMatrix[column * MAT4_ROWSIZE + diagonalIndex] = pivot;
 
-		for (int row = column; row < MAT4_ROWSIZE; row++)
+		for (sp_int row = column; row < MAT4_ROWSIZE; row++)
 			upperMatrix[column * MAT4_ROWSIZE + row] /= pivot;
 
 		diagonalIndex++;
 	}
 #else
-	for (size_t row = 0; row < MAT4_ROWSIZE; row++)
+	for (sp_int row = 0; row < MAT4_ROWSIZE; row++)
 	{
 		T pivot = upperMatrix[row * MAT4_ROWSIZE + diagonalIndex];
 
 		diagonalMatrix[row * MAT4_ROWSIZE + diagonalIndex] = pivot;
 
-		for (size_t column = row; column < MAT4_ROWSIZE; column++)
+		for (sp_int column = row; column < MAT4_ROWSIZE; column++)
 			upperMatrix[row * MAT4_ROWSIZE + column] /= pivot;
 
 		diagonalIndex++;
@@ -881,19 +874,19 @@ Mat4<T>* Mat4<T>::decomposeLDU() const
 	result[1] = diagonalMatrix;
 	result[2] = upperMatrix;
 
-	delete[] lowerAndUpperMatrixes;
+	ALLOC_RELEASE(lowerAndUpperMatrixes);
 
 	return result;
 }
 
 template <typename T>
-AutovalueAutovector4<T> Mat4<T>::getAutovalueAndAutovector(const unsigned short maxIteration) const
+AutovalueAutovector4<T> Mat4<T>::getAutovalueAndAutovector(const sp_short maxIteration) const
 {
 	Mat4<T> matrix = *this;
 	Vec4<T> autovector = { T(1), T(1), T(1), T(1) };
 	T autovalue;
 
-	for (unsigned short iterationIndex = 0; iterationIndex < maxIteration; iterationIndex++)
+	for (sp_short iterationIndex = 0; iterationIndex < maxIteration; iterationIndex++)
 	{
 		Vec4<T> ax = matrix * autovector;
 		autovalue = ax.maximum();
@@ -913,7 +906,7 @@ Mat3<T> Mat4<T>::toNormalMatrix()
 
 namespace OpenML
 {
-	template class Mat4<int>;
-	template class Mat4<float>;
-	template class Mat4<double>;
+	template class Mat4<sp_int>;
+	template class Mat4<sp_float>;
+	template class Mat4<sp_double>;
 }

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdarg.h>
+#include <limits.h>
 
 #define EULER_NUMBER (2.71828f)   // e^1 = 2.71828
 
@@ -151,7 +152,7 @@ namespace OpenML
 	inline size_t API_INTERFACE floatParts(sp_float value, size_t* expoent)
 	{
 		*expoent = (size_t)value;
-		return size_t(std::fabsf(*expoent - value) * 10000.0f);
+		return size_t(fabsf(*expoent - value) * 10000.0f);
 	}
 
 	///<summary>
@@ -356,7 +357,7 @@ namespace OpenML
 	inline size_t API_INTERFACE digitMantissaCount(sp_float value)
 	{
 		sp_float temp;
-		sp_float d = std::modff(value, &temp);
+		sp_float d = modff(value, &temp);
 		size_t counter = 0;
 
 		while (d > 0 && !isCloseEnough(d, 0.0f)) {

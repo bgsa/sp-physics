@@ -16,12 +16,12 @@ namespace OpenML
 		/// Default constructor
 		/// Optional default value 0.0
 		/// </summary>
-		API_INTERFACE inline Vec4(T defaultValue = T(0));
+		API_INTERFACE inline Vec4(const T defaultValue = T(0));
 		
 		/// <summary>
 		/// Set all components X and Y with the primer vector and Z and W components with latter vector
 		/// </summary>
-		API_INTERFACE Vec4(Vec2<T> xyComponents, Vec2<T> zwComponents);
+		API_INTERFACE Vec4(const Vec2<T>& xyComponents, const Vec2<T>& zwComponents);
 		
 		/// <summary>
 		/// Constructor with a vector and a W homogeneous coordinate
@@ -30,7 +30,7 @@ namespace OpenML
 		/// <summary>
 		/// Constructor with scalar values
 		/// </summary>
-		API_INTERFACE inline Vec4(T x, T y, T z, T w);
+		API_INTERFACE inline Vec4(const T x, const T y, const T z, const T w);
 		
 		/// <summary>
 		/// Get the component values in the vector
@@ -70,7 +70,7 @@ namespace OpenML
 		/// <summary>
 		/// Scale the vector from a scalar => v * scalar
 		/// </summary>
-		API_INTERFACE inline void scale(T scale);
+		API_INTERFACE inline void scale(const T scale);
 
 		/// <summary>
 		/// Dot Product / Scalar Product - return the angle between two vectors: A . B
@@ -106,16 +106,16 @@ namespace OpenML
 		/// <summary>
 		/// Clip w component
 		/// <summary>
-		API_INTERFACE Vec3<T> toVec3();
+		API_INTERFACE Vec3<T> toVec3() const;
 
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// <summary>
-		API_INTERFACE inline Vec4<T> operator*(T value);
+		API_INTERFACE inline Vec4<T> operator*(const T value);
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// <summary>
-		API_INTERFACE inline Vec4<T> operator*(T value) const;
+		API_INTERFACE inline Vec4<T> operator*(const T value) const;
 
 		/// <summary>
 		/// Multiply the vector to a scalar
@@ -133,12 +133,12 @@ namespace OpenML
 		/// <summary>
 		/// Divide the vector to a scalar
 		/// <summary>
-		API_INTERFACE inline Vec4<T> operator/(T value) const;
+		API_INTERFACE inline Vec4<T> operator/(const T value) const;
 
 		/// <summary>
 		/// Divide the vector to a scalar
 		/// <summary>
-		API_INTERFACE inline void operator/=(T value);
+		API_INTERFACE inline void operator/=(const T value);
 
 		/// <summary>
 		/// Sum this vector to another one
@@ -148,7 +148,7 @@ namespace OpenML
 		/// <summary>
 		/// Sum a scalar to this vector
 		/// <summary>
-		API_INTERFACE inline Vec4<T> operator+(T value) const;
+		API_INTERFACE inline Vec4<T> operator+(const T value) const;
 
 		/// <summary>
 		/// Subtract this vector to another one
@@ -158,7 +158,7 @@ namespace OpenML
 		/// <summary>
 		/// Subtract a scalar from this vector
 		/// <summary>
-		API_INTERFACE inline Vec4<T> operator-(T value) const;
+		API_INTERFACE inline Vec4<T> operator-(const T value) const;
 
 		/// <summary>
 		/// Get negative vector
@@ -173,7 +173,7 @@ namespace OpenML
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// <summary>
-		API_INTERFACE inline bool operator==(T value) const;
+		API_INTERFACE inline bool operator==(const T value) const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
@@ -183,11 +183,20 @@ namespace OpenML
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE inline T& operator[](int index);
+		API_INTERFACE inline T& operator[](const sp_int index);
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE inline T operator[](int index) const;
+		API_INTERFACE inline T operator[](const sp_int index) const;
+
+		/// <summary>
+		/// Get a index from the vector
+		/// <summary>
+		API_INTERFACE inline T& operator[](const sp_uint index);
+		/// <summary>
+		/// Get a index from the vector
+		/// <summary>
+		API_INTERFACE inline T operator[](const sp_uint index) const;
 		
 		/// <summary>
 		/// Auto convertion to void *
@@ -203,11 +212,6 @@ namespace OpenML
 		/// It is the same of convertion to float* or int* or double*, whatever T is.
 		/// </summary>
 		API_INTERFACE inline operator T*();
-
-		/// <summary>
-		/// Convert to Vec3 - ignore the W component
-		/// <summary>
-		API_INTERFACE inline Vec3<T> toVec3() const;
 
 	};
 

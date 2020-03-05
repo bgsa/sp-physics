@@ -271,13 +271,13 @@ Sphere Sphere::enclose(const Sphere& sphere)
 	else
 	{
 		// Spheres partially overlapping or disjoint 
-		float distance = std::sqrtf(squaredDistance);
+		float distance = sqrtf(squaredDistance);
 
 		result.ray = (distance + ray + sphere.ray) * 0.5f;
 		result.center = center;
 
 		if (distance > DefaultErrorMargin)
-			result.center += ((result.ray - ray) / distance) * d;
+			result.center += d * ((result.ray - ray) / distance);
 	}
 
 	return result;

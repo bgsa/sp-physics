@@ -132,14 +132,14 @@ std::unordered_multimap<AABB, AABB, AABB, AABB> HashGrid::findCollisions(AABB* a
 	std::unordered_multimap<AABB, AABB, AABB, AABB> pairs;
 	std::multimap<int, AABB> spatialVolume;
 		
-	for (size_t aabbIndex = 0; aabbIndex < aabbCount; aabbIndex++)
+	for (sp_size aabbIndex = 0; aabbIndex < aabbCount; aabbIndex++)
 	{
 		AABB aabb = aabbs[aabbIndex];
 		std::vector<int> hashes = findRangeCellIndex(aabb);
 		
-		for each (int hash in hashes)
+		for (sp_size i = 0 ; i < hashes.size() ; i++ )
 		{
-			auto its = spatialVolume.equal_range(hash);
+			auto its = spatialVolume.equal_range(hashes[i]);
 
 			for (auto it = its.first; it != its.second; ++it) 
 			{
@@ -149,7 +149,7 @@ std::unordered_multimap<AABB, AABB, AABB, AABB> HashGrid::findCollisions(AABB* a
 					pairs.emplace(aabb, it->second);
 			}
 			
-			spatialVolume.emplace( hash, aabbs[aabbIndex] );
+			spatialVolume.emplace( hashes[i], aabbs[aabbIndex] );
 		}
 	}
 
