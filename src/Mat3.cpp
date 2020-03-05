@@ -546,13 +546,6 @@ Mat3<T> Mat3<T>::operator/(const T value) const
 }
 
 template <typename T>
-void Mat3<T>::operator/=(const T value)
-{
-	for (sp_int i = 0; i < MAT3_SIZE; i++)
-		values[i] /= value;
-}
-
-template <typename T>
 sp_bool Mat3<T>::operator==(const Mat3<T>& matrix) const
 {
 	for (sp_int i = 0; i < MAT3_SIZE; i++)

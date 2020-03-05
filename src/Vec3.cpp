@@ -301,7 +301,7 @@ Vec3<T> Vec3<T>::operator/(const T value) const
 }
 
 template <typename T>
-Vec3<T> Vec3<T>::operator/(const Vec3<T> vector)
+Vec3<T> Vec3<T>::operator/(const Vec3<T>& vector) const
 {
 	return Vec3<T>(
 		x / vector.x,

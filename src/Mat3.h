@@ -246,11 +246,6 @@ namespace OpenML
 		API_INTERFACE inline Mat3<T> operator/(const T value) const;
 
 		/// <summary>
-		/// Divide the matrix by a scalar value
-		/// </summary>
-		API_INTERFACE inline void operator/=(const T value);
-
-		/// <summary>
 		/// Check the matrix is equal the other
 		/// </summary>
 		API_INTERFACE inline sp_bool operator==(const Mat3<T>& matrix) const;
