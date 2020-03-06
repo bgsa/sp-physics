@@ -284,6 +284,15 @@ namespace OpenML
 		API_INTERFACE inline T operator[](sp_uint index) const;
 
 		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T& operator[](sp_size index);
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline T operator[](sp_size index) const;
+
+		/// <summary>
 		/// Auto convertion to void *
 		/// </summary> 
 		API_INTERFACE inline operator void*() const;

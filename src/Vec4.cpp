@@ -399,6 +399,22 @@ T Vec4<T>::operator[](const sp_uint index) const
 }
 
 template <typename T>
+T& Vec4<T>::operator[](const sp_size index)
+{
+	assert(index >= 0 && index < VEC4_SIZE);
+
+	return reinterpret_cast<T*>(this)[index];
+}
+
+template <typename T>
+T Vec4<T>::operator[](const sp_size index) const
+{
+	assert(index >= 0 && index < VEC4_SIZE);
+
+	return reinterpret_cast<const T*>(this)[index];
+}
+
+template <typename T>
 Vec4<T>::operator void*() const
 {
 	return (void*)(this);

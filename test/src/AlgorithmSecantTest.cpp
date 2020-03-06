@@ -1,0 +1,29 @@
+#include "TestHeader.h"
+#include <AlgorithmSecant.h>
+
+#define CLASS_NAME AlgorithmSecantTest
+
+namespace SP_PHYSICS_TEST_NAMESPACE
+{
+	float funcSecant(float x)
+	{
+		return std::cos(x) - x;
+	}
+
+	SP_TEST_CLASS(CLASS_NAME)
+	{
+	public:
+
+	};
+
+	SP_TEST_METHOD(CLASS_NAME, AlgorithmSecant_solve_Test)
+	{
+		AlgorithmSecant<float> algorithm;
+		float result = algorithm.solve(0.5f, float(PI / 4), funcSecant);
+
+		Assert::IsTrue(isCloseEnough(result, 0.7390f), L"Wrong value.", LINE_INFO());
+	}
+
+}
+
+#undef CLASS_NAME

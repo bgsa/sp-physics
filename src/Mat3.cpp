@@ -546,6 +546,22 @@ Mat3<T> Mat3<T>::operator/(const T value) const
 }
 
 template <typename T>
+Mat3<T> Mat3<T>::operator/=(const T value)
+{
+	T invValue = T(1) / value;
+
+	values[0] *= invValue;
+	values[1] *= invValue;
+	values[2] *= invValue;
+	values[3] *= invValue;
+	values[4] *= invValue;
+	values[5] *= invValue;
+	values[6] *= invValue;
+	values[7] *= invValue;
+	values[8] *= invValue;
+}
+
+template <typename T>
 sp_bool Mat3<T>::operator==(const Mat3<T>& matrix) const
 {
 	for (sp_int i = 0; i < MAT3_SIZE; i++)
