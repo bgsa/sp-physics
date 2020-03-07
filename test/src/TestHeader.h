@@ -18,7 +18,7 @@
 
 	#define SP_TEST_CLASS(className)                  class className
 	#define SP_TEST_METHOD(className, methodMame)     TEST_F(className, methodMame)
-	#define SP_TEST_METHOD_DEF(methodMame) void methodMame::Body
+	#define SP_TEST_METHOD_DEF(methodMame)
 
 	#define LINE_INFO() __FILE__ , __FUNCTION__, __LINE__
 
@@ -86,11 +86,14 @@
 
 #ifdef MSTEST_ENABLED
 
-	#define SP_TEST_CLASS(className)              TEST_CLASS(className)
-	#define SP_TEST_METHOD(className, methodMame) TEST_METHOD(className::methodMame)
+	#include "CppUnitTest.h"
 
-using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-using namespace OpenML;
+	#define SP_TEST_CLASS(className)              TEST_CLASS(className)
+	#define SP_TEST_METHOD(className, methodMame) void className::methodMame()
+	#define SP_TEST_METHOD_DEF(methodName)            TEST_METHOD(methodName)
+	
+	using namespace Microsoft::VisualStudio::CppUnitTestFramework;
+	using namespace OpenML;
 
 namespace Microsoft 
 {

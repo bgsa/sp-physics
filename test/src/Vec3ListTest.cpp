@@ -10,6 +10,22 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Vec3List_constructorDefault_Test);
+
+		SP_TEST_METHOD_DEF(Vec3List_findExtremePointsAlongAxisX_Test);
+
+		SP_TEST_METHOD_DEF(Vec3List_findExtremePointsAlongAxisY_Test);
+
+		SP_TEST_METHOD_DEF(Vec3List_findExtremePointsAlongAxisZ_Test);
+
+		SP_TEST_METHOD_DEF(Vec3List_findExtremePointsAlongAxisXYZ_Test);
+
+		SP_TEST_METHOD_DEF(Vec3List_covarianceOnAxis_Test);
+
+		SP_TEST_METHOD_DEF(Vec3List_covariance_Test);
+
+		SP_TEST_METHOD_DEF(Vec3List_closetPoint_UsingBruteForce_Test);
+
 	};
 
 

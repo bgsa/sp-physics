@@ -8,6 +8,22 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
+
+		SP_TEST_METHOD_DEF(DOP18_constructor_empty);
+
+		SP_TEST_METHOD_DEF(DOP18_centerOfBoundingVolume);
+
+		SP_TEST_METHOD_DEF(DOP18_translate);
+
+		SP_TEST_METHOD_DEF(DOP18_scale_withFixing);
+
+		SP_TEST_METHOD_DEF(DOP18_scale_withoutFixing);
+
+		SP_TEST_METHOD_DEF(DOP18_rotate);
+
+		SP_TEST_METHOD_DEF(DOP18_collisionStatus_outside);
+
+		SP_TEST_METHOD_DEF(DOP18_collisionStatus_inside);
 		
 	};
 

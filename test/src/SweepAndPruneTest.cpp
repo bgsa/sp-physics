@@ -1077,6 +1077,12 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(SweepAndPrune_findCollisions_Test);
+
+#if OPENCL_ENABLED
+		SP_TEST_METHOD_DEF(SweepAndPrune_findCollisionsGPU_Test);
+#endif // !OPENCL_ENABLED
+
 	};
 
 
@@ -1139,7 +1145,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		ALLOC_DELETE(sap, SweepAndPrune);
 	}
 
-#endif
+#endif // !OPENCL_ENABLED#endif
 
 }
 

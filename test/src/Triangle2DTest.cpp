@@ -5,12 +5,31 @@
 
 namespace SP_PHYSICS_TEST_NAMESPACE
 {
-	SP_TEST_CLASS()
+	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
 
-	};
+		SP_TEST_METHOD_DEF(Triangle2D_area_Test);
 
+		SP_TEST_METHOD_DEF(Triangle2D_perimeter_Test);
+
+		SP_TEST_METHOD_DEF(Triangle2D_height_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_getCollisionStatus_Point_Inline_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_getCollisionStatus_Point_Outside_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_getCollisionStatus_Point_Inside_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Line_True_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Line_False_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Circle_True_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Circle_False_Test);
+		
+	};
 
 	SP_TEST_METHOD(CLASS_NAME, Triangle2D_area_Test)
 	{

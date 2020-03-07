@@ -9,6 +9,36 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Rectangle2D_width_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_height_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_area_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_perimeter_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_diagonalLength_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_getCollisionStatus_Inside1_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_getCollisionStatus_Inside2_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_getCollisionStatus_Outside_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Line_True_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Line_False_Test);
+		
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Triangle_True_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Triangle_False_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Circle_True_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_hasIntersection_Circle_False_Test);
+
+		SP_TEST_METHOD_DEF(Rectangle2D_getBoundingBox_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_width_Test)

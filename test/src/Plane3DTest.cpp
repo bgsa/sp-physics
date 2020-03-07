@@ -12,6 +12,50 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Plane3D_ContructorWithThreePoints_Test);
+
+		SP_TEST_METHOD_DEF(Plane3D_getEquation1_Test);
+
+		SP_TEST_METHOD_DEF(Plane3D_getEquation2_Test);
+
+		SP_TEST_METHOD_DEF(Plane3D_getEquation3_Test);
+
+		SP_TEST_METHOD_DEF(Plane3D_findIntersection_Test);
+
+		SP_TEST_METHOD_DEF(Plane3D_angle_Test1);
+
+		SP_TEST_METHOD_DEF(Plane3D_angle_Test2);
+
+		SP_TEST_METHOD_DEF(Plane3D_distance_point_Test1);
+
+		SP_TEST_METHOD_DEF(Plane3D_distance_point_Test2);
+
+		SP_TEST_METHOD_DEF(Plane3D_distance_point_Test3);
+
+		SP_TEST_METHOD_DEF(Plane3D_distance_point_Test4);
+
+		SP_TEST_METHOD_DEF(Plane3D_closestPointOnThePlane_point_Test1);
+
+		SP_TEST_METHOD_DEF(Plane3D_constructor_equation_Test);
+
+		SP_TEST_METHOD_DEF(Plane3D_orientation_Test1);
+
+		SP_TEST_METHOD_DEF(Plane3D_orientation_Test2);
+
+		SP_TEST_METHOD_DEF(Plane3D_orientation_Test3);
+
+		SP_TEST_METHOD_DEF(Plane3D_isParallel_Test1);
+
+		SP_TEST_METHOD_DEF(Plane3D_isParallel_Test2);
+
+		SP_TEST_METHOD_DEF(Plane3D_isParallel_Test3);
+
+		SP_TEST_METHOD_DEF(Plane3D_isPerpendicular_Test1);
+
+		SP_TEST_METHOD_DEF(Plane3D_isPerpendicular_Test2);
+
+		SP_TEST_METHOD_DEF(Plane3D_findIntersection_plane_Test1);
+
 	};
 
 

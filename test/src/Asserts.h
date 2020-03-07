@@ -7,13 +7,11 @@ public:
 
 #ifdef WINDOWS
 	template<typename T>
-	static void isCloseEnough(T value, T compare, T epsilon, std::string message, const __LineInfo* lineInfo = nullptr)
+	static void isCloseEnough(T value, T compare, T epsilon, const wchar_t* message, const __LineInfo* lineInfo = nullptr)
 	{
-		const wchar_t* messageAswchar = std::wstring(message.begin(), message.end()).c_str();
-
 		bool result = OpenML::isCloseEnough(value, compare, epsilon);
 
-		Assert::IsTrue(result, messageAswchar, lineInfo);
+		Assert::IsTrue(result, message, lineInfo);
 	}
 #endif
 

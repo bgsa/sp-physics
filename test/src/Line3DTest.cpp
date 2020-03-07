@@ -11,9 +11,78 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Line3D_centerOfSegment_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_lengthOfSegment_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test2);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test4);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test5);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test2);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test4);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test5);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test6);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnRay_sphere_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnRay_sphere_Test2);
+
+		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnRay_sphere_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_isOnSegment_point_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_isOnSegment_point_Test2);
+		
+		SP_TEST_METHOD_DEF(Line3D_isOnSegment_point_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test2);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test4);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_sphere_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_sphere_Test2);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_sphere_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test2);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_findIntersection_Test);
+
+		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test2);
+
+		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test3);
+
+		SP_TEST_METHOD_DEF(Line3D_squaredDistance_point_Test1);
+
+		SP_TEST_METHOD_DEF(Line3D_distance_point_Test1);
+
 	};
-
-
+	
 	SP_TEST_METHOD(CLASS_NAME, Line3D_centerOfSegment_Test1)
 	{
 		Line3D line = Line3D(Vec3f{ 2.0f, 2.0f, 2.0f }, Vec3f{ 4.0f, 4.0f, 2.0f });

@@ -99,6 +99,26 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 	public:
 
+		SP_TEST_METHOD_DEF(AlgorithmSorting_radix_Test1);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_radix_Test2);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_radix_Test3);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_radix_Test4);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_radix_Test5);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_radix_Test6);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_radix_Test7);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_native_Test1);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_nativeIndex_Test1);
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_quickSortNnative_Test1);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test1)

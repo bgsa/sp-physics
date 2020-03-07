@@ -9,6 +9,10 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(OBB_constructor_empty_Test);
+
+		SP_TEST_METHOD_DEF(OBB_constructor_withCenter_Test);
+		
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, OBB_constructor_empty_Test)

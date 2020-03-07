@@ -9,8 +9,63 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
-	};
+		SP_TEST_METHOD_DEF(Vec2_x_Test);
 
+		SP_TEST_METHOD_DEF(Vec2_y_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_getValues_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_length_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_squared_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_add_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_subtract_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_scale_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_dot_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_angle_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_distance_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_clone_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_normalize_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_transformToUnit_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorMultiplyScalar_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorPlusVector_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorPlusScalar_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorMinusVector_Test);
+		
+		SP_TEST_METHOD_DEF(Vec2_operatorMinusScalar_Test);
+		
+		SP_TEST_METHOD_DEF(Vec2_operatorMinus_prefix_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorEqualVector_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorEqualScalar_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorNotEqual_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operatorIndex_Test);
+		
+		SP_TEST_METHOD_DEF(Vec2_operatorDireferent_value_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_orthogonalProjection_Test);
+
+		SP_TEST_METHOD_DEF(Vec2_operator_Serialize);
+
+		SP_TEST_METHOD_DEF(Vec2_operator_Deserialize);
+
+	};
 
 	SP_TEST_METHOD(CLASS_NAME, Vec2_x_Test)
 	{

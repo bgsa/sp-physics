@@ -3,12 +3,20 @@
 
 #define CLASS_NAME ParticleTest
 
-namespace OpenMLTest
+namespace SP_PHYSICS_TEST_NAMESPACE
 {
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
 		
+		SP_TEST_METHOD_DEF(Particle_constructor_empty);
+
+		SP_TEST_METHOD_DEF(Particle_constructor_withParameters);
+
+		SP_TEST_METHOD_DEF(Particle_addForce);
+
+		SP_TEST_METHOD_DEF(Particle_update);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Particle_constructor_empty)

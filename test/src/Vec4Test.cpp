@@ -9,8 +9,58 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
-	};
+		SP_TEST_METHOD_DEF(Vec4_x_Test);
+		SP_TEST_METHOD_DEF(Vec4_y_Test);
+		SP_TEST_METHOD_DEF(Vec4_z_Test);
+		SP_TEST_METHOD_DEF(Vec4_w_Test);
 
+		SP_TEST_METHOD_DEF(Vec4_getValues_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_length_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_squared_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_add_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_subtract_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_scale_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_dot_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_angle_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_normalize_Test);
+		
+		SP_TEST_METHOD_DEF(Vec4_distance_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_clone_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorMultiplyScalar_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorPlusVector_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorPlusScalar_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorMinusVector_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorMinusScalar_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorMinus_Test);
+		
+		SP_TEST_METHOD_DEF(Vec4_operatorEqualVector_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorEqualScalar_Test);
+		
+		SP_TEST_METHOD_DEF(Vec4_operatorNotEqual_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorIndex_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_operatorDireferent_value_Test);
+
+		SP_TEST_METHOD_DEF(Vec4_toVec3_Test);
+
+	};
 
 	SP_TEST_METHOD(CLASS_NAME, Vec4_x_Test)
 	{

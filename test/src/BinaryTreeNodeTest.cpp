@@ -9,6 +9,16 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 		
+		SP_TEST_METHOD_DEF(BinaryTreeNodeTest_childrenCount_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeNodeTest_height_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeNodeTest_leftHeight_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeNodeTest_rightHeight_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeNodeTest_level_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, BinaryTreeNodeTest_childrenCount_Test)

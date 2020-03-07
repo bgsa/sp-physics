@@ -17,6 +17,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(AlgorithmAitken_solve_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmAitken_solve_Test)

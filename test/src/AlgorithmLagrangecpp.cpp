@@ -3,7 +3,7 @@
 
 #define CLASS_NAME AlgorithmLagrangeTest
 
-namespace OpenMLTest
+namespace SP_PHYSICS_TEST_NAMESPACE
 {
 
 	SP_TEST_CLASS(CLASS_NAME)
@@ -14,6 +14,10 @@ namespace OpenMLTest
 		{
 			return 1.0f / x;
 		}
+
+		SP_TEST_METHOD_DEF(AlgorithmLagrange_polynomialApproximation_Test1);
+
+		SP_TEST_METHOD_DEF(AlgorithmLagrange_polynomialApproximation_Test2);
 
 	};
 

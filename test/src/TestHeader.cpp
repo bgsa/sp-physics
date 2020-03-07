@@ -3,20 +3,17 @@
 
 void setupModule()
 {
-	MemoryAllocatorManager::init(ONE_MEGABYTE * 512);
-//	Logger::WriteMessage("TEST MODULE INITIALIZED");
+	//MemoryAllocatorManager::init(ONE_MEGABYTE * 512);
+	//	Logger::WriteMessage("TEST MODULE INITIALIZED");
 }
 
 void tearDownModule()
 {
-	MemoryAllocatorManager::release();
-//	Logger::WriteMessage("TEST MODULE FINISHED");
+	//MemoryAllocatorManager::release();
+	//	Logger::WriteMessage("TEST MODULE FINISHED");
 }
 
 #ifdef MSTEST_ENABLED
-
-#include <chrono>
-#include <algorithm>
 
 TEST_MODULE_INITIALIZE(ModuleInitialize)
 {
@@ -32,7 +29,7 @@ TEST_MODULE_CLEANUP(ModuleCleanup)
 
 #ifdef GOOGLETEST_ENABLED
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
 	::testing::InitGoogleTest(&argc, argv);
 	setupModule();

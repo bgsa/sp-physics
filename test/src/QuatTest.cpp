@@ -9,6 +9,56 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Quat_ConstructorEmpty_Test);
+
+		SP_TEST_METHOD_DEF(Quat_ConstructorWithValues1_Test);
+
+		SP_TEST_METHOD_DEF(Quat_ConstructorWithValues2_Test);
+
+		SP_TEST_METHOD_DEF(Quat_ConstructorWithVector_Test);
+
+		SP_TEST_METHOD_DEF(Quat_getValues_Test);
+
+		SP_TEST_METHOD_DEF(Quat_x_Test);
+
+		SP_TEST_METHOD_DEF(Quat_y_Test);
+
+		SP_TEST_METHOD_DEF(Quat_z_Test);
+
+		SP_TEST_METHOD_DEF(Quat_w_Test);
+
+		SP_TEST_METHOD_DEF(Quat_sizeInBytes_Test);
+
+		SP_TEST_METHOD_DEF(Quat_operator_Index_Test);
+
+		SP_TEST_METHOD_DEF(Quat_sum_Index_Test);
+
+		SP_TEST_METHOD_DEF(Quat_subtract_Index_Test);
+
+		SP_TEST_METHOD_DEF(Quat_createScale1_Test);
+
+		SP_TEST_METHOD_DEF(Quat_createScale2_Test);
+
+		SP_TEST_METHOD_DEF(Quat_scale_Test);
+
+		SP_TEST_METHOD_DEF(Quat_multiply_Test);
+
+		SP_TEST_METHOD_DEF(Quat_length_Test);
+
+		SP_TEST_METHOD_DEF(Quat_normalize_Test);
+
+		SP_TEST_METHOD_DEF(Quat_conjugate_Test);
+
+		SP_TEST_METHOD_DEF(Quat_dot_Test);
+
+		SP_TEST_METHOD_DEF(Quat_inverse_Test);
+
+		SP_TEST_METHOD_DEF(Quat_toVec3_Test);
+
+		SP_TEST_METHOD_DEF(Quat_createRotate_Test);
+
+		SP_TEST_METHOD_DEF(Quat_rotate_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Quat_ConstructorEmpty_Test)
@@ -288,4 +338,4 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 }
 
-#undef CLASS_NAME 
+#undef CLASS_NAME

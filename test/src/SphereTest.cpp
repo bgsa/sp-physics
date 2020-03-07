@@ -9,6 +9,34 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Sphere_constructor_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_constructor_center_ray_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_constructor_2points_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_constructor_3points_Test1);
+
+		SP_TEST_METHOD_DEF(Sphere_constructor_3points_Test2);
+
+		SP_TEST_METHOD_DEF(Sphere_constructor_4points_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_collisionStatus_point_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_collisionStatus_sphere_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_collisionStatus_plane_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_buildFrom_AABB_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_enclose_sphere_Test1);
+
+		SP_TEST_METHOD_DEF(Sphere_enclose_sphere_Test2);
+		
+		SP_TEST_METHOD_DEF(Sphere_buildFrom_pointList_Test);
+
+		SP_TEST_METHOD_DEF(Sphere_enclose_sphere_Test3);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Sphere_constructor_Test)

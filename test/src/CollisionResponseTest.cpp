@@ -9,8 +9,17 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
-	};
+		SP_TEST_METHOD_DEF(CollisionResponse_handle_spheres1);
 
+		SP_TEST_METHOD_DEF(CollisionResponse_handle_spheres2);
+
+		SP_TEST_METHOD_DEF(CollisionResponse_handle_spheres3);
+
+		SP_TEST_METHOD_DEF(CollisionResponse_handle_spheres4);
+
+		SP_TEST_METHOD_DEF(CollisionResponse_separate_spheres);
+		
+	};
 
 	SP_TEST_METHOD(CLASS_NAME, CollisionResponse_handle_spheres1)
 	{

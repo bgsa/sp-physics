@@ -9,6 +9,80 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Mat4_constructorEmpty_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_constructorValues_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_constructor_4vec4_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_getValues_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_getValue_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_xAxis_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_yAxis_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_zAxis_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_wAxis_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_primaryDiagonal_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_secondaryDiagonal_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_identity_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_determinant_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_determinantIJ_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_cofactorIJ_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_transpose_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_multiply_MajorColumnOrder1_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_createScaled_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_scale_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_createRotate_Test);
+	
+		SP_TEST_METHOD_DEF(Mat4_createTranslate_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_divide_equal_operator_Test);
+		
+		SP_TEST_METHOD_DEF(Mat4_sizeInBytes_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_clone_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_toMat3_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorMultiplyValue_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorPlusValue_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorPlusMatrix_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorMinusMatrix_Test);
+
+		SP_TEST_METHOD_DEF(Mat3_operatorMinus_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorMinus_scalar_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorEqualValue_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorEqualMatrix_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorNotEqualMatrix_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_operatorIndex_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_divide_operator_Test);
+
+		SP_TEST_METHOD_DEF(Mat4_multiply_MajorColumnOrder2_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_constructorEmpty_Test)
@@ -113,8 +187,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		Assert::AreEqual(16.0f, matrix.getValue(4, 4), L"Wrong value", LINE_INFO());
 	}
 
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat4_xAxis_MajorColumnOrder_Test)
+#ifdef MAJOR_COLUMN_ORDER
+	SP_TEST_METHOD(CLASS_NAME, Mat4_xAxis_Test)
 	{
 		Mat4f matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
@@ -132,7 +206,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_xAxis_MajorRowOrder_Test)
 	{
 		Mat4f matrix = {
@@ -151,8 +225,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat4_yAxis_MajorColumnOrder_Test)
+#ifdef MAJOR_COLUMN_ORDER
+	SP_TEST_METHOD(CLASS_NAME, Mat4_yAxis_Test)
 	{
 		Mat4f matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
@@ -170,7 +244,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_yAxis_MajorRowOrder_Test)
 	{
 		Mat4f matrix = {
@@ -189,8 +263,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat4_zAxis_MajorColumnOrder_Test)
+#ifdef MAJOR_COLUMN_ORDER
+	SP_TEST_METHOD(CLASS_NAME, Mat4_zAxis_Test)
 	{
 		Mat4f matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
@@ -208,7 +282,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_zAxis_MajorRowOrder_Test)
 	{
 		Mat4f matrix = {
@@ -227,8 +301,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat4_wAxis_MajorColumnOrder_Test)
+#ifdef MAJOR_COLUMN_ORDER
+	SP_TEST_METHOD(CLASS_NAME, Mat4_wAxis_Test)
 	{
 		Mat4f matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
@@ -246,7 +320,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_wAxis_MajorRowOrder_Test)
 	{
 		Mat4f matrix = {
@@ -397,7 +471,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			Assert::AreEqual(expected[i], result[i], L"Wrong value", LINE_INFO());
 	}
 
-#if MAJOR_COLUMN_ORDER
+#ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_multiply_MajorColumnOrder1_Test)
 	{
 		Mat4f matrixA = {
@@ -453,7 +527,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_multiply_MajorRowOrder1_Test)
 	{
 		Mat4f matrixA = {
@@ -564,8 +638,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat4_createTranslate_MajorColumnOrder_Test)
+#ifdef MAJOR_COLUMN_ORDER
+	SP_TEST_METHOD(CLASS_NAME, Mat4_createTranslate_Test)
 	{
 		Mat4f expected = {
 			1.0f, 0.0f, 0.0f, 0.0f,
@@ -581,7 +655,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_createTranslate_MajorRowOrder_Test)
 	{
 		Mat4f expected = {
@@ -641,7 +715,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 	
-#if MAJOR_COLUMN_ORDER
+#ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorMultiplyValue_Test)
 	{
 		Mat4f matrixA = {
@@ -865,7 +939,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_decomposeLU_MajorRowOrder_Test)
 	{
 		Mat4f matrix = {
@@ -905,7 +979,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 #endif
 
-#if MAJOR_ROW_ORDER
+#ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_decomposeLDU_MajorRowOrder_Test)
 	{
 		Mat4f matrix = {

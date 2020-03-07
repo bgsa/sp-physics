@@ -1,7 +1,6 @@
 #if OPENCL_ENABLED
 
 #include "TestHeader.h"
-#include <chrono>
 #include "Randomizer.h"
 #include <GpuInsertionSorting.h>
 #include <AABB.h>
@@ -27,6 +26,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
+
+		SP_TEST_METHOD_DEF(AlgorithmSorting_Insertion_Test1);
 
 	};
 

@@ -18,6 +18,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(AlgorithmFixedPoint_solve_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmFixedPoint_solve_Test)

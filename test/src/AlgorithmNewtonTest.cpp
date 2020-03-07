@@ -19,6 +19,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(AlgorithmNewton_solve_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmNewton_solve_Test)

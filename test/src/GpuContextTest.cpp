@@ -1,3 +1,5 @@
+#ifdef OPENCL_ENABLED
+
 #include "TestHeader.h"
 #include <GpuContext.h>
 
@@ -8,6 +10,10 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
+
+		SP_TEST_METHOD_DEF(GPUContext_instance_Test);
+
+		SP_TEST_METHOD_DEF(GPUContext_getPlatforms_Test);
 
 	};
 
@@ -30,3 +36,5 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 }
 
 #undef CLASS_NAME
+
+#endif // OPENCL_ENABLED

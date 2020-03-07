@@ -12,6 +12,20 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Circle2D_constructorWithThreePoints_Test);
+
+		SP_TEST_METHOD_DEF(Circle2D_area_Test);
+
+		SP_TEST_METHOD_DEF(Circle2D_circumference_Test);
+
+		SP_TEST_METHOD_DEF(Circle2D_hasIntersection1_Test);
+
+		SP_TEST_METHOD_DEF(Circle2D_hasIntersection2_Test);
+
+		SP_TEST_METHOD_DEF(Circle2D_findIntersection1_Test);
+
+		SP_TEST_METHOD_DEF(Circle2D_findIntersection2_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_constructorWithThreePoints_Test)

@@ -6,7 +6,7 @@
 namespace SP_PHYSICS_TEST_NAMESPACE
 {
 
-	AABB* get1000()
+	AABB* CollisionDetectionTest_get1000()
 	{
 		AABB* aabbs = ALLOC_ARRAY(AABB,1000);
 		aabbs[0] = AABB({ 272.0f, 544.0f, 360.0f }, { 273.0f, 545.0f, 362.0f });
@@ -1015,17 +1015,19 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 	SP_TEST_CLASS(CLASS_NAME)
 	{
-	private:
-
 	public:
 
+		SP_TEST_METHOD_DEF(CollisionDetection_bruteForce_AABB_Test);
+
+		SP_TEST_METHOD_DEF(CollisionDetection_bruteForce_kDop_Test);
+		
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, CollisionDetection_bruteForce_AABB_Test)
 	{
 		CollisionDetection collisionDetection;
 		size_t count = 1000;
-		AABB* aabbs = get1000();
+		AABB* aabbs = CollisionDetectionTest_get1000();
 		
 		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 

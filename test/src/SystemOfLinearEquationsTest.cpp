@@ -10,6 +10,16 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(solve_2varaibles_Test);
+
+		SP_TEST_METHOD_DEF(solve_3varaibles_Test);
+
+		SP_TEST_METHOD_DEF(solve_4varaibles_Test);
+
+		SP_TEST_METHOD_DEF(getLineEquation_Test);
+
+		SP_TEST_METHOD_DEF(getCircleEquation_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, solve_2varaibles_Test)

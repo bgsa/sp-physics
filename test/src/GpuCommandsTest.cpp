@@ -1,3 +1,5 @@
+#ifdef OPENCL_ENABLED
+
 #include "TestHeader.h"
 #include "Randomizer.h"
 #include <GpuCommands.h>
@@ -13,71 +15,84 @@
 namespace SP_PHYSICS_TEST_NAMESPACE
 {
 
+	float* getRandom(size_t count, size_t spaceSize = 10000)
+	{
+		Randomizer<int> randomizer(0, spaceSize);
 
-		float* getRandom(size_t count, size_t spaceSize = 10000)
+		float* result = ALLOC_ARRAY(float, count);
+
+		for (size_t i = 0; i < count; i++)
+			result[i] = randomizer.rand() / 100.0f;
+
+		return result;
+	}
+
+	AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
+	{
+		Randomizer<int> randomizerSize(0, 30);
+		Randomizer<int> randomizerLocation(0, spaceSize);
+
+		AABB* aabbs = ALLOC_NEW_ARRAY(AABB, count);
+
+		for (size_t i = 0; i < count; i++)
 		{
-			Randomizer<int> randomizer(0, spaceSize);
+			int xMin = randomizerSize.rand();
+			int yMin = randomizerSize.rand();
+			int zMin = randomizerSize.rand();
 
-			float* result = ALLOC_ARRAY(float, count);
+			int xMax = randomizerSize.rand();
+			int yMax = randomizerSize.rand();
+			int zMax = randomizerSize.rand();
 
-			for (size_t i = 0; i < count; i++)
-				result[i] = randomizer.rand() / 100.0f;
+			int locationX = randomizerLocation.rand();
+			int locationY = randomizerLocation.rand();
+			int locationZ = randomizerLocation.rand();
 
-			return result;
+			if (xMin == xMax)
+				xMax++;
+
+			if (yMin == yMax)
+				yMax++;
+
+			if (zMin == zMax)
+				zMax++;
+
+			if (xMin > xMax)
+				std::swap(xMin, xMax);
+
+			if (yMin > yMax)
+				std::swap(yMin, yMax);
+
+			if (zMin > zMax)
+				std::swap(zMin, zMax);
+
+			aabbs[i] = AABB({ float(xMin + locationX), float(yMin + locationY), float(zMin + locationZ) }
+			, { float(xMax + locationX), float(yMax + locationY), float(zMax + locationZ) });
 		}
 
-		AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
-		{
-			Randomizer<int> randomizerSize(0, 30);
-			Randomizer<int> randomizerLocation(0, spaceSize);
-
-			AABB* aabbs = ALLOC_NEW_ARRAY(AABB, count);
-
-			for (size_t i = 0; i < count; i++)
-			{
-				int xMin = randomizerSize.rand();
-				int yMin = randomizerSize.rand();
-				int zMin = randomizerSize.rand();
-
-				int xMax = randomizerSize.rand();
-				int yMax = randomizerSize.rand();
-				int zMax = randomizerSize.rand();
-
-				int locationX = randomizerLocation.rand();
-				int locationY = randomizerLocation.rand();
-				int locationZ = randomizerLocation.rand();
-
-				if (xMin == xMax)
-					xMax++;
-
-				if (yMin == yMax)
-					yMax++;
-
-				if (zMin == zMax)
-					zMax++;
-
-				if (xMin > xMax)
-					std::swap(xMin, xMax);
-
-				if (yMin > yMax)
-					std::swap(yMin, yMax);
-
-				if (zMin > zMax)
-					std::swap(zMin, zMax);
-
-				aabbs[i] = AABB({ float(xMin + locationX), float(yMin + locationY), float(zMin + locationZ) }
-				, { float(xMax + locationX), float(yMax + locationY), float(zMax + locationZ) });
-			}
-
-			return aabbs;
-		}
+		return aabbs;
+	}
 
 	SP_TEST_CLASS(CLASS_NAME)
 	{
-	private:
-
 	public:
 
+		SP_TEST_METHOD_DEF(GpuCommands_createIndexes);
+
+		SP_TEST_METHOD_DEF(GpuCommands_createIndexes_Many);
+
+		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxGPU);
+
+		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxGPU_withOffsets);
+
+		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxIndexesGPU_withOffsets);
+
+		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxIndexesGPU_withOffsets_andFewData);
+
+		SP_TEST_METHOD_DEF(GpuCommands_findMaxGPU);
+
+		SP_TEST_METHOD_DEF(GpuCommands_findMaxGPUBuffer);
+		
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_createIndexes)
@@ -425,3 +440,5 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 }
 
 #undef CLASS_NAME
+
+#endif // OPENCL_ENABLED

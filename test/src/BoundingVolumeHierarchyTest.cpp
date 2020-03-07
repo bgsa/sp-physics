@@ -9,6 +9,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(BoundingVolumeHierarchy_constructor_empty_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, BoundingVolumeHierarchy_constructor_empty_Test)

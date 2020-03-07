@@ -9,6 +9,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 		
+		SP_TEST_METHOD_DEF(Triangle3D_barycentric_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Triangle3D_barycentric_Test)
@@ -25,7 +27,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		//ABC = Triangle
 		//P = u*A + v*B + w*C
 		//P = u*Point1 + v*Point2 + w*Point3
-		Vec3f p = result[0] * triangle.point1 + result[1] * triangle.point2 + result[2] * triangle.point3;
+		Vec3f p = triangle.point1 * result[0] + triangle.point2 * result[1]  + triangle.point3 * result[2];
 
 		for (size_t i = 0; i < 3; i++)
 			Assert::IsTrue(isCloseEnough(p[i], point[i]), L"Wrong value.", LINE_INFO());

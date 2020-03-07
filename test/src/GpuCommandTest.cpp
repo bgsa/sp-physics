@@ -1,3 +1,5 @@
+#ifdef OPENCL_ENABLED
+
 #include "TestHeader.h"
 #include "GpuContext.h"
 #include "GpuCommand.h"
@@ -13,6 +15,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
+
+		SP_TEST_METHOD_DEF(GpuCommand_execute_Test);
 
 	};
 
@@ -38,16 +42,17 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		size_t sumProgram = gpu->commandManager->cacheProgram(source.c_str(), sizeof(char) * source.length(), NULL);
 
 		GpuCommand* command = gpu->commandManager->createCommand();
+		sp_float* result = ALLOC_NEW_ARRAY(sp_float, 1);
 
-		float* result = command
+		command
 			->setInputParameter(param1, sizeof(float) * LIST_SIZE)
 			->setInputParameter(param2, sizeof(float) * LIST_SIZE)
 			->setOutputParameter(sizeof(float) * LIST_SIZE)
 			->buildFromProgram(gpu->commandManager->cachedPrograms[sumProgram], "sum")
 			->execute(1, &globalWorkSize, &localWorkSize)
-			->fetch<float>();
+			->fetch(result);
 
-		Assert::AreEqual(1024.0f, *result, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(1024.0f, result[0], L"Wrong value.", LINE_INFO());
 		
 		delete fileManager;
 		command->~GpuCommand();
@@ -60,3 +65,5 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 }
 
 #undef CLASS_NAME
+
+#endif // OPENCL_ENABLED

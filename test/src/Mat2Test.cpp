@@ -9,6 +9,52 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Mat2_constructorEmpty_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_constructorValues_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_getValues_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_getValue_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_xAxis_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_yAxis_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_multiply_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_createTranslate_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_primaryDiagonal_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_secondaryDiagonal_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_identity_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_transpose_Test);
+		
+		SP_TEST_METHOD_DEF(Mat2_createScaled_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_scale_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_determinant_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_sizeInBytes_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_clone_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_getAutovalueAndAutovector_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_operatorMinus_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_operatorMinus_matrix2_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_operatorSum_matrix2_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_operatorDivide_scalar_Test);
+
+		SP_TEST_METHOD_DEF(Mat2_divide_equal_operator_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_constructorEmpty_Test)
@@ -59,7 +105,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	}
 
 #if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat2_xAxis_ColumnMajorOrder_Test)
+
+	SP_TEST_METHOD(CLASS_NAME, Mat2_xAxis_Test)
 	{
 		Mat2f matrix = {
 			1.0f, 2.0f,
@@ -71,25 +118,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(4.0f, xAxis[1], L"Wrong value", LINE_INFO());
 	}
-#endif
 
-#if MAJOR_ROW_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat2_xAxis_RowMajorOrder_Test)
-	{
-		Mat2f matrix = {
-			1.0f, 2.0f,
-			4.0f, 5.0f
-		};
-
-		Vec2f xAxis = matrix.xAxis();
-
-		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
-		Assert::AreEqual(2.0f, xAxis[1], L"Wrong value", LINE_INFO());
-	}
-#endif
-
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat2_yAxis_ColumnMajorRow_Test)
+	SP_TEST_METHOD(CLASS_NAME, Mat2_yAxis_Test)
 	{
 		Mat2f matrix = {
 			1.0f, 2.0f,
@@ -101,9 +131,58 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		Assert::AreEqual(2.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, yAxis[1], L"Wrong value", LINE_INFO());
 	}
+
+	SP_TEST_METHOD(CLASS_NAME, Mat2_multiply_Test)
+	{
+		Mat2f matrixA = {
+			2.0f, 3.0f,
+			3.0f, 4.0f
+		};
+		Mat2f matrixB = {
+			0.0f, 1.0f,
+			-1.0f, 0.0f
+		};
+		Mat2f expected = {
+			3.0f, 4.0f,
+			-2.0f, -3.0f
+		};
+
+		Mat2f result = matrixA.multiply(matrixB);
+
+		for (int i = 0; i < MAT2_SIZE; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, Mat2_createTranslate_Test)
+	{
+		Mat2f expected = {
+			1.0f, 0.0f,
+			5.0f, 2.0f
+		};
+
+		Mat2f result = Mat2f::createTranslate(5.0f, 2.0f);
+
+		for (int i = 0; i < MAT2_SIZE; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
+	}
+
 #endif
 
 #if MAJOR_ROW_ORDER
+
+	SP_TEST_METHOD(CLASS_NAME, Mat2_xAxis_Test)
+	{
+		Mat2f matrix = {
+			1.0f, 2.0f,
+			4.0f, 5.0f
+		};
+
+		Vec2f xAxis = matrix.xAxis();
+
+		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
+		Assert::AreEqual(2.0f, xAxis[1], L"Wrong value", LINE_INFO());
+	}
+
 	SP_TEST_METHOD(CLASS_NAME, Mat2_yAxis_RowMajorRow_Test)
 	{
 		Mat2f matrix = {
@@ -116,6 +195,41 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		Assert::AreEqual(4.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, yAxis[1], L"Wrong value", LINE_INFO());
 	}
+
+	SP_TEST_METHOD(CLASS_NAME, Mat2_multiply_MajorRowOrder_Test)
+	{
+		Mat2f matrixA = {
+			2.0f, 3.0f,
+			3.0f, 4.0f
+		};
+		Mat2f matrixB = {
+			0.0f, 1.0f,
+			-1.0f, 0.0f
+		};
+		Mat2f expected = {
+			-3.0f, 2.0f,
+			-4.0f, 3.0f
+		};
+
+		Mat2f result = matrixA.multiply(matrixB);
+
+		for (int i = 0; i < MAT2_SIZE; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, Mat2_createTranslate_MajorRowOrder_Test)
+	{
+		Mat2f expected = {
+			1.0f, 5.0f,
+			0.0f, 2.0f
+		};
+
+		Mat2f result = Mat2f::createTranslate(5.0f, 2.0f);
+
+		for (int i = 0; i < MAT2_SIZE; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
+	}
+
 #endif
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_primaryDiagonal_Test)
@@ -172,52 +286,6 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			Assert::AreEqual(expected[i], result[i], L"Wrong value", LINE_INFO());
 	}
 
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat2_multiply_MajorColumnOrder_Test)
-	{
-		Mat2f matrixA = {
-			2.0f, 3.0f,
-			3.0f, 4.0f
-		};
-		Mat2f matrixB = {
-			0.0f, 1.0f,
-			-1.0f, 0.0f
-		};
-		Mat2f expected = {
-			3.0f, 4.0f,
-			-2.0f, -3.0f
-		};
-
-		Mat2f result = matrixA.multiply(matrixB);
-
-		for (int i = 0; i < MAT2_SIZE; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
-	}
-#endif
-
-#if MAJOR_ROW_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat2_multiply_MajorRowOrder_Test)
-	{
-		Mat2f matrixA = {
-			2.0f, 3.0f,
-			3.0f, 4.0f
-		};
-		Mat2f matrixB = {
-			0.0f, 1.0f,
-			-1.0f, 0.0f
-		};
-		Mat2f expected = {
-			-3.0f, 2.0f,
-			-4.0f, 3.0f
-		};
-
-		Mat2f result = matrixA.multiply(matrixB);
-
-		for (int i = 0; i < MAT2_SIZE; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
-	}
-#endif
-
 	SP_TEST_METHOD(CLASS_NAME, Mat2_createScaled_Test)
 	{
 		Mat2f expected = {
@@ -247,36 +315,6 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
-	
-#if MAJOR_COLUMN_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat2_createTranslate_MajorColumnOrder_Test)
-	{
-		Mat2f expected = {
-			1.0f, 0.0f,
-			5.0f, 2.0f
-		};
-
-		Mat2f result = Mat2f::createTranslate(5.0f, 2.0f);
-
-		for (int i = 0; i < MAT2_SIZE; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
-	}
-#endif
-
-#if MAJOR_ROW_ORDER
-	SP_TEST_METHOD(CLASS_NAME, Mat2_createTranslate_MajorRowOrder_Test)
-	{
-		Mat2f expected = {
-			1.0f, 5.0f,
-			0.0f, 2.0f
-		};
-
-		Mat2f result = Mat2f::createTranslate(5.0f, 2.0f);
-
-		for (int i = 0; i < MAT2_SIZE; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
-	}
-#endif
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_determinant_Test)
 	{

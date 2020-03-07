@@ -12,6 +12,38 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(Line2D_isOnTheLine_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_isOnTheLeft_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_isOnTheRight_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_angle1_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_angle2_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_angle3_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_slope_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_getParametricEquation1_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_getParametricEquation2_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_getDistance_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_deltaX_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_deltaY_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_findIntersection_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_hasIntersection_Inside_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_hasIntersection_Inline_Test);
+
+		SP_TEST_METHOD_DEF(Line2D_hasIntersection_Outside_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Line2D_isOnTheLine_Test)

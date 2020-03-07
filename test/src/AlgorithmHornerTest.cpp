@@ -14,6 +14,10 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(AlgorithmHorner_polynomialDivision_Test);
+
+		SP_TEST_METHOD_DEF(AlgorithmHorner_findRoots_Test);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmHorner_polynomialDivision_Test)

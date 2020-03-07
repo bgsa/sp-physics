@@ -1,7 +1,6 @@
 #if OPENCL_ENABLED
 
 #include "TestHeader.h"
-#include <chrono>
 #include "Randomizer.h"
 #include <GpuRadixSorting.h>
 #include <AABB.h>
@@ -105,8 +104,6 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	public:
 
 	};
-
-	
 
 }
 

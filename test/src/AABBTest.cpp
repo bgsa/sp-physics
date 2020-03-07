@@ -5,10 +5,46 @@
 
 namespace SP_PHYSICS_TEST_NAMESPACE
 {
-//	SP_TEST_CLASS(CLASS_NAME)
-	class AABB_constructor_empty_Test  : public ::testing::Test {
+	//SP_TEST_CLASS(CLASS_NAME)
+	//class AABBTest
+	TEST_CLASS(CLASS_NAME)
+	{
 	public:
+
+		SP_TEST_METHOD_DEF(AABB_constructor_empty_Test);
+
+		SP_TEST_METHOD_DEF(AABB_center_Test);
+
+		SP_TEST_METHOD_DEF(AABB_closestPointInAABB_Test1);
+
+		SP_TEST_METHOD_DEF(AABB_collisionStatus_AABB_Test);
+
+		SP_TEST_METHOD_DEF(AABB_constructor_minPointAndDistances_Test);
+
+		SP_TEST_METHOD_DEF(AABB_collisionStatus_Sphere_Test);
 		
+		SP_TEST_METHOD_DEF(AABB_buildFrom_pointList_Test);
+
+		SP_TEST_METHOD_DEF(AABB_buildFrom_sphere_Test);
+
+		SP_TEST_METHOD_DEF(AABB_closestPointInAABB_Test2);
+
+		SP_TEST_METHOD_DEF(AABB_closestPointInAABB_Test3);
+
+		SP_TEST_METHOD_DEF(AABB_collisionStatus_Plane_Test);
+
+		SP_TEST_METHOD_DEF(AABB_constructor_twoPoints_Test);
+
+		SP_TEST_METHOD_DEF(AABB_distance_Test);
+
+		SP_TEST_METHOD_DEF(AABB_enclose_AABB_Test);
+
+		SP_TEST_METHOD_DEF(AABB_enclose_sphere_Test);
+
+		SP_TEST_METHOD_DEF(AABB_squaredDistance_Test1);
+
+		SP_TEST_METHOD_DEF(AABB_squaredDistance_Test2);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, AABB_constructor_empty_Test)
@@ -120,7 +156,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		expected = CollisionStatus::INSIDE;
 		Assert::IsTrue(result == expected, L"Mistake!.", LINE_INFO());
 	}
-
+	
 	SP_TEST_METHOD(CLASS_NAME, AABB_collisionStatus_Sphere_Test)
 	{
 		Sphere sphere = Sphere(Vec3f(0.0f, 20.0f, 0.0f), 10.0f);
@@ -297,6 +333,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			Assert::AreEqual(expectedMaxPoint[i], result.maxPoint[i], L"Wrong value.", LINE_INFO());
 		}
 	}
+	
 }
 
 #undef CLASS_NAME

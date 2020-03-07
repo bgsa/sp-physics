@@ -10,6 +10,26 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_findInterpolation_Test);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_naturalSpline_Test);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_naturalSplineDescription_Test);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_fixedSpline_Test1);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_fixedSpline_Test2);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_getInterpolationPolynomial_Test);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_getInterpolationPolynomialDescription_Test);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_getInterpolationPolynomialUsingHermite_Test1);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_getInterpolationPolynomialUsingHermite_Test2);
+
+		SP_TEST_METHOD_DEF(AlgorithmInterpolation_getInterpolationPolynomialUsingHermiteDescription_Test);
+		
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_findInterpolation_Test)

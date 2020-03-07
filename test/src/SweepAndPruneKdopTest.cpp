@@ -10,6 +10,12 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(SweepAndPruneKdop_findCollisions_Test);
+
+#ifdef OPENCL_ENABLED
+		SP_TEST_METHOD_DEF(SweepAndPruneKdop_findCollisionsGPU_Test);
+#endif // !OPENCL_ENABLED
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, SweepAndPruneKdop_findCollisions_Test)
@@ -36,7 +42,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		Assert::AreEqual(expected.size(), result.count, L"wrong value", LINE_INFO());
 	}
 
-#if OPENCL_ENABLED
+#ifdef OPENCL_ENABLED
 	SP_TEST_METHOD(CLASS_NAME, SweepAndPruneKdop_findCollisionsGPU_Test)
 	{
 		GpuContext* context = GpuContext::init();
@@ -65,7 +71,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 		Assert::AreEqual(expected.size(), result.count, L"wrong value", LINE_INFO());
 	}
-#endif
+#endif // !OPENCL_ENABLED
 
 }
 

@@ -5,9 +5,26 @@
 
 namespace SP_PHYSICS_TEST_NAMESPACE
 {
+
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
+
+		SP_TEST_METHOD_DEF(BinaryTreeTest_nodeCount_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeTest_height_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeTest_levels_Test);
+		
+		SP_TEST_METHOD_DEF(BinaryTreeTest_listPreOrder_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeTest_listPostOrder_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeTest_listInOrder_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeTest_listLevelOrder_Test);
+
+		SP_TEST_METHOD_DEF(BinaryTreeTest_leafs_Test);
 
 	};
 

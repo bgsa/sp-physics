@@ -10,6 +10,12 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 	{
 	public:
 
+		SP_TEST_METHOD_DEF(ParticleSystem_constructor_empty);
+
+		SP_TEST_METHOD_DEF(ParticleSystem_addForce);
+
+		SP_TEST_METHOD_DEF(ParticleSystem_update);
+
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, ParticleSystem_constructor_empty)
