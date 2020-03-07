@@ -3,13 +3,13 @@
 
 void setupModule()
 {
-	//MemoryAllocatorManager::init(ONE_MEGABYTE * 512);
+	MemoryAllocatorManager::init(ONE_MEGABYTE * 512);
 	//	Logger::WriteMessage("TEST MODULE INITIALIZED");
 }
 
 void tearDownModule()
 {
-	//MemoryAllocatorManager::release();
+	MemoryAllocatorManager::release();
 	//	Logger::WriteMessage("TEST MODULE FINISHED");
 }
 
