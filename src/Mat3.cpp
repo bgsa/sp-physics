@@ -546,7 +546,7 @@ Mat3<T> Mat3<T>::operator/(const T value) const
 }
 
 template <typename T>
-Mat3<T> Mat3<T>::operator/=(const T value)
+void Mat3<T>::operator/=(const T value)
 {
 	T invValue = T(1) / value;
 

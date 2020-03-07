@@ -48,12 +48,12 @@ namespace OpenML
 		///<summary>
 		///Get the lines that makes the rectangle
 		///</summary>
-		inline Line2D<T>* getLines() const;
+		API_INTERFACE inline Line2D<T>* getLines() const;
 
 		///<summary>
 		///Get the status of collision of the point into the rectangle
 		///</summary>
-		inline CollisionStatus getSatusCollision(const Vec2<T>& point) const;
+		API_INTERFACE inline CollisionStatus getSatusCollision(const Vec2<T>& point) const;
 	
 		///<summary>
 		///Chech the line has intersection with the rectangle

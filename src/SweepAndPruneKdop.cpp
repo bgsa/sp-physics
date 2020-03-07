@@ -215,7 +215,7 @@ SweepAndPruneResult SweepAndPruneKdop::findCollisions(GpuDevice* gpu, DOP18* kdo
 		->setOutputParameter(SIZEOF_UINT * count * 2)
 		->buildFromProgram(gpu->commandManager->cachedPrograms[sapKdopProgramIndex], "sweepAndPrune");
 
-	size_t* indexes = NULL;
+	size_t* indexes = ALLOC_ARRAY(sp_size, count * 2);
 
 	// TODO: ...
 	//radixSorting->setParameters((float*)kdops, count, DOP18_STRIDER, DOP18_OFFSET + axis);
@@ -225,13 +225,13 @@ SweepAndPruneResult SweepAndPruneKdop::findCollisions(GpuDevice* gpu, DOP18* kdo
 		// TODO: passar o buffer dos kdops para o RadixSorting
 		cl_mem indexesBuffer = radixSorting->execute();
 
-		indexes = command
+		command
 			->updateInputParameterValue(1, &count)
 			->updateInputParameterValue(2, &globalIndex)
 			->updateInputParameterValue(3, &indexes)
 			->buildFromProgram(gpu->commandManager->cachedPrograms[sapKdopProgramIndex], "sweepAndPrune")
 			->execute(1, globalWorkSize, localWorkSize)
-			->fetch<size_t>();
+			->fetch(indexes);
 
 		count = divideBy2(*command->fetchInOutParameter<size_t>(2));
 

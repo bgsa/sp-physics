@@ -248,7 +248,7 @@ namespace OpenML
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline Mat3<T> operator/=(const T value);
+		API_INTERFACE inline void operator/=(const T value);
 
 		/// <summary>
 		/// Check the matrix is equal the other

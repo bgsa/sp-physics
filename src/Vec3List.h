@@ -18,12 +18,12 @@ namespace OpenML
 		///<summary>
 		///Default Constructor
 		///</summary>
-		Vec3List();
+		API_INTERFACE Vec3List();
 
 		///<summary>
 		///Constructor with points
 		///</summary>
-		Vec3List(Vec3<T>* points, const sp_int count);
+		API_INTERFACE Vec3List(Vec3<T>* points, const sp_int count);
 		
 		///<summary>
 		///Find the extreme points along the direction
@@ -76,7 +76,7 @@ namespace OpenML
 		///<summary>
 		///Destructor
 		///</summary>
-		~Vec3List();
+		API_INTERFACE ~Vec3List();
 
 	};
 

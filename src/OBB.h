@@ -17,7 +17,7 @@ namespace OpenML
 		/// <summary>
 		/// Build a new unit OBB with width, height and depth 1.0 and orientation aligned to axis located on coordinates (0,0,0) 
 		/// </summary>
-		OBB(const Vec3f& center = Vec3f(0.0f));
+		API_INTERFACE OBB(const Vec3f& center = Vec3f(0.0f));
 
 		/// <summary>
 		/// Not Implemented !!

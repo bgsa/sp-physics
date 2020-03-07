@@ -20,15 +20,15 @@ namespace OpenML
 	public:
 		std::vector<cl_program> cachedPrograms;
 
-		GpuCommand* createCommand();
+		API_INTERFACE GpuCommand* createCommand();
 
-		sp_uint cacheProgram(const char* source, size_t sourceSize, const char* buildOptions);
+		API_INTERFACE sp_uint cacheProgram(const char* source, size_t sourceSize, const char* buildOptions);
 
-		void executeReadBuffer(cl_mem gpuBuffer, size_t bufferSize, void* cpuBuffer, bool waitToFinish);
+		API_INTERFACE void executeReadBuffer(cl_mem gpuBuffer, size_t bufferSize, void* cpuBuffer, bool waitToFinish);
 
-		void flush();
+		API_INTERFACE void flush();
 
-		~GpuCommandManager();
+		API_INTERFACE ~GpuCommandManager();
 	};
 
 }

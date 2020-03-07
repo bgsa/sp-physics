@@ -45,6 +45,15 @@ else()
 endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
+
+	if( ${BUILD_SHARED_LIBS} )
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+	else()
+		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+	endif()
+
 	set (SP_FOUNDATION_LIB_NAME "SpFoundation.lib")
 	set (CUSTOM_DEFINITIONS "-D_CRT_SECURE_NO_WARNINGS")
 	set (OPENCL_INCLUDE_DIRS ${OPENCL_DIR}/include)	
@@ -71,6 +80,7 @@ include_directories(
 	${VENDOR_DIR}/include
 	${VENDOR_DIR}
 	${OPENCL_INCLUDE_DIRS}
+	${VENDOR_DIR}/googletest/googletest/include
 	/usr/local/include
 )
 
