@@ -136,14 +136,14 @@ float* AlgorithmSorting::radix(float* vector, size_t count)
 void AlgorithmSorting::radix(sp_float* vector, sp_size n)
 {
 	const sp_size maxDigitMantissa = 4;
-	int tempExp;
-	int minElement = INT_MAX;
-	int maxElement = 0;
+	sp_int tempExp;
+	sp_int minElement = INT_MAX;
+	sp_int maxElement = 0;
 	sp_size exp;
 	
-	for (sp_size i = 0; i < n; i++)
+	for (sp_uint i = 0; i < n; i++)
 	{
-		tempExp = (int)vector[i];
+		tempExp = (sp_int)vector[i];
 
 		if (tempExp > maxElement)
 			maxElement = tempExp;
@@ -152,28 +152,28 @@ void AlgorithmSorting::radix(sp_float* vector, sp_size n)
 			minElement = tempExp;
 	}
 	minElement = std::abs(minElement);
-	sp_int maxDigitExpoent = (sp_int) digitCount(std::max(minElement, maxElement));
+	const sp_int maxDigitExpoent = (sp_int) digitCount(std::max(minElement, maxElement));
 
 	sp_float* output = ALLOC_ARRAY(sp_float, n);
-	sp_size* digitsCache = ALLOC_ARRAY(sp_size, n);
-	const sp_size bucketCount = 10;
-	sp_size bucket[bucketCount];
-	sp_size bucketIndex;
+	sp_uint* digitsCache = ALLOC_ARRAY(sp_uint, n);
+	const sp_uint bucketCount = 10;
+	sp_uint bucket[bucketCount];
+	sp_uint bucketIndex;
 
 	for (sp_size digitIndex = 0; digitIndex < maxDigitMantissa; digitIndex++)
 	{
 		std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
 
-		for (sp_size j = 0; j < n; j++)    //make histogram
+		for (sp_uint j = 0; j < n; j++)    //make histogram
 		{
 			bucketIndex = digitsCache[j] = digit(floatParts(vector[j], &exp), digitIndex);
 			bucket[bucketIndex]++;
 		}
 
-		for (sp_size j = 1; j < bucketCount; j++)
+		for (sp_uint j = 1; j < bucketCount; j++)
 			bucket[j] += bucket[j - 1];
 
-		for (sp_size j = n - 1; j >= 0; j--)
+		for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
 		{
 			bucketIndex = digitsCache[j];
 
@@ -184,20 +184,20 @@ void AlgorithmSorting::radix(sp_float* vector, sp_size n)
 		std::memcpy(vector, output, SIZEOF_FLOAT * n);
 	}
 
-	for (sp_int digitIndex = 0; digitIndex < maxDigitExpoent; digitIndex++)
+	for (sp_uint digitIndex = 0; digitIndex < maxDigitExpoent; digitIndex++)
 	{
 		std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
 
-		for (sp_size j = 0; j < n; j++)    //make histogram
+		for (sp_uint j = 0; j < n; j++)    //make histogram
 		{
-			bucketIndex = digitsCache[j] = digit((int)vector[j] + minElement, digitIndex);
+			bucketIndex = digitsCache[j] = digit((sp_int)vector[j] + minElement, (sp_int) digitIndex);
 			bucket[bucketIndex]++;
 		}
 
-		for (sp_size j = 1; j < bucketCount; j++)
+		for (sp_uint j = 1; j < bucketCount; j++)
 			bucket[j] += bucket[j - 1];
 
-		for (sp_size j = n - 1; j >= 0; j--)
+		for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
 		{
 			bucketIndex = digitsCache[j];
 
@@ -219,28 +219,28 @@ void AlgorithmSorting::radix(sp_size *vector, sp_size n)
 		if (vector[i] > maxElement)
 			maxElement = vector[i];
 
-	sp_size maxDigit = digitCount(maxElement);
+	sp_uint maxDigit = digitCount(maxElement);
 
 	sp_size* output = ALLOC_ARRAY(sp_size, n);
-	sp_size* digitsCache = ALLOC_ARRAY(sp_size, n);
-	const sp_size bucketCount = 10;
-	sp_size bucket[bucketCount];
-	sp_size bucketIndex;
+	sp_uint* digitsCache = ALLOC_ARRAY(sp_uint, n);
+	const sp_uint bucketCount = 10;
+	sp_uint bucket[bucketCount];
+	sp_uint bucketIndex;
 
-	for (sp_size digitIndex = 0; digitIndex < maxDigit; digitIndex++)
+	for (sp_uint digitIndex = 0; digitIndex < maxDigit; digitIndex++)
 	{
 		std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
 
 		for (sp_size j = 0; j < n; j++)    //make histogram
 		{
-			bucketIndex = digitsCache[j] = digit(vector[j], digitIndex);
+			bucketIndex = digitsCache[j] = digit((sp_uint)vector[j], digitIndex);
 			bucket[bucketIndex]++;
 		}
 
-		for (sp_size j = 1; j < bucketCount; j++)
+		for (sp_uint j = 1; j < bucketCount; j++)
 			bucket[j] += bucket[j - 1];
 
-		for (sp_size j = n - 1; j >= 0; j--)
+		for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
 		{
 			bucketIndex = digitsCache[j];
 
@@ -278,24 +278,24 @@ void AlgorithmSorting::radix(sp_int* vector, sp_size n)
 
 	sp_int* output = ALLOC_ARRAY(sp_int, n);
 	sp_int* digitsCache = ALLOC_ARRAY(sp_int, n);
-	const size_t bucketCount = 10;
-	sp_size bucket[bucketCount];
-	sp_size bucketIndex;
+	const sp_uint bucketCount = 10;
+	sp_uint bucket[bucketCount];
+	sp_uint bucketIndex;
 
 	for (sp_uint digitIndex = 0; digitIndex < maxDigit; digitIndex++)
 	{
 		std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
 
-		for (sp_size j = 0; j < n; j++)    //make histogram
+		for (sp_uint j = 0; j < n; j++)    //make histogram
 		{
 			bucketIndex = digitsCache[j] = digit( (sp_uint)(vector[j] + minElement), digitIndex);
 			bucket[bucketIndex]++;
 		}
 
-		for (sp_size j = 1; j < bucketCount; j++)
+		for (sp_uint j = 1; j < bucketCount; j++)
 			bucket[j] += bucket[j - 1];
 
-		for (sp_size j = n - 1; j >= 0; j--)
+		for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
 		{
 			bucketIndex = digitsCache[j];
 

@@ -34,13 +34,13 @@ T** AlgorithmInterpolation<T>::naturalSpline(Vec2<T>* points, size_t pointsCount
 {
 	T** result = ALLOC_ARRAY(T*, pointsCount - 1);
 
-	for (size_t i = 0; i < pointsCount - 1; i++)
+	for (sp_uint i = 0; i < pointsCount - 1; i++)
 		result[i] = ALLOC_ARRAY(T, 4);
 
 	T* h = ALLOC_ARRAY(T, pointsCount);
 	h[pointsCount - 1] = T(0);
 
-	for (size_t i = 0; i < pointsCount - 1; i++)
+	for (sp_uint i = 0; i < pointsCount - 1; i++)
 		h[i] = points[i + 1][0] - points[i][0];
 
 	T* alpha = ALLOC_ARRAY(T, pointsCount);
@@ -67,7 +67,7 @@ T** AlgorithmInterpolation<T>::naturalSpline(Vec2<T>* points, size_t pointsCount
 
 	c[pointsCount - 1] = T(0);
 	
-	for (size_t i = 1; i < pointsCount - 1; i++)
+	for (sp_uint i = 1; i < pointsCount - 1; i++)
 	{
 		alpha[i] = ((T(3) / h[i]) * (points[i + 1][1] - points[i][1])) - ((T(3) / h[i - 1]) * (points[i][1] - points[i - 1][1]));
 
@@ -76,14 +76,14 @@ T** AlgorithmInterpolation<T>::naturalSpline(Vec2<T>* points, size_t pointsCount
 		z[i] = (alpha[i] - (h[i - 1] * z[i - 1])) / l[i];
 	}
 
-	for (size_t j = pointsCount - 2; j >= T(0); j--)
+	for (sp_uint j = pointsCount - 2; j != SP_UINT_MAX; j--)
 	{
 		c[j] = z[j] - u[j] * c[j + 1];
 		b[j] = (points[j + 1][1] - points[j][1]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
 		d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
 	}
 
-	for (size_t i = 0; i < pointsCount - 1; i++)
+	for (sp_uint i = 0; i < pointsCount - 1; i++)
 	{
 		result[i][0] = points[i][1];
 		result[i][1] = b[i];
@@ -188,7 +188,7 @@ T** AlgorithmInterpolation<T>::fixedSpline(Vec2<T>* points, size_t pointsCount, 
 	z[n] = (alpha[n] - h[n - 1] * z[n - 1] ) / l[n];
 	c[n] = z[n];
 
-	for (sp_uint j = n - 1; j >= T(0); j--)
+	for (sp_uint j = n - 1; j != UINT_MAX; j--)
 	{
 		c[j] = z[j] - u[j] * c[j + 1];
 		b[j] = (points[j + 1][1] - points[j][1]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / T(3);

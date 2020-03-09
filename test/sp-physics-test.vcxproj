@@ -184,7 +184,9 @@
     </Lib>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86_64\Debug\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86_64\Debug\*" "$(TargetDir)"</Command>
+xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86_64\Debug\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(TargetDir)"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -206,7 +208,9 @@ xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86_64\Debug\*" "$(TargetDir)"</Comman
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\Debug\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\Debug\*" "$(TargetDir)"</Command>
+xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\Debug\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(TargetDir)"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -232,7 +236,9 @@ xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\Debug\*" "$(TargetDir)"</Command>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\Release\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\Release\*" "$(TargetDir)"</Command>
+xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\Release\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(TargetDir)"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -258,7 +264,9 @@ xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\Release\*" "$(TargetDir)"</Command
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86_64\Release\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86_64\Release\*" "$(TargetDir)"</Command>
+xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86_64\Release\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(TargetDir)"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

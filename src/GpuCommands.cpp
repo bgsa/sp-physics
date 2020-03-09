@@ -50,31 +50,27 @@ namespace OpenML
 	{
 		const sp_size globalWorkSize[3] = { gpu->maxWorkGroupSize, 0 , 0 };
 		const sp_size localWorkSize[3] = { nextPowOf2(n) / gpu->maxWorkGroupSize, 0, 0 };
-		const sp_size groupCount = gpu->maxWorkGroupSize / localWorkSize[0];
+		const sp_int groupCount = std::max((sp_int)(gpu->maxWorkGroupSize / localWorkSize[0]), 1);
 
 		cl_mem outputBuffer = gpu->createBuffer(SIZEOF_FLOAT * groupCount, CL_MEM_READ_WRITE);
 
-		GpuCommand* commandFindMinMax = gpu->commandManager->createCommand();
-
-		float* outputGPU = commandFindMinMax
-			->setInputParameter(input, SIZEOF_FLOAT * n, CL_MEM_READ_ONLY, false)
+		gpu->commandManager->createCommand()
+			->setInputParameter(input, SIZEOF_FLOAT * n, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY, false)
 			->setInputParameter(&n, SIZEOF_UINT)
 			->setInputParameter(outputBuffer, SIZEOF_FLOAT * groupCount)
 			->buildFromProgram(gpu->commandManager->cachedPrograms[findMinMaxProgramIndex], "findMax")
 			->execute(1, globalWorkSize, localWorkSize)
-			->fetchInOutParameter<float>(2);
-
-		commandFindMinMax->~GpuCommand();
+			->~GpuCommand();
 
 		return  outputBuffer;
 	}
 
 	float* GpuCommands::findMinMaxGPU(GpuDevice* gpu, float* input, sp_size n, sp_size strider, sp_size offset)
 	{
-		float* output = ALLOC_ARRAY(float, 2);
+		sp_float* output = ALLOC_ARRAY(sp_float, 2);
 		const sp_size globalWorkSize[3] = { nextPowOf2(std::min((sp_size)gpu->maxWorkGroupSize, n)), 0 , 0 };
 		const sp_size localWorkSize[3] = { std::max(nextPowOf2(n) / gpu->maxWorkGroupSize, sp_size(1)), 0, 0 };
-		const sp_size groupCount = globalWorkSize[0] / localWorkSize[0];
+		const sp_uint groupCount = std::max((sp_uint)(globalWorkSize[0] / localWorkSize[0]), ONE_UINT);
 
 		cl_mem outputBuffer = gpu->createBuffer(SIZEOF_FLOAT * groupCount * 2, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE);
 
@@ -90,8 +86,8 @@ namespace OpenML
 			->execute(1, globalWorkSize, localWorkSize)
 			->fetchInOutParameter<float>(2);
 
-		output[0] = FLT_MAX;
-		output[1] = -FLT_MAX;
+		output[0] = SP_FLOAT_MAX;
+		output[1] = SP_FLOAT_MIN;
 		for (sp_uint i = 0; i < groupCount - 1; i++)   // check the remaining itens provided from GPU
 		{
 			if (output[0] > outputGPU[i])
@@ -154,7 +150,7 @@ namespace OpenML
 
 	float GpuCommands::findMaxGPU(GpuDevice* gpu, float* input, size_t n, size_t strider, size_t offset)
 	{
-		float* output = ALLOC_ARRAY(float, 1);
+		sp_float* output = ALLOC_ARRAY(sp_float, 1);
 		cl_mem outputBuffer = GpuCommands::findMaxGPUBuffer(gpu, input, n, strider, offset);
 
 		gpu->commandManager->executeReadBuffer(outputBuffer, SIZEOF_FLOAT, output, true);
