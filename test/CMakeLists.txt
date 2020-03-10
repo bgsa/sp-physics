@@ -73,13 +73,19 @@ if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 	endif()
 
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" OR ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-	set (SP_FOUNDATION_LIBRARY libSpFoundation.a)
-	set (SP_PHYSICS_LIBRARY    libSpPhysics.a)
+	set (SP_FOUNDATION_LIBRARY "libSpFoundation.a")
+	set (SP_PHYSICS_LIBRARY    "libSpPhysics.a")
 	set (GOOGLETEST_LIBRARY    libgtest.a)
+	set (OPENCL_LIB_DIRS       ${OPENCL_LIBRARY})
 
 	set (CUSTOM_DEFINITIONS    "-Wno-dangling-else")	
 
-	find_package(OpenCL REQUIRED)
+	find_package(Threads REQUIRED)
+	find_package(OpenCL  REQUIRED)
+
+	if( ${OPENCL_FOUND} STREQUAL "FALSE" )
+		message(FATAL_ERROR "OpenCL not found !!!")
+	endif()
 else()
     message(FATAL_ERROR "Operating System not defined!")
 endif()
@@ -100,8 +106,12 @@ include_directories(
 link_directories(
 	${VENDOR_DIR}/lib
 	${VENDOR_DIR}/lib/Release
+	${SP_FOUNDATION_DIR}/lib
 	${SP_FOUNDATION_DIR}/lib/Release
 	${SP_FOUNDATION_DIR}/lib/Debug
+	${SP_PHYSICS_DIR}/lib
+	${SP_PHYSICS_DIR}/lib/Release
+	${SP_PHYSICS_DIR}/lib/Debug
 	/usr/bin/x86_64-linux-gnu
 	/usr/local/lib
 	${OPENCL_LIB_DIRS}
@@ -119,12 +129,21 @@ else()
     message(FATAL_ERROR "Operating System not defined!")
 endif()
 
+if(THREADS_HAVE_PTHREAD_ARG)
+  set_property(TARGET ${PROJECT_NAME} PROPERTY COMPILE_OPTIONS "-pthread")
+  set_property(TARGET ${PROJECT_NAME} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+endif()
+
 target_link_libraries(${PROJECT_NAME} 
 	${SP_FOUNDATION_LIBRARY}
 	${SP_PHYSICS_LIBRARY}
 	${OPENCL_LIBRARY}
 	${GOOGLETEST_LIBRARY}
 )
+
+if(CMAKE_THREAD_LIBS_INIT)
+	target_link_libraries(${PROJECT_NAME} "${CMAKE_THREAD_LIBS_INIT}")
+endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
 	target_link_libraries(${PROJECT_NAME}

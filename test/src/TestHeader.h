@@ -16,7 +16,7 @@
 #ifdef GOOGLETEST_ENABLED
 	#include "gtest/gtest.h"
 
-	#define SP_TEST_CLASS(className)                  class className
+	#define SP_TEST_CLASS(className)                  class className : public ::testing::Test
 	#define SP_TEST_METHOD(className, methodMame)     TEST_F(className, methodMame)
 	#define SP_TEST_METHOD_DEF(methodMame)
 
