@@ -27,12 +27,16 @@ namespace OpenML
 		std::vector<sp_bool> inputParametersKeep;
 		cl_mem outputParameter = NULL;
 		sp_size outputSize = 0;
-				
+		
 		GpuCommand(cl_device_id deviceId, cl_context deviceContext, cl_command_queue commandQueue);
 
 	public:
 
-		double timeToExecuteInMiliseconds = 0.0;
+		sp_size workGroupSize;
+		sp_size compileWorkGroupSize[3];
+		sp_ulong localMemorySizeRequired;
+
+		sp_double timeToExecuteInMiliseconds = 0.0;
 
 		API_INTERFACE cl_mem getInputParameter(sp_uint index);
 

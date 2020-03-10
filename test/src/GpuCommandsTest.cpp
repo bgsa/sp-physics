@@ -15,18 +15,6 @@
 namespace SP_PHYSICS_TEST_NAMESPACE
 {
 
-	float* getRandom(size_t count, size_t spaceSize = 10000)
-	{
-		Randomizer<int> randomizer(0, spaceSize);
-
-		float* result = ALLOC_ARRAY(float, count);
-
-		for (size_t i = 0; i < count; i++)
-			result[i] = randomizer.rand() / 100.0f;
-
-		return result;
-	}
-
 	AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
 	{
 		Randomizer<int> randomizerSize(0, 30);
@@ -81,18 +69,10 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 		SP_TEST_METHOD_DEF(GpuCommands_createIndexes_Many);
 
-		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxGPU);
-
-		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxGPU_withOffsets);
-
 		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxIndexesGPU_withOffsets);
 
 		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxIndexesGPU_withOffsets_andFewData);
 
-		SP_TEST_METHOD_DEF(GpuCommands_findMaxGPU);
-
-		SP_TEST_METHOD_DEF(GpuCommands_findMaxGPUBuffer);
-		
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_createIndexes)
@@ -110,8 +90,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 		cl_mem indexes = GpuCommands::creteIndexes(gpu, count);
 
-		size_t* values = ALLOC_ARRAY(size_t, count);
-		gpu->commandManager->executeReadBuffer(indexes, count * SIZEOF_UINT, (void*)values, true);
+		sp_size* values = ALLOC_ARRAY(sp_size, count);
+		gpu->commandManager->executeReadBuffer(indexes, count * SIZEOF_SIZE, values, true);
 
 		for (size_t i = 0; i < count; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
@@ -125,7 +105,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice;
 
-		const size_t count = (size_t) powf(2.0f, 17.0f);
+		const size_t count = (size_t)powf(2.0f, 17.0f);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count;
@@ -145,102 +125,11 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		ALLOC_RELEASE(values);
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxGPU)
-	{
-		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
-
-		const size_t count = (size_t)std::pow(2.0, 17.0);
-		float* input = getRandom(count);
-
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count;
-		buildOptions << " -DINPUT_STRIDE=1";
-		buildOptions << " -DINPUT_OFFSET=0";
-		GpuCommands::init(gpu, buildOptions.str().c_str());
-
-		float min = std::numeric_limits<float>().max();
-		float max = std::numeric_limits<float>().min();
-
-		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-
-		for (size_t i = 0; i < count; i++)
-		{
-			if (input[i] > max)
-				max = input[i];
-
-			if (input[i] < min)
-				min = input[i];
-		}
-
-		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		currentTime = std::chrono::high_resolution_clock::now();
-
-		float* result = GpuCommands::findMinMaxGPU(gpu, input, count, 1, 0);
-
-		currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
-
-		ALLOC_RELEASE(input);
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxGPU_withOffsets)
-	{
-		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
-
-		const size_t offsetMultiplier = 8;
-		const size_t offsetSum = 2;
-
-		const size_t count = (size_t)std::pow(2.0, 17.0);
-		AABB* aabbs = getRandomAABBs(count);
-
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count;
-		buildOptions << " -DINPUT_STRIDE=" << AABB_STRIDER;
-		buildOptions << " -DINPUT_OFFSET=" << AABB_OFFSET;
-		GpuCommands::init(gpu, buildOptions.str().c_str());
-
-		float min = FLT_MAX;
-		float max = -FLT_MAX;
-
-		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-
-		for (size_t i = 0; i < count; i++)
-		{
-			if (aabbs[i].minPoint.x > max)
-				max = aabbs[i].minPoint.x;
-
-			if (aabbs[i].minPoint.x < min)
-				min = aabbs[i].minPoint.x;
-		}
-
-		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		currentTime = std::chrono::high_resolution_clock::now();
-
-		float* result = GpuCommands::findMinMaxGPU(gpu, (float*)aabbs, count, offsetMultiplier, offsetSum);
-		
-		currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
-
-		ALLOC_RELEASE(aabbs);
-	}
-
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxIndexesGPU_withOffsets)
 	{
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice;
-		
+
 		const sp_uint offsetCpu = AABB_OFFSET;
 
 		const sp_uint maxIterations = 100;
@@ -259,7 +148,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			<< " -DINPUT_OFFSET=" << AABB_OFFSET;
 
 		for (size_t i = 0; i < maxIterations; i++)
-		{	
+		{
 			AABB* aabbs = getRandomAABBs(count);
 
 			float min = FLT_MAX;
@@ -364,77 +253,6 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		gpu->releaseBuffer(offset);
 		gpu->releaseBuffer(output);
 		ALLOC_RELEASE(aabbs);
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMaxGPU)
-	{
-		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
-		GpuCommands::init(gpu, NULL);
-
-		const size_t count = (size_t)std::pow(2.0, 17.0);
-		float* input = getRandom(count);
-
-		float max = -FLT_MAX;
-
-		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-
-		for (size_t i = 0; i < count; i++)
-			if (input[i] > max)
-				max = input[i];
-
-		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		currentTime = std::chrono::high_resolution_clock::now();
-
-		float result = GpuCommands::findMaxGPU(gpu, input, count, 1, 0);
-
-		currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		Assert::AreEqual(max, result, L"Wrong value.", LINE_INFO());
-
-		ALLOC_RELEASE(input);
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMaxGPUBuffer)
-	{
-		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
-		GpuCommands::init(gpu, NULL);
-
-		const size_t count = (size_t)std::pow(2.0, 17.0);
-		float* input = getRandom(count);
-
-		float max = -FLT_MAX;
-
-		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-
-		for (size_t i = 0; i < count; i++)
-			if (input[i] > max)
-				max = input[i];
-
-		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		currentTime = std::chrono::high_resolution_clock::now();
-
-		cl_mem buffer = GpuCommands::findMaxGPUBuffer(gpu, input, count, 1, 0);
-		float* output = ALLOC_ARRAY(float, 8);
-		gpu->commandManager->executeReadBuffer(buffer, SIZEOF_FLOAT*8, output, true);
-		float result = -FLT_MAX;
-
-		for (size_t i = 0; i < 8; i++)
-			if (result < output[i])
-				result = output[i];
-
-		currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
-
-		Assert::AreEqual(max, result, L"Wrong value.", LINE_INFO());
-
-		ALLOC_RELEASE(input);
 	}
 
 }

@@ -26,9 +26,23 @@ namespace OpenML
 		//bool isAvailable = false;
 		std::vector<std::string> extensions;
 		sp_uint maxParameterSize = 256;
+
+		/// <summary>
+		/// Maximum number of work - items in a work - group executing a kernel using the data parallel execution model
+		/// </summary>
 		sp_uint maxWorkGroupSize = 1;
+
+		
+		/// <summary>
+		/// Maximum dimensions that specify the global and local work - item IDs used by the data parallel execution model
+		/// </summary>
 		cl_uint maxWorkItemDimension = 3;
+		
+		/// <summary>
+		/// Maximum number of work - items that can be specified in each dimension of the work - group to clEnqueueNDRangeKernel
+		/// </summary>
 		sp_uint maxWorkItemSizes[3];
+
 		cl_ulong globalMemorySize;
 		cl_ulong globalMemoryCacheSize;
 		cl_ulong localMemorySize;
