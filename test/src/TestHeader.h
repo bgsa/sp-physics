@@ -13,6 +13,9 @@
 	#include <GpuCommand.h>
 #endif
 
+void setupModule();
+void tearDownModule();
+
 #ifdef GOOGLETEST_ENABLED
 	#include "gtest/gtest.h"
 

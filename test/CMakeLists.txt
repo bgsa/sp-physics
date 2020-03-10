@@ -11,7 +11,7 @@ endif()
 set (MAJOR_VERSION 0)
 set (MINOR_VERSION 1)
 set (PATCH_VERSION 0)
-project(SpPhysicsTest VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
+project(SpPhysicsTest     VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
 
 option(OPERATING_SYSTEM "Define which operating system will be built for" "WINDOWS")
 option(ARCH_BITS        "Define the compilation to 64 bits"   "64")
@@ -23,6 +23,12 @@ if ( "${OPENCL_DIR}" STREQUAL "OFF" )
 	set (OPENCL_DIR $ENV{OPENCL_HOME})
 endif()
 
+if ( OPENCL_ENABLED )
+	set (OPENCL_DEFINITION "-DOPENCL_ENABLED")
+else()
+	set (OPENCL_DEFINITION "")
+endif()
+
 if ( "${TEST_FRAMEWORK}" STREQUAL "MSTEST" )
 	set (TEST_FRAMEWORK_DEF -DMSTEST_ENABLED)
 else()
@@ -32,7 +38,10 @@ endif()
 set (PROJECT_DIR  ${CMAKE_CURRENT_SOURCE_DIR})
 set (SOLUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
 
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_DIR}/lib)
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_DIR}/bin)
+
 set (SP_FOUNDATION_DIR ${SOLUTION_DIR}/sp-foundation)
 set (SP_PHYSICS_DIR    ${SOLUTION_DIR}/sp-physics)
 set (VENDOR_DIR        ${SOLUTION_DIR}/vendor)
@@ -45,12 +54,12 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if ( ${ARCH_BITS} STREQUAL "64" )
 	set (ARCH "x86_64")
-	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -m64 -std=c11" )
-	set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m64 -std=c++11" )
+	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -m64 -fPIC -std=c11" )
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -fPIC -std=c++11" )
 else()
 	set (ARCH "x86")	
-	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -m32 -std=c11" )
-	set (CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -m32 -std=c++11" )
+	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -m32 -fPIC -std=c11" )
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -fPIC -std=c++11" )
 endif()
 
 set (SP_FOUNDATION_INCLUDE_DIRS ${SP_FOUNDATION_DIR}/src)
@@ -91,6 +100,7 @@ else()
 endif()
 
 file(GLOB SOURCES "src/*.cpp")
+list(FILTER SOURCES EXCLUDE REGEX "main.cpp$")
 
 include_directories(
 	src
@@ -117,24 +127,32 @@ link_directories(
 	${OPENCL_LIB_DIRS}
 )
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_library(${PROJECT_NAME} SHARED ${SOURCES})
+add_executable(${PROJECT_NAME}Exec src/main.cpp)
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DWINDOWS)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DWINDOWS)
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" )
-    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DLINUX)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DLINUX)
 elseif ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DUNIX)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DUNIX)
 else()
     message(FATAL_ERROR "Operating System not defined!")
 endif()
 
 if(THREADS_HAVE_PTHREAD_ARG)
   set_property(TARGET ${PROJECT_NAME} PROPERTY COMPILE_OPTIONS "-pthread")
-  set_property(TARGET ${PROJECT_NAME} PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+  set_property(TARGET ${PROJECT_NAME}Exec PROPERTY COMPILE_OPTIONS "-pthread")
 endif()
 
 target_link_libraries(${PROJECT_NAME} 
+	${SP_FOUNDATION_LIBRARY}
+	${SP_PHYSICS_LIBRARY}
+	${OPENCL_LIBRARY}
+	${GOOGLETEST_LIBRARY}
+)
+target_link_libraries(${PROJECT_NAME}Exec
+	${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib${PROJECT_NAME}.so
 	${SP_FOUNDATION_LIBRARY}
 	${SP_PHYSICS_LIBRARY}
 	${OPENCL_LIBRARY}
@@ -147,6 +165,11 @@ endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
 	target_link_libraries(${PROJECT_NAME}
+	    "-framework Cocoa"
+	    "-framework IOKit"
+	    "-framework CoreVideo"
+	)
+	target_link_libraries(${PROJECT_NAME}Exec
 	    "-framework Cocoa"
 	    "-framework IOKit"
 	    "-framework CoreVideo"
