@@ -6,14 +6,5 @@ build/
 Debug/
 Release/
 ARM/
-test/bin
-OpenML.Android/ARM/Debug/
-OpenML.Test/Debug/
-OpenML.Test/Release/
-bin/arm/Debug/
-bin/arm/Release/
-OpenML.Win32/Win32/Debug/
-OpenML.Test/Debug/
-OpenML.Test/Release/
-OpenML.Win32/x64/**
-OpenML.Win32/Win32/**
+test/lib
+test/runner/bin

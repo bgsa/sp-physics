@@ -26,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 			maxOfInteration--;
 		}
 
-		return T(NAN);
+		return T(SP_NOT_A_NUMBER);
 	}
 
 	template class AlgorithmAitken<int>;
