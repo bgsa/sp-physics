@@ -18,8 +18,14 @@ option(ARCH_BITS        "Define the compilation to 64 bits"   "64")
 option(OPENCL_ENABLED   "Define if OpenCL will be enabled"   ON)
 option(OPENCL_DIR       "Define the OpenCL home folder OR Environment Var %OPENCL_HOME% Ex.: C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v9.2" $ENV{OPENCL_HOME})
 
-if ( "${OPENCL_DIR}" STREQUAL "OFF" )
-	set (OPENCL_DIR $ENV{OPENCL_HOME})
+if ( ${OPENCL_ENABLED} )
+	set (OPENCL_DEFINITION "-DOPENCL_ENABLED")
+
+	if ( "${OPENCL_DIR}" STREQUAL "OFF" )
+		set (OPENCL_DIR $ENV{OPENCL_HOME})
+	endif()
+else()
+	set (OPENCL_DEFINITION "")
 endif()
 
 set (PROJECT_DIR  ${CMAKE_CURRENT_SOURCE_DIR})
@@ -48,21 +54,21 @@ if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 
 	if( ${BUILD_SHARED_LIBS} )
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+		set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   /MDd")
 	else()
 		set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+		set(CMAKE_CXX_FLAGS_DEBUG   "${CMAKE_CXX_FLAGS_DEBUG}   /MTd")
 	endif()
 
 	set (SP_FOUNDATION_LIB_NAME "SpFoundation.lib")
 	set (CUSTOM_DEFINITIONS "-D_CRT_SECURE_NO_WARNINGS")
-	set (OPENCL_INCLUDE_DIRS ${OPENCL_DIR}/include)	
-	set (OPENCL_LIBRARY "OpenCL.lib")
+	set (OpenCL_INCLUDE_DIRS ${OPENCL_DIR}/include)	
+	set (OpenCL_LIBRARIES "OpenCL.lib")
 
 	if ( ${ARCH_BITS} STREQUAL "64" )	
-		set (OPENCL_LIB_DIRS ${OPENCL_DIR}/lib/x64)
+		set (OpenCL_LIB_DIRS ${OPENCL_DIR}/lib/x64)
 	else()
-		set (OPENCL_LIB_DIRS ${OPENCL_DIR}/lib/Win32)
+		set (OpenCL_LIB_DIRS ${OPENCL_DIR}/lib/Win32)
 	endif()
 
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" OR ${OPERATING_SYSTEM} STREQUAL "UNIX" )
@@ -75,11 +81,11 @@ endif()
 file(GLOB SOURCES "src/*.cpp")
 
 include_directories(
-	./src
+	src
 	${SP_FOUNDATION_DIR}/src
 	${VENDOR_DIR}/include
 	${VENDOR_DIR}
-	${OPENCL_INCLUDE_DIRS}
+	${OpenCL_INCLUDE_DIRS}
 	${VENDOR_DIR}/googletest/googletest/include
 	/usr/local/include
 )
@@ -90,8 +96,9 @@ link_directories(
 	${SP_FOUNDATION_DIR}/lib/Release
 	${SP_FOUNDATION_DIR}/lib/Debug
 	/usr/bin/x86_64-linux-gnu
+	/usr/lib/x86_64-linux-gnu
 	/usr/local/lib
-	${OPENCL_LIB_DIRS}
+	${OpenCL_LIB_DIRS}
 )
 
 if ( ${BUILD_SHARED_LIBS} )
@@ -101,18 +108,18 @@ else()
 endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
-    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DWINDOWS)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${CUSTOM_DEFINITIONS} -DWINDOWS)
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" )
-    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DLINUX)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${CUSTOM_DEFINITIONS} -DLINUX)
 elseif ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-    add_definitions(-DENV_64BITS -DAPI_EXPORT -DOPENCL_ENABLED ${CUSTOM_DEFINITIONS} -DUNIX)
+    add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${CUSTOM_DEFINITIONS} -DUNIX)
 else()
     message(FATAL_ERROR "Operating System not defined!")
 endif()
 
 target_link_libraries(${PROJECT_NAME} 
 	${SP_FOUNDATION_LIB_NAME}
-	${OPENCL_LIBRARY}
+	${OpenCL_LIBRARIES}
 )
 
 if ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )

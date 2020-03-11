@@ -11,7 +11,7 @@ endif()
 set (MAJOR_VERSION 0)
 set (MINOR_VERSION 1)
 set (PATCH_VERSION 0)
-project(SpPhysicsTest VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
+project(SpPhysicsTestRun VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
 
 option(OPERATING_SYSTEM "Define which operating system will be built for" "WINDOWS")
 option(ARCH_BITS        "Define the compilation to 64 bits"   "64")
@@ -36,16 +36,17 @@ else()
 endif()
 
 set (PROJECT_DIR  ${CMAKE_CURRENT_SOURCE_DIR})
-set (SOLUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+set (SOLUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
 
 set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_DIR}/lib)
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_DIR}/lib)
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_DIR}/bin)
 
-set (SP_FOUNDATION_DIR ${SOLUTION_DIR}/sp-foundation)
-set (SP_PHYSICS_DIR    ${SOLUTION_DIR}/sp-physics)
-set (VENDOR_DIR        ${SOLUTION_DIR}/vendor)
-set (GOOGLETEST_DIR    ${SOLUTION_DIR}/vendor/googletest)
+set (SP_FOUNDATION_DIR    ${SOLUTION_DIR}/sp-foundation)
+set (SP_PHYSICS_DIR       ${SOLUTION_DIR}/sp-physics)
+set (SP_PHYSICS_TEST_DIR  ${SP_PHYSICS_DIR}/test)
+set (VENDOR_DIR           ${SOLUTION_DIR}/vendor)
+set (GOOGLETEST_DIR       ${SOLUTION_DIR}/vendor/googletest)
 
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_C_STANDARD_REQUIRED ON)
@@ -62,16 +63,15 @@ else()
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -fPIC -std=c++11" )
 endif()
 
-set (SP_FOUNDATION_INCLUDE_DIRS ${SP_FOUNDATION_DIR}/src)
-set (SP_PHYSICS_INCLUDE_DIRS    ${SP_PHYSICS_DIR}/src)
-set (OpenCL_INCLUDE_DIRS        ${OPENCL_DIR}/include)
+set (OPENCL_INCLUDE_DIRS        ${OPENCL_DIR}/include)
 set (GOOGLETEST_INCLUDE_DIRS    ${GOOGLETEST_DIR}/googletest/include)
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 	set (SP_FOUNDATION_LIBRARY      SpFoundation.lib)
 	set (SP_PHYSICS_LIBRARY         SpPhysics.lib)
+	set (SP_PHYSICS_TEST_LIBRARY    SpPhysicsTest.lib)
 	set (GOOGLETEST_LIBRARY         gtest.lib)
-	set (OpenCL_LIBRARY             OpenCL.lib)
+	set (OpenCL_LIBRARIES           OpenCL.lib)
 
 	set (CUSTOM_DEFINITIONS         "-D_CRT_SECURE_NO_WARNINGS")
 
@@ -82,12 +82,13 @@ if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 	endif()
 
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" OR ${OPERATING_SYSTEM} STREQUAL "UNIX" )
-	set (SP_FOUNDATION_LIBRARY "libSpFoundation.a")
-	set (SP_PHYSICS_LIBRARY    "libSpPhysics.a")
-	set (GOOGLETEST_LIBRARY    libgtest.a)
-	set (OpenCL_LIB_DIRS       ${OpenCL_LIBRARIES})
+	set (SP_FOUNDATION_LIBRARY   "libSpFoundation.a")
+	set (SP_PHYSICS_LIBRARY      "libSpPhysics.a")
+	set (SP_PHYSICS_TEST_LIBRARY "libSpPhysicsTest.so")
+	set (GOOGLETEST_LIBRARY      libgtest.a)
+	set (OpenCL_LIB_DIRS         ${OpenCL_LIBRARIES})
 
-	set (CUSTOM_DEFINITIONS    "-Wno-dangling-else")	
+	set (CUSTOM_DEFINITIONS      "-Wno-dangling-else")	
 
 	find_package(Threads REQUIRED)
 	find_package(OpenCL  REQUIRED)
@@ -100,12 +101,12 @@ else()
 endif()
 
 file(GLOB SOURCES "src/*.cpp")
-list(FILTER SOURCES EXCLUDE REGEX "main.cpp$")
 
 include_directories(
 	src
-	${SP_FOUNDATION_INCLUDE_DIRS}
-	${SP_PHYSICS_INCLUDE_DIRS}
+	${SP_FOUNDATION_DIR}/src
+	${SP_PHYSICS_DIR}/src
+	${SP_PHYSICS_TEST_DIR}/src
 	${VENDOR_DIR}/include
 	${VENDOR_DIR}
 	${OpenCL_INCLUDE_DIRS}
@@ -123,12 +124,13 @@ link_directories(
 	${SP_PHYSICS_DIR}/lib
 	${SP_PHYSICS_DIR}/lib/Release
 	${SP_PHYSICS_DIR}/lib/Debug
+	${SP_PHYSICS_TEST_DIR}/lib
 	/usr/lib/x86_64-linux-gnu
 	/usr/bin/x86_64-linux-gnu
 	/usr/local/lib
 )
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
     add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DWINDOWS)
@@ -145,9 +147,10 @@ if(THREADS_HAVE_PTHREAD_ARG)
 endif()
 
 target_link_libraries(${PROJECT_NAME} 
+	${GOOGLETEST_LIBRARY}
+	${SP_PHYSICS_TEST_LIBRARY}
 	${SP_PHYSICS_LIBRARY}
 	${SP_FOUNDATION_LIBRARY}
-	${GOOGLETEST_LIBRARY}
 	${OpenCL_LIBRARIES}
 )
 
@@ -162,6 +165,10 @@ if ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
 		"-framework CoreVideo"
 		#"-framework OpenCL"
 	)
+
+	if ( ${OPENCL_ENABLED} )
+		target_link_libraries(${PROJECT_NAME} "-framework OpenCL")
+	endif()
 endif()
 
 set(CPACK_PROJECT_NAME    ${PROJECT_NAME})

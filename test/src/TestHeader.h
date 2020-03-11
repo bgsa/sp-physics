@@ -2,7 +2,6 @@
 #define TEST_HEADER_HEADER
 
 #include <OpenML.h>
-#include <MemoryAllocatorManager.h>
 #include <chrono>
 
 #ifndef SP_PHYSICS_TEST_NAMESPACE
@@ -13,8 +12,8 @@
 	#include <GpuCommand.h>
 #endif
 
-void setupModule();
-void tearDownModule();
+API_INTERFACE void setupModule();
+API_INTERFACE void tearDownModule();
 
 #ifdef GOOGLETEST_ENABLED
 	#include "gtest/gtest.h"

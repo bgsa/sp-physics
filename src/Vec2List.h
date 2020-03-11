@@ -23,22 +23,22 @@ namespace OpenML
 		/// <summary>
 		/// Default constructor
 		/// </summary>	
-		API_INTERFACE inline Vec2List();
+		API_INTERFACE Vec2List();
 
 		/// <summary>
 		/// Constructor with a initialized list
 		/// </summary>	
-		API_INTERFACE inline Vec2List(const std::vector<Vec2<T>> &list);
+		API_INTERFACE Vec2List(const std::vector<Vec2<T>> &list);
 
 		/// <summary>
 		/// Add the vetor to list
 		/// </summary>	
-		API_INTERFACE inline void add(const Vec2<T>& value);
+		API_INTERFACE void add(const Vec2<T>& value);
 
 		/// <summary>
 		/// Get the size of the list
 		/// </summary>	
-		API_INTERFACE inline size_t size() const;
+		API_INTERFACE size_t size() const;
 
 		/// <summary>
 		/// Find the vector that contains the minimum X value

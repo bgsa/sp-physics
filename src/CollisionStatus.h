@@ -1,4 +1,7 @@
-#pragma once
+#ifndef COLLISION_STATUS_HEADER
+#define COLLISION_STATUS_HEADER
+
+#include "OpenML.h"
 
 namespace OpenML
 {
@@ -14,12 +17,12 @@ namespace OpenML
 	{
 	public:
 
-		DetailedCollisionStatus(CollisionStatus status) 
+		API_INTERFACE inline DetailedCollisionStatus(CollisionStatus status) 
 		{
 			this->status = status;
 		}
 
-		DetailedCollisionStatus(CollisionStatus status, Vec3<T> point1)
+		API_INTERFACE inline DetailedCollisionStatus(CollisionStatus status, Vec3<T> point1)
 		{
 			this->status = status;
 
@@ -29,7 +32,7 @@ namespace OpenML
 			pointsCount = 1;
 		}
 
-		DetailedCollisionStatus(CollisionStatus status, Vec3<T> point1, Vec3<T> point2)
+		API_INTERFACE inline DetailedCollisionStatus(CollisionStatus status, Vec3<T> point1, Vec3<T> point2)
 		{
 			this->status = status;
 
@@ -40,7 +43,7 @@ namespace OpenML
 			pointsCount = 2;
 		}
 
-		DetailedCollisionStatus(CollisionStatus status, Vec3<T>* points, int pointsCount)
+		API_INTERFACE inline DetailedCollisionStatus(CollisionStatus status, Vec3<T>* points, int pointsCount)
 		{
 			this->status = status;
 			this->points = points;
@@ -52,3 +55,5 @@ namespace OpenML
 		int pointsCount = 0;
 	};
 }
+
+#endif // COLLISION_STATUS_HEADER

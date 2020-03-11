@@ -1,5 +1,4 @@
 #include "TestHeader.h"
-#include "MemoryAllocatorManager.h"
 
 void setupModule()
 {

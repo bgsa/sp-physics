@@ -239,7 +239,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		cl_mem offset = gpu->createBuffer((void*)&offsetSum, SIZEOF_UINT, CL_MEM_READ_ONLY);
 		cl_mem output = gpu->createBuffer(threadCount * 2 * SIZEOF_FLOAT, CL_MEM_READ_WRITE);
 
-		GpuCommands::findMinMaxIndexesGPU(gpu, elements, indexes, indexesLength, offset, count, offsetMultiplier, output);
+		//GpuCommands::findMinMaxIndexesGPU(gpu, elements, indexes, indexesLength, offset, count, offsetMultiplier, output);
 
 		float* result = ALLOC_ARRAY(float, threadCount * 2);
 		gpu->commandManager->executeReadBuffer(output, threadCount * 2 * SIZEOF_FLOAT, result, true);

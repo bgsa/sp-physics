@@ -12,20 +12,20 @@ namespace OpenML
 		Vec2<T> point2;
 		Vec2<T> point3;
 
-		API_INTERFACE inline Triangle2D();
-		API_INTERFACE inline Triangle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3);
-		API_INTERFACE inline Triangle2D(T* point1, T* point2, T* point3);
+		API_INTERFACE Triangle2D();
+		API_INTERFACE Triangle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3);
+		API_INTERFACE Triangle2D(T* point1, T* point2, T* point3);
 
-		API_INTERFACE inline T area() const;
+		API_INTERFACE T area() const;
 
-		API_INTERFACE inline T perimeter() const;
+		API_INTERFACE T perimeter() const;
 
-		API_INTERFACE inline T height() const;
+		API_INTERFACE T height() const;
 		
 		///<summary>
 		///Get the lines that makes the rectangle
 		///</summary>
-		inline Line2D<T>* getLines() const;
+		Line2D<T>* getLines() const;
 
 		///<summary>
 		///Chech the point is outside, inside or on the line of the triangle

@@ -11,13 +11,13 @@ namespace OpenML
 		T ray;
 		Vec2<T> center;
 
-		API_INTERFACE inline Circle2D();
-		API_INTERFACE inline Circle2D(const Vec2<T>& center, T ray);
-		API_INTERFACE inline Circle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3);
+		API_INTERFACE Circle2D();
+		API_INTERFACE Circle2D(const Vec2<T>& center, T ray);
+		API_INTERFACE Circle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3);
 
-		API_INTERFACE inline T area() const;
+		API_INTERFACE T area() const;
 
-		API_INTERFACE inline T circumference() const;
+		API_INTERFACE T circumference() const;
 
 		API_INTERFACE T* calculatePoints(size_t& pointsCount) const;
 
