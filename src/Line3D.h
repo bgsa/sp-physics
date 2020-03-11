@@ -6,7 +6,7 @@
 #include "Sphere.h"
 #include "AABB.h"
 
-namespace OpenML 
+namespace NAMESPACE_PHYSICS 
 {
 	class Line3D
 	{

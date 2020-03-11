@@ -6,7 +6,7 @@
 #include <limits>
 #include <vector>
 
-namespace OpenML 
+namespace NAMESPACE_PHYSICS 
 {
 
 	template <typename T>

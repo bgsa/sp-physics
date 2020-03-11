@@ -2,9 +2,8 @@
 
 #include "GpuCommands.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
-
 	static size_t findMinMaxProgramIndex = UINT_MAX;
 	static size_t basicProgramIndex = UINT_MAX;
 

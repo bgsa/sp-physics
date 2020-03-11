@@ -4,7 +4,7 @@
 #include "Line2D.h"
 #include "Triangle2D.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	template <typename T>
 	class Rectangle2D

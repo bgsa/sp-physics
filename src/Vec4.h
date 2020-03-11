@@ -2,7 +2,7 @@
 
 #include "OpenML.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 #define VEC4_SIZE 4
 

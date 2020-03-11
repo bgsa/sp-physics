@@ -3,7 +3,7 @@
 
 #include "OpenML.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 #define MAT2_SIZE 4
 #define MAT2_ROWSIZE 2

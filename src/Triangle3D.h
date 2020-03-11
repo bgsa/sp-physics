@@ -4,7 +4,7 @@
 #include "OpenML.h"
 #include "Line3D.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class Triangle3D

@@ -4,7 +4,7 @@
 #include "Vec3.h"
 #include "BoundingVolume.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	class OBB
 		: public BoundingVolumeOBB

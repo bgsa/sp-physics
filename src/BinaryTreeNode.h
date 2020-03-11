@@ -5,7 +5,7 @@
 #include <vector>
 #include "BoundingVolume.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	template <typename T>

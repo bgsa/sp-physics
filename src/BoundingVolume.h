@@ -5,7 +5,7 @@
 #include "Vec3.h"
 #include "ParticleSystem.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	template <typename T>

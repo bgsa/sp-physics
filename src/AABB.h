@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AABB_HEADER
+#define AABB_HEADER
 
 #include <algorithm>
 #include "Vec3.h"
@@ -7,7 +8,7 @@
 #include "Plane3D.h"
 #include "Sphere.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 #define AABB_STRIDER 8
 #define AABB_OFFSET 2
@@ -152,3 +153,5 @@ namespace OpenML
 	};
 
 }
+
+#endif // AABB_HEADER

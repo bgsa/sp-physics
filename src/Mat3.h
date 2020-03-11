@@ -5,7 +5,7 @@
 #include <cstring>
 #include <vector>
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 #define MAT3_SIZE 9
 #define MAT3_ROWSIZE 3

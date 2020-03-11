@@ -6,7 +6,7 @@
 #include "Mat3.h"
 #include "Vec4.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 #define MAT4_SIZE 16
 #define MAT4_ROWSIZE 4

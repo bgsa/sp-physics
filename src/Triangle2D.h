@@ -1,8 +1,9 @@
-#pragma once
+#ifndef TRIANGLE2D_HEADER
+#define TRIANGLE2D_HEADER
 
 #include "OpenML.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	template <typename T>
 	class Triangle2D
@@ -48,3 +49,5 @@ namespace OpenML
 	typedef Triangle2D<float> Triangle2Df;
 	typedef Triangle2D<double> Triangle2Dd;
 }
+
+#endif // TRIANGLE2D_HEADER

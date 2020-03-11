@@ -4,7 +4,7 @@
 
 #include "GpuCommand.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	class GpuCommandManager
 	{

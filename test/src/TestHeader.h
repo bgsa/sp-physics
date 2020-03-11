@@ -56,7 +56,7 @@ API_INTERFACE void tearDownModule();
 			{
 
 			}
-			static void AreEqual(const OpenML::CollisionStatus& value1, const OpenML::CollisionStatus& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+			static void AreEqual(const CollisionStatus& value1, const CollisionStatus& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
 			{
 
 			}

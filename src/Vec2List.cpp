@@ -1,265 +1,245 @@
 #include "Vec2List.h"
 
-using namespace OpenML;
-
-template <typename T>
-Vec2List<T>::Vec2List()
+namespace NAMESPACE_PHYSICS
 {
-}
-
-template <typename T>
-Vec2List<T>::Vec2List(const std::vector<Vec2<T>> &list)
-{
-	this->list = list;
-}
-
-template <typename T>
-void Vec2List<T>::add(const Vec2<T>& value) 
-{
-	list.push_back(value);
-}
-
-template <typename T>
-size_t Vec2List<T>::size() const
-{
-	return list.size();
-}
-
-template <typename T>
-Vec2<T>* Vec2List<T>::findMinX()
-{
-	if (size() == 0)
-		return nullptr;
-
-	Vec2<T>* result = &list[0];
-
-	for (size_t i = 0 ; i != list.size() ; i ++)
+	template <typename T>
+	Vec2List<T>::Vec2List()
 	{
-		if (list[i].x < result->x)
-			result = &list[i];
 	}
 
-	return result;
-}
-
-template <typename T>
-Vec2<T>* Vec2List<T>::findMinY()
-{
-	if (size() == 0)
-		return nullptr;
-
-	Vec2<T>* result = &list[0];
-
-	for (size_t i = 0; i != list.size(); i++)
+	template <typename T>
+	Vec2List<T>::Vec2List(const std::vector<Vec2<T>> &list)
 	{
-		if (list[i].y < result->y)
-			result = &list[i];
+		this->list = list;
 	}
 
-	return result;
-}
-
-template <typename T>
-Vec2<T>* Vec2List<T>::findMaxX()
-{
-	if (size() == 0)
-		return nullptr;
-
-	Vec2<T>* result = &list[0];
-
-	for (size_t i = 0; i != list.size(); i++)
+	template <typename T>
+	void Vec2List<T>::add(const Vec2<T>& value) 
 	{
-		if (list[i].x > result->x)
-			result = &list[i];
+		list.push_back(value);
 	}
 
-	return result;
-}
-
-template <typename T>
-Vec2<T>* Vec2List<T>::findMaxY()
-{
-	if (size() == 0)
-		return nullptr;
-
-	Vec2<T>* result = &list[0];
-
-	for (size_t i = 0; i != list.size(); i++)
+	template <typename T>
+	size_t Vec2List<T>::size() const
 	{
-		if (list[i].y > result->y)
-			result = &list[i];
+		return list.size();
 	}
 
-	return result;
-}
-
-template <typename T>
-void Vec2List<T>::sortByAxis(Vec2<T>* arr, sp_size left, sp_size right, sp_int axisIndex)
-{
-	sp_size i = left, j = right;
-	Vec2<T> tmp;
-	Vec2<T> pivot = arr[ (sp_size) (left + right) / 2 ];
-	sp_size nextAxis = axisIndex == 0 ? axisIndex + 1 : axisIndex - 1;
-
-	while (i <= j) 
+	template <typename T>
+	Vec2<T>* Vec2List<T>::findMinX()
 	{
-		while (arr[i][axisIndex] < pivot[axisIndex])
-			i++;
+		if (size() == 0)
+			return nullptr;
 
-		while (arr[j][axisIndex] > pivot[axisIndex])
-			j--;
+		Vec2<T>* result = &list[0];
 
-		if (i <= j)
+		for (size_t i = 0 ; i != list.size() ; i ++)
 		{
-			std::swap(arr[i], arr[j]);
-			i++;
-			j--;
+			if (list[i].x < result->x)
+				result = &list[i];
 		}
-	};
-	
-	if (left < j)
-		sortByAxis(arr, left, j, axisIndex);
-	if (i < right)
-		sortByAxis(arr, i, right, axisIndex);
-}
 
-template <typename T>
-void Vec2List<T>::sortByAxisXY()
-{	
-	Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 0);
+		return result;
+	}
 
-	for (size_t i = 0; i < list.size(); i++)
+	template <typename T>
+	Vec2<T>* Vec2List<T>::findMinY()
 	{
-		for (size_t j = i + 1; j < list.size(); j++)
-		{
-			if (list[i][0] != list[j][0])
-				break;
+		if (size() == 0)
+			return nullptr;
 
-			if (list[i][1] > list[j][1]) {
-				std::swap(list[i], list[j]);
+		Vec2<T>* result = &list[0];
+
+		for (size_t i = 0; i != list.size(); i++)
+		{
+			if (list[i].y < result->y)
+				result = &list[i];
+		}
+
+		return result;
+	}
+
+	template <typename T>
+	Vec2<T>* Vec2List<T>::findMaxX()
+	{
+		if (size() == 0)
+			return nullptr;
+
+		Vec2<T>* result = &list[0];
+
+		for (size_t i = 0; i != list.size(); i++)
+		{
+			if (list[i].x > result->x)
+				result = &list[i];
+		}
+
+		return result;
+	}
+
+	template <typename T>
+	Vec2<T>* Vec2List<T>::findMaxY()
+	{
+		if (size() == 0)
+			return nullptr;
+
+		Vec2<T>* result = &list[0];
+
+		for (size_t i = 0; i != list.size(); i++)
+		{
+			if (list[i].y > result->y)
+				result = &list[i];
+		}
+
+		return result;
+	}
+
+	template <typename T>
+	void Vec2List<T>::sortByAxis(Vec2<T>* arr, sp_size left, sp_size right, sp_int axisIndex)
+	{
+		sp_size i = left, j = right;
+		Vec2<T> tmp;
+		Vec2<T> pivot = arr[ (sp_size) (left + right) / 2 ];
+		sp_size nextAxis = axisIndex == 0 ? axisIndex + 1 : axisIndex - 1;
+
+		while (i <= j) 
+		{
+			while (arr[i][axisIndex] < pivot[axisIndex])
+				i++;
+
+			while (arr[j][axisIndex] > pivot[axisIndex])
+				j--;
+
+			if (i <= j)
+			{
+				std::swap(arr[i], arr[j]);
+				i++;
+				j--;
+			}
+		};
+		
+		if (left < j)
+			sortByAxis(arr, left, j, axisIndex);
+		if (i < right)
+			sortByAxis(arr, i, right, axisIndex);
+	}
+
+	template <typename T>
+	void Vec2List<T>::sortByAxisXY()
+	{	
+		Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 0);
+
+		for (size_t i = 0; i < list.size(); i++)
+		{
+			for (size_t j = i + 1; j < list.size(); j++)
+			{
+				if (list[i][0] != list[j][0])
+					break;
+
+				if (list[i][1] > list[j][1]) {
+					std::swap(list[i], list[j]);
+				}
 			}
 		}
 	}
-}
 
-template <typename T>
-void Vec2List<T>::sortByX()
-{
-	Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 0);
-}
-
-template <typename T>
-void Vec2List<T>::sortByY()
-{
-	Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 1);
-}
-
-template <typename T>
-Vec2<T> nextToTop(std::stack<Vec2<T>> values) 
-{
-	Vec2<T> topValue = values.top();
-
-	values.pop();
-
-	Vec2<T> nextToTopValue = values.top();
-
-	values.push(topValue);
-
-	return nextToTopValue;
-}
-
-template <typename T>
-std::stack<Vec2<T>> Vec2List<T>::convexUpperHull() const
-{
-	Vec2<T> point1 = list[0];
-	Vec2<T> point2 = list[1];
-	Vec2<T> currentPoint = list[2];
-	T determinant = T(0);
-	bool isCounterClockwise = false;
-
-	std::stack<Vec2<T>> upperHull;
-	upperHull.push(point1);
-	upperHull.push(point2);
-	
-	for (sp_size i = 2; i < list.size(); i++)
+	template <typename T>
+	void Vec2List<T>::sortByX()
 	{
-		point1 = nextToTop(upperHull);
-		point2 = upperHull.top();
-		currentPoint = list[i];
+		Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 0);
+	}
 
-		Mat3<T> lineMatrix = {
-			T(1), T(1), T(1),
-			currentPoint[0], point1[0], point2[0],
-			currentPoint[1], point1[1], point2[1]
-		};
+	template <typename T>
+	void Vec2List<T>::sortByY()
+	{
+		Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 1);
+	}
 
-		determinant = lineMatrix.determinant();
+	template <typename T>
+	Vec2<T> nextToTop(std::stack<Vec2<T>> values) 
+	{
+		Vec2<T> topValue = values.top();
 
-		isCounterClockwise = determinant >= T(0);
+		values.pop();
+
+		Vec2<T> nextToTopValue = values.top();
+
+		values.push(topValue);
+
+		return nextToTopValue;
+	}
+
+	template <typename T>
+	std::stack<Vec2<T>> Vec2List<T>::convexUpperHull() const
+	{
+		Vec2<T> point1 = list[0];
+		Vec2<T> point2 = list[1];
+		Vec2<T> currentPoint = list[2];
+		T determinant = T(0);
+		bool isCounterClockwise = false;
+
+		std::stack<Vec2<T>> upperHull;
+		upperHull.push(point1);
+		upperHull.push(point2);
 		
-		while (isCounterClockwise)
+		for (sp_size i = 2; i < list.size(); i++)
 		{
-			upperHull.pop();
-
-			if (upperHull.size() == 1)
-				break;
-
 			point1 = nextToTop(upperHull);
 			point2 = upperHull.top();
+			currentPoint = list[i];
 
 			Mat3<T> lineMatrix = {
 				T(1), T(1), T(1),
-				currentPoint.x, point1.x, point2.x,
-				currentPoint.y, point1.y, point2.y
+				currentPoint[0], point1[0], point2[0],
+				currentPoint[1], point1[1], point2[1]
 			};
 
-			isCounterClockwise = lineMatrix.determinant() >= T(0);
+			determinant = lineMatrix.determinant();
+
+			isCounterClockwise = determinant >= T(0);
+			
+			while (isCounterClockwise)
+			{
+				upperHull.pop();
+
+				if (upperHull.size() == 1)
+					break;
+
+				point1 = nextToTop(upperHull);
+				point2 = upperHull.top();
+
+				Mat3<T> lineMatrix = {
+					T(1), T(1), T(1),
+					currentPoint.x, point1.x, point2.x,
+					currentPoint.y, point1.y, point2.y
+				};
+
+				isCounterClockwise = lineMatrix.determinant() >= T(0);
+			}
+
+			upperHull.push(list[i]);
 		}
 
-		upperHull.push(list[i]);
+		return upperHull;
 	}
 
-	return upperHull;
-}
-
-template <typename T>
-std::stack<Vec2<T>> Vec2List<T>::convexLowerHull() const
-{
-	Vec2<T> point1 = list[list.size() - 1];
-	Vec2<T> point2 = list[list.size() - 2];
-	Vec2<T> currentPoint = list[list.size() - 3];
-	T determinant = T(0);
-	sp_bool isCounterClockwise = false;
-
-	std::stack<Vec2<T>> lowerHull;
-	lowerHull.push(point1);
-	lowerHull.push(point2);
-
-	for (sp_size i = list.size() - 3; i != std::numeric_limits<size_t>::max() ; i--)
+	template <typename T>
+	std::stack<Vec2<T>> Vec2List<T>::convexLowerHull() const
 	{
-		point1 = nextToTop(lowerHull);
-		point2 = lowerHull.top();
-		currentPoint = list[i];
+		Vec2<T> point1 = list[list.size() - 1];
+		Vec2<T> point2 = list[list.size() - 2];
+		Vec2<T> currentPoint = list[list.size() - 3];
+		T determinant = T(0);
+		sp_bool isCounterClockwise = false;
 
-		Mat3<T> lineMatrix = {
-			T(1), T(1), T(1),
-			currentPoint.x, point1.x, point2.x,
-			currentPoint.y, point1.y, point2.y
-		};
+		std::stack<Vec2<T>> lowerHull;
+		lowerHull.push(point1);
+		lowerHull.push(point2);
 
-		determinant = lineMatrix.determinant();
-
-		isCounterClockwise = determinant >= T(0);
-
-		while (isCounterClockwise)
+		for (sp_size i = list.size() - 3; i != std::numeric_limits<size_t>::max() ; i--)
 		{
-			lowerHull.pop();
-
-			if (lowerHull.size() == 1)
-				break;
-
 			point1 = nextToTop(lowerHull);
 			point2 = lowerHull.top();
+			currentPoint = list[i];
 
 			Mat3<T> lineMatrix = {
 				T(1), T(1), T(1),
@@ -267,44 +247,62 @@ std::stack<Vec2<T>> Vec2List<T>::convexLowerHull() const
 				currentPoint.y, point1.y, point2.y
 			};
 
-			isCounterClockwise = lineMatrix.determinant() >= T(0);
+			determinant = lineMatrix.determinant();
+
+			isCounterClockwise = determinant >= T(0);
+
+			while (isCounterClockwise)
+			{
+				lowerHull.pop();
+
+				if (lowerHull.size() == 1)
+					break;
+
+				point1 = nextToTop(lowerHull);
+				point2 = lowerHull.top();
+
+				Mat3<T> lineMatrix = {
+					T(1), T(1), T(1),
+					currentPoint.x, point1.x, point2.x,
+					currentPoint.y, point1.y, point2.y
+				};
+
+				isCounterClockwise = lineMatrix.determinant() >= T(0);
+			}
+
+			lowerHull.push(list[i]);
 		}
 
-		lowerHull.push(list[i]);
+		return lowerHull;
 	}
 
-	return lowerHull;
-}
-
-template <typename T>
-Vec2List<T> Vec2List<T>::convexHull() const
-{
-	std::stack<Vec2<T>> upperHull = convexUpperHull();
-	std::stack<Vec2<T>> lowerHull = convexLowerHull();
-
-	Vec2List<T> result;
-
-	lowerHull.pop();
-
-	while ( ! lowerHull.empty() ) 
+	template <typename T>
+	Vec2List<T> Vec2List<T>::convexHull() const
 	{
-		result.add(lowerHull.top());
+		std::stack<Vec2<T>> upperHull = convexUpperHull();
+		std::stack<Vec2<T>> lowerHull = convexLowerHull();
+
+		Vec2List<T> result;
+
 		lowerHull.pop();
-	}
 
-	upperHull.pop();
+		while ( ! lowerHull.empty() ) 
+		{
+			result.add(lowerHull.top());
+			lowerHull.pop();
+		}
 
-	while ( ! upperHull.empty() )
-	{
-		result.add(upperHull.top());
 		upperHull.pop();
+
+		while ( ! upperHull.empty() )
+		{
+			result.add(upperHull.top());
+			upperHull.pop();
+		}
+
+		return result;
 	}
 
-	return result;
-}
-
-namespace OpenML
-{
 	template class Vec2List<sp_int>;
 	template class Vec2List<sp_float>;
 	template class Vec2List<sp_double>;

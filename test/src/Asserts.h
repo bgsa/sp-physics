@@ -9,7 +9,7 @@ public:
 	template<typename T>
 	static void isCloseEnough(T value, T compare, T epsilon, const wchar_t* message, const __LineInfo* lineInfo = nullptr)
 	{
-		bool result = OpenML::isCloseEnough(value, compare, epsilon);
+		bool result = isCloseEnough(value, compare, epsilon);
 
 		Assert::IsTrue(result, message, lineInfo);
 	}

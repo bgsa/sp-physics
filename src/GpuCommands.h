@@ -10,7 +10,7 @@
 #include "IFileManager.h"
 #include "Factory.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class GpuCommands

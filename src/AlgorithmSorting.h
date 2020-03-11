@@ -16,7 +16,7 @@
 	#undef min
 #endif
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class AlgorithmSorting

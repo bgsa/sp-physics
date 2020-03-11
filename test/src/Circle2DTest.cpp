@@ -53,7 +53,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		float result = circle.area();
 		float expected = 28.27f;
 
-		Assert::AreEqual(expected, OpenML::round(result, 2), L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(expected, round(result, 2), L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_circumference_Test)
@@ -65,7 +65,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		float result = circle.circumference();
 		float expected = 18.85f;
 
-		Assert::AreEqual(expected, OpenML::round(result, 2), L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(expected, round(result, 2), L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_hasIntersection1_Test)
@@ -118,8 +118,8 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 		Assert::IsNotNull(result, L"Circles should intersect.", LINE_INFO());
 
-		Assert::AreEqual(intersection.x, OpenML::round(result[0].x, 3), L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(intersection.y, OpenML::round(result[0].y, 3), L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(intersection.x, round(result[0].x, 3), L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(intersection.y, round(result[0].y, 3), L"Wrong value.", LINE_INFO());
 	}
 
 }

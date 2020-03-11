@@ -6,7 +6,7 @@
 #include "Line3D.h"
 #include "Orientation.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class Plane3D

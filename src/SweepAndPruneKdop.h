@@ -4,7 +4,7 @@
 #include "SweepAndPrune.h"
 #include "DOP18.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	class SweepAndPruneKdop
 		: public SweepAndPrune

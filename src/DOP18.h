@@ -10,7 +10,7 @@
 #define DOP18_STRIDER 20
 #define DOP18_OFFSET 2
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	/// <summary>
 	/// Represents a k-DOP with 9 orientations and 18 DOPs

@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <map>
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class HashGrid

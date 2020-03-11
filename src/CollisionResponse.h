@@ -4,7 +4,7 @@
 #include "OpenML.h"
 #include "Sphere.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class CollisionResponse

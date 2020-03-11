@@ -2,7 +2,7 @@
 
 #include "OpenML.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 #define QUAT_SIZE 4

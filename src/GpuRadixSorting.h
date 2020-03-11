@@ -5,7 +5,7 @@
 
 #include "GpuCommands.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	class GpuRadixSorting
 	{

@@ -8,7 +8,7 @@
 #include "Circle2D.h"
 #include "SystemOfLinearEquations.h"
 
-namespace OpenML 
+namespace NAMESPACE_PHYSICS 
 {
 	template <typename T>
 	class Line2D

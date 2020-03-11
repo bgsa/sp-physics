@@ -8,7 +8,7 @@
 #include "CollisionStatus.h"
 #include "BoundingVolume.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class Sphere

@@ -1,30 +1,30 @@
 #include "AlgorithmLagrange.h"
 
-template <typename T>
-T AlgorithmLagrange<T>::polynomialApproximation(Vec2<T>* points, size_t pointsCount, T x)
+namespace NAMESPACE_PHYSICS
 {
-	T result = T(0);
-
-	for (size_t i = 0; i < pointsCount; i++)
+	template <typename T>
+	T AlgorithmLagrange<T>::polynomialApproximation(Vec2<T>* points, size_t pointsCount, T x)
 	{
-		T li = T(1);
+		T result = T(0);
 
-		for (size_t j = 0; j < pointsCount; j++)
+		for (size_t i = 0; i < pointsCount; i++)
 		{
-			if (i == j)
-				continue;
+			T li = T(1);
 
-			li *= (x - points[j][0]) / (points[i][0] - points[j][0]);			
+			for (size_t j = 0; j < pointsCount; j++)
+			{
+				if (i == j)
+					continue;
+
+				li *= (x - points[j][0]) / (points[i][0] - points[j][0]);			
+			}
+
+			result += points[i][1] * li;
 		}
 
-		result += points[i][1] * li;
+		return result;
 	}
 
-	return result;
-}
-
-namespace OpenML
-{
 	template class AlgorithmLagrange<int>;
 	template class AlgorithmLagrange<float>;
 	template class AlgorithmLagrange<double>;

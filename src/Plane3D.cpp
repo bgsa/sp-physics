@@ -1,7 +1,7 @@
 #include "Plane3D.h"
 
-namespace OpenML
-{	
+namespace NAMESPACE_PHYSICS
+{
 	Plane3D::Plane3D() {
 		this->point = Vec3f(0.0f);
 	};

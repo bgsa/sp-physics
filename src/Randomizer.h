@@ -1,25 +1,29 @@
 #pragma once
 
+#include "OpenML.h"
 #include <random>
 
-static std::default_random_engine randomGenerator{ std::random_device{}() };
-
-template<typename T>
-class Randomizer
+namespace NAMESPACE_PHYSICS
 {
-private:
-	std::uniform_int_distribution<T> distribution;
+	static std::default_random_engine randomGenerator{ std::random_device{}() };
 
-public:
-
-	Randomizer(T from, T to)
+	template<typename T>
+	class Randomizer
 	{
-		distribution = std::uniform_int_distribution<T>(from, to);
-	}
+	private:
+		std::uniform_int_distribution<T> distribution;
 
-	API_INTERFACE inline T rand()
-	{
-		T randomValue = distribution(randomGenerator);
-		return randomValue;
-	}
-};
+	public:
+
+		Randomizer(T from, T to)
+		{
+			distribution = std::uniform_int_distribution<T>(from, to);
+		}
+
+		API_INTERFACE inline T rand()
+		{
+			T randomValue = distribution(randomGenerator);
+			return randomValue;
+		}
+	};
+}
