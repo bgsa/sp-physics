@@ -8,7 +8,7 @@
 
 #define CLASS_NAME GpuRadixSortingTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 
 	float* getRandom(sp_uint count, sp_uint spaceSize = 10000)

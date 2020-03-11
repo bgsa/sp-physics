@@ -4,7 +4,7 @@
 
 #define CLASS_NAME AlgorithmSortingTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 
 	static int comparatorFloatTest(const void* param1, const void* param2)

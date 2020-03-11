@@ -15,7 +15,7 @@
 
 #define CLASS_NAME HashGridTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 	void writeToConsole(std::string content) 
 	{

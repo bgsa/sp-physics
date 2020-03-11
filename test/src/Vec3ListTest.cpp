@@ -4,7 +4,7 @@
 
 #define CLASS_NAME Vec3ListTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 	SP_TEST_CLASS(CLASS_NAME)
 	{

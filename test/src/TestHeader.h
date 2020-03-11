@@ -4,16 +4,21 @@
 #include <OpenML.h>
 #include <chrono>
 
-#ifndef SP_PHYSICS_TEST_NAMESPACE
-	#define SP_PHYSICS_TEST_NAMESPACE  SpPhysicsTest
-#endif
-
 #if OPENCL_ENABLED
 	#include <GpuCommand.h>
 #endif
 
-API_INTERFACE void setupModule();
-API_INTERFACE void tearDownModule();
+#ifndef NAMESPACE_PHYSICS_TEST
+	#define NAMESPACE_PHYSICS_TEST  SpPhysics::Test
+#endif
+
+using namespace NAMESPACE_PHYSICS;
+
+namespace NAMESPACE_PHYSICS_TEST
+{
+	API_INTERFACE void setupModule();
+	API_INTERFACE void tearDownModule();
+}
 
 #ifdef GOOGLETEST_ENABLED
 	#include "gtest/gtest.h"
@@ -24,65 +29,68 @@ API_INTERFACE void tearDownModule();
 
 	#define LINE_INFO() __FILE__ , __FUNCTION__, __LINE__
 
-	class Assert
+	namespace NAMESPACE_PHYSICS_TEST
 	{
-		public:
+		class Assert
+		{
+			public:
 
-			static void AreEqual(size_t value1, size_t value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				static void AreEqual(size_t value1, size_t value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void AreEqual(int value1, int value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void AreEqual(int value1, int value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void AreEqual(float value1, float value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void AreEqual(float value1, float value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void AreEqual(double value1, double value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void AreEqual(double value1, double value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void AreEqual(std::string value1, std::string value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void AreEqual(std::string value1, std::string value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void AreEqual(const Vec2f& value1, const Vec2f& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void AreEqual(const Vec2f& value1, const Vec2f& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void AreEqual(const Vec3f& value1, const Vec3f& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void AreEqual(const Vec3f& value1, const Vec3f& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void AreEqual(const CollisionStatus& value1, const CollisionStatus& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void AreEqual(const CollisionStatus& value1, const CollisionStatus& value2, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
+				}
 
-			static void IsTrue(bool value, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				static void IsTrue(bool value, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void IsFalse(bool value, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void IsFalse(bool value, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
+				}
 
-			static void IsNull(void* value, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				static void IsNull(void* value, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void IsNotNull(void* value, const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void IsNotNull(void* value, const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-			static void Fail(const wchar_t* message, const char* filename, const char* functionName, const int line)
-			{
+				}
+				static void Fail(const wchar_t* message, const char* filename, const char* functionName, const int line)
+				{
 
-			}
-	};
+				}
+		};
+	}
 
 #endif
 
@@ -95,7 +103,6 @@ API_INTERFACE void tearDownModule();
 	#define SP_TEST_METHOD_DEF(methodName)            TEST_METHOD(methodName)
 	
 	using namespace Microsoft::VisualStudio::CppUnitTestFramework;
-	using namespace OpenML;
 
 namespace Microsoft 
 {

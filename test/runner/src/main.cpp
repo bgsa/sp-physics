@@ -2,6 +2,8 @@
 
 #ifdef GOOGLETEST_ENABLED
 
+using namespace NAMESPACE_PHYSICS_TEST;
+
 int main(int argc, char **argv)
 {
 	::testing::InitGoogleTest(&argc, argv);

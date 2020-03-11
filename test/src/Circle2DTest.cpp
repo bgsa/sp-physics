@@ -6,7 +6,7 @@
 
 #define CLASS_NAME Circle2DTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 	SP_TEST_CLASS(CLASS_NAME)
 	{
