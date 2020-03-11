@@ -15,8 +15,8 @@ namespace OpenML
 		float cellSizeInverted;
 
 	public:
-		HashGrid();
-		HashGrid(size_t cellSize);
+		API_INTERFACE HashGrid();
+		API_INTERFACE HashGrid(size_t cellSize);
 
 		API_INTERFACE void setCellSize(size_t cellSize);
 		API_INTERFACE size_t getCellSize();

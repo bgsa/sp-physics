@@ -135,6 +135,10 @@ GpuCommand* GpuCommand::buildFromProgram(cl_program program, const sp_char* kern
 	if (outputParameter != NULL)
 		HANDLE_OPENCL_ERROR(clSetKernelArg(kernel, (cl_uint) inputParameters.size(), sizeof(cl_mem), &outputParameter));
 
+	HANDLE_OPENCL_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_WORK_GROUP_SIZE, SIZEOF_SIZE, &workGroupSize, NULL));
+	HANDLE_OPENCL_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3 * SIZEOF_SIZE, &compileWorkGroupSize, NULL));
+	HANDLE_OPENCL_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_LOCAL_MEM_SIZE, SIZEOF_LONG, &localMemorySizeRequired, NULL));
+
 	return this;
 }
 
@@ -146,7 +150,7 @@ GpuCommand* GpuCommand::build(const sp_char* source, sp_size sourceSize, const s
 	HANDLE_OPENCL_ERROR(errorCode);
 
 	HANDLE_OPENCL_BUILD_ERROR(clBuildProgram(program, 1, &deviceId, buildOptions, NULL, NULL), program, deviceId);
-	
+
 	return buildFromProgram(program, kernelName);
 }
 
@@ -182,51 +186,36 @@ void GpuCommand::fetch(void* buffer)
 	HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, buffer, 0, NULL, NULL));
 }
 
-template <typename T>
-T* GpuCommand::fetch()
+namespace OpenML
 {
-	void* result = ALLOC_SIZE(outputSize);
+	template <typename T>
+	T* GpuCommand::fetchInOutParameter(sp_uint index)
+	{
+		sp_size size = inputParametersSize[index];
 
-	HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, result, 0, NULL, NULL));
-	
-	return (T*) result;
+		void* result = ALLOC_SIZE(size);
+
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, NULL));
+
+		return (T*)result;
+	}
+	template void*        GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_bool*     GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_char*     GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_short*    GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_int*      GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_size*     GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_longlong* GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_float*    GpuCommand::fetchInOutParameter(sp_uint index);
+	template sp_double*   GpuCommand::fetchInOutParameter(sp_uint index);
 }
-template void* GpuCommand::fetch();
-template sp_short* GpuCommand::fetch();
-template sp_char* GpuCommand::fetch();
-template sp_int* GpuCommand::fetch();
-template sp_size* OpenML::GpuCommand::fetch();
-template sp_longlong* OpenML::GpuCommand::fetch();
-template sp_float* GpuCommand::fetch();
-template sp_double* GpuCommand::fetch();
 
 void GpuCommand::fetchInOutParameter(void* buffer, sp_uint index)
 {
-	sp_size size = inputParametersSize[index];	
+	sp_size size = inputParametersSize[index];
 
 	HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, buffer, 0, NULL, NULL));
 }
-
-template <typename T>
-T* GpuCommand::fetchInOutParameter(sp_uint index)
-{
-	sp_size size = inputParametersSize[index];
-
-	void* result = ALLOC_SIZE(size);
-
-	HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, NULL));
-
-	return (T*)result;
-}
-template void* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_bool* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_char* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_short* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_int* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_size* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_longlong* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_float* GpuCommand::fetchInOutParameter(sp_uint index);
-template sp_double* GpuCommand::fetchInOutParameter(sp_uint index);
 
 GpuCommand::~GpuCommand()
 {

@@ -1,11 +1,12 @@
 ﻿.vs/
 *vcxproj.user
 x64/
-bin/
+lib/
 build/
 Debug/
 Release/
 ARM/
+test/bin
 OpenML.Android/ARM/Debug/
 OpenML.Test/Debug/
 OpenML.Test/Release/

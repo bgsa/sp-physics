@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SPHERE_HEADER
+#define SPHERE_HEADER
 
 #include "OpenML.h"
 #include "Vec3.h"
@@ -23,12 +24,12 @@ namespace OpenML
 		/// <summary>
 		/// Default construct - unit sphere with the center in origin
 		/// </summary>
-		API_INTERFACE inline Sphere();
+		API_INTERFACE Sphere();
 
 		/// <summary>
 		/// Construct with the center point and a ray
 		/// </summary>
-		API_INTERFACE inline Sphere(const Vec3f &center, float ray);
+		API_INTERFACE Sphere(const Vec3f &center, float ray);
 
 		/// <summary>
 		/// Build the sphere from 1 point (center) and ray = 1
@@ -80,17 +81,17 @@ namespace OpenML
 		/// <summary>
 		/// Check the status of collision against the point
 		/// </summary>
-		API_INTERFACE inline CollisionStatus collisionStatus(const Vec3f &point) const;
+		API_INTERFACE CollisionStatus collisionStatus(const Vec3f &point) const;
 
 		/// <summary>
 		/// Check the status of collision against the plane
 		/// </summary>
-		API_INTERFACE inline CollisionStatus collisionStatus(const Plane3D &plane) const;
+		API_INTERFACE CollisionStatus collisionStatus(const Plane3D &plane) const;
 
 		/// <summary>
 		/// Check the status of collision against the plane
 		/// </summary>
-		API_INTERFACE inline CollisionStatus collisionStatus(const Sphere& sphere) const;
+		API_INTERFACE CollisionStatus collisionStatus(const Sphere& sphere) const;
 
 		/// <summary>
 		/// Build a enclosing sphere from an AABB
@@ -115,3 +116,5 @@ namespace OpenML
 	};
 
 }
+
+#endif // SPHERE_HEADER

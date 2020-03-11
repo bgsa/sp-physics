@@ -26,51 +26,51 @@ namespace OpenML
 		/// Default constructor
 		/// Load a empty matrix = 0
 		/// </summary>
-		API_INTERFACE inline Mat2(const T defaultValue = T(0));
+		API_INTERFACE Mat2(const T defaultValue = T(0));
 
 		/// <summary>
 		/// Constructor with initialized values
 		/// </summary>
-		API_INTERFACE inline Mat2(T* values);
+		API_INTERFACE Mat2(T* values);
 
 		/// <summary>
 		/// Constructor with initialized values - COL ORDER
 		/// </summary>
-		API_INTERFACE inline Mat2(const T value11, const T value12, const T value21, const T value22);
+		API_INTERFACE Mat2(const T value11, const T value12, const T value21, const T value22);
 
 		/// <summary>
 		/// Get the values from current matrix
 		/// </summary>
-		API_INTERFACE inline T* getValues();
+		API_INTERFACE T* getValues();
 
 		/// <summary>
 		/// Get the value from current matrix
 		/// COLUMN MAJOR ORDER
 		/// X and Y: 1 index base
 		/// </summary>
-		API_INTERFACE inline T getValue(const sp_int x, const sp_int y);
+		API_INTERFACE T getValue(const sp_int x, const sp_int y);
 
 		/// <summary>
 		/// Get the X axis
 		/// COLUMN MAJOR ORDER
 		/// </summary>
-		API_INTERFACE inline Vec2<T> xAxis() const;
+		API_INTERFACE Vec2<T> xAxis() const;
 
 		/// <summary>
 		/// Get the Y axis
 		/// COLUMN MAJOR ORDER
 		/// </summary>
-		API_INTERFACE inline Vec2<T> yAxis() const;
+		API_INTERFACE Vec2<T> yAxis() const;
 
 		/// <summary>
 		/// Get the main / principal / major / primary diagonal from matrix
 		/// </summary>
-		API_INTERFACE inline Vec2<T> primaryDiagonal() const;
+		API_INTERFACE Vec2<T> primaryDiagonal() const;
 
 		/// <summary>
 		/// Get the antidiagonal / counter / minor / secondary diagonal from matrix
 		/// </summary>
-		API_INTERFACE inline Vec2<T> secondaryDiagonal() const;
+		API_INTERFACE Vec2<T> secondaryDiagonal() const;
 
 		/// <summary>
 		/// Load a identity matrix
@@ -80,17 +80,17 @@ namespace OpenML
 		/// <summary>
 		/// Transpose matrix - swap rows by columns
 		/// </summary>
-		API_INTERFACE inline Mat2<T> transpose() const;
+		API_INTERFACE Mat2<T> transpose() const;
 
 		/// <summary>
 		/// Multiply this matrix with the parametrized matrix => AxB
 		/// </summary>
-		API_INTERFACE inline Mat2<T> multiply(const Mat2<T>& matrixB) const;
+		API_INTERFACE Mat2<T> multiply(const Mat2<T>& matrixB) const;
 
 		/// <summary>
 		/// Multiply this matrix with the parametrized vector => AxB
 		/// </summary>
-		API_INTERFACE inline Vec2<T> multiply(const Vec2<T>& vector) const;
+		API_INTERFACE Vec2<T> multiply(const Vec2<T>& vector) const;
 
 		/// <summary>
 		/// Create a scaled matrix
@@ -100,7 +100,7 @@ namespace OpenML
 		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
-		API_INTERFACE inline void scale(const T xScale, const T yScale);
+		API_INTERFACE void scale(const T xScale, const T yScale);
 
 		/// <summary>
 		/// Craete a translation matrix
@@ -110,88 +110,88 @@ namespace OpenML
 		/// <summary>
 		/// Get the deeterminant of the Matrix
 		/// </summary>
-		API_INTERFACE inline T determinant() const;
+		API_INTERFACE T determinant() const;
 
 		/// <summary>
 		/// Get the autovalue of the matrix
 		/// </summary>
-		API_INTERFACE inline AutovalueAutovector2<T> getAutovalueAndAutovector(const sp_ushort maxIteration = 5) const;
+		API_INTERFACE AutovalueAutovector2<T> getAutovalueAndAutovector(const sp_ushort maxIteration = 5) const;
 
 		/// <summary>
 		/// Get the size in Bytes of Mat3
 		/// </summary>
-		API_INTERFACE inline sp_size sizeInBytes() const;
+		API_INTERFACE sp_size sizeInBytes() const;
 
 		/// <summary>
 		/// Clone this matrix
 		/// </summary>
-		API_INTERFACE inline Mat2<T> clone() const;
+		API_INTERFACE Mat2<T> clone() const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T& operator[](sp_int index);
+		API_INTERFACE T& operator[](sp_int index);
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE inline T operator[](sp_int index) const;
+		API_INTERFACE T operator[](sp_int index) const;
 
 		/// <summary>
 		/// Auto convertion to void *
 		/// </summary>
-		API_INTERFACE inline operator void*() const;
+		API_INTERFACE operator void*() const;
 
 		/// <summary>
 		/// Auto convertion to T *
 		/// It is the same of convertion to float* or int* or double*, whatever T is.
 		/// </summary>
-		API_INTERFACE inline operator T*();
+		API_INTERFACE operator T*();
 
 		/// <summary>
 		/// Get the negative matrix
 		/// </summary>
-		API_INTERFACE inline Mat2<T> operator-() const;
+		API_INTERFACE Mat2<T> operator-() const;
 
 		/// <summary>
 		/// Subtract a matrix to another one
 		/// </summary>
-		API_INTERFACE inline Mat2<T> operator-(const Mat2<T>& matrix) const;
+		API_INTERFACE Mat2<T> operator-(const Mat2<T>& matrix) const;
 
 		/// <summary>
 		/// Sum a matrix to another one
 		/// </summary>
-		API_INTERFACE inline Mat2<T> operator+(const Mat2<T>& matrix) const;
+		API_INTERFACE Mat2<T> operator+(const Mat2<T>& matrix) const;
 
 		/// <summary>
 		/// Multiply the matrix to another one
 		/// </summary>
-		API_INTERFACE inline Mat2<T> operator*(const Mat2<T>& matrix) const;
+		API_INTERFACE Mat2<T> operator*(const Mat2<T>& matrix) const;
 
 		/// <summary>
 		/// Multiply the matrix to 2D vector
 		/// </summary>
-		API_INTERFACE inline Vec2<T> operator*(const Vec2<T>& matrix) const;
+		API_INTERFACE Vec2<T> operator*(const Vec2<T>& matrix) const;
 
 		/// <summary>
 		/// Multiply the matrix to another one
 		/// </summary>
-		API_INTERFACE inline void operator*=(const Mat2<T>& matrix);
+		API_INTERFACE void operator*=(const Mat2<T>& matrix);
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline Mat2<T> operator/(T value) const;
+		API_INTERFACE Mat2<T> operator/(T value) const;
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline void operator/=(T value);
+		API_INTERFACE void operator/=(T value);
 
 		/// <summary>
 		/// Get the matrix content as string
 		/// </summary>
-		API_INTERFACE inline std::string toString() const;
+		API_INTERFACE std::string toString() const;
 
 	};
 

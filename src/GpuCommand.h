@@ -1,6 +1,7 @@
 #if OPENCL_ENABLED
 
-#pragma once
+#ifndef GPU_COMMAND_HEADER
+#define GPU_COMMAND_HEADER
 
 #include "OpenML.h"
 #include "GpuLog.hpp"
@@ -26,47 +27,53 @@ namespace OpenML
 		std::vector<sp_bool> inputParametersKeep;
 		cl_mem outputParameter = NULL;
 		sp_size outputSize = 0;
-				
+		
 		GpuCommand(cl_device_id deviceId, cl_context deviceContext, cl_command_queue commandQueue);
 
 	public:
 
-		double timeToExecuteInMiliseconds = 0.0;
+		sp_size workGroupSize;
+		sp_size compileWorkGroupSize[3];
+		sp_ulong localMemorySizeRequired;
 
-		cl_mem getInputParameter(sp_uint index);
+		sp_double timeToExecuteInMiliseconds = 0.0;
 
-		GpuCommand* setInputParameter(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, bool keepBuffer = false);
-		GpuCommand* setInputParameter(void* value, sp_size sizeOfValue);
-		GpuCommand* setInputParameter(cl_mem buffer, sp_size sizeOfValue);
+		API_INTERFACE cl_mem getInputParameter(sp_uint index);
 
-		GpuCommand* updateInputParameterValue(sp_uint index, const void* value);
-		GpuCommand* updateInputParameter(sp_uint index, cl_mem memoryBuffer);
+		API_INTERFACE GpuCommand* setInputParameter(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, bool keepBuffer = false);
+		API_INTERFACE GpuCommand* setInputParameter(void* value, sp_size sizeOfValue);
+		API_INTERFACE GpuCommand* setInputParameter(cl_mem buffer, sp_size sizeOfValue);
 
-		cl_mem getOutputParameter();
-		GpuCommand* setOutputParameter(sp_size sizeOfValue);
+		API_INTERFACE GpuCommand* updateInputParameterValue(sp_uint index, const void* value);
+		API_INTERFACE GpuCommand* updateInputParameter(sp_uint index, cl_mem memoryBuffer);
 
-		GpuCommand* swapInputParameter(sp_uint index1, sp_uint index2);
+		API_INTERFACE cl_mem getOutputParameter();
+		API_INTERFACE GpuCommand* setOutputParameter(sp_size sizeOfValue);
 
-		GpuCommand* copyParameters(sp_uint targetParameterIndex, cl_mem destination);
+		API_INTERFACE GpuCommand* swapInputParameter(sp_uint index1, sp_uint index2);
+
+		API_INTERFACE GpuCommand* copyParameters(sp_uint targetParameterIndex, cl_mem destination);
 		
-		GpuCommand* buildFromProgram(cl_program program, const sp_char* kernelName);
-		GpuCommand* build(const sp_char* source, sp_size sourceSize, const sp_char* kernelName, const sp_char* buildOptions = NULL);
+		API_INTERFACE GpuCommand* buildFromProgram(cl_program program, const sp_char* kernelName);
+		API_INTERFACE GpuCommand* build(const sp_char* source, sp_size sourceSize, const sp_char* kernelName, const sp_char* buildOptions = NULL);
 
-		GpuCommand* execute(sp_size workDimnmsion, const sp_size* globalWorkSize, const sp_size* localWorkSize, const sp_size* globalOffset = NULL);
+		API_INTERFACE GpuCommand* execute(sp_size workDimnmsion, const sp_size* globalWorkSize, const sp_size* localWorkSize, const sp_size* globalOffset = NULL);
 
-		void fetch(void* buffer);
-
-		template <typename T> 
-		T* fetch();
-
-		void fetchInOutParameter(void* buffer, sp_uint index);
+		API_INTERFACE void fetch(void* buffer);
 
 		template <typename T>
-		T* fetchInOutParameter(sp_uint index);
+		API_INTERFACE T* fetch();
 
-		~GpuCommand();
+		template <typename T>
+		API_INTERFACE T* fetchInOutParameter(sp_uint index);
+
+		API_INTERFACE void fetchInOutParameter(void* buffer, sp_uint index);
+
+		API_INTERFACE ~GpuCommand();
 	};
 
 }
 
-#endif
+#endif // !GPU_COMMAND_HEADER
+
+#endif // !OPENCL_ENABLED

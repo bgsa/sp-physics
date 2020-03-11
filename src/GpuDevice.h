@@ -26,9 +26,23 @@ namespace OpenML
 		//bool isAvailable = false;
 		std::vector<std::string> extensions;
 		sp_uint maxParameterSize = 256;
+
+		/// <summary>
+		/// Maximum number of work - items in a work - group executing a kernel using the data parallel execution model
+		/// </summary>
 		sp_uint maxWorkGroupSize = 1;
+
+		
+		/// <summary>
+		/// Maximum dimensions that specify the global and local work - item IDs used by the data parallel execution model
+		/// </summary>
 		cl_uint maxWorkItemDimension = 3;
+		
+		/// <summary>
+		/// Maximum number of work - items that can be specified in each dimension of the work - group to clEnqueueNDRangeKernel
+		/// </summary>
 		sp_uint maxWorkItemSizes[3];
+
 		cl_ulong globalMemorySize;
 		cl_ulong globalMemoryCacheSize;
 		cl_ulong localMemorySize;
@@ -42,19 +56,19 @@ namespace OpenML
 
 		GpuCommandManager* commandManager = nullptr;
 		
-		GpuDevice(cl_device_id id);
+		API_INTERFACE GpuDevice(cl_device_id id);
 
-		bool isGPU();
-		bool isCPU();
+		API_INTERFACE bool isGPU();
+		API_INTERFACE bool isCPU();
 
-		cl_mem createBuffer(size_t sizeOfValue, cl_mem_flags memoryFlags);
-		cl_mem createBuffer(void * value, size_t sizeOfValue, cl_mem_flags memoryFlags, bool writeValueOnDevice = true);
-		void releaseBuffer(cl_mem memoryBuffer);
-		void releaseBuffer(size_t length, cl_mem memoryBuffers ...);
+		API_INTERFACE cl_mem createBuffer(size_t sizeOfValue, cl_mem_flags memoryFlags);
+		API_INTERFACE cl_mem createBuffer(void * value, size_t sizeOfValue, cl_mem_flags memoryFlags, bool writeValueOnDevice = true);
+		API_INTERFACE void releaseBuffer(cl_mem memoryBuffer);
+		API_INTERFACE void releaseBuffer(size_t length, cl_mem memoryBuffers ...);
 
-		sp_uint getLocalWorkSize(sp_uint elementsLength);
+		API_INTERFACE sp_uint getLocalWorkSize(sp_uint elementsLength);
 
-		sp_uint getThreadLength(sp_uint elementsLength);
+		API_INTERFACE sp_uint getThreadLength(sp_uint elementsLength);
 
 		~GpuDevice();
 	};

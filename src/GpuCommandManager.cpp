@@ -33,7 +33,7 @@ sp_uint GpuCommandManager::cacheProgram(const char* source, size_t sourceSize, c
 
 	cachedPrograms.emplace_back(program);
 
-	const char* defaultOptions = "-Werror -cl-denorms-are-zero -cl-mad-enable -cl-finite-math-only \0";
+	const char* defaultOptions = "-I . -Werror -cl-denorms-are-zero -cl-mad-enable -cl-finite-math-only \0";
 	// -cl-no-signed-zero   -cl-fast-relaxed-math    not working
 
 	char* options = StringHelper::crate();
