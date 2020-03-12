@@ -37,7 +37,11 @@ GpuRadixSorting* GpuRadixSorting::setParameters(float* input, size_t inputLength
 	useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE);
 	outputIndexes = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
 
-	GpuCommands::findMinMaxIndexesGPU(gpu, inputGpu, indexesGpu, indexesLengthGpu, offsetGpu, inputLength, strider, outputMinMaxGpu);
+
+	// TODO: TROCAR PELO METODO NOVO O!!!!!!
+	//GpuCommands::findMinMaxIndexesGPU(gpu, inputGpu, indexesGpu, indexesLengthGpu, offsetGpu, inputLength, strider, outputMinMaxGpu);
+
+
 	gpu->commandManager->executeReadBuffer(outputMinMaxGpu, SIZEOF_FLOAT * 2, minMaxValues, true);
 
 	const size_t elementsLengthAsPowOf2 = nextPowOf2(inputLength); //required for OpenCL

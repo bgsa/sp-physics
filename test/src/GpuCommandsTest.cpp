@@ -80,7 +80,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice;
 
-		const size_t count = 10;
+		const sp_size count = 10;
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count;
@@ -93,7 +93,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		sp_size* values = ALLOC_ARRAY(sp_size, count);
 		gpu->commandManager->executeReadBuffer(indexes, count * SIZEOF_SIZE, values, true);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_size i = 0; i < count; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
 
 		gpu->releaseBuffer(indexes);
@@ -105,7 +105,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice;
 
-		const size_t count = (size_t)powf(2.0f, 17.0f);
+		const sp_size count = (sp_size)powf(2.0f, 17.0f);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count;
@@ -115,10 +115,10 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 		cl_mem indexes = GpuCommands::creteIndexes(gpu, count);
 
-		size_t* values = ALLOC_ARRAY(size_t, count);
+		sp_size* values = ALLOC_ARRAY(sp_size, count);
 		gpu->commandManager->executeReadBuffer(indexes, count * SIZEOF_UINT, (void*)values, true);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_size i = 0; i < count; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
 
 		gpu->releaseBuffer(indexes);
@@ -136,26 +136,25 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		std::chrono::nanoseconds times[maxIterations];
 		std::chrono::nanoseconds minTime(99999999999);
 
-		const size_t count = (size_t)std::pow(2.0, 17.0);
-		const size_t threadCount = gpu->getThreadLength(count);
+		const sp_size count = (sp_size)std::pow(2.0, 17.0);
+		const sp_size threadCount = gpu->getThreadLength(count);
 
 		std::ostringstream buildOptions;
 		buildOptions
 			<< " -DLOCAL_MEM_LENGTH=" << gpu->localMemoryLength
 			<< " -DINPUT_LENGTH=" << count
 			<< " -DINPUT_STRIDE=" << AABB_STRIDER
-			<< " -DINPUT_OFFSET=" << AABB_OFFSET
 			<< " -DINPUT_OFFSET=" << AABB_OFFSET;
 
-		for (size_t i = 0; i < maxIterations; i++)
+		for (sp_size i = 0; i < maxIterations; i++)
 		{
 			AABB* aabbs = getRandomAABBs(count);
 
 			float min = FLT_MAX;
 			float max = -FLT_MAX;
 
-			size_t expectedIndexesMinMax[2];
-			for (size_t i = 0; i < count; i++)
+			sp_size expectedIndexesMinMax[2];
+			for (sp_size i = 0; i < count; i++)
 			{
 				if (aabbs[i].minPoint.x > max) {
 					max = aabbs[i].minPoint.x;
@@ -170,7 +169,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 			GpuFindMinMax* findMinMax = ALLOC_NEW(GpuFindMinMax)();
 			findMinMax->init(gpu, buildOptions.str().c_str());
-			findMinMax->setParameters((float*)aabbs, count, AABB_STRIDER, AABB_OFFSET);
+			findMinMax->setParameters((sp_float*)aabbs, count, AABB_STRIDER, AABB_OFFSET);
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
@@ -180,12 +179,12 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			times[i] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 			minTime = std::min(times[i], minTime);
 
-			float* result = ALLOC_ARRAY(float, threadCount * 2);
+			sp_float* result = ALLOC_ARRAY(sp_float, threadCount * 2);
 			gpu->commandManager->executeReadBuffer(findMinMax->output, threadCount * 2 * SIZEOF_FLOAT, result, true);
 
-			float temp = 0;
-			size_t tt = 0;
-			for (size_t i = 0; i < threadCount * 2; i++)
+			sp_float temp = 0;
+			sp_size tt = 0;
+			for (sp_size i = 0; i < threadCount * 2; i++)
 				if (result[i] > temp)
 				{
 					temp = result[i];
@@ -208,17 +207,17 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		GpuDevice* gpu = context->defaultDevice;
 		GpuCommands::init(gpu, NULL);
 
-		const size_t offsetMultiplier = 8;
-		const size_t offsetSum = 2;
+		const sp_uint offsetMultiplier = 8;
+		const sp_uint offsetSum = 2;
 
-		const size_t count = 5;
+		const sp_uint count = 5;
 		AABB* aabbs = getRandomAABBs(count);
 
-		float min = FLT_MAX;
-		float max = -FLT_MAX;
+		sp_float min = FLT_MAX;
+		sp_float max = -FLT_MAX;
 
-		size_t expectedIndexesMinMax[2];
-		for (size_t i = 0; i < count; i++)
+		sp_uint expectedIndexesMinMax[2];
+		for (sp_uint i = 0; i < count; i++)
 		{
 			if (aabbs[i].minPoint.x > max) {
 				max = aabbs[i].minPoint.x;
@@ -231,26 +230,29 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 			}
 		}
 
-		size_t threadCount = gpu->getThreadLength(count);
+		sp_uint threadCount = gpu->getThreadLength(count);
 
-		cl_mem indexes = GpuCommands::creteIndexes(gpu, count);
-		cl_mem elements = gpu->createBuffer((void*)aabbs, sizeof(AABB) * count * SIZEOF_FLOAT, CL_MEM_READ_WRITE);
-		cl_mem indexesLength = gpu->createBuffer((void*)&count, SIZEOF_UINT, CL_MEM_READ_WRITE);
-		cl_mem offset = gpu->createBuffer((void*)&offsetSum, SIZEOF_UINT, CL_MEM_READ_ONLY);
 		cl_mem output = gpu->createBuffer(threadCount * 2 * SIZEOF_FLOAT, CL_MEM_READ_WRITE);
 
-		GpuCommands::findMinMaxIndexesGPU(gpu, elements, indexes, indexesLength, offset, count, offsetMultiplier, output);
+		std::ostringstream buildOptions;
+		buildOptions
+			<< " -DLOCAL_MEM_LENGTH=" << gpu->localMemoryLength
+			<< " -DINPUT_LENGTH=" << count
+			<< " -DINPUT_STRIDE=" << AABB_STRIDER
+			<< " -DINPUT_OFFSET=" << AABB_OFFSET;
 
-		float* result = ALLOC_ARRAY(float, threadCount * 2);
+		GpuFindMinMax* findMinMax = ALLOC_NEW(GpuFindMinMax)();
+		findMinMax->init(gpu, buildOptions.str().c_str());
+		findMinMax->setParameters((sp_float*)aabbs, count, AABB_STRIDER, AABB_OFFSET);
+
+		findMinMax->execute();
+
+		sp_float* result = ALLOC_ARRAY(sp_float, threadCount * 2);
 		gpu->commandManager->executeReadBuffer(output, threadCount * 2 * SIZEOF_FLOAT, result, true);
 
 		Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
 
-		gpu->releaseBuffer(elements);
-		gpu->releaseBuffer(indexes);
-		gpu->releaseBuffer(indexesLength);
-		gpu->releaseBuffer(offset);
 		gpu->releaseBuffer(output);
 		ALLOC_RELEASE(aabbs);
 	}
