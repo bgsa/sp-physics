@@ -4,7 +4,7 @@
 #include "BinaryTreeNode.h"
 #include "BoundingVolume.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	template <class NodeType>

@@ -3,7 +3,7 @@
 
 #define CLASS_NAME CollisionDetectionTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 
 	AABB* CollisionDetectionTest_get1000()

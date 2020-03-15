@@ -3,7 +3,7 @@
 
 #define CLASS_NAME AlgorithmFixedPointTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 	float funcFixedPoint(float x)
 	{

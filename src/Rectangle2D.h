@@ -4,7 +4,7 @@
 #include "Line2D.h"
 #include "Triangle2D.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	template <typename T>
 	class Rectangle2D
@@ -15,45 +15,45 @@ namespace OpenML
 		Vec2<T> point3;
 		Vec2<T> point4;
 
-		API_INTERFACE inline Rectangle2D();
-		API_INTERFACE inline Rectangle2D(Vec2<T>* points);
-		API_INTERFACE inline Rectangle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3, const Vec2<T>& point4);
-		API_INTERFACE inline Rectangle2D(T* point1, T* point2, T* point3, T* point4);
+		API_INTERFACE Rectangle2D();
+		API_INTERFACE Rectangle2D(Vec2<T>* points);
+		API_INTERFACE Rectangle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3, const Vec2<T>& point4);
+		API_INTERFACE Rectangle2D(T* point1, T* point2, T* point3, T* point4);
 
 		///<summary>
 		///Get the width of the rectangle
 		///</summary>
-		API_INTERFACE inline T width() const;
+		API_INTERFACE T width() const;
 
 		///<summary>
 		///Get the height of the rectangle
 		///</summary>
-		API_INTERFACE inline T height() const;
+		API_INTERFACE T height() const;
 
 		///<summary>
 		///Get the area of the rectangle
 		///</summary>
-		API_INTERFACE inline T area() const;
+		API_INTERFACE T area() const;
 
 		///<summary>
 		///Get the perimeter of the rectangle
 		///</summary>
-		API_INTERFACE inline T perimeter() const;
+		API_INTERFACE T perimeter() const;
 
 		///<summary>
 		///Get the length of the rectangle diagonal
 		///</summary>
-		API_INTERFACE inline T diagonalLength() const;
+		API_INTERFACE T diagonalLength() const;
 
 		///<summary>
 		///Get the lines that makes the rectangle
 		///</summary>
-		API_INTERFACE inline Line2D<T>* getLines() const;
+		API_INTERFACE Line2D<T>* getLines() const;
 
 		///<summary>
 		///Get the status of collision of the point into the rectangle
 		///</summary>
-		API_INTERFACE inline CollisionStatus getSatusCollision(const Vec2<T>& point) const;
+		API_INTERFACE CollisionStatus getSatusCollision(const Vec2<T>& point) const;
 	
 		///<summary>
 		///Chech the line has intersection with the rectangle

@@ -6,7 +6,7 @@
 #include "Sphere.h"
 #include "AABB.h"
 
-namespace OpenML 
+namespace NAMESPACE_PHYSICS 
 {
 	class Line3D
 	{
@@ -17,27 +17,27 @@ namespace OpenML
 		///<summary>
 		/// Empty constructor 
 		///</summary>
-		API_INTERFACE inline Line3D();
+		API_INTERFACE Line3D();
 
 		///<summary>
 		/// Build a line from 2 points
 		///</summary>
-		API_INTERFACE inline Line3D(const Vec3f& point1, const Vec3f& point2);
+		API_INTERFACE Line3D(const Vec3f& point1, const Vec3f& point2);
 
 		///<summary>
 		/// Build a line from 2 points as vector
 		///</summary>
-		API_INTERFACE inline Line3D(Vec3f* points);
+		API_INTERFACE Line3D(Vec3f* points);
 
 		///<summary>
 		/// Build a line from 2 points (3 numbers for each point)
 		///</summary>
-		API_INTERFACE inline Line3D(float* point1, float* point2);
+		API_INTERFACE Line3D(float* point1, float* point2);
 
 		///<summary>
 		/// Get the direction of line
 		///</summary>
-		API_INTERFACE inline Vec3f direction() const;
+		API_INTERFACE Vec3f direction() const;
 
 		///<summary>
 		/// Get the SQUARED distance from SEGMENT of line and an arbitrary point
@@ -52,12 +52,12 @@ namespace OpenML
 		///<summary>
 		///Returns the center of the segment of line
 		///</summary>
-		API_INTERFACE inline Vec3f centerOfSegment() const;
+		API_INTERFACE Vec3f centerOfSegment() const;
 
 		///<summary>
 		///Returns the center of the segment of line
 		///</summary>
-		API_INTERFACE inline float lengthOfSegment() const;
+		API_INTERFACE float lengthOfSegment() const;
 
 		///<summary>
 		/// Check the point is on the line

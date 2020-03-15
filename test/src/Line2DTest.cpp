@@ -6,7 +6,7 @@
 
 #define CLASS_NAME Line2DTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 	SP_TEST_CLASS(CLASS_NAME)
 	{
@@ -100,7 +100,7 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 		Line2Df line = Line2Df({ 9.0f, 3.0f }, { -1.0f, 5.67949192f });
 		float expected = -15.0f;
 
-		float result = OpenML::round((float)radiansToDegrees(line.angle()), 2);
+		float result = round((float)radiansToDegrees(line.angle()), 2);
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}

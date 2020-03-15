@@ -12,7 +12,7 @@
 #undef max
 #undef min
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 
 	AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)

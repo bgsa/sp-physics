@@ -4,7 +4,7 @@
 #include "OpenML.h"
 #include <iomanip>
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	template <typename T>
 	class Mat

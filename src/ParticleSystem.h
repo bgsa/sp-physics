@@ -5,7 +5,7 @@
 #include "Particle.h"
 #include <vector>
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class ParticleSystem

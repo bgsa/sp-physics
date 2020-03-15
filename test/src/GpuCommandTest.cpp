@@ -10,7 +10,7 @@
 
 #define CLASS_NAME GpuCommandTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 	SP_TEST_CLASS(CLASS_NAME)
 	{
@@ -22,32 +22,32 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 	SP_TEST_METHOD(CLASS_NAME, GpuCommand_execute_Test)
 	{
-		const int LIST_SIZE = 1024;
-		float* param1 = ALLOC_ARRAY(float, LIST_SIZE);
-		float* param2 = ALLOC_ARRAY(float, LIST_SIZE);
+		const sp_int LIST_SIZE = 1024;
+		sp_float* param1 = ALLOC_ARRAY(sp_float, LIST_SIZE);
+		sp_float* param2 = ALLOC_ARRAY(sp_float, LIST_SIZE);
 		
-		for (size_t i = 0; i < LIST_SIZE; i++) {
-			param1[i] = (float) i;
-			param2[i] = (float) (LIST_SIZE - i);
+		for (sp_uint i = 0; i < LIST_SIZE; i++) {
+			param1[i] = (sp_float) i;
+			param2[i] = (sp_float) (LIST_SIZE - i);
 		}
 
-		size_t globalWorkSize = LIST_SIZE;
-		size_t localWorkSize = 64;
+		sp_size globalWorkSize = LIST_SIZE;
+		sp_size localWorkSize = 64;
 		
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice;
 
 		IFileManager* fileManager = Factory::getFileManagerInstance();
 		std::string source = fileManager->readTextFile("sumVector.cl");
-		size_t sumProgram = gpu->commandManager->cacheProgram(source.c_str(), sizeof(char) * source.length(), NULL);
+		sp_size sumProgram = gpu->commandManager->cacheProgram(source.c_str(), SIZEOF_CHAR * source.length(), NULL);
 
 		GpuCommand* command = gpu->commandManager->createCommand();
 		sp_float* result = ALLOC_NEW_ARRAY(sp_float, 1);
 
 		command
-			->setInputParameter(param1, sizeof(float) * LIST_SIZE)
-			->setInputParameter(param2, sizeof(float) * LIST_SIZE)
-			->setOutputParameter(sizeof(float) * LIST_SIZE)
+			->setInputParameter(param1, SIZEOF_FLOAT * LIST_SIZE)
+			->setInputParameter(param2, SIZEOF_FLOAT * LIST_SIZE)
+			->setOutputParameter(SIZEOF_FLOAT * LIST_SIZE)
 			->buildFromProgram(gpu->commandManager->cachedPrograms[sumProgram], "sum")
 			->execute(1, &globalWorkSize, &localWorkSize)
 			->fetch(result);

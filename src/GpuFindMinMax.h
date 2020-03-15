@@ -3,10 +3,11 @@
 #ifndef GPU_FIND_MIN_MAX_HEADER
 #define GPU_FIND_MIN_MAX_HEADER
 
+#include "GpuDevice.h"
 #include "GpuCommands.h"
+#include "GpuCommand.h"
 
-
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class GpuFindMinMax

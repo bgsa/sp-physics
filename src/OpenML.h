@@ -10,12 +10,18 @@
 #include <stdarg.h>
 #include <limits.h>
 
+#ifndef NAMESPACE_PHYSICS
+	#define NAMESPACE_PHYSICS SpPhyiscs
+#endif
+
+using namespace NAMESPACE_FOUNDATION;
+
 #define EULER_NUMBER (2.71828f)   // e^1 = 2.71828
 
 #define MAX_DIGITS_EXPOENT  (5)
 #define MAX_DIGITS_MANTISSA (4)
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	const float DefaultErrorMargin = 0.0001f;
 
@@ -249,6 +255,7 @@ namespace OpenML
 		return rval;
 	}
 
+#if defined(WINDOWS) && defined(ENV_64BITS)
 	///<summary>
 	///Get the next number power of 2
 	///</summary>
@@ -261,6 +268,7 @@ namespace OpenML
 
 		return rval;
 	}
+#endif
 		
 	///<summary>
 	///Round the number given a amount of decimals
@@ -279,7 +287,7 @@ namespace OpenML
 	///</summary>
 	inline sp_float API_INTERFACE roundf(sp_float number, sp_int decimals)
 	{
-		return OpenML::round<sp_float>(number, decimals);
+		return round<sp_float>(number, decimals);
 	}
 	
 	///<summary>
@@ -287,7 +295,7 @@ namespace OpenML
 	///</summary>
 	inline sp_double API_INTERFACE roundd(sp_double number, sp_int decimals)
 	{
-		return OpenML::round<sp_double>(number, decimals);
+		return round<sp_double>(number, decimals);
 	}
 
 	///<summary>

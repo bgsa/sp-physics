@@ -6,7 +6,7 @@
 #include "Mat3.h"
 #include "Vec4.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 #define MAT4_SIZE 16
 #define MAT4_ROWSIZE 4
@@ -179,27 +179,27 @@ namespace OpenML
 		/// <summary>
 		/// Get the negative matrix
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator-() const;
+		API_INTERFACE Mat4<T> operator-() const;
 
 		/// <summary>
 		/// Subtract a scalar from this matrix
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator-(const T value) const;
+		API_INTERFACE Mat4<T> operator-(const T value) const;
 
 		/// <summary>
 		/// Subtract this matrix to another one
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator-(const Mat4<T>& matrix) const;
+		API_INTERFACE Mat4<T> operator-(const Mat4<T>& matrix) const;
 
 		/// <summary>
 		/// Sum a scalar to this matrix
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator+(const T value) const;
+		API_INTERFACE Mat4<T> operator+(const T value) const;
 		
 		/// <summary>
 		/// Sum the matrix to another one
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator+(const Mat4<T>& matrix) const;
+		API_INTERFACE Mat4<T> operator+(const Mat4<T>& matrix) const;
 		
 		/// <summary>
 		/// Multiply the vector to a scalar
@@ -224,12 +224,12 @@ namespace OpenML
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline Mat4<T> operator/(const T value) const;
+		API_INTERFACE Mat4<T> operator/(const T value) const;
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE inline void operator/=(const T value);
+		API_INTERFACE void operator/=(const T value);
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.

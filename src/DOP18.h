@@ -1,6 +1,7 @@
 #ifndef DOP18_HEADER
 #define DOP18_HEADER
 
+#include "OpenML.h"
 #include "Vec3.h"
 #include "BoundingVolume.h"
 #include "Plane3D.h"
@@ -9,7 +10,7 @@
 #define DOP18_STRIDER 20
 #define DOP18_OFFSET 2
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	/// <summary>
 	/// Represents a k-DOP with 9 orientations and 18 DOPs
@@ -56,12 +57,12 @@ namespace OpenML
 		/// <summary>
 		/// Default constructur - build a unit k-DOP with the center in the origin
 		/// </summary>
-		API_INTERFACE inline DOP18();
+		API_INTERFACE DOP18();
 
 		/// <summary>
 		/// Get the normals of k-DOP planes
 		/// </summary>
-		API_INTERFACE inline const Vec3f* normals()
+		API_INTERFACE const Vec3f* normals()
 		{
 			const static Vec3f normal[18] = {
 				{ -1.0f,  0.0f,  0.0f },
@@ -91,12 +92,12 @@ namespace OpenML
 		/// <summary>
 		/// Get the k-DOP planes
 		/// </summary>
-		API_INTERFACE inline Plane3D* planes();
+		API_INTERFACE Plane3D* planes();
 
 		///<summary>
 		/// Get the center of k-DOP bounding volumne
 		///</summary>
-		API_INTERFACE inline Vec3f centerOfBoundingVolume() const override;
+		API_INTERFACE Vec3f centerOfBoundingVolume() const override;
 
 		/// <summary>
 		/// Translate the k-DOP

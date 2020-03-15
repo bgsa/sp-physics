@@ -5,7 +5,7 @@
 #include "Mat3.h"
 #include <limits>
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	template <typename T>

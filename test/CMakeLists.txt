@@ -11,7 +11,7 @@ endif()
 set (MAJOR_VERSION 0)
 set (MINOR_VERSION 1)
 set (PATCH_VERSION 0)
-project(SpPhysicsTest     VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
+project(SpPhysicsTest VERSION ${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION})
 
 option(OPERATING_SYSTEM "Define which operating system will be built for" "WINDOWS")
 option(ARCH_BITS        "Define the compilation to 64 bits"   "64")
@@ -64,35 +64,35 @@ endif()
 
 set (SP_FOUNDATION_INCLUDE_DIRS ${SP_FOUNDATION_DIR}/src)
 set (SP_PHYSICS_INCLUDE_DIRS    ${SP_PHYSICS_DIR}/src)
-set (OPENCL_INCLUDE_DIRS        ${OPENCL_DIR}/include)
+set (OpenCL_INCLUDE_DIRS        ${OPENCL_DIR}/include)
 set (GOOGLETEST_INCLUDE_DIRS    ${GOOGLETEST_DIR}/googletest/include)
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 	set (SP_FOUNDATION_LIBRARY      SpFoundation.lib)
 	set (SP_PHYSICS_LIBRARY         SpPhysics.lib)
 	set (GOOGLETEST_LIBRARY         gtest.lib)
-	set (OPENCL_LIBRARY             OpenCL.lib)
+	set (OpenCL_LIBRARY             OpenCL.lib)
 
 	set (CUSTOM_DEFINITIONS         "-D_CRT_SECURE_NO_WARNINGS")
 
 	if ( ${ARCH_BITS} STREQUAL "64" )	
-		set (OPENCL_LIB_DIRS ${OPENCL_DIR}/lib/x64)
+		set (OpenCL_LIB_DIRS ${OPENCL_DIR}/lib/x64)
 	else()
-		set (OPENCL_LIB_DIRS ${OPENCL_DIR}/lib/Win32)
+		set (OpenCL_LIB_DIRS ${OPENCL_DIR}/lib/Win32)
 	endif()
 
 elseif ( ${OPERATING_SYSTEM} STREQUAL "LINUX" OR ${OPERATING_SYSTEM} STREQUAL "UNIX" )
 	set (SP_FOUNDATION_LIBRARY "libSpFoundation.a")
 	set (SP_PHYSICS_LIBRARY    "libSpPhysics.a")
 	set (GOOGLETEST_LIBRARY    libgtest.a)
-	set (OPENCL_LIB_DIRS       ${OPENCL_LIBRARY})
+	set (OpenCL_LIB_DIRS       ${OpenCL_LIBRARIES})
 
 	set (CUSTOM_DEFINITIONS    "-Wno-dangling-else")	
 
 	find_package(Threads REQUIRED)
 	find_package(OpenCL  REQUIRED)
 
-	if( ${OPENCL_FOUND} STREQUAL "FALSE" )
+	if( ${OpenCL_FOUND} STREQUAL "FALSE" )
 		message(FATAL_ERROR "OpenCL not found !!!")
 	endif()
 else()
@@ -108,12 +108,13 @@ include_directories(
 	${SP_PHYSICS_INCLUDE_DIRS}
 	${VENDOR_DIR}/include
 	${VENDOR_DIR}
-	${OPENCL_INCLUDE_DIRS}
+	${OpenCL_INCLUDE_DIRS}
 	${GOOGLETEST_INCLUDE_DIRS}
 	/usr/local/include
 )
 
 link_directories(
+	${OpenCL_LIB_DIRS}
 	${VENDOR_DIR}/lib
 	${VENDOR_DIR}/lib/Release
 	${SP_FOUNDATION_DIR}/lib
@@ -122,13 +123,12 @@ link_directories(
 	${SP_PHYSICS_DIR}/lib
 	${SP_PHYSICS_DIR}/lib/Release
 	${SP_PHYSICS_DIR}/lib/Debug
+	/usr/lib/x86_64-linux-gnu
 	/usr/bin/x86_64-linux-gnu
 	/usr/local/lib
-	${OPENCL_LIB_DIRS}
 )
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
-add_executable(${PROJECT_NAME}Exec src/main.cpp)
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
     add_definitions(-DENV_64BITS -DAPI_EXPORT ${OPENCL_DEFINITION} ${TEST_FRAMEWORK_DEF} ${CUSTOM_DEFINITIONS} -DWINDOWS)
@@ -141,41 +141,29 @@ else()
 endif()
 
 if(THREADS_HAVE_PTHREAD_ARG)
-  set_property(TARGET ${PROJECT_NAME} PROPERTY COMPILE_OPTIONS "-pthread")
-  set_property(TARGET ${PROJECT_NAME}Exec PROPERTY COMPILE_OPTIONS "-pthread")
+  set_property(TARGET ${PROJECT_NAME}     PROPERTY COMPILE_OPTIONS "-pthread")
 endif()
 
 target_link_libraries(${PROJECT_NAME} 
-	${SP_FOUNDATION_LIBRARY}
 	${SP_PHYSICS_LIBRARY}
-	${OPENCL_LIBRARY}
-	${GOOGLETEST_LIBRARY}
-)
-target_link_libraries(${PROJECT_NAME}Exec
-	${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lib${PROJECT_NAME}.so
 	${SP_FOUNDATION_LIBRARY}
-	${SP_PHYSICS_LIBRARY}
-	${OPENCL_LIBRARY}
 	${GOOGLETEST_LIBRARY}
+	${OpenCL_LIBRARIES}
 )
 
 if(CMAKE_THREAD_LIBS_INIT)
-	target_link_libraries(${PROJECT_NAME} "${CMAKE_THREAD_LIBS_INIT}")
+	target_link_libraries(${PROJECT_NAME}     "${CMAKE_THREAD_LIBS_INIT}")
 endif()
 
 if ( ${OPERATING_SYSTEM} STREQUAL "UNIX" )
 	target_link_libraries(${PROJECT_NAME}
 	    "-framework Cocoa"
 	    "-framework IOKit"
-	    "-framework CoreVideo"
-	)
-	target_link_libraries(${PROJECT_NAME}Exec
-	    "-framework Cocoa"
-	    "-framework IOKit"
-	    "-framework CoreVideo"
+		"-framework CoreVideo"
+		#"-framework OpenCL"
 	)
 endif()
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_NAME    ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)

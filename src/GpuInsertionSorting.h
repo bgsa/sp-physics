@@ -6,7 +6,7 @@
 #include "GpuCommands.h"
 #include <algorithm>
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class GpuInsertionSorting

@@ -3,7 +3,7 @@
 
 #include "OpenML.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class Particle

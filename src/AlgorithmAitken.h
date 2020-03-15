@@ -2,9 +2,8 @@
 
 #include "OpenML.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
-
 	template <typename T>
 	class AlgorithmAitken
 	{
@@ -19,5 +18,4 @@ namespace OpenML
 		API_INTERFACE T solve(T approximation, T functor(T), int maxOfInteration = 100);
 
 	};
-
 }

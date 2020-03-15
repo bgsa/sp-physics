@@ -3,7 +3,7 @@
 #include "BoundingVolume.h"
 #include "BinaryTree.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	/*

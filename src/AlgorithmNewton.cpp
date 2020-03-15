@@ -1,25 +1,25 @@
 #include "AlgorithmNewton.h"
 
-template <typename T>
-T AlgorithmNewton<T>::solve(T approximation, T functor(T), T derivedFunctor(T), int maxOfInteration)
+namespace NAMESPACE_PHYSICS
 {
-	while (maxOfInteration != 0)
+	template <typename T>
+	T AlgorithmNewton<T>::solve(T approximation, T functor(T), T derivedFunctor(T), int maxOfInteration)
 	{
-		T newApproximation = approximation - (functor(approximation) / derivedFunctor(approximation));
+		while (maxOfInteration != 0)
+		{
+			T newApproximation = approximation - (functor(approximation) / derivedFunctor(approximation));
 
-		if (isCloseEnough(newApproximation, approximation))
-			return newApproximation;
+			if (isCloseEnough(newApproximation, approximation))
+				return newApproximation;
 
-		approximation = newApproximation;
+			approximation = newApproximation;
 
-		maxOfInteration--;
+			maxOfInteration--;
+		}
+
+		return T(NAN);
 	}
 
-	return T(NAN);
-}
-
-namespace OpenML
-{
 	template class AlgorithmNewton<sp_int>;
 	template class AlgorithmNewton<sp_float>;
 	template class AlgorithmNewton<sp_double>;

@@ -4,7 +4,7 @@
 
 #define CLASS_NAME AlgorithmSortingTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 
 	static int comparatorFloatTest(const void* param1, const void* param2)
@@ -123,122 +123,122 @@ namespace SP_PHYSICS_TEST_NAMESPACE
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test1)
 	{
-		const size_t count = 7;
+		const sp_size count = 7;
 
-		float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
-		float expected[count] = { -2.0f, 2.0f, 3.01f, 3.1f, 3.12f, 3.4f, 7.0f };
+		sp_float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
+		sp_float expected[count] = { -2.0f, 2.0f, 3.01f, 3.1f, 3.12f, 3.4f, 7.0f };
 		
 		AlgorithmSorting::radix(vec, count);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], vec[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test2)
 	{
-		size_t result[8] = { 2, 5,3,0,2,3,0,3 };
-		size_t expected[8] = { 0,0,2,2,3,3,3,5 };
+		sp_size result[8] = { 2, 5,3,0,2,3,0,3 };
+		sp_size expected[8] = { 0,0,2,2,3,3,3,5 };
 
 		AlgorithmSorting::radix(result, 8);
 
-		for (size_t i = 0; i < 8; i++)
+		for (sp_uint i = 0; i < 8; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test3)
 	{
-		size_t result[8] = { 200, 54, 35, 10, 4, 3, 50, 33 };
-		size_t expected[8] = { 3, 4, 10, 33, 35, 50, 54, 200 };
+		sp_size result[8] = { 200, 54, 35, 10, 4, 3, 50, 33 };
+		sp_size expected[8] = { 3, 4, 10, 33, 35, 50, 54, 200 };
 
 		AlgorithmSorting::radix(result, 8);
 
-		for (size_t i = 0; i < 8; i++)
+		for (sp_uint i = 0; i < 8; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test4)
 	{
-		int result[8] = { 200, 54, 35, -10, 4, 3, -50, 33 };
-		int expected[8] = { -50, -10, 3, 4, 33, 35, 54, 200 };
+		sp_int result[8] = { 200, 54, 35, -10, 4, 3, -50, 33 };
+		sp_int expected[8] = { -50, -10, 3, 4, 33, 35, 54, 200 };
 		
 		AlgorithmSorting::radix(result, 8);
 
-		for (size_t i = 0; i < 8; i++)
+		for (sp_uint i = 0; i < 8; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test5)
 	{
-		const size_t count = 6;
-		float result[count] = { 0.1f,0.111f,0.23f,0.03f,0.53f,0.08f };
-		float expected[count] = { 0.03f, 0.08f, 0.1f, 0.111f, 0.23f, 0.53f };
+		const sp_size count = 6;
+		sp_float result[count] = { 0.1f,0.111f,0.23f,0.03f,0.53f,0.08f };
+		sp_float expected[count] = { 0.03f, 0.08f, 0.1f, 0.111f, 0.23f, 0.53f };
 
 		AlgorithmSorting::radix(result, count);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test6)
 	{
-		const size_t count = 6;
-		float result[count] = { 57.1f, 0.111f, 1.23f, 0.03f, 0.53f, 2.08f };
-		float expected[count] = { 0.03f, 0.111f, 0.53f, 1.23f, 2.08f, 57.1f };
+		const sp_size count = 6;
+		sp_float result[count] = { 57.1f, 0.111f, 1.23f, 0.03f, 0.53f, 2.08f };
+		sp_float expected[count] = { 0.03f, 0.111f, 0.53f, 1.23f, 2.08f, 57.1f };
 
 		AlgorithmSorting::radix(result, count);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_radix_Test7)
 	{
-		const size_t count = 7;
-		float result[count] = { 57.1f, 0.111f, -1.23f, 0.03f, 0.53f, 2.08f, -34567.56f };
-		float expected[count] = { -34567.56f, -1.23f, 0.03f, 0.111f, 0.53f, 2.08f, 57.1f };
+		const sp_size count = 7;
+		sp_float result[count] = { 57.1f, 0.111f, -1.23f, 0.03f, 0.53f, 2.08f, -34567.56f };
+		sp_float expected[count] = { -34567.56f, -1.23f, 0.03f, 0.111f, 0.53f, 2.08f, 57.1f };
 
 		AlgorithmSorting::radix(result, count);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_native_Test1)
 	{
-		const size_t count = 7;
+		const sp_size count = 7;
 
-		float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
-		float expected[count] = { -2.0f, 2.0f, 3.01f, 3.1f, 3.12f, 3.4f, 7.0f };
+		sp_float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
+		sp_float expected[count] = { -2.0f, 2.0f, 3.01f, 3.1f, 3.12f, 3.4f, 7.0f };
 
 		AlgorithmSorting::native(vec, count);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], vec[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_nativeIndex_Test1)
 	{
-		const size_t count = 7;
+		const sp_size count = 7;
 
-		float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
-		size_t expected[count] = { 4, 1, 6, 3, 5, 0, 2 };
+		sp_float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
+		sp_size expected[count] = { 4, 1, 6, 3, 5, 0, 2 };
 
-		size_t* result = AlgorithmSorting::nativeIndex(vec, count);
+		sp_size* result = AlgorithmSorting::nativeIndex(vec, count);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmSorting_quickSortNnative_Test1)
 	{
-		const size_t count = 7;
+		const sp_size count = 7;
 
-		float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
-		float expected[count] = { -2.0f, 2.0f, 3.01f, 3.1f, 3.12f, 3.4f, 7.0f };
+		sp_float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
+		sp_float expected[count] = { -2.0f, 2.0f, 3.01f, 3.1f, 3.12f, 3.4f, 7.0f };
 
-		AlgorithmSorting::quickSortNative(vec, count, sizeof(float), comparatorFloatTest);
+		AlgorithmSorting::quickSortNative(vec, count, SIZEOF_FLOAT, comparatorFloatTest);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], vec[i], L"Wrong value.", LINE_INFO());
 	}
 

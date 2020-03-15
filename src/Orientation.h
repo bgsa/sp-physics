@@ -1,6 +1,6 @@
 #pragma once
 
-namespace OpenML 
+namespace NAMESPACE_PHYSICS 
 {
 
 	enum class Orientation

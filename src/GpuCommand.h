@@ -7,9 +7,8 @@
 #include "GpuLog.hpp"
 #include "CL/cl.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
-
 	class GpuCommand
 	{
 		friend class GpuCommandManager;
@@ -71,7 +70,6 @@ namespace OpenML
 
 		API_INTERFACE ~GpuCommand();
 	};
-
 }
 
 #endif // !GPU_COMMAND_HEADER

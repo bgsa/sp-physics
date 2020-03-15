@@ -4,7 +4,7 @@
 #include "AABB.h"
 #include "DOP18.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class CollisionDetection

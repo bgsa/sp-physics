@@ -3,7 +3,7 @@
 
 #define CLASS_NAME AlgorithmBisectionTest
 
-namespace SP_PHYSICS_TEST_NAMESPACE
+namespace NAMESPACE_PHYSICS_TEST
 {
 	float funcBisection(float x)
 	{

@@ -98,8 +98,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86;$(SolutionDir)sp-foundation\lib\x86\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenCL.lib;SpFoundation.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86\$(Configuration);$(SolutionDir)sp-foundation\lib\x86\$(Configuration)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>IcdLog.lib;OpenCLDriverStub.lib;OpenCL.lib;SpFoundation.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
@@ -127,7 +127,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86;$(SolutionDir)sp-foundation\lib\x86\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86\$(Configuration);$(SolutionDir)sp-foundation\lib\x86\$(Configuration)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenCL.lib;SpFoundation.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -151,7 +151,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86_64;$(SolutionDir)sp-foundation\lib\x86_64\Debug</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86_64\$(Configuration);$(SolutionDir)sp-foundation\lib\x86_64\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <Link>
       <AdditionalDependencies>OpenCL.lib;SpFoundation.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -164,7 +164,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86_64;$(SolutionDir)sp-foundation\lib\x86_64\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86_64\$(Configuration);$(SolutionDir)sp-foundation\lib\x86_64\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
     <Link>
       <AdditionalDependencies>OpenCL.lib;SpFoundation.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -182,7 +182,20 @@
   <ItemGroup>
     <ProjectReference Include="..\sp-foundation\sp-foundation.vcxproj">
       <Project>{0607c5ac-e8da-43db-a0b4-279c05ec6613}</Project>
+      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\opencl\src\BasicCommands.cl" />
+    <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
+    <None Include="resources\opencl\src\FindMinMax.cl" />
+    <None Include="resources\opencl\src\InsertionSorting.cl" />
+    <None Include="resources\opencl\src\OpenCLBase.cl" />
+    <None Include="resources\opencl\src\RadixSorting.cl" />
+    <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
+    <None Include="resources\opencl\src\RadixSortingByThread.cl" />
+    <None Include="resources\opencl\src\SweepAndPrune.cl" />
+    <None Include="resources\opencl\src\SweepAndPruneKdop.cl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

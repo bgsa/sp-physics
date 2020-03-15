@@ -23,9 +23,8 @@
 	#define HANDLE_OPENCL_BUILD_ERROR
 #endif
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
-
 	class GpuLog
 	{
 	public:
@@ -62,7 +61,7 @@ namespace OpenML
 		}
 
 		///<summary>
-		///Handle Compíle errors
+		///Handle Compï¿½le errors
 		///</summary>
 		API_INTERFACE static void handleCompileError(int errorCode)
 		{

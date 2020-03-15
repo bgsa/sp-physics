@@ -2,12 +2,11 @@
 
 #include "GpuCommands.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
-
 	static sp_uint basicProgramIndex = UINT_MAX;
 
-	void GpuCommands::init(GpuDevice* gpu, const char* buildOptions)
+	void GpuCommands::init(GpuDevice* gpu, const sp_char* buildOptions)
 	{
 		if (basicProgramIndex != UINT_MAX)
 			return;

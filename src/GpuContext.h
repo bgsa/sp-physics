@@ -11,7 +11,7 @@
 #include "OpenML.h"
 #include "GpuDevice.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	class GpuContext
 	{

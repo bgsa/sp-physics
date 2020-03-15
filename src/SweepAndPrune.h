@@ -13,7 +13,7 @@
 	#include "GpuRadixSorting.h"
 #endif
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class SweepAndPruneResult

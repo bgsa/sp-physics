@@ -1,7 +1,7 @@
 #ifdef OPENCL_ENABLED
 
-#ifndef GPU_COMMANDS
-#define GPU_COMMANDS
+#ifndef GPU_COMMANDS_HEADER
+#define GPU_COMMANDS_HEADER
 
 #include "OpenML.h"
 #include <algorithm>
@@ -9,8 +9,9 @@
 #include "GpuCommand.h"
 #include "IFileManager.h"
 #include "Factory.h"
+#include "GpuContext.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 
 	class GpuCommands
@@ -27,34 +28,10 @@ namespace OpenML
 		/// </summary>
 		API_INTERFACE static cl_mem creteIndexes(GpuDevice * gpu, sp_size length);
 
-		/// <summary>
-		/// Find minimum and maximum value from an array of elements
-		/// </summary>
-		API_INTERFACE static sp_float* findMinMaxGPU(GpuDevice* gpu, sp_float* input, size_t n, size_t offsetMultiplier = 1, size_t offsetSum = 0);
-
-		/// <summary>
-		/// Find maximum value from an array of elements
-		/// </summary>
-		/// <returns>
-		/// GPU Buffer Memory
-		/// </returns>
-		API_INTERFACE static cl_mem findMaxGPUBuffer(GpuDevice* gpu, sp_float* input, size_t n, size_t offsetMultiplier = 1, size_t offsetSum = 0);
-
-		/// <summary>
-		/// Find maximum value from an array of elements
-		/// </summary>
-		API_INTERFACE static sp_float findMaxGPU(GpuDevice* gpu, sp_float* input, sp_size n, sp_size offsetMultiplier = 1, sp_size offsetSum = 0);
-
-		/// <summary>
-		/// Find minimum and maximum value from an array of elements using indexes
-		/// Elements and indexes should be on GPU memory
-		/// </summary>
-		API_INTERFACE static void findMinMaxIndexesGPU(GpuDevice* gpu, cl_mem elements, cl_mem indexes, cl_mem indexesLength,cl_mem offset, size_t indexesLengthCpu, size_t striderCpu, cl_mem output);
-
 	};
 }
 
 
-#endif // ! GPU_COMMANDS
+#endif // ! GPU_COMMANDS_HEADER
 
 #endif // ! OPENCL_ENABLED

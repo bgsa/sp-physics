@@ -9,7 +9,7 @@
 
 #include "GpuCommandManager.h"
 
-namespace OpenML
+namespace NAMESPACE_PHYSICS
 {
 	class GpuDevice
 	{
