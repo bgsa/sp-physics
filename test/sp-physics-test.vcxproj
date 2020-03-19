@@ -45,6 +45,7 @@
     <ClCompile Include="src\GpuCommandsTest.cpp" />
     <ClCompile Include="src\GpuCommandTest.cpp" />
     <ClCompile Include="src\GpuContextTest.cpp" />
+    <ClCompile Include="src\GpuFindMinMaxTest.cpp" />
     <ClCompile Include="src\GpuInsertionSortingTest.cpp" />
     <ClCompile Include="src\GpuRadixSortingTest.cpp" />
     <ClCompile Include="src\HashGridTest.cpp" />
@@ -203,7 +204,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)sp-foundation\lib\x86\$(Configuration);$(SolutionDir)sp-physics\lib\x86\$(Configuration);$(SolutionDir)vendor\lib\x86\$(Configuration);$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\lib\Win32;$(SolutionDir)sp-foundation\lib\x86\$(Configuration);$(SolutionDir)sp-physics\lib\x86\$(Configuration);$(SolutionDir)vendor\lib\x86\$(Configuration);$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>OpenCL.lib;SpFoundation.lib;SpPhysics.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>

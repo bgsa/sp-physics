@@ -19,36 +19,34 @@ namespace NAMESPACE_PHYSICS
 		delete fileManager;
 	}
 
-	cl_mem GpuCommands::creteIndexes(GpuDevice* gpu, sp_size length)
+	cl_mem GpuCommands::creteIndexes(GpuDevice* gpu, sp_uint length)
 	{
 		GpuCommand* commandInitIndexes = gpu->commandManager->createCommand();
 
-		sp_size indexesSize = length * SIZEOF_SIZE;
-		cl_mem indexesBuffer = gpu->createBuffer(indexesSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		cl_mem output = gpu->createBuffer(length * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		commandInitIndexes
-			->setInputParameter(&length, SIZEOF_SIZE)
-			->setInputParameter(indexesBuffer, indexesSize)
+			->setInputParameter(&length, SIZEOF_UINT)
+			->setInputParameter(output, length * SIZEOF_UINT)
 			->buildFromProgram(gpu->commandManager->cachedPrograms[basicProgramIndex], "initIndexes");
 
-		/*
-		const sp_size globalWorkSize[3] = { nextPowOf2(std::min(commandInitIndexes->workGroupSize, length)), 0 , 0 };
-		const sp_size localWorkSize[3] = { std::max((sp_uint)(nextPowOf2(length) / commandInitIndexes->workGroupSize), 1U), 0, 0 };
-		const sp_size groupCount = globalWorkSize[0] / localWorkSize[0];
-		*/
+		sp_uint groupLength = multiplyBy4(nextPowOf2(gpu->computeUnits));
+		sp_uint threadLength = nextPowOf2((sp_uint)(length / groupLength));
 
-		sp_uint groupLength = multiplyBy2(gpu->computeUnits);
-		const sp_uint threadLength = nextPowOf2((sp_uint)(length / groupLength));
-		const sp_uint elementsPerThread = (sp_uint)(threadLength / groupLength);
+		if (threadLength == 1u)
+		{
+			threadLength = length;
+			groupLength = 1;
+		}
 
 		const sp_size globalWorkSize[3] = { threadLength, 0 , 0 };
-		const sp_size localWorkSize[3] = { gpu->computeUnits, 0 , 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0 , 0 };
 
 		commandInitIndexes->execute(1, globalWorkSize, localWorkSize);
 
 		commandInitIndexes->~GpuCommand();
 
-		return indexesBuffer;
+		return output;
 	}
 
 }

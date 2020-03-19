@@ -167,5 +167,8 @@
     <ClCompile Include="src\Vec4Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GpuFindMinMaxTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

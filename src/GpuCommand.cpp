@@ -156,29 +156,27 @@ namespace NAMESPACE_PHYSICS
 		return buildFromProgram(program, kernelName);
 	}
 
-	GpuCommand* GpuCommand::execute(sp_size workDimnmsion, const sp_size* globalWorkSize, const sp_size* localWorkSize, const sp_size* globalOffset)
+	sp_double GpuCommand::getTimeOfExecution(const cl_event* lastEvent)
 	{
-		assert(isPowerOf2(*globalWorkSize));
-		//assert(isPowerOf2(*localWorkSize));
-
-		cl_event* events = NULL;
-
-	#ifdef DEBUG
-		events = ALLOC_ARRAY(cl_event, 1);
 		cl_ulong time_start, time_end;
-	#endif
 
-		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, globalOffset, globalWorkSize, localWorkSize, 0, NULL, events));
+		clWaitForEvents(1, lastEvent);
+		clGetEventProfilingInfo(lastEvent[0], CL_PROFILING_COMMAND_START, sizeof(time_start), &time_start, NULL);
+		clGetEventProfilingInfo(lastEvent[0], CL_PROFILING_COMMAND_END, sizeof(time_end), &time_end, NULL);
 
-	#ifdef DEBUG
-		clWaitForEvents(1, events);
-		clGetEventProfilingInfo(events[0], CL_PROFILING_COMMAND_START, sizeof(time_start), &time_start, NULL);
-		clGetEventProfilingInfo(events[0], CL_PROFILING_COMMAND_END, sizeof(time_end), &time_end, NULL);
+		return (time_end - time_start) / 1000000.0;
+	}
 
-		timeToExecuteInMiliseconds = (time_end - time_start) / 1000000.0;
+	void GpuCommand::waitToFinish()
+	{
+		clFinish(commandQueue);
+	}
 
-		ALLOC_RELEASE(events);
-	#endif
+	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* globalOffset, cl_event* eventstoWait, const sp_uint eventLength, cl_event* currentEvent)
+	{
+		assert(isPowerOf2(*localWorkSize));
+		
+		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, globalOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, currentEvent));
 
 		return this;
 	}

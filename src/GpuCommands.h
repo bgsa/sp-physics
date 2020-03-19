@@ -26,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Create Indexes buffer ( 0, 1, 2, ... , length ) on GPU
 		/// </summary>
-		API_INTERFACE static cl_mem creteIndexes(GpuDevice * gpu, sp_size length);
+		API_INTERFACE static cl_mem creteIndexes(GpuDevice * gpu, sp_uint length);
 
 	};
 }

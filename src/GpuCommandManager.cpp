@@ -12,11 +12,9 @@ namespace NAMESPACE_PHYSICS
 		cl_int errorCode;
 
 	#ifdef DEBUG
-		if (queueProperties != NULL)
 			queueProperties |= CL_QUEUE_PROFILING_ENABLE;
-		else
-			queueProperties = CL_QUEUE_PROFILING_ENABLE;
 	#endif
+
 		commandQueue = clCreateCommandQueue(deviceContext, deviceId, queueProperties, &errorCode);
 
 		HANDLE_OPENCL_ERROR(errorCode);

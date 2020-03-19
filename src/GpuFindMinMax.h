@@ -19,15 +19,17 @@ namespace NAMESPACE_PHYSICS
 		sp_size localWorkSize[3];
 		sp_uint threadsCount;
 		sp_uint groupStride;
+		sp_uint inputLength;
 
 		GpuCommand* commandFindMinMaxByThread;
 		GpuCommand* commandFindMinMaxParallelReduce;
+		GpuCommand* commandFindMinMaxParallelReduce_Odd = NULL;
 
 		cl_mem inputGpu;
 		cl_mem indexesGpu;
 		cl_mem inputLengthGpu;
 		cl_mem offsetGpu;
-		cl_mem prefixScanOffsetGpu;
+		cl_mem groupStrideGpu;
 
 	public:
 
@@ -38,7 +40,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuFindMinMax* setParameters(sp_float* input, sp_uint indexesLength, sp_uint stride, sp_uint offset = 0);
 
 		API_INTERFACE cl_mem execute();
-
+		
 		API_INTERFACE ~GpuFindMinMax();
 	};
 
