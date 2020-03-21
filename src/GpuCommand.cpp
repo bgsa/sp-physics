@@ -174,7 +174,7 @@ namespace NAMESPACE_PHYSICS
 
 	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* globalOffset, cl_event* eventstoWait, const sp_uint eventLength, cl_event* currentEvent)
 	{
-		assert(isPowerOf2(*localWorkSize));
+		assert(globalWorkSize[0] % localWorkSize[0] == 0);
 		
 		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, globalOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, currentEvent));
 

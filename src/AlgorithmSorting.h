@@ -8,14 +8,6 @@
 
 #include "AABB.h"
 
-#ifdef OPENCL_ENABLED
-	#include "GpuCommands.h"
-	#include "IFileManager.h"
-	#include "Factory.h"
-	#undef max
-	#undef min
-#endif
-
 namespace NAMESPACE_PHYSICS
 {
 

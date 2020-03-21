@@ -63,25 +63,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)lib\x86\Debug\</OutDir>
+    <OutDir>$(ProjectDir)lib\x86\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <TargetName>SpPhysics</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)lib\x86\Release\</OutDir>
+    <OutDir>$(ProjectDir)lib\x86\$(Configuration)\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <TargetName>SpPhysics</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(ProjectDir)lib\x86_64\Debug\</OutDir>
+    <OutDir>$(ProjectDir)lib\x86_64\$(Configuration)\</OutDir>
     <TargetName>SpPhysics</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(ProjectDir)lib\x86_64\Release\</OutDir>
+    <OutDir>$(ProjectDir)lib\x86_64\$(Configuration)\</OutDir>
     <TargetName>SpPhysics</TargetName>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
@@ -171,10 +171,113 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\*.cpp" />
+    <ClCompile Include="src\AABB.cpp" />
+    <ClCompile Include="src\AlgorithmAitken.cpp" />
+    <ClCompile Include="src\AlgorithmBisection.cpp" />
+    <ClCompile Include="src\AlgorithmFalsePosition.cpp" />
+    <ClCompile Include="src\AlgorithmFixedPoint.cpp" />
+    <ClCompile Include="src\AlgorithmHorner.cpp" />
+    <ClCompile Include="src\AlgorithmInterpolation.cpp" />
+    <ClCompile Include="src\AlgorithmLagrange.cpp" />
+    <ClCompile Include="src\AlgorithmNewton.cpp" />
+    <ClCompile Include="src\AlgorithmSecant.cpp" />
+    <ClCompile Include="src\AlgorithmSorting.cpp" />
+    <ClCompile Include="src\AlgorithmSteffensen.cpp" />
+    <ClCompile Include="src\BinaryTree.cpp" />
+    <ClCompile Include="src\BinaryTreeNode.cpp" />
+    <ClCompile Include="src\BoundingVolume.cpp" />
+    <ClCompile Include="src\BoundingVolumeHierarchy.cpp" />
+    <ClCompile Include="src\Circle2D.cpp" />
+    <ClCompile Include="src\CollisionDetection.cpp" />
+    <ClCompile Include="src\CollisionResponse.cpp" />
+    <ClCompile Include="src\DOP18.cpp" />
+    <ClCompile Include="src\GpuCommand.cpp" />
+    <ClCompile Include="src\GpuCommandManager.cpp" />
+    <ClCompile Include="src\GpuContext.cpp" />
+    <ClCompile Include="src\GpuDevice.cpp" />
+    <ClCompile Include="src\GpuFindMinMax.cpp" />
+    <ClCompile Include="src\GpuIndexes.cpp" />
+    <ClCompile Include="src\GpuRadixSorting.cpp" />
+    <ClCompile Include="src\HashGrid.cpp" />
+    <ClCompile Include="src\Line2D.cpp" />
+    <ClCompile Include="src\Line3D.cpp" />
+    <ClCompile Include="src\Mat.cpp" />
+    <ClCompile Include="src\Mat2.cpp" />
+    <ClCompile Include="src\Mat3.cpp" />
+    <ClCompile Include="src\Mat4.cpp" />
+    <ClCompile Include="src\OBB.cpp" />
+    <ClCompile Include="src\Particle.cpp" />
+    <ClCompile Include="src\ParticleSystem.cpp" />
+    <ClCompile Include="src\Plane3D.cpp" />
+    <ClCompile Include="src\Quat.cpp" />
+    <ClCompile Include="src\Rectangle2D.cpp" />
+    <ClCompile Include="src\Sphere.cpp" />
+    <ClCompile Include="src\SweepAndPrune.cpp" />
+    <ClCompile Include="src\SweepAndPruneKdop.cpp" />
+    <ClCompile Include="src\Triangle2D.cpp" />
+    <ClCompile Include="src\Triangle3D.cpp" />
+    <ClCompile Include="src\Vec2.cpp" />
+    <ClCompile Include="src\Vec2List.cpp" />
+    <ClCompile Include="src\Vec3.cpp" />
+    <ClCompile Include="src\Vec3List.cpp" />
+    <ClCompile Include="src\Vec4.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\*.h" />
+    <ClInclude Include="src\AABB.h" />
+    <ClInclude Include="src\AlgorithmAitken.h" />
+    <ClInclude Include="src\AlgorithmBisection.h" />
+    <ClInclude Include="src\AlgorithmFalsePosition.h" />
+    <ClInclude Include="src\AlgorithmFixedPoint.h" />
+    <ClInclude Include="src\AlgorithmHorner.h" />
+    <ClInclude Include="src\AlgorithmInterpolation.h" />
+    <ClInclude Include="src\AlgorithmLagrange.h" />
+    <ClInclude Include="src\AlgorithmNewton.h" />
+    <ClInclude Include="src\AlgorithmSecant.h" />
+    <ClInclude Include="src\AlgorithmSorting.h" />
+    <ClInclude Include="src\AlgorithmSteffensen.h" />
+    <ClInclude Include="src\BinaryTree.h" />
+    <ClInclude Include="src\BinaryTreeNode.h" />
+    <ClInclude Include="src\BoundingVolume.h" />
+    <ClInclude Include="src\BoundingVolumeHierarchy.h" />
+    <ClInclude Include="src\Circle2D.h" />
+    <ClInclude Include="src\CollisionDetection.h" />
+    <ClInclude Include="src\CollisionResponse.h" />
+    <ClInclude Include="src\CollisionStatus.h" />
+    <ClInclude Include="src\DOP18.h" />
+    <ClInclude Include="src\GpuCommand.h" />
+    <ClInclude Include="src\GpuCommandManager.h" />
+    <ClInclude Include="src\GpuContext.h" />
+    <ClInclude Include="src\GpuDevice.h" />
+    <ClInclude Include="src\GpuFindMinMax.h" />
+    <ClInclude Include="src\GpuIndexes.h" />
+    <ClInclude Include="src\GpuRadixSorting.h" />
+    <ClInclude Include="src\HashGrid.h" />
+    <ClInclude Include="src\Line2D.h" />
+    <ClInclude Include="src\Line3D.h" />
+    <ClInclude Include="src\Mat.h" />
+    <ClInclude Include="src\Mat2.h" />
+    <ClInclude Include="src\Mat3.h" />
+    <ClInclude Include="src\Mat4.h" />
+    <ClInclude Include="src\OBB.h" />
+    <ClInclude Include="src\OpenML.h" />
+    <ClInclude Include="src\Orientation.h" />
+    <ClInclude Include="src\Particle.h" />
+    <ClInclude Include="src\ParticleSystem.h" />
+    <ClInclude Include="src\Plane3D.h" />
+    <ClInclude Include="src\Quat.h" />
+    <ClInclude Include="src\Randomizer.h" />
+    <ClInclude Include="src\Rectangle2D.h" />
+    <ClInclude Include="src\Sphere.h" />
+    <ClInclude Include="src\SweepAndPrune.h" />
+    <ClInclude Include="src\SweepAndPruneKdop.h" />
+    <ClInclude Include="src\SystemOfLinearEquations.h" />
+    <ClInclude Include="src\Triangle2D.h" />
+    <ClInclude Include="src\Triangle3D.h" />
+    <ClInclude Include="src\Vec2.h" />
+    <ClInclude Include="src\Vec2List.h" />
+    <ClInclude Include="src\Vec3.h" />
+    <ClInclude Include="src\Vec3List.h" />
+    <ClInclude Include="src\Vec4.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

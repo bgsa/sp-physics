@@ -65,10 +65,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE cl_mem createBuffer(void * value, size_t sizeOfValue, cl_mem_flags memoryFlags, bool writeValueOnDevice = true);
 		API_INTERFACE void releaseBuffer(cl_mem memoryBuffer);
 		API_INTERFACE void releaseBuffer(size_t length, cl_mem memoryBuffers ...);
-
-		API_INTERFACE sp_uint getLocalWorkSize(sp_uint elementsLength);
-
-		API_INTERFACE sp_uint getThreadLength(sp_uint elementsLength);
+		
+		API_INTERFACE sp_size* getGridConfigForOneDimension(sp_uint inputLenth);
 
 		~GpuDevice();
 	};

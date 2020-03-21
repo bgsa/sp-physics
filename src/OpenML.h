@@ -224,7 +224,7 @@ namespace NAMESPACE_PHYSICS
 	///<summary>
 	///Check the number is power of 2
 	///</summary>
-	inline bool API_INTERFACE isPowerOf2(size_t value)
+	API_INTERFACE inline sp_bool isPowerOf2(size_t value)
 	{
 		return value && !(value & (value - 1));
 	}
@@ -232,7 +232,7 @@ namespace NAMESPACE_PHYSICS
 	///<summary>
 	///Get the next number power of 2
 	///</summary>
-	inline sp_uint API_INTERFACE nextPowOf2(sp_uint value)
+	API_INTERFACE inline sp_uint nextPowOf2(sp_uint value)
 	{
 		sp_uint rval = 1;
 
@@ -245,7 +245,7 @@ namespace NAMESPACE_PHYSICS
 	///<summary>
 	///Get the next number power of 2
 	///</summary>
-	inline sp_int API_INTERFACE nextPowOf2(sp_int value)
+	API_INTERFACE inline sp_int nextPowOf2(sp_int value)
 	{
 		sp_int rval = 1;
 
@@ -254,6 +254,16 @@ namespace NAMESPACE_PHYSICS
 
 		return rval;
 	}
+
+	API_INTERFACE inline sp_uint nextDivisorOf(sp_uint n, sp_uint startFrom)
+	{
+		for (sp_uint i = startFrom; i <= n; i++)
+			if (n % i == 0)
+				return i;
+
+		return n;
+	}
+
 
 #if defined(WINDOWS) && defined(ENV_64BITS)
 	///<summary>

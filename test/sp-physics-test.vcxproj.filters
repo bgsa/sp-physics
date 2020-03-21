@@ -80,16 +80,10 @@
     <ClCompile Include="src\DOP18Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\GpuCommandsTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\GpuCommandTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GpuContextTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GpuInsertionSortingTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GpuRadixSortingTest.cpp">
@@ -168,6 +162,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GpuFindMinMaxTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GpuIndexesTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

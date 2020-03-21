@@ -25,6 +25,7 @@
     #pragma OPENCL EXTENSION cl_khr_int64_base_atomics: enable
 #endif
 
+typedef bool           sp_bool;
 typedef char           sp_char;
 typedef short          sp_short;
 typedef int            sp_int;
@@ -35,3 +36,32 @@ typedef unsigned long  sp_ulong;
 typedef unsigned int   sp_size;
 
 typedef float          sp_float;
+typedef double         sp_double;
+
+#define ZERO_UINT 0u
+#define ONE_UINT  1u
+#define TWO_UINT  2u
+
+#define SET_ARRAY_10_ELEMENTS(_name, _value)\
+            _name[0] = _value;  \
+            _name[1] = _value;  \
+            _name[2] = _value;  \
+            _name[3] = _value;  \
+            _name[4] = _value;  \
+            _name[5] = _value;  \
+            _name[6] = _value;  \
+            _name[7] = _value;  \
+            _name[8] = _value;  \
+            _name[9] = _value;  \
+
+#define COPY_ARRAY_10_ELEMENTS(_array1, _array2, _offset)\
+            _array1[_offset]     = _array2[_offset];      \
+            _array1[_offset + 1] = _array2[_offset + 1];  \
+            _array1[_offset + 2] = _array2[_offset + 2];  \
+            _array1[_offset + 3] = _array2[_offset + 3];  \
+            _array1[_offset + 4] = _array2[_offset + 4];  \
+            _array1[_offset + 5] = _array2[_offset + 5];  \
+            _array1[_offset + 6] = _array2[_offset + 6];  \
+            _array1[_offset + 7] = _array2[_offset + 7];  \
+            _array1[_offset + 8] = _array2[_offset + 8];  \
+            _array1[_offset + 9] = _array2[_offset + 9];  \

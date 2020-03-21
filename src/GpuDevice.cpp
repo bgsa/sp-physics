@@ -69,14 +69,30 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(profileAsArray);;
 	}
 
-	sp_uint GpuDevice::getLocalWorkSize(sp_uint elementsLength)
+	sp_size* GpuDevice::getGridConfigForOneDimension(sp_uint inputLength)
 	{
-		return std::max( (sp_uint)(nextPowOf2(elementsLength) / maxWorkGroupSize) , ONE_UINT );
-	}
+		sp_uint groupLength = multiplyBy4(nextPowOf2(computeUnits));
+		sp_uint threadLength = std::max( (sp_uint)(inputLength / groupLength) , ONE_UINT );
 
-	sp_uint GpuDevice::getThreadLength(sp_uint elementsLength)
-	{
-		return std::min(maxWorkItemSizes[0], elementsLength);
+		if (threadLength == ONE_UINT)
+		{
+			threadLength = inputLength;
+			groupLength = ONE_UINT;
+		}
+		else
+		{
+			if (threadLength * groupLength != inputLength)
+			{
+				threadLength = inputLength;
+				groupLength = nextDivisorOf(threadLength, threadLength / groupLength);
+			}
+		}
+
+		sp_size* result = ALLOC_ARRAY(sp_size, 2);
+		result[0] = threadLength;
+		result[1] = groupLength;
+
+		return result;
 	}
 
 	sp_bool GpuDevice::isGPU() 

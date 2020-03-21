@@ -1,105 +1,105 @@
-#if OPENCL_ENABLED
+#ifdef OPENCL_ENABLED
 
 #include "GpuRadixSorting.h"
 
+#define BUCKET_LENGTH 10u
+
 namespace NAMESPACE_PHYSICS
 {
-	GpuRadixSorting* GpuRadixSorting::init(GpuDevice* gpu, const char* buildOptions)
+	GpuRadixSorting* GpuRadixSorting::init(GpuDevice* gpu, const sp_char* buildOptions)
 	{
 		if (this->gpu != NULL)
 			return this;
 
 		this->gpu = gpu;
 
-		GpuCommands::init(gpu, buildOptions);
+		commandCreateIndexes = ALLOC_NEW(GpuIndexes)();
+		commandCreateIndexes->init(gpu, buildOptions);
 
 		IFileManager* fileManager = Factory::getFileManagerInstance();
 
 		std::string sourceRadixSort = fileManager->readTextFile("RadixSorting.cl");
 		radixSortProgramIndex = gpu->commandManager->cacheProgram(sourceRadixSort.c_str(), SIZEOF_CHAR * sourceRadixSort.length(), buildOptions);
 
+		program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		findMinMax = ALLOC_NEW(GpuFindMinMax)();
+		findMinMax->init(gpu, buildOptions);
+
 		delete fileManager;
 		return this;
 	}
 
-	GpuRadixSorting* GpuRadixSorting::setParameters(float* input, size_t inputLength, size_t strider, size_t offset)
+	GpuRadixSorting* GpuRadixSorting::setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset)
 	{
-		size_t offsetPrefixScanCpu = 10;
-		bool useExpoent = false;
-		size_t digitIndex = 0;
-		const size_t inputSize = inputLength * strider * SIZEOF_FLOAT;
+		sp_uint offsetPrefixScanCpu = BUCKET_LENGTH;
+		sp_bool useExpoent = false;
+		sp_uint digitIndex = 0;
+		const sp_uint inputSize = inputLength * strider * SIZEOF_FLOAT;
+		
+		findMinMax->setParameters(input, inputLength, strider, offset);
+		findMinMax->execute();
+
+		commandCreateIndexes->setParametersCreateIndexes(inputLength);
+		indexesGpu = commandCreateIndexes->execute();
 
 		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
-		indexesGpu = GpuCommands::creteIndexes(gpu, inputLength);
 		indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY);
 		offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		outputMinMaxGpu = gpu->createBuffer(inputLength * 2 * SIZEOF_FLOAT, CL_MEM_READ_WRITE);
 		offsetPrefixScanGpu = gpu->createBuffer(&offsetPrefixScanCpu, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		digitIndexGpu = gpu->createBuffer(&digitIndex, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		outputIndexes = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
+		
+		gpu->commandManager->executeReadBuffer(findMinMax->output, SIZEOF_FLOAT * 2, minMaxValues, true);
+		
+		sp_size* gridConfig = gpu->getGridConfigForOneDimension(inputLength);
 
+		globalWorkSize[0] = gridConfig[0];
+		localWorkSize[0] = gridConfig[1];
 
-		// TODO: TROCAR PELO METODO NOVO O!!!!!!
-		//GpuCommands::findMinMaxIndexesGPU(gpu, inputGpu, indexesGpu, indexesLengthGpu, offsetGpu, inputLength, strider, outputMinMaxGpu);
+		ALLOC_RELEASE(gridConfig);
 
+		threadsLength = std::min(inputLength, threadsLength);
 
-		gpu->commandManager->executeReadBuffer(outputMinMaxGpu, SIZEOF_FLOAT * 2, minMaxValues, true);
-
-		const size_t elementsLengthAsPowOf2 = nextPowOf2(inputLength); //required for OpenCL
-		const size_t elementsPerWorkItem = std::max(elementsLengthAsPowOf2 / gpu->maxWorkGroupSize, size_t(1));
-		threadsCount = elementsLengthAsPowOf2 / elementsPerWorkItem;
-
-		globalWorkSize[0] = threadsCount;
-		globalWorkSize[1] = 0;
-		globalWorkSize[2] = 0;
-		localWorkSize[0] = elementsPerWorkItem;
-		localWorkSize[1] = 0;
-		localWorkSize[2] = 0;
-
-		threadsCount = std::min(inputLength, threadsCount);
-
-		const size_t offsetTableSize = SIZEOF_UINT * 10 * threadsCount;
+		const sp_uint offsetTableSize = SIZEOF_UINT * 10 * threadsLength;
 		offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 		offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 		offsetTableResult = offsetTable2;
-		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 
-		commandCount = gpu->commandManager
-			->createCommand()
+		commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
 			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
-			->setInputParameter(outputMinMaxGpu, SIZEOF_FLOAT * 2)
+			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
 
-		commandPrefixScan = gpu->commandManager
-			->createCommand()
+		commandPrefixScan = gpu->commandManager->createCommand()
 			->setInputParameter(offsetTable1, offsetTableSize)  //use buffer hosted GPU
 			->setInputParameter(offsetTable2, offsetTableSize)
 			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
-			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->buildFromProgram(program, "prefixScan");
 
-		commandPrefixScanSwaped = gpu->commandManager
-			->createCommand()
+		commandPrefixScanSwaped = gpu->commandManager->createCommand()
 			->setInputParameter(offsetTable2, offsetTableSize)  //use buffer hosted GPU
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
-			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->buildFromProgram(program, "prefixScan");
 
-		commandReorder = gpu->commandManager
-			->createCommand()
+		//commandUpdatePrefixScan = gpu->commandManager->createCommand()
+		//	->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
+		//	->buildFromProgram(program, "updateNextPrefixScan");
+
+		commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
 			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
 			->setInputParameter(offsetTableResult, offsetTableSize)
-			->setInputParameter(outputMinMaxGpu, SIZEOF_FLOAT * 2)
+			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
 			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
@@ -110,36 +110,40 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem GpuRadixSorting::execute()
 	{
-		bool useExpoent = false;
-		size_t digitIndex = 0;
+		sp_bool useExpoent = false;
+		sp_uint digitIndex = 0;
 
-		bool offsetChanged = false;
-		bool indexesChanged = false;
-		bool prefixScanSwaped = true;
+		sp_bool offsetChanged = false;
+		sp_bool indexesChanged = false;
+		sp_bool prefixScanSwaped = true;
 
-		float minValue = -std::min(0.0f, minMaxValues[0]);
-
+		sp_float minValue = -std::min(0.0f, minMaxValues[0]);
+		
 		commandCount->execute(1, globalWorkSize, localWorkSize);
 		commandPrefixScan->execute(1, globalWorkSize, localWorkSize);
+
+		const sp_uint maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength)));
 
 		do  // for each digit in one element
 		{
 			offsetChanged = false;
 
-			do  // prefix scan
+			for (sp_uint i = 0; i < maxIteration; i++)
 			{
-				offsetPrefixScanCpu <<= 1;
+				//commandUpdatePrefixScan
+				//	->execute(1, globalWorkSizeOneThread, localWorkSizeOneThread);
 
+				offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
+				
 				if (prefixScanSwaped)
 					commandPrefixScanSwaped->execute(1, globalWorkSize, localWorkSize);
 				else
 					commandPrefixScan->execute(1, globalWorkSize, localWorkSize);
-
+				
 				offsetChanged = !offsetChanged;
 				prefixScanSwaped = !prefixScanSwaped;
-
-			} while (offsetPrefixScanCpu < (threadsCount * 10) >> 1);
-			offsetPrefixScanCpu = 10;
+			}
+			offsetPrefixScanCpu = BUCKET_LENGTH;
 
 			offsetTableResult = offsetChanged ? offsetTable1 : offsetTable2;
 
@@ -156,18 +160,17 @@ namespace NAMESPACE_PHYSICS
 
 				useExpoent = true;
 				digitIndex = 0;
-				maxDigits = digitCount((int)(minMaxValues[1] + minValue));  // MAX_DIGITS_EXPOENT - 1;
+				maxDigits = digitCount((sp_int)(minMaxValues[1] + minValue));  // MAX_DIGITS_EXPOENT - 1;
 			}
 
 			commandCount
 				->updateInputParameter(1, indexesChanged ? outputIndexes : indexesGpu)
 				->execute(1, globalWorkSize, localWorkSize);
 
-			if (prefixScanSwaped)
-				commandPrefixScanSwaped->execute(1, globalWorkSize, localWorkSize);
-			else
-				commandPrefixScan->execute(1, globalWorkSize, localWorkSize);
-			prefixScanSwaped = !prefixScanSwaped;
+			commandPrefixScan
+				->execute(1, globalWorkSize, localWorkSize);
+
+			prefixScanSwaped = true;
 
 		} while (true);
 
@@ -176,15 +179,20 @@ namespace NAMESPACE_PHYSICS
 
 	GpuRadixSorting::~GpuRadixSorting()
 	{
-		gpu->releaseBuffer(11, inputGpu, indexesGpu, indexesLengthGpu, offsetGpu,
-							outputMinMaxGpu, offsetPrefixScanGpu, digitIndexGpu, useExpoentGpu,
+		gpu->releaseBuffer(9, inputGpu, indexesGpu, indexesLengthGpu, offsetGpu,
+							offsetPrefixScanGpu, digitIndexGpu, useExpoentGpu,
 							offsetTable1, offsetTable2);
 
-		commandCount->~GpuCommand();
-		commandPrefixScan->~GpuCommand();
-		commandPrefixScanSwaped->~GpuCommand();
-		commandReorder->~GpuCommand();
+		ALLOC_DELETE(commandCreateIndexes, GpuIndexes);
+		ALLOC_DELETE(findMinMax, GpuFindMinMax);
+		//ALLOC_DELETE(commandUpdatePrefixScan, GpuCommand);
+		ALLOC_DELETE(commandCount, GpuCommand);
+		ALLOC_DELETE(commandPrefixScan, GpuCommand);
+		ALLOC_DELETE(commandPrefixScanSwaped, GpuCommand);
+		ALLOC_DELETE(commandReorder, GpuCommand);
 	}
 }
+
+#undef BUCKET_LENGTH
 
 #endif

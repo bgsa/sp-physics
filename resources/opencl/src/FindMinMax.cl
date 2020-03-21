@@ -10,7 +10,7 @@ __kernel void findMinMaxByThread(
     __global   sp_float * output
     )
 {
-    if (THREAD_ID + 1 > *indexesLength) // guard
+    if (THREAD_ID > *indexesLength - 1) // guard
         return;
 
     __private const sp_uint elementsPerWorkItem = max((sp_uint) (*indexesLength / THREAD_LENGTH), 1U);
@@ -32,15 +32,23 @@ __kernel void findMinMaxByThread(
     output[outputIndex + 1] = maxValue;
 }
 
-__kernel void findMinMaxParallelReduce(__global sp_float* output)
+__kernel void findMinMaxParallelReduce(
+    __constant sp_uint * indexesLength,
+    __global   sp_float* output
+    )
 {
     __private const sp_uint outputIndex = multiplyBy2(THREAD_ID);
-    __private const sp_uint offset = THREAD_LENGTH + outputIndex;
+    __private const sp_uint offset = outputIndex + THREAD_LENGTH;
 
     output[outputIndex]   = min( output[outputIndex]   , output[offset]   );
     output[outputIndex+1] = max( output[outputIndex+1] , output[offset+1] );
 }
 
+__kernel void findMinMaxParallelReduce_OneThread(__global sp_float* output)
+{
+    output[0] = min( output[0] , output[2] );
+    output[1] = max( output[1] , output[3] );
+}
 
 __kernel void findMinMaxParallelReduce_Odd(
     __constant sp_float* input,
