@@ -65,3 +65,19 @@ typedef double         sp_double;
             _array1[_offset + 7] = _array2[_offset + 7];  \
             _array1[_offset + 8] = _array2[_offset + 8];  \
             _array1[_offset + 9] = _array2[_offset + 9];  \
+
+
+sp_bool isPowerOf2(sp_uint value)
+{
+    return value && !(value & (value - 1));
+}
+
+sp_uint nextPowOf2(sp_uint value)
+{
+    sp_uint rval = 1;
+
+    while (rval < value) 
+        rval = multiplyBy2(rval);
+
+    return rval;
+}

@@ -3,6 +3,7 @@
 #ifndef GPU_FIND_MIN_MAX_TEST_HEADER
 #define GPU_FIND_MIN_MAX_TEST_HEADER
 
+#include "Log.hpp"
 #include "TestHeader.h"
 #include "Randomizer.h"
 #include <GpuFindMinMax.h>
@@ -73,6 +74,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxIndexesGPU_withOffsets_andSomeData);
 
 		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxIndexesGPU_withOffsets_andFewData);
+
+		SP_TEST_METHOD_DEF(GpuCommands_findMinMaxIndexesGPU_withOffsets_andOdd);
 
 	};
 
@@ -148,9 +151,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		const sp_uint offsetMultiplier = 8;
 		const sp_uint offsetSum = 2;
 
-		const sp_uint count = 100u;
+		const sp_uint count = 20u;
+		const sp_uint maxIteration = 20u;
 
-		for (sp_uint i = 0u; i < 100u; i++)
+		for (sp_uint i = 0u; i < maxIteration; i++)
 		{
 			AABB* aabbs = getRandomAABBs(count);
 
@@ -160,13 +164,13 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_uint expectedIndexesMinMax[2];
 			for (sp_uint i = 0; i < count; i++)
 			{
-				if (aabbs[i].minPoint.x > max) {
-					max = aabbs[i].minPoint.x;
+				if (aabbs[i].minPoint.x < min) {
+					min = aabbs[i].minPoint.x;
 					expectedIndexesMinMax[0] = i;
 				}
 
-				if (aabbs[i].minPoint.x < min) {
-					min = aabbs[i].minPoint.x;
+				if (aabbs[i].minPoint.x > max) {
+					max = aabbs[i].minPoint.x;
 					expectedIndexesMinMax[1] = i;
 				}
 			}
@@ -193,6 +197,60 @@ namespace NAMESPACE_PHYSICS_TEST
 			ALLOC_DELETE(findMinMax, GpuFindMinMax);
 			ALLOC_RELEASE(aabbs);
 		}
+	}
+	
+	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxIndexesGPU_withOffsets_andOdd)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice;
+
+		const sp_uint offsetMultiplier = 8;
+		const sp_uint offsetSum = 2;
+
+		const sp_uint count = 3u;
+
+		AABB* aabbs = getRandomAABBs(count);
+
+		sp_float min = FLT_MAX;
+		sp_float max = -FLT_MAX;
+
+		aabbs[count - 1].minPoint.x = 999.0f; //
+
+		sp_uint expectedIndexesMinMax[2];
+		for (sp_uint i = 0; i < count; i++)
+		{
+			if (aabbs[i].minPoint.x < min) {
+				min = aabbs[i].minPoint.x;
+				expectedIndexesMinMax[0] = i;
+			}
+
+			if (aabbs[i].minPoint.x > max) {
+				max = aabbs[i].minPoint.x;
+				expectedIndexesMinMax[1] = i;
+			}
+		}
+
+		std::ostringstream buildOptions;
+		buildOptions
+			<< " -DLOCAL_MEM_LENGTH=" << gpu->localMemoryLength
+			<< " -DINPUT_LENGTH=" << count
+			<< " -DINPUT_STRIDE=" << AABB_STRIDER
+			<< " -DINPUT_OFFSET=" << AABB_OFFSET;
+
+		GpuFindMinMax* findMinMax = ALLOC_NEW(GpuFindMinMax)();
+		findMinMax->init(gpu, buildOptions.str().c_str());
+		findMinMax->setParameters((sp_float*)aabbs, count, AABB_STRIDER, AABB_OFFSET);
+
+		findMinMax->execute();
+
+		sp_float* result = ALLOC_ARRAY(sp_float, 2);
+		gpu->commandManager->executeReadBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, true);
+
+		Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
+
+		ALLOC_DELETE(findMinMax, GpuFindMinMax);
+		ALLOC_RELEASE(aabbs);
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxIndexesGPU_withOffsets_andFewData)
