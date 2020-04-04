@@ -56,7 +56,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuCommand* buildFromProgram(cl_program program, const sp_char* kernelName);
 		API_INTERFACE GpuCommand* build(const sp_char* source, sp_size sourceSize, const sp_char* kernelName, const sp_char* buildOptions = NULL);
 
-		API_INTERFACE GpuCommand* execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* globalOffset = NULL, cl_event* events = NULL, const sp_uint eventLength = 0, cl_event* currentEvent = NULL);
+		API_INTERFACE GpuCommand* execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset = NULL, cl_event* events = NULL, const sp_uint eventLength = 0, cl_event* currentEvent = NULL);
 
 		API_INTERFACE void waitToFinish();
 

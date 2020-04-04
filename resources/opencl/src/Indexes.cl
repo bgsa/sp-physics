@@ -11,3 +11,11 @@ __kernel void create(
     for (sp_uint i = 0 ; i < elementsPerWorkItem ; i++)
         indexes[inputThreadIndex + i] = inputThreadIndex + i;
 }
+
+__kernel void create_Odd(
+    __constant sp_uint* length,
+    __global   sp_uint* indexes
+    )
+{
+    indexes[*length -1] = *length -1;
+}

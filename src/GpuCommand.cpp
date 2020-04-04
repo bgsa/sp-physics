@@ -172,11 +172,11 @@ namespace NAMESPACE_PHYSICS
 		clFinish(commandQueue);
 	}
 
-	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* globalOffset, cl_event* eventstoWait, const sp_uint eventLength, cl_event* currentEvent)
+	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset, cl_event* eventstoWait, const sp_uint eventLength, cl_event* currentEvent)
 	{
 		assert(globalWorkSize[0] % localWorkSize[0] == 0);
 		
-		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, globalOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, currentEvent));
+		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, threadOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, currentEvent));
 
 		return this;
 	}

@@ -23,7 +23,6 @@ namespace NAMESPACE_PHYSICS
 		char* driverVersion;
 		cl_device_type type;
 		cl_uint computeUnits;
-		//bool isAvailable = false;
 		std::vector<std::string> extensions;
 		sp_uint maxParameterSize = 256;
 
@@ -66,7 +65,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void releaseBuffer(cl_mem memoryBuffer);
 		API_INTERFACE void releaseBuffer(size_t length, cl_mem memoryBuffers ...);
 		
-		API_INTERFACE sp_size* getGridConfigForOneDimension(sp_uint inputLenth);
+		API_INTERFACE sp_uint getThreadLength(sp_uint inputLength);
+		API_INTERFACE sp_uint getGroupLength(sp_uint threadLength, sp_uint inputLength);
 
 		~GpuDevice();
 	};

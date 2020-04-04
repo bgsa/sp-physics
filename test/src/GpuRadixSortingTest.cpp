@@ -162,14 +162,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 		cl_mem offsetTableResult = offsetTable2;
 
-		sp_size* gridConfig = gpu->getGridConfigForOneDimension(count);
-
-		const sp_uint threadsLength = gridConfig[0];
-		const sp_uint groupLength = gridConfig[0];
+		const sp_uint threadsLength = gpu->getThreadLength(count);;
+		const sp_uint groupLength = gpu->getGroupLength(threadsLength, count);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
-
-		ALLOC_RELEASE(gridConfig);
 
 		GpuFindMinMax* findMinMax = ALLOC_NEW(GpuFindMinMax)();
 		findMinMax->init(gpu, buildOptions.str().c_str());
@@ -197,7 +193,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			for (sp_uint i = 0; i < 10; i++)
 				value += orderedIndexes[i + shift];
 
-			if (value != groupLength)
+			if (value != count / threadsLength)
 				Assert::Fail(L"Wrong value.", LINE_INFO());
 		}
 
@@ -237,13 +233,24 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint offset = 0u;
 		const sp_uint inputSize = count * stride * SIZEOF_FLOAT;
 
-		sp_size* gridConfig = gpu->getGridConfigForOneDimension(count);
+		sp_uint threadsLength = gpu->getThreadLength(count);
+		sp_uint iterations = (sp_uint) std::ceil(std::log(threadsLength));
+		threadsLength = divideBy2(threadsLength);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, count);
 
-		const sp_uint threadsLength = gridConfig[0];
-		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
-		const sp_size localWorkSize[3] = { gridConfig[1], 0, 0 };
+		sp_uint maxLength = 2;
+		for (; maxLength < threadsLength; maxLength *= 2)
+		{
+			sp_uint v = nextDivisorOf(maxLength - 1, defaultLocalWorkSize);
+			if (v > gpu->maxWorkGroupSize)
+				break;
+		}
+		while (threadsLength >= maxLength)
+			threadsLength = divideBy2(threadsLength);
+		const sp_uint elementsPerThread = count / threadsLength;
 
-		ALLOC_RELEASE(gridConfig);
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
 
 		cl_mem inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
 		cl_mem indexesGpu = commandIndexes->execute();
@@ -256,8 +263,6 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
 		cl_mem offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
-		cl_mem offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
-		cl_mem offsetTableResult = offsetTable2;
 
 		GpuFindMinMax* findMinMax = ALLOC_NEW(GpuFindMinMax)();
 		findMinMax->init(gpu, buildOptions.str().c_str());
@@ -275,42 +280,97 @@ namespace NAMESPACE_PHYSICS_TEST
 			->buildFromProgram(program, "count")
 			->execute(1, globalWorkSize, localWorkSize);
 
-		GpuCommand* commandPrefixScan = gpu->commandManager->createCommand()
-			->setInputParameter(offsetTable1, offsetTableSize)  //use buffer hosted GPU
-			->setInputParameter(offsetTable2, offsetTableSize)
-			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
-			->buildFromProgram(program, "prefixScan");
-
-		GpuCommand* commandPrefixScanSwaped = gpu->commandManager->createCommand()
-			->setInputParameter(offsetTable2, offsetTableSize)  //use buffer hosted GPU
+		GpuCommand* commandPrefixScanUp = gpu->commandManager->createCommand()
 			->setInputParameter(offsetTable1, offsetTableSize)
-			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
-			->buildFromProgram(program, "prefixScan");
+			->buildFromProgram(program, "prefixScanUp");
 
-		sp_bool prefixScanSwaped = true;
-		sp_bool offsetChanged = false;
+		GpuCommand* commandPrefixScanDown = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable1, offsetTableSize)
+			->buildFromProgram(program, "prefixScanDown");
 
-		commandPrefixScan->execute(1, globalWorkSize, localWorkSize);
+		sp_uint* temp = ALLOC_ARRAY(sp_uint, count);
+		gpu->commandManager->executeReadBuffer(offsetTable1, offsetTableSize, temp, true);
 
-		const sp_uint maxIteration = (sp_uint) std::ceil(std::log(multiplyBy10(threadsLength)));
-
-		for (sp_uint i = 0; i < maxIteration; i++)
+		for (sp_uint shift = 0; shift < threadsLength * 10; shift += 10)
 		{
-			offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
+			sp_uint value = 0u;
 
-			if (prefixScanSwaped)
-				commandPrefixScanSwaped->execute(1, globalWorkSize, localWorkSize);
-			else
-				commandPrefixScan->execute(1, globalWorkSize, localWorkSize);
+			for (sp_uint i = 0; i < 10; i++)
+				value += temp[i + shift];
 
-			offsetChanged = !offsetChanged;
-			prefixScanSwaped = !prefixScanSwaped;
+			if (value != count / threadsLength)
+				Assert::Fail(L"Wrong value.", LINE_INFO());
+		}
+		sp_float r = 0u;
+		for (sp_uint i = 0; i < threadsLength * 10; i++)
+			r += temp[i];
+
+		sp_uint* result = ALLOC_ARRAY(sp_uint, multiplyBy10(threadsLength));
+		sp_uint threadLength = (sp_uint)std::ceil(globalWorkSize[0] / 2.0);
+		offset = 1u;
+		while(globalWorkSize[0] != 1u)
+		{
+			offset = multiplyBy2(offset);
+			globalWorkSize[0] = (sp_uint)std::ceil(globalWorkSize[0] / 2.0);
+
+			if (globalWorkSize[0] < localWorkSize[0])
+				localWorkSize[0] = globalWorkSize[0];
+
+			commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset);
+			
+			// test scan up
+			gpu->commandManager->executeReadBuffer(offsetTable1, offsetTableSize, result, true);
+			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
+			{
+				sp_uint sum = 0;
+				sp_uint index = (w + 1) * offset * 10u - 10u;
+
+				for (sp_uint j = index; j < index + 10u; j++)
+					sum += result[j];
+
+				Assert::AreEqual(elementsPerThread * offset, sum, L"Wrong value.", LINE_INFO());
+			}
 		}
 
-		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, multiplyBy10(threadsLength));
-		gpu->commandManager->executeReadBuffer(prefixScanSwaped ? offsetTable2 : offsetTable1, offsetTableSize, orderedIndexes, true);
+		threadLength = globalWorkSize[0];
+		while (offset != 2u)
+		{
+			offset = divideBy2(offset);
+			threadLength = multiplyBy2(threadLength);
+			globalWorkSize[0] = threadLength - 1;
 
-		Assert::AreEqual(count, orderedIndexes[multiplyBy10(threadsLength) - 1] + orderedIndexes[multiplyBy10(threadsLength) - 10], L"Wrong value.", LINE_INFO());
+			if (globalWorkSize[0] <= defaultLocalWorkSize)
+				localWorkSize[0] = globalWorkSize[0];
+			else
+				localWorkSize[0] = nextDivisorOf(globalWorkSize[0], defaultLocalWorkSize);
+
+			commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset);
+
+			// test scan down
+			gpu->commandManager->executeReadBuffer(offsetTable1, offsetTableSize, result, true);
+			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
+			{
+				sp_uint sum = 0;
+				sp_uint index = ((w + 1) * offset + divideBy2(offset)) * 10u - 10u;
+
+				for (sp_uint j = index; j < index + 10u; j++)
+					sum += result[j];
+
+				Assert::AreEqual( (index + 10u) / 10u * elementsPerThread, sum, L"Wrong value.", LINE_INFO());
+			}
+		}
+
+		sp_uint expected = 0u;
+		for (sp_uint i = 0; i < threadLength; i++)
+		{
+			sp_uint value = 0;
+			expected += elementsPerThread;
+
+			for (sp_uint j = 0; j < 10; j++)
+				value += result[i * 10 + j];
+
+			Assert::AreEqual(expected, value, L"Wrong value.", LINE_INFO());
+		}
 
 		ALLOC_DELETE(findMinMax, GpuFindMinMax);
 		ALLOC_DELETE(commandCount, GpuCommand);
@@ -349,7 +409,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_uint strider = 1u;
 			sp_uint offset = 0u;
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
-			radixGpu->init(gpu, buildOptions.str().c_str())->setParameters(input2, inputLength, strider, offset);
+			radixGpu->init(gpu, buildOptions.str().c_str())
+				->setParameters(input2, inputLength, strider, offset);
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
@@ -376,11 +437,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice;
 
-		std::chrono::milliseconds times[10];
+		const sp_uint iterations = 10u;
+		std::chrono::milliseconds times[iterations];
 
-		for (sp_size i = 0; i < 10; i++)
+		for (sp_size i = 0; i < iterations; i++)
 		{
-
 			const sp_size count = (sp_size)std::pow(2.0, 17.0);
 			AABB* input1 = getRandomAABBs(count);
 			AABB* input2 = ALLOC_COPY(input1, AABB, count);
@@ -389,8 +450,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			buildOptions << " -DINPUT_LENGTH=" << count;
 			buildOptions << " -DINPUT_STRIDE=" << AABB_STRIDER;
 			buildOptions << " -DINPUT_OFFSET=" << AABB_OFFSET;
-			//buildOptions << " –cl-fast-relaxed-math";
-			//buildOptions << " -cl-unsafe-math-optimizations";
 
 			GpuRadixSorting* radixSorting = ALLOC_NEW(GpuRadixSorting)();
 			radixSorting->init(gpu, buildOptions.str().c_str())
@@ -419,7 +478,6 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			ALLOC_RELEASE(input1);
 			ALLOC_DELETE(radixSorting, GpuRadixSorting);
-
 		}
 	}
 

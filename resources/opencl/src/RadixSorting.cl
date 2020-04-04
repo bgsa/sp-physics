@@ -33,19 +33,6 @@
             startIndex[9] = startIndex[8] + offsetTable[offsetTable_LastBucketIndex + 8];
 
 
-#define UPDATE_OFFSET_TABLE()\
-            nextOffsetTable[offsetTableIndex] = previousOffsetTable[offsetTableIndex - offset] + previousOffsetTable[offsetTableIndex]; \
-            nextOffsetTable[offsetTableIndex + 1] = previousOffsetTable[offsetTableIndex + 1 - offset] + previousOffsetTable[offsetTableIndex + 1]; \
-            nextOffsetTable[offsetTableIndex + 2] = previousOffsetTable[offsetTableIndex + 2 - offset] + previousOffsetTable[offsetTableIndex + 2]; \
-            nextOffsetTable[offsetTableIndex + 3] = previousOffsetTable[offsetTableIndex + 3 - offset] + previousOffsetTable[offsetTableIndex + 3]; \
-            nextOffsetTable[offsetTableIndex + 4] = previousOffsetTable[offsetTableIndex + 4 - offset] + previousOffsetTable[offsetTableIndex + 4]; \
-            nextOffsetTable[offsetTableIndex + 5] = previousOffsetTable[offsetTableIndex + 5 - offset] + previousOffsetTable[offsetTableIndex + 5]; \
-            nextOffsetTable[offsetTableIndex + 6] = previousOffsetTable[offsetTableIndex + 6 - offset] + previousOffsetTable[offsetTableIndex + 6]; \
-            nextOffsetTable[offsetTableIndex + 7] = previousOffsetTable[offsetTableIndex + 7 - offset] + previousOffsetTable[offsetTableIndex + 7]; \
-            nextOffsetTable[offsetTableIndex + 8] = previousOffsetTable[offsetTableIndex + 8 - offset] + previousOffsetTable[offsetTableIndex + 8]; \
-            nextOffsetTable[offsetTableIndex + 9] = previousOffsetTable[offsetTableIndex + 9 - offset] + previousOffsetTable[offsetTableIndex + 9];
-
-
 //#define digitMantissa(value, index) \
 //    (sp_uint) ( (sp_uint) (  (fabs(((sp_float) ((sp_uint) value)) - value) * 10000)   / pow(10.0, (sp_double) index)) % 10);
 
@@ -97,28 +84,46 @@ __kernel void count(
     UPDATE_GLOBAL_OFFSET_TABLE();
 }
 
-__kernel void prefixScan(
-    __global sp_uint * previousOffsetTable,
-    __global sp_uint * nextOffsetTable,
-    __global sp_uint * offsetPrefixScan
+
+__kernel void prefixScanUp(
+    __global sp_uint* offsetTable
     )
 {
-    __private const sp_uint offsetTableIndex = THREAD_ID * BUCKET_LENGTH;
-    __private const sp_uint offset = *offsetPrefixScan;
+    __private sp_uint index = (THREAD_ID - THREAD_OFFSET + 1) * THREAD_OFFSET * BUCKET_LENGTH - BUCKET_LENGTH;
+    __private sp_uint offset = index - (divideBy2(THREAD_OFFSET) * BUCKET_LENGTH);
 
-    if (offsetTableIndex < offset)
-    {
-        COPY_ARRAY_10_ELEMENTS(nextOffsetTable, previousOffsetTable, offsetTableIndex)
-    }
-    else 
-    {
-        UPDATE_OFFSET_TABLE()
-    }
-
-    barrier(CLK_GLOBAL_MEM_FENCE);
-    if (THREAD_ID == 0)
-        offsetPrefixScan[0] = multiplyBy2(*offsetPrefixScan);
+    offsetTable[index    ] += offsetTable[offset    ];
+    offsetTable[index + 1] += offsetTable[offset + 1];
+    offsetTable[index + 2] += offsetTable[offset + 2];
+    offsetTable[index + 3] += offsetTable[offset + 3];
+    offsetTable[index + 4] += offsetTable[offset + 4];
+    offsetTable[index + 5] += offsetTable[offset + 5];
+    offsetTable[index + 6] += offsetTable[offset + 6];
+    offsetTable[index + 7] += offsetTable[offset + 7];
+    offsetTable[index + 8] += offsetTable[offset + 8];
+    offsetTable[index + 9] += offsetTable[offset + 9];
 }
+
+#define PREFIX_SCAN_DOWN_STRIDE divideBy2(THREAD_OFFSET)
+__kernel void prefixScanDown(
+    __global sp_uint* offsetTable
+    )
+{
+    __private sp_uint index = ((THREAD_ID - THREAD_OFFSET + 1) * THREAD_OFFSET + PREFIX_SCAN_DOWN_STRIDE) * BUCKET_LENGTH - BUCKET_LENGTH;
+    __private sp_uint offset = index - (PREFIX_SCAN_DOWN_STRIDE * BUCKET_LENGTH);
+    
+    offsetTable[index    ] += offsetTable[offset    ];
+    offsetTable[index + 1] += offsetTable[offset + 1];
+    offsetTable[index + 2] += offsetTable[offset + 2];
+    offsetTable[index + 3] += offsetTable[offset + 3];
+    offsetTable[index + 4] += offsetTable[offset + 4];
+    offsetTable[index + 5] += offsetTable[offset + 5];
+    offsetTable[index + 6] += offsetTable[offset + 6];
+    offsetTable[index + 7] += offsetTable[offset + 7];
+    offsetTable[index + 8] += offsetTable[offset + 8];
+    offsetTable[index + 9] += offsetTable[offset + 9];
+}
+#undef PREFIX_SCAN_DOWN_STRIDE
 
 __kernel void reorder(
     __constant sp_float* input,
@@ -128,8 +133,7 @@ __kernel void reorder(
     __global   sp_uint * offsetTable,
     __constant sp_float* minMaxValues,
     __constant sp_uint * indexesInput,
-    __global   sp_uint * indexesOutput,
-    __global   sp_uint * offsetPrefixScan
+    __global   sp_uint * indexesOutput
     )
 {
     __private const sp_uint  elementsPerWorkItem = max( (sp_uint) (INPUT_LENGTH / THREAD_LENGTH) , ONE_UINT );
@@ -169,9 +173,6 @@ __kernel void reorder(
         }
 
     barrier(CLK_GLOBAL_MEM_FENCE);
-    if (THREAD_ID)
-        offsetPrefixScan[0] = BUCKET_LENGTH;
-
     if (THREAD_ID == 0)
     {
         if ( !useExpoent[0] && digitIndex == MAX_DIGITS_DECIMALS - 1) // if decimal digits is being processed and it already have processed 4 digits ...

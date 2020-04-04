@@ -4,6 +4,7 @@
 #define THREAD_LENGTH       get_global_size(0)
 #define THREAD_LOCAL_ID     get_local_id(0)
 #define THREAD_LOCAL_LENGTH get_local_size(0)
+#define THREAD_OFFSET       get_global_offset(0)
 #define GROUP_ID            get_group_id(0)
 #define GROUP_LENGTH        get_num_groups(0)
 
@@ -54,17 +55,17 @@ typedef double         sp_double;
             _name[8] = _value;  \
             _name[9] = _value;  \
 
-#define COPY_ARRAY_10_ELEMENTS(_array1, _array2, _offset)\
-            _array1[_offset]     = _array2[_offset];      \
-            _array1[_offset + 1] = _array2[_offset + 1];  \
-            _array1[_offset + 2] = _array2[_offset + 2];  \
-            _array1[_offset + 3] = _array2[_offset + 3];  \
-            _array1[_offset + 4] = _array2[_offset + 4];  \
-            _array1[_offset + 5] = _array2[_offset + 5];  \
-            _array1[_offset + 6] = _array2[_offset + 6];  \
-            _array1[_offset + 7] = _array2[_offset + 7];  \
-            _array1[_offset + 8] = _array2[_offset + 8];  \
-            _array1[_offset + 9] = _array2[_offset + 9];  \
+#define COPY_ARRAY_10_ELEMENTS(_sourceArray, _destinyArray, _offset)\
+            _destinyArray[_offset]     = _sourceArray[_offset];      \
+            _destinyArray[_offset + 1] = _sourceArray[_offset + 1];  \
+            _destinyArray[_offset + 2] = _sourceArray[_offset + 2];  \
+            _destinyArray[_offset + 3] = _sourceArray[_offset + 3];  \
+            _destinyArray[_offset + 4] = _sourceArray[_offset + 4];  \
+            _destinyArray[_offset + 5] = _sourceArray[_offset + 5];  \
+            _destinyArray[_offset + 6] = _sourceArray[_offset + 6];  \
+            _destinyArray[_offset + 7] = _sourceArray[_offset + 7];  \
+            _destinyArray[_offset + 8] = _sourceArray[_offset + 8];  \
+            _destinyArray[_offset + 9] = _sourceArray[_offset + 9];  \
 
 
 sp_bool isPowerOf2(sp_uint value)

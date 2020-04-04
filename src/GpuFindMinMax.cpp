@@ -40,31 +40,9 @@ namespace NAMESPACE_PHYSICS
 		this->indexLength = indexLength;
 
 		sp_uint threadLength = divideBy2(indexLength);
-		sp_uint groupLength = nextPowOf2(multiplyBy2(gpu->computeUnits));
-
-		while (groupLength > threadLength)
-			groupLength = divideBy2(groupLength);
-
-		groupLength = nextDivisorOf(threadLength, groupLength);
-
-		if (threadLength == ONE_UINT)
-		{
-			threadLength = divideBy2(nextPowOf2(indexLength));
-			groupLength = (sp_uint) std::ceil(threadLength / 2.0);
-		}
-		/*
-		else 
-		{
-			if (threadLength * groupLength != indexLength)
-			{
-				threadLength = divideBy2(nextPowOf2(indexLength));
-				groupLength = divideBy2(groupLength);
-			}
-		}
-		*/
 
 		globalWorkSize[0] = threadLength;
-		localWorkSize[0] = groupLength;
+		localWorkSize[0] = gpu->getGroupLength(threadLength, realIndexLength);
 
 		const sp_uint inputSize = realIndexLength * stride * SIZEOF_FLOAT;
 		const sp_uint outputSize = multiplyBy2(threadLength) * SIZEOF_FLOAT;
@@ -75,7 +53,7 @@ namespace NAMESPACE_PHYSICS
 
 		commandFindMinMaxByThread = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * indexLength)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * realIndexLength)
 			->setInputParameter(inputLengthGpu, SIZEOF_UINT)
 			->setInputParameter(output, outputSize)
 			->buildFromProgram(gpu->commandManager->cachedPrograms[findMinMaxProgramIndex], "findMinMaxByThread");
@@ -92,7 +70,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			commandFindMinMaxParallelReduce_Odd = gpu->commandManager->createCommand()
 				->setInputParameter(inputGpu, inputSize)
-				->setInputParameter(indexesGpu, SIZEOF_UINT * indexLength)
+				->setInputParameter(indexesGpu, SIZEOF_UINT * realIndexLength)
 				->setInputParameter(output, outputSize)
 				->setInputParameter(inputLengthGpu, SIZEOF_UINT)
 				->buildFromProgram(gpu->commandManager->cachedPrograms[findMinMaxProgramIndex], "findMinMaxParallelReduce_Odd");

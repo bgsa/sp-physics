@@ -95,7 +95,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			<< " -DINPUT_STRIDE=" << AABB_STRIDER
 			<< " -DINPUT_OFFSET=" << AABB_OFFSET;
 
-		const sp_uint maxIterations = 50;
+		const sp_uint maxIterations = 20;
 		std::chrono::nanoseconds times[maxIterations];
 		std::chrono::nanoseconds minTime(99999999999);
 
@@ -283,8 +283,6 @@ namespace NAMESPACE_PHYSICS_TEST
 					expectedIndexesMinMax[1] = i;
 				}
 			}
-
-			sp_uint threadCount = gpu->getGridConfigForOneDimension(count)[0];
 
 			std::ostringstream buildOptions;
 			buildOptions

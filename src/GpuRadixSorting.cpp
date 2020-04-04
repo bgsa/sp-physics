@@ -19,7 +19,7 @@ namespace NAMESPACE_PHYSICS
 		IFileManager* fileManager = Factory::getFileManagerInstance();
 
 		std::string sourceRadixSort = fileManager->readTextFile("RadixSorting.cl");
-		radixSortProgramIndex = gpu->commandManager->cacheProgram(sourceRadixSort.c_str(), SIZEOF_CHAR * sourceRadixSort.length(), buildOptions);
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(sourceRadixSort.c_str(), SIZEOF_CHAR * sourceRadixSort.length(), buildOptions);
 
 		program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 
@@ -32,7 +32,6 @@ namespace NAMESPACE_PHYSICS
 
 	GpuRadixSorting* GpuRadixSorting::setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset)
 	{
-		sp_uint offsetPrefixScanCpu = BUCKET_LENGTH;
 		sp_bool useExpoent = false;
 		sp_uint digitIndex = 0;
 		const sp_uint inputSize = inputLength * strider * SIZEOF_FLOAT;
@@ -45,27 +44,28 @@ namespace NAMESPACE_PHYSICS
 
 		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
 		indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		offsetPrefixScanGpu = gpu->createBuffer(&offsetPrefixScanCpu, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		digitIndexGpu = gpu->createBuffer(&digitIndex, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		outputIndexes = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
 		
 		gpu->commandManager->executeReadBuffer(findMinMax->output, SIZEOF_FLOAT * 2, minMaxValues, true);
-		
-		sp_size* gridConfig = gpu->getGridConfigForOneDimension(inputLength);
 
-		globalWorkSize[0] = gridConfig[0];
-		localWorkSize[0] = gridConfig[1];
+		threadsLength = gpu->getThreadLength(inputLength);
+		threadsLength = divideBy2(threadsLength);
+		defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
 
-		ALLOC_RELEASE(gridConfig);
+		sp_uint maxLength = 2u;
+		for (; maxLength < threadsLength; maxLength *= 2)
+		{
+			sp_uint divisor = nextDivisorOf(maxLength - 1, defaultLocalWorkSize);
+			if (divisor > gpu->maxWorkGroupSize)
+				break;
+		}
+		while (threadsLength >= maxLength)
+			threadsLength = divideBy2(threadsLength);
 
-		threadsLength = std::min(inputLength, threadsLength);
-
-		const sp_uint offsetTableSize = SIZEOF_UINT * 10 * threadsLength;
-		offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
-		offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
-		offsetTableResult = offsetTable2;
+		const sp_uint offsetTableSize = SIZEOF_UINT * 10u * threadsLength;
+		offsetTable = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 
 		commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
@@ -74,35 +74,26 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
 			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
 			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
-			->setInputParameter(offsetTable1, offsetTableSize)
+			->setInputParameter(offsetTable, offsetTableSize)
 			->buildFromProgram(program, "count");
 
-		commandPrefixScan = gpu->commandManager->createCommand()
-			->setInputParameter(offsetTable1, offsetTableSize)  //use buffer hosted GPU
-			->setInputParameter(offsetTable2, offsetTableSize)
-			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
-			->buildFromProgram(program, "prefixScan");
+		commandPrefixScanUp = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable, offsetTableSize)
+			->buildFromProgram(program, "prefixScanUp");
 
-		commandPrefixScanSwaped = gpu->commandManager->createCommand()
-			->setInputParameter(offsetTable2, offsetTableSize)  //use buffer hosted GPU
-			->setInputParameter(offsetTable1, offsetTableSize)
-			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
-			->buildFromProgram(program, "prefixScan");
-
-		//commandUpdatePrefixScan = gpu->commandManager->createCommand()
-		//	->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
-		//	->buildFromProgram(program, "updateNextPrefixScan");
+		commandPrefixScanDown = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable, offsetTableSize)
+			->buildFromProgram(program, "prefixScanDown");
 
 		commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
 			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
-			->setInputParameter(offsetTableResult, offsetTableSize)
+			->setInputParameter(offsetTable, offsetTableSize)
 			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
 			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(offsetPrefixScanGpu, SIZEOF_UINT)
 			->buildFromProgram(program, "reorder");
 
 		return this;
@@ -110,45 +101,53 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem GpuRadixSorting::execute()
 	{
+		const sp_float minValue = -std::min(0.0f, minMaxValues[0]);
+		sp_uint digitIndex = 0u;
 		sp_bool useExpoent = false;
-		sp_uint digitIndex = 0;
-
-		sp_bool offsetChanged = false;
 		sp_bool indexesChanged = false;
-		sp_bool prefixScanSwaped = true;
 
-		sp_float minValue = -std::min(0.0f, minMaxValues[0]);
+		globalWorkSize[0] = threadsLength;
+		localWorkSize[0] = defaultLocalWorkSize;
 		
-		commandCount->execute(1, globalWorkSize, localWorkSize);
-		commandPrefixScan->execute(1, globalWorkSize, localWorkSize);
-
-		const sp_uint maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength)));
-
-		do  // for each digit in one element
+		while (true)  // for each digit in one element
 		{
-			offsetChanged = false;
+			if (indexesChanged)
+				commandCount->updateInputParameter(1, outputIndexes);
+			else
+				commandCount->updateInputParameter(1, indexesGpu);
+			commandCount->execute(1, globalWorkSize, localWorkSize);
 
-			for (sp_uint i = 0; i < maxIteration; i++)
+			sp_uint threadLength = (sp_uint)std::ceil(globalWorkSize[0] / 2.0);
+			sp_uint offset = 1u;
+			while (globalWorkSize[0] != 1u)
 			{
-				//commandUpdatePrefixScan
-				//	->execute(1, globalWorkSizeOneThread, localWorkSizeOneThread);
+				offset = multiplyBy2(offset);
+				globalWorkSize[0] = (sp_uint)std::ceil(globalWorkSize[0] / 2.0);
 
-				offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
-				
-				if (prefixScanSwaped)
-					commandPrefixScanSwaped->execute(1, globalWorkSize, localWorkSize);
-				else
-					commandPrefixScan->execute(1, globalWorkSize, localWorkSize);
-				
-				offsetChanged = !offsetChanged;
-				prefixScanSwaped = !prefixScanSwaped;
+				if (globalWorkSize[0] < localWorkSize[0])
+					localWorkSize[0] = globalWorkSize[0];
+
+				commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset);
 			}
-			offsetPrefixScanCpu = BUCKET_LENGTH;
+			threadLength = globalWorkSize[0];
+			while (offset != 2u)
+			{
+				offset = divideBy2(offset);
+				threadLength = multiplyBy2(threadLength);
+				globalWorkSize[0] = threadLength - 1;
 
-			offsetTableResult = offsetChanged ? offsetTable1 : offsetTable2;
+				if (globalWorkSize[0] <= defaultLocalWorkSize)
+					localWorkSize[0] = globalWorkSize[0];
+				else
+					localWorkSize[0] = nextDivisorOf(globalWorkSize[0], defaultLocalWorkSize);
+
+				commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset);
+			}
+
+			globalWorkSize[0] = threadsLength;
+			localWorkSize[0] = defaultLocalWorkSize;
 
 			commandReorder
-				->updateInputParameter(4, offsetTableResult)
 				->swapInputParameter(6, 7)
 				->execute(1, globalWorkSize, localWorkSize);
 			indexesChanged = !indexesChanged;
@@ -162,33 +161,24 @@ namespace NAMESPACE_PHYSICS
 				digitIndex = 0;
 				maxDigits = digitCount((sp_int)(minMaxValues[1] + minValue));  // MAX_DIGITS_EXPOENT - 1;
 			}
+		}
 
-			commandCount
-				->updateInputParameter(1, indexesChanged ? outputIndexes : indexesGpu)
-				->execute(1, globalWorkSize, localWorkSize);
-
-			commandPrefixScan
-				->execute(1, globalWorkSize, localWorkSize);
-
-			prefixScanSwaped = true;
-
-		} while (true);
-
-		return outputIndexes;
+		if (indexesChanged)
+			return indexesGpu;
+		else
+			return outputIndexes;
 	}
 
 	GpuRadixSorting::~GpuRadixSorting()
 	{
-		gpu->releaseBuffer(9, inputGpu, indexesGpu, indexesLengthGpu, offsetGpu,
-							offsetPrefixScanGpu, digitIndexGpu, useExpoentGpu,
-							offsetTable1, offsetTable2);
+		gpu->releaseBuffer(6, inputGpu, indexesGpu, indexesLengthGpu,
+							digitIndexGpu, useExpoentGpu, offsetTable);
 
 		ALLOC_DELETE(commandCreateIndexes, GpuIndexes);
 		ALLOC_DELETE(findMinMax, GpuFindMinMax);
-		//ALLOC_DELETE(commandUpdatePrefixScan, GpuCommand);
 		ALLOC_DELETE(commandCount, GpuCommand);
-		ALLOC_DELETE(commandPrefixScan, GpuCommand);
-		ALLOC_DELETE(commandPrefixScanSwaped, GpuCommand);
+		ALLOC_DELETE(commandPrefixScanUp, GpuCommand);
+		ALLOC_DELETE(commandPrefixScanDown, GpuCommand);
 		ALLOC_DELETE(commandReorder, GpuCommand);
 	}
 }

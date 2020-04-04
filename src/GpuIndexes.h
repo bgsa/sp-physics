@@ -17,10 +17,13 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		GpuDevice* gpu;
+		cl_program program;
 
 		GpuCommand* commandInitIndexes = NULL;
+		GpuCommand* commandInitIndexes_Odd = NULL;
 
 		cl_mem output = NULL;
+		sp_bool isInputOdd;
 
 		sp_uint createIndexesProgramIndex = UINT_MAX;
 

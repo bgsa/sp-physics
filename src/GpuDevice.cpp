@@ -69,30 +69,30 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(profileAsArray);;
 	}
 
-	sp_size* GpuDevice::getGridConfigForOneDimension(sp_uint inputLength)
+	sp_uint GpuDevice::getThreadLength(sp_uint inputLength)
 	{
-		sp_uint groupLength = multiplyBy4(nextPowOf2(computeUnits));
-		sp_uint threadLength = std::max( (sp_uint)(inputLength / groupLength) , ONE_UINT );
+		if (isOdd(inputLength))
+			inputLength--;
+
+		return divideBy2(inputLength);
+	}
+
+	sp_uint GpuDevice::getGroupLength(sp_uint threadLength, sp_uint inputLength)
+	{
+		sp_uint groupLength = nextPowOf2(multiplyBy2(computeUnits));
+
+		while (groupLength > threadLength)
+			groupLength = divideBy2(groupLength);
+
+		groupLength = nextDivisorOf(threadLength, groupLength);
 
 		if (threadLength == ONE_UINT)
 		{
-			threadLength = inputLength;
-			groupLength = ONE_UINT;
-		}
-		else
-		{
-			if (threadLength * groupLength != inputLength)
-			{
-				threadLength = inputLength;
-				groupLength = nextDivisorOf(threadLength, threadLength / groupLength);
-			}
+			threadLength = (sp_uint)std::ceil(nextPowOf2(inputLength) / 2.0);
+			groupLength = (sp_uint)std::ceil(threadLength / 2.0);
 		}
 
-		sp_size* result = ALLOC_ARRAY(sp_size, 2);
-		result[0] = threadLength;
-		result[1] = groupLength;
-
-		return result;
+		return groupLength;
 	}
 
 	sp_bool GpuDevice::isGPU() 
