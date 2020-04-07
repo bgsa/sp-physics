@@ -16,23 +16,38 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	class SweepAndPruneResult
+	class SweepAndPruneResultCpu
 	{
 	public:
-		size_t* indexes;
-		size_t count;
+		sp_uint* indexes;
+		sp_uint count;
 
-		SweepAndPruneResult(size_t* indexes,  size_t count)
+		SweepAndPruneResultCpu(sp_uint* indexes, sp_uint count)
 		{
 			this->indexes = indexes;
 			this->count = count;
 		}
 
-		~SweepAndPruneResult()
+		~SweepAndPruneResultCpu()
 		{
 			ALLOC_RELEASE(indexes);
 		}
 	};
+	
+#ifdef OPENCL_ENABLED
+	class SweepAndPruneResultGpu
+	{
+	public:
+		cl_mem indexes;
+		sp_uint count;
+
+		SweepAndPruneResultGpu(cl_mem indexes, sp_uint count)
+		{
+			this->indexes = indexes;
+			this->count = count;
+		}
+	};
+#endif // OPENCL_ENABLED
 
 	class SweepAndPrune
 	{
@@ -40,7 +55,12 @@ namespace NAMESPACE_PHYSICS
 
 #if OPENCL_ENABLED
 		GpuDevice* gpu = NULL;
-		GpuRadixSorting* radixSorting;
+		GpuRadixSorting* radixSorting = NULL;
+		GpuCommand* commandSaP = NULL;
+		cl_mem output = NULL;
+
+		sp_size globalWorkSize[3] = { 0, 0, 0 };
+		sp_size localWorkSize[3] = { 0, 0, 0 };
 #endif
 
 	public:
@@ -49,7 +69,7 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE static SweepAndPruneResult findCollisions(AABB* aabbs, size_t count);
+		API_INTERFACE static SweepAndPruneResultCpu findCollisions(AABB* aabbs, sp_uint count);
 
 #ifdef OPENCL_ENABLED
 
@@ -59,10 +79,20 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void init(GpuDevice* gpu, const char* buildOptions = NULL);
 
 		///<summary>
+		/// Set the parameters for running SweepAndPrune Command
+		///</summary>
+		API_INTERFACE void setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_uint minPointIndex, sp_uint maxPointIndex);
+
+		///<summary>
 		/// Find the collisions using Sweep and Prune method in GPU
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE SweepAndPruneResult findCollisionsGPU(float* input, size_t count, size_t strider = 1, size_t offset = 0, size_t minPointIndex = 0, size_t maxPointIndex = 1);
+		API_INTERFACE cl_mem execute();
+
+		///<summary>
+		/// Get the length of collisions pairs detected
+		///</summary>
+		API_INTERFACE sp_uint fetchCollisionLength();
 
 #endif
 

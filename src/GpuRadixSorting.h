@@ -28,6 +28,8 @@ namespace NAMESPACE_PHYSICS
 
 		cl_program program;
 
+		cl_mem indexesGpu;
+
 		cl_mem offsetTable;
 		cl_mem digitIndexGpu;
 		cl_mem useExpoentGpu;
@@ -35,9 +37,9 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 		cl_mem inputGpu;
-		cl_mem indexesGpu;
 		cl_mem indexesLengthGpu;
 		cl_mem offsetGpu;
+		cl_mem output = NULL;
 
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions);
 

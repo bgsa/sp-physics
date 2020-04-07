@@ -99,6 +99,11 @@ namespace NAMESPACE_PHYSICS
 		return this;
 	}
 
+	//std::chrono::nanoseconds timeCount[8];
+	//std::chrono::nanoseconds timeScan[8];
+	//std::chrono::nanoseconds timeReorder[8];
+	//sp_int in = 0;
+
 	cl_mem GpuRadixSorting::execute()
 	{
 		const sp_float minValue = -std::min(0.0f, minMaxValues[0]);
@@ -111,13 +116,19 @@ namespace NAMESPACE_PHYSICS
 		
 		while (true)  // for each digit in one element
 		{
+			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+
 			if (indexesChanged)
 				commandCount->updateInputParameter(1, outputIndexes);
 			else
 				commandCount->updateInputParameter(1, indexesGpu);
 			commandCount->execute(1, globalWorkSize, localWorkSize);
 
-			sp_uint threadLength = (sp_uint)std::ceil(globalWorkSize[0] / 2.0);
+			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
+			//timeCount[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
+
+			currentTime = std::chrono::high_resolution_clock::now();
+
 			sp_uint offset = 1u;
 			while (globalWorkSize[0] != 1u)
 			{
@@ -129,7 +140,7 @@ namespace NAMESPACE_PHYSICS
 
 				commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset);
 			}
-			threadLength = globalWorkSize[0];
+			sp_uint threadLength = globalWorkSize[0];
 			while (offset != 2u)
 			{
 				offset = divideBy2(offset);
@@ -144,13 +155,21 @@ namespace NAMESPACE_PHYSICS
 				commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset);
 			}
 
+			currentTime2 = std::chrono::high_resolution_clock::now();
+			//timeScan[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
+
 			globalWorkSize[0] = threadsLength;
 			localWorkSize[0] = defaultLocalWorkSize;
+
+			currentTime = std::chrono::high_resolution_clock::now();
 
 			commandReorder
 				->swapInputParameter(6, 7)
 				->execute(1, globalWorkSize, localWorkSize);
 			indexesChanged = !indexesChanged;
+
+			currentTime2 = std::chrono::high_resolution_clock::now();
+			//timeReorder[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 
 			if (++digitIndex > maxDigits)  // check the algorithm reach the result
 			{
@@ -161,12 +180,16 @@ namespace NAMESPACE_PHYSICS
 				digitIndex = 0;
 				maxDigits = digitCount((sp_int)(minMaxValues[1] + minValue));  // MAX_DIGITS_EXPOENT - 1;
 			}
+
+			//in++;
 		}
 
 		if (indexesChanged)
-			return indexesGpu;
+			output = indexesGpu;
 		else
-			return outputIndexes;
+			output = outputIndexes;
+
+		return output;
 	}
 
 	GpuRadixSorting::~GpuRadixSorting()

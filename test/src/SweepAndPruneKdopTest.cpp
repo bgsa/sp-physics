@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
-		SweepAndPruneResult result = SweepAndPruneKdop::findCollisions(kdops, count);
+		SweepAndPruneResultCpu result = SweepAndPruneKdop::findCollisions(kdops, count);
 
 		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);

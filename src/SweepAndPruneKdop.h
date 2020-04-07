@@ -21,9 +21,9 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes
 		/// </summary>
-		API_INTERFACE static SweepAndPruneResult findCollisions(DOP18* kdops, size_t count);
+		API_INTERFACE static SweepAndPruneResultCpu findCollisions(DOP18* kdops, size_t count);
 
-#if OPENCL_ENABLED
+#ifdef OPENCL_ENABLED
 
 		/// <summary>
 		/// Init Sweep And Prune Algorithm on GPU
@@ -34,10 +34,10 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method On GPU
 		/// Returns the pair indexes
 		/// </summary>
-		API_INTERFACE SweepAndPruneResult findCollisions(GpuDevice* gpu, DOP18* aabbs, size_t count);
+		API_INTERFACE SweepAndPruneResultGpu findCollisions(GpuDevice* gpu, DOP18* aabbs, size_t count);
 
-#endif
+#endif // OPENCL_ENABLED
 
 	};
 }
-#endif // !SWEEP_AND_PRUNE_KDOP_HEADER
+#endif // SWEEP_AND_PRUNE_KDOP_HEADER

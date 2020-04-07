@@ -128,7 +128,7 @@ namespace NAMESPACE_PHYSICS
 		return newIndexes;
 	}
 
-	SweepAndPruneResult SweepAndPruneKdop::findCollisions(DOP18* kdops, size_t count)
+	SweepAndPruneResultCpu SweepAndPruneKdop::findCollisions(DOP18* kdops, size_t count)
 	{
 		assert(kdops != NULL);
 		sapMutex.lock();
@@ -176,11 +176,10 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(indexes);
 		kdopsGlobal = NULL;
 		sapMutex.unlock();
-		return SweepAndPruneResult(newIndexes, divideBy2(newKdopsCount));
+		return SweepAndPruneResultCpu(newIndexes, divideBy2(newKdopsCount));
 	}
 
-	#if OPENCL_ENABLED
-
+#ifdef OPENCL_ENABLED
 	static size_t sapKdopProgramIndex = UINT_MAX;
 
 	void SweepAndPruneKdop::init(GpuDevice* gpu, const char* buildOptions)
@@ -200,7 +199,7 @@ namespace NAMESPACE_PHYSICS
 		delete fileManager;
 	}
 
-	SweepAndPruneResult SweepAndPruneKdop::findCollisions(GpuDevice* gpu, DOP18* kdops, size_t count)
+	SweepAndPruneResultGpu SweepAndPruneKdop::findCollisions(GpuDevice* gpu, DOP18* kdops, size_t count)
 	{
 		const size_t globalWorkSize[3] = { gpu->maxWorkGroupSize, 0, 0 };
 		const size_t localWorkSize[3] = { nextPowOf2(count) / gpu->maxWorkGroupSize, 0, 0 };
@@ -244,8 +243,8 @@ namespace NAMESPACE_PHYSICS
 
 		command->~GpuCommand();
 
-		return SweepAndPruneResult(indexes, count);
+		return SweepAndPruneResultGpu(buffer, count);
 	}
-}
+#endif // OPENCL_ENABLED
 
-#endif
+}

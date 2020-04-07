@@ -4,7 +4,7 @@
 
 #define CLASS_NAME SweepAndPruneTest
 
-int comparatorXAxisForQuickSort1(const void* a, const void* b)
+sp_int comparatorXAxisForQuickSort1(const void* a, const void* b)
 {
 	AABB* obj1 = (AABB*) a;
 	AABB* obj2 = (AABB*) b;
@@ -18,26 +18,26 @@ int comparatorXAxisForQuickSort1(const void* a, const void* b)
 	return 0;
 }
 
-AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
+AABB* getRandomAABBs(sp_uint count, sp_uint spaceSize = 1000u)
 {
-	Randomizer<int> randomizerSize(0, 30);
-	Randomizer<int> randomizerLocation(0, spaceSize);
+	Randomizer<sp_int> randomizerSize(0, 30);
+	Randomizer<sp_int> randomizerLocation(0, spaceSize);
 
 	AABB* aabbs = ALLOC_NEW_ARRAY(AABB, count);
 
-	for (size_t i = 0; i < count; i++)
+	for (sp_uint i = 0; i < count; i++)
 	{
-		int xMin = randomizerSize.rand();
-		int yMin = randomizerSize.rand();
-		int zMin = randomizerSize.rand();
+		sp_int xMin = randomizerSize.rand();
+		sp_int yMin = randomizerSize.rand();
+		sp_int zMin = randomizerSize.rand();
 
-		int xMax = randomizerSize.rand();
-		int yMax = randomizerSize.rand();
-		int zMax = randomizerSize.rand();
+		sp_int xMax = randomizerSize.rand();
+		sp_int yMax = randomizerSize.rand();
+		sp_int zMax = randomizerSize.rand();
 
-		int locationX = randomizerLocation.rand();
-		int locationY = randomizerLocation.rand();
-		int locationZ = randomizerLocation.rand();
+		sp_int locationX = randomizerLocation.rand();
+		sp_int locationY = randomizerLocation.rand();
+		sp_int locationZ = randomizerLocation.rand();
 
 		if (xMin == xMax)
 			xMax++;
@@ -57,8 +57,8 @@ AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
 		if (zMin > zMax)
 			std::swap(zMin, zMax);
 
-		aabbs[i] = AABB({ float(xMin + locationX), float(yMin + locationY), float(zMin + locationZ) }
-						, { float(xMax + locationX), float(yMax + locationY), float(zMax + locationZ) });
+		aabbs[i] = AABB({ sp_float(xMin + locationX), sp_float(yMin + locationY), sp_float(zMin + locationZ) }
+						, { sp_float(xMax + locationX), sp_float(yMax + locationY), sp_float(zMax + locationZ) });
 	}
 
 	return aabbs;
@@ -1079,23 +1079,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SP_TEST_METHOD_DEF(SweepAndPrune_findCollisions_Test);
 
-#if OPENCL_ENABLED
+#ifdef OPENCL_ENABLED
 		SP_TEST_METHOD_DEF(SweepAndPrune_findCollisionsGPU_Test);
-#endif // !OPENCL_ENABLED
+#endif
 
 	};
-
 
 	SP_TEST_METHOD(CLASS_NAME, SweepAndPrune_findCollisions_Test)
 	{
 		size_t count = 1000;
 		AABB* aabbs = get1000AABBs();
-		//size_t count = std::pow(2, 17);
-		//AABB* aabbs = getRandom(count, 1000);
 
 		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
-		SweepAndPruneResult result = SweepAndPrune::findCollisions(aabbs, count);
+		SweepAndPruneResultCpu result = SweepAndPrune::findCollisions(aabbs, count);
 
 		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
@@ -1105,7 +1102,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		ALLOC_RELEASE(aabbs);
 	}
 
-#if OPENCL_ENABLED
+#ifdef OPENCL_ENABLED
 
 	SP_TEST_METHOD(CLASS_NAME, SweepAndPrune_findCollisionsGPU_Test)
 	{
@@ -1124,28 +1121,28 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
+		sap->setParameters((float*)aabbs2, count, AABB_STRIDER, AABB_OFFSET, 0, 3);
 
 		std::chrono::high_resolution_clock::time_point currentTime1 = std::chrono::high_resolution_clock::now();
 
-		SweepAndPruneResult result1 = SweepAndPrune::findCollisions(aabbs1, count);
+		SweepAndPruneResultCpu result1 = SweepAndPrune::findCollisions(aabbs1, count);
 
 		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
 		currentTime1 = std::chrono::high_resolution_clock::now();
 
-		SweepAndPruneResult result2 = sap->findCollisionsGPU((float*)aabbs2, count, AABB_STRIDER, AABB_OFFSET, 0, 3);
+		cl_mem output = sap->execute();
 
 		currentTime2 = std::chrono::high_resolution_clock::now();
 		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
 
-		//90-100 ms
+		sp_uint collisionsLength = sap->fetchCollisionLength();
 
-		Assert::AreEqual(result1.count, result2.count, L"wrong value", LINE_INFO());
+		Assert::AreEqual(result1.count, collisionsLength, L"wrong value", LINE_INFO());
 
 		ALLOC_DELETE(sap, SweepAndPrune);
 	}
-
-#endif // !OPENCL_ENABLED#endif
+#endif // OPENCL_ENABLED
 
 }
 
