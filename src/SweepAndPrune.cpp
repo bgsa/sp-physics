@@ -78,10 +78,10 @@ namespace NAMESPACE_PHYSICS
 #ifdef OPENCL_ENABLED
 	static cl_program sapProgram = NULL;
 
-	void SweepAndPrune::init(GpuDevice* gpu, const char* buildOptions)
+	SweepAndPrune* SweepAndPrune::init(GpuDevice* gpu, const char* buildOptions)
 	{
 		if (sapProgram != NULL)
-			return;
+			return this;
 
 		this->gpu = gpu;
 
@@ -96,10 +96,14 @@ namespace NAMESPACE_PHYSICS
 		sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
 
 		delete fileManager;
+		return this;
 	}
+
+	sp_float* values;
 
 	void SweepAndPrune::setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_uint minPointIndex, sp_uint maxPointIndex)
 	{
+		values = input;
 		globalWorkSize[0] = gpu->maxWorkGroupSize;
 		localWorkSize[0] = nextPowOf2(inputLength) / gpu->maxWorkGroupSize;
 
@@ -125,7 +129,8 @@ namespace NAMESPACE_PHYSICS
 
 		commandSaP
 			->updateInputParameter(2, radixSorting->output)
-			->execute(1, globalWorkSize, localWorkSize);
+			->execute(1, globalWorkSize, localWorkSize, 0, &radixSorting->lastEvent, 1u);
+		lastEvent = commandSaP->lastEvent;
 
 		return output;
 	}

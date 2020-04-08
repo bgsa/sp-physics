@@ -4,14 +4,15 @@
 #define GPU_RADIX_DORTING
 
 #include "GpuFindMinMax.h"
+#include "GpuComposedCommand.h"
 
 namespace NAMESPACE_PHYSICS
 {
 
 	class GpuRadixSorting
+		: public GpuComposedCommand
 	{
 	private:
-		GpuDevice* gpu = NULL;
 		sp_float minMaxValues[2];
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
@@ -41,11 +42,11 @@ namespace NAMESPACE_PHYSICS
 		cl_mem offsetGpu;
 		cl_mem output = NULL;
 
-		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions);
+		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;
 
 		API_INTERFACE GpuRadixSorting* setParameters(sp_float* input, sp_uint indexesLengthCpu, sp_uint striderCpu, sp_uint offsetCpu);
 
-		API_INTERFACE cl_mem execute();
+		API_INTERFACE cl_mem execute() override;
 
 		API_INTERFACE ~GpuRadixSorting();
 

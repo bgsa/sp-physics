@@ -110,6 +110,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint digitIndex = 0u;
 		sp_bool useExpoent = false;
 		sp_bool indexesChanged = false;
+		cl_event previousEvent = NULL;
 
 		globalWorkSize[0] = threadsLength;
 		localWorkSize[0] = defaultLocalWorkSize;
@@ -122,12 +123,17 @@ namespace NAMESPACE_PHYSICS
 				commandCount->updateInputParameter(1, outputIndexes);
 			else
 				commandCount->updateInputParameter(1, indexesGpu);
-			commandCount->execute(1, globalWorkSize, localWorkSize);
 
-			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
+			if (previousEvent == NULL)
+				commandCount->execute(1, globalWorkSize, localWorkSize, 0, NULL, 0u);
+			else
+				commandCount->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, 1u);
+			previousEvent = commandCount->lastEvent;
+
+			//std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeCount[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 
-			currentTime = std::chrono::high_resolution_clock::now();
+			//currentTime = std::chrono::high_resolution_clock::now();
 
 			sp_uint offset = 1u;
 			while (globalWorkSize[0] != 1u)
@@ -138,7 +144,8 @@ namespace NAMESPACE_PHYSICS
 				if (globalWorkSize[0] < localWorkSize[0])
 					localWorkSize[0] = globalWorkSize[0];
 
-				commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset);
+				commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset, &previousEvent, 1u);
+				previousEvent = commandCount->lastEvent;
 			}
 			sp_uint threadLength = globalWorkSize[0];
 			while (offset != 2u)
@@ -152,10 +159,11 @@ namespace NAMESPACE_PHYSICS
 				else
 					localWorkSize[0] = nextDivisorOf(globalWorkSize[0], defaultLocalWorkSize);
 
-				commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset);
+				commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset, &previousEvent, 1u);
+				previousEvent = commandCount->lastEvent;
 			}
 
-			currentTime2 = std::chrono::high_resolution_clock::now();
+			//currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeScan[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 
 			globalWorkSize[0] = threadsLength;
@@ -165,10 +173,11 @@ namespace NAMESPACE_PHYSICS
 
 			commandReorder
 				->swapInputParameter(6, 7)
-				->execute(1, globalWorkSize, localWorkSize);
+				->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, 1u);
+			previousEvent = commandCount->lastEvent;
 			indexesChanged = !indexesChanged;
 
-			currentTime2 = std::chrono::high_resolution_clock::now();
+			//currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeReorder[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 
 			if (++digitIndex > maxDigits)  // check the algorithm reach the result
@@ -183,6 +192,8 @@ namespace NAMESPACE_PHYSICS
 
 			//in++;
 		}
+
+		lastEvent = commandReorder->lastEvent;
 
 		if (indexesChanged)
 			output = indexesGpu;
@@ -208,4 +219,4 @@ namespace NAMESPACE_PHYSICS
 
 #undef BUCKET_LENGTH
 
-#endif
+#endif // OPENCL_ENABLED

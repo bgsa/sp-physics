@@ -1,6 +1,7 @@
 #ifdef OPENCL_ENABLED
 
-#pragma once
+#ifndef GPU_COMMAND_MANAGER
+#define GPU_COMMAND_MANAGER
 
 #include "GpuCommand.h"
 
@@ -33,4 +34,6 @@ namespace NAMESPACE_PHYSICS
 
 }
 
-#endif
+#endif // GPU_COMMAND_MANAGER
+
+#endif // OPENCL_ENABLED

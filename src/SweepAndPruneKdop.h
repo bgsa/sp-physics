@@ -28,7 +28,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Init Sweep And Prune Algorithm on GPU
 		/// </summary>
-		API_INTERFACE void init(GpuDevice* gpu, const char* buildOptions);
+		API_INTERFACE SweepAndPruneKdop* init(GpuDevice* gpu, const char* buildOptions = NULL);
 
 		/// <summary>
 		/// Find the collisions using Sweep and Prune method On GPU

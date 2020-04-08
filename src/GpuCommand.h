@@ -26,10 +26,12 @@ namespace NAMESPACE_PHYSICS
 		std::vector<sp_bool> inputParametersKeep;
 		cl_mem outputParameter = NULL;
 		sp_size outputSize = 0;
-		
+				
 		GpuCommand(cl_device_id deviceId, cl_context deviceContext, cl_command_queue commandQueue);
 
 	public:
+
+		cl_event lastEvent = NULL;
 
 		sp_size workGroupSize;
 		sp_size compileWorkGroupSize[3];
@@ -56,16 +58,13 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuCommand* buildFromProgram(cl_program program, const sp_char* kernelName);
 		API_INTERFACE GpuCommand* build(const sp_char* source, sp_size sourceSize, const sp_char* kernelName, const sp_char* buildOptions = NULL);
 
-		API_INTERFACE GpuCommand* execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset = NULL, cl_event* events = NULL, const sp_uint eventLength = 0, cl_event* currentEvent = NULL);
+		API_INTERFACE GpuCommand* execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset = NULL, cl_event* events = NULL, const sp_uint eventLength = 0);
 
 		API_INTERFACE void waitToFinish();
 
-		API_INTERFACE sp_double getTimeOfExecution(const cl_event* lastEvent);
+		API_INTERFACE sp_double getTimeOfExecution();
 
 		API_INTERFACE void fetch(void* buffer);
-
-		template <typename T>
-		API_INTERFACE T* fetch();
 
 		template <typename T>
 		API_INTERFACE T* fetchInOutParameter(sp_uint index);

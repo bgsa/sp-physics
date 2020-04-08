@@ -193,6 +193,7 @@
     <ClCompile Include="src\DOP18.cpp" />
     <ClCompile Include="src\GpuCommand.cpp" />
     <ClCompile Include="src\GpuCommandManager.cpp" />
+    <ClCompile Include="src\GpuComposedCommand.cpp" />
     <ClCompile Include="src\GpuContext.cpp" />
     <ClCompile Include="src\GpuDevice.cpp" />
     <ClCompile Include="src\GpuFindMinMax.cpp" />
@@ -246,6 +247,7 @@
     <ClInclude Include="src\DOP18.h" />
     <ClInclude Include="src\GpuCommand.h" />
     <ClInclude Include="src\GpuCommandManager.h" />
+    <ClInclude Include="src\GpuComposedCommand.h" />
     <ClInclude Include="src\GpuContext.h" />
     <ClInclude Include="src\GpuDevice.h" />
     <ClInclude Include="src\GpuFindMinMax.h" />

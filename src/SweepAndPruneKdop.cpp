@@ -182,10 +182,10 @@ namespace NAMESPACE_PHYSICS
 #ifdef OPENCL_ENABLED
 	static size_t sapKdopProgramIndex = UINT_MAX;
 
-	void SweepAndPruneKdop::init(GpuDevice* gpu, const char* buildOptions)
+	SweepAndPruneKdop* SweepAndPruneKdop::init(GpuDevice* gpu, const char* buildOptions)
 	{
 		if (sapKdopProgramIndex != UINT_MAX)
-			return;
+			return this;
 
 		radixSorting = ALLOC_NEW(GpuRadixSorting)();
 		radixSorting->init(gpu, NULL);
@@ -197,6 +197,7 @@ namespace NAMESPACE_PHYSICS
 		sapKdopProgramIndex = gpu->commandManager->cacheProgram(source.c_str(), sizeof(char) * source.length(), buildOptions);
 
 		delete fileManager;
+		return this;
 	}
 
 	SweepAndPruneResultGpu SweepAndPruneKdop::findCollisions(GpuDevice* gpu, DOP18* kdops, size_t count)

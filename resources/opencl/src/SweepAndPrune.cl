@@ -1,18 +1,18 @@
 #include "OpenCLBase.cl"
 
-#define MIN_POINT_X aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 1]
-#define MIN_POINT_Y aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 2]
-#define MIN_POINT_Z aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 3]
-#define MAX_POINT_X aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 4]
-#define MAX_POINT_Y aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 5]
-#define MAX_POINT_Z aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 6]
+#define MIN_POINT_X aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET    ]
+#define MIN_POINT_Y aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 1]
+#define MIN_POINT_Z aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 2]
+#define MAX_POINT_X aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 3]
+#define MAX_POINT_Y aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 4]
+#define MAX_POINT_Z aabbs[indexes[i] * INPUT_STRIDE + INPUT_OFFSET + 5]
 
-#define MIN_POINT_X_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 1]
-#define MIN_POINT_Y_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 2]
-#define MIN_POINT_Z_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 3]
-#define MAX_POINT_X_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 4]
-#define MAX_POINT_Y_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 5]
-#define MAX_POINT_Z_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 6]
+#define MIN_POINT_X_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET    ]
+#define MIN_POINT_Y_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 1]
+#define MIN_POINT_Z_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 2]
+#define MAX_POINT_X_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 3]
+#define MAX_POINT_Y_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 4]
+#define MAX_POINT_Z_NEXT_AABB aabbs[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 5]
 
 __kernel void sweepAndPrune(
 	__global   sp_float* aabbs, 
@@ -21,8 +21,8 @@ __kernel void sweepAndPrune(
 	__global   sp_uint* collisionLength, 
 	__global   sp_uint* collisions)
 {
-    __private sp_uint elementsPerWorkItem = *aabbsCount / THREAD_LENGTH;
-    __private sp_uint inputThreadIndex = THREAD_ID * elementsPerWorkItem;
+    __private const sp_uint elementsPerWorkItem = *aabbsCount / THREAD_LENGTH;
+    __private const sp_uint inputThreadIndex = THREAD_ID * elementsPerWorkItem;
     __private sp_uint outputIndex = 0;
 
     for(sp_uint i = inputThreadIndex ; i < inputThreadIndex + elementsPerWorkItem ; i++ )  // compute each element for this thread

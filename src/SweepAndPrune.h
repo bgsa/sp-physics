@@ -6,7 +6,7 @@
 #include "AlgorithmSorting.h"
 
 #if OPENCL_ENABLED
-	#include "GpuCommand.h"
+	#include "GpuComposedCommand.h"
 	#include "GpuContext.h"
 	#include "Factory.h"
 	#include "IFileManager.h"
@@ -50,6 +50,7 @@ namespace NAMESPACE_PHYSICS
 #endif // OPENCL_ENABLED
 
 	class SweepAndPrune
+		: public GpuComposedCommand
 	{
 	private:
 
@@ -76,7 +77,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Init Sweep And Prune Algorithm on GPU
 		///</summary>
-		API_INTERFACE void init(GpuDevice* gpu, const char* buildOptions = NULL);
+		API_INTERFACE SweepAndPrune* init(GpuDevice* gpu, const char* buildOptions = NULL) override;
 
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
@@ -87,7 +88,7 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method in GPU
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE cl_mem execute();
+		API_INTERFACE cl_mem execute() override;
 
 		///<summary>
 		/// Get the length of collisions pairs detected

@@ -1118,7 +1118,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		buildOptions << " -DINPUT_LENGTH=" << count;
 		buildOptions << " -DINPUT_STRIDE=" << AABB_STRIDER;
 		buildOptions << " -DINPUT_OFFSET=" << AABB_OFFSET;
-
+		
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
 		sap->setParameters((float*)aabbs2, count, AABB_STRIDER, AABB_OFFSET, 0, 3);
