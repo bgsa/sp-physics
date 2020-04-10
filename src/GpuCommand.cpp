@@ -79,6 +79,24 @@ namespace NAMESPACE_PHYSICS
 		return this;
 	}
 
+	GpuCommand* GpuCommand::updateInputParameterValueAsync(sp_uint index, const void* value)
+	{
+		HANDLE_OPENCL_ERROR(
+			clEnqueueWriteBuffer(
+				commandQueue,
+				inputParameters[index],
+				CL_FALSE,
+				0,
+				inputParametersSize[index],
+				value,
+				0, NULL,
+				&lastEvent
+			)
+		);
+
+		return this;
+	}
+
 	GpuCommand* GpuCommand::updateInputParameter(sp_uint index, cl_mem memoryBuffer)
 	{
 		inputParameters[index] = memoryBuffer;

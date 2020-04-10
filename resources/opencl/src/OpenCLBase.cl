@@ -30,9 +30,9 @@ typedef bool           sp_bool;
 typedef char           sp_char;
 typedef short          sp_short;
 typedef int            sp_int;
+typedef long           sp_long;
 typedef unsigned int   sp_uint;
 typedef unsigned short sp_ushort;
-typedef long           sp_long;
 typedef unsigned long  sp_ulong;
 typedef unsigned int   sp_size;
 

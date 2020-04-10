@@ -48,8 +48,8 @@ namespace NAMESPACE_PHYSICS
 		if (buildOptions != NULL)
 			options	<< " " << buildOptions;
 		
-
-		HANDLE_OPENCL_BUILD_ERROR(clBuildProgram(program, 1, &deviceId, options.str().c_str(), NULL, NULL), program, deviceId);
+		errorCode = clBuildProgram(program, 1, &deviceId, options.str().c_str(), NULL, NULL);
+		HANDLE_OPENCL_BUILD_ERROR(errorCode, program, deviceId);
 
 		return (sp_uint) cachedPrograms.size() - 1;
 	}

@@ -23,9 +23,6 @@ namespace NAMESPACE_PHYSICS
 
 		program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 
-		findMinMax = ALLOC_NEW(GpuFindMinMax)();
-		findMinMax->init(gpu, buildOptions);
-
 		delete fileManager;
 		return this;
 	}
@@ -36,19 +33,12 @@ namespace NAMESPACE_PHYSICS
 		sp_uint digitIndex = 0;
 		const sp_uint inputSize = inputLength * strider * SIZEOF_FLOAT;
 		
-		findMinMax->setParameters(input, inputLength, strider, offset);
-		findMinMax->execute();
-
 		commandCreateIndexes->setParametersCreateIndexes(inputLength);
 		indexesGpu = commandCreateIndexes->execute();
 
 		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
 		indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		digitIndexGpu = gpu->createBuffer(&digitIndex, SIZEOF_UINT, CL_MEM_READ_WRITE);
-		useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		outputIndexes = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
-		
-		gpu->commandManager->executeReadBuffer(findMinMax->output, SIZEOF_FLOAT * 2, minMaxValues, true);
 
 		threadsLength = gpu->getThreadLength(inputLength);
 		threadsLength = divideBy2(threadsLength);
@@ -71,9 +61,13 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
-			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
-			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
+			->setInputParameter(offsetTable, offsetTableSize)
+			->buildFromProgram(program, "count");
+
+		commandCountSwapped = gpu->commandManager->createCommand()
+			->setInputParameter(inputGpu, inputSize)
+			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable, offsetTableSize)
 			->buildFromProgram(program, "count");
 
@@ -88,10 +82,15 @@ namespace NAMESPACE_PHYSICS
 		commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
-			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
 			->setInputParameter(offsetTable, offsetTableSize)
-			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
+			->buildFromProgram(program, "reorder");
+
+		commandReorderSwapped = gpu->commandManager->createCommand()
+			->setInputParameter(inputGpu, inputSize)
+			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
+			->setInputParameter(offsetTable, offsetTableSize)
 			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder");
@@ -106,29 +105,32 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem GpuRadixSorting::execute()
 	{
-		const sp_float minValue = -std::min(0.0f, minMaxValues[0]);
-		sp_uint digitIndex = 0u;
-		sp_bool useExpoent = false;
 		sp_bool indexesChanged = false;
 		cl_event previousEvent = NULL;
 
 		globalWorkSize[0] = threadsLength;
 		localWorkSize[0] = defaultLocalWorkSize;
 		
-		while (true)  // for each digit in one element
+		for (sp_uint digitIndex = 0; digitIndex < 7; digitIndex++)  // for each digit in the number ...
 		{
-			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-
-			if (indexesChanged)
-				commandCount->updateInputParameter(1, outputIndexes);
-			else
-				commandCount->updateInputParameter(1, indexesGpu);
+			//std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
 			if (previousEvent == NULL)
-				commandCount->execute(1, globalWorkSize, localWorkSize, 0, NULL, 0u);
+			{
+				commandCount->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, 0u);
+				previousEvent = commandCount->lastEvent;
+			}
 			else
-				commandCount->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, 1u);
-			previousEvent = commandCount->lastEvent;
+				if (indexesChanged)
+				{
+					commandCountSwapped->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
+					previousEvent = commandCountSwapped->lastEvent;
+				}
+				else
+				{
+					commandCount->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
+					previousEvent = commandCount->lastEvent;
+				}
 
 			//std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeCount[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
@@ -145,7 +147,7 @@ namespace NAMESPACE_PHYSICS
 					localWorkSize[0] = globalWorkSize[0];
 
 				commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset, &previousEvent, 1u);
-				previousEvent = commandCount->lastEvent;
+				previousEvent = commandPrefixScanUp->lastEvent;
 			}
 			sp_uint threadLength = globalWorkSize[0];
 			while (offset != 2u)
@@ -160,7 +162,7 @@ namespace NAMESPACE_PHYSICS
 					localWorkSize[0] = nextDivisorOf(globalWorkSize[0], defaultLocalWorkSize);
 
 				commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset, &previousEvent, 1u);
-				previousEvent = commandCount->lastEvent;
+				previousEvent = commandPrefixScanDown->lastEvent;
 			}
 
 			//currentTime2 = std::chrono::high_resolution_clock::now();
@@ -169,27 +171,22 @@ namespace NAMESPACE_PHYSICS
 			globalWorkSize[0] = threadsLength;
 			localWorkSize[0] = defaultLocalWorkSize;
 
-			currentTime = std::chrono::high_resolution_clock::now();
+			//currentTime = std::chrono::high_resolution_clock::now();
 
-			commandReorder
-				->swapInputParameter(6, 7)
-				->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, 1u);
-			previousEvent = commandCount->lastEvent;
+			if (indexesChanged)
+			{
+				commandReorderSwapped->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
+				previousEvent = commandReorderSwapped->lastEvent;
+			}
+			else
+			{
+				commandReorder->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
+				previousEvent = commandReorder->lastEvent;
+			}
 			indexesChanged = !indexesChanged;
 
 			//currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeReorder[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-
-			if (++digitIndex > maxDigits)  // check the algorithm reach the result
-			{
-				if (useExpoent)
-					break;
-
-				useExpoent = true;
-				digitIndex = 0;
-				maxDigits = digitCount((sp_int)(minMaxValues[1] + minValue));  // MAX_DIGITS_EXPOENT - 1;
-			}
-
 			//in++;
 		}
 
@@ -205,15 +202,19 @@ namespace NAMESPACE_PHYSICS
 
 	GpuRadixSorting::~GpuRadixSorting()
 	{
-		gpu->releaseBuffer(6, inputGpu, indexesGpu, indexesLengthGpu,
-							digitIndexGpu, useExpoentGpu, offsetTable);
+		gpu->releaseBuffer(inputGpu);
+		gpu->releaseBuffer(indexesGpu);
+		gpu->releaseBuffer(outputIndexes);
+		gpu->releaseBuffer(indexesLengthGpu);
+		gpu->releaseBuffer(offsetTable);
 
 		ALLOC_DELETE(commandCreateIndexes, GpuIndexes);
-		ALLOC_DELETE(findMinMax, GpuFindMinMax);
 		ALLOC_DELETE(commandCount, GpuCommand);
+		ALLOC_DELETE(commandCountSwapped, GpuCommand);
 		ALLOC_DELETE(commandPrefixScanUp, GpuCommand);
 		ALLOC_DELETE(commandPrefixScanDown, GpuCommand);
 		ALLOC_DELETE(commandReorder, GpuCommand);
+		ALLOC_DELETE(commandReorderSwapped, GpuCommand);
 	}
 }
 

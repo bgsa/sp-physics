@@ -20,9 +20,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	private:
 
-		float* getRandom(sp_uint count, sp_uint spaceSize = 10000)
+		sp_float* getRandom(sp_uint count, sp_uint spaceSize = 10000)
 		{
-			Randomizer<int> randomizer(0, spaceSize);
+			Randomizer<sp_int> randomizer(0, spaceSize);
 
 			sp_float* result = ALLOC_ARRAY(sp_float, count);
 
@@ -143,7 +143,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_uint offsetPrefixScanCpu = 10;
 		sp_bool useExpoent = false;
-		sp_uint digitIndex = 0;
+		sp_uint digitIndex = 3;
 		sp_uint stride = 1u;
 		sp_uint offset = 0u;
 		const sp_uint inputSize = count * stride * SIZEOF_FLOAT;
@@ -152,7 +152,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem indexesGpu = commandIndexes->execute();
 		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY);
 		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		cl_mem offsetPrefixScanGpu = gpu->createBuffer(&offsetPrefixScanCpu, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		cl_mem digitIndexGpu = gpu->createBuffer(&digitIndex, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		cl_mem useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		cl_mem output = gpu->createBuffer(count * SIZEOF_UINT, CL_MEM_READ_WRITE);
@@ -162,7 +161,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 		cl_mem offsetTableResult = offsetTable2;
 
-		const sp_uint threadsLength = gpu->getThreadLength(count);;
+		const sp_uint threadsLength = gpu->getThreadLength(count) / 2;
 		const sp_uint groupLength = gpu->getGroupLength(threadsLength, count);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
@@ -177,8 +176,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(indexesGpu, SIZEOF_UINT * count)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
-			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
-			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count")
 			->execute(1, globalWorkSize, localWorkSize);
@@ -256,9 +253,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem indexesGpu = commandIndexes->execute();
 		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY);
 		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		cl_mem offsetPrefixScanGpu = gpu->createBuffer(&offsetPrefixScanCpu, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		cl_mem digitIndexGpu = gpu->createBuffer(&digitIndex, SIZEOF_UINT, CL_MEM_READ_WRITE);
-		cl_mem useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE);
 		cl_mem output = gpu->createBuffer(count * SIZEOF_UINT, CL_MEM_READ_WRITE);
 
 		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
@@ -274,8 +269,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(indexesGpu, SIZEOF_UINT * count)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(digitIndexGpu, SIZEOF_UINT)
-			->setInputParameter(useExpoentGpu, SIZEOF_BOOL)
-			->setInputParameter(findMinMax->output, SIZEOF_FLOAT * 2)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count")
 			->execute(1, globalWorkSize, localWorkSize);
@@ -402,10 +395,10 @@ namespace NAMESPACE_PHYSICS_TEST
 			std::chrono::nanoseconds ms1 = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 
 			std::ostringstream buildOptions;
-			buildOptions << " -DINPUT_LENGTH=" << inputLength;
-			buildOptions << " -DINPUT_STRIDE=1";
-			buildOptions << " -DINPUT_OFFSET=0";
-
+			buildOptions << " -DINPUT_LENGTH=" << inputLength
+						 << " -DINPUT_STRIDE=1"
+						 << " -DINPUT_OFFSET=0";
+			
 			sp_uint strider = 1u;
 			sp_uint offset = 0u;
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
@@ -426,7 +419,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			for (sp_uint i = 0; i < inputLength; i++)
 				Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
 
-			gpu->releaseBuffer(output);
 			ALLOC_DELETE(radixGpu, GpuRadixSorting);
 			ALLOC_RELEASE(input1);
 		}

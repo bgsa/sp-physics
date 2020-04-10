@@ -46,6 +46,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuCommand* setInputParameter(cl_mem buffer, sp_size sizeOfValue);
 
 		API_INTERFACE GpuCommand* updateInputParameterValue(sp_uint index, const void* value);
+		API_INTERFACE GpuCommand* updateInputParameterValueAsync(sp_uint index, const void* value);
 		API_INTERFACE GpuCommand* updateInputParameter(sp_uint index, cl_mem memoryBuffer);
 
 		API_INTERFACE cl_mem getOutputParameter();
