@@ -57,18 +57,23 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint offsetTableSize = SIZEOF_UINT * 10u * threadsLength;
 		offsetTable = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 
+
+		offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
+		offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
+		offsetTableResult = offsetTable2;
+
 		commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
 
 		commandCountSwapped = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
 
 		commandPrefixScanUp = gpu->commandManager->createCommand()
@@ -79,10 +84,20 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(offsetTable, offsetTableSize)
 			->buildFromProgram(program, "prefixScanDown");
 
+		commandPrefixScan = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable1, offsetTableSize)  //use buffer hosted GPU
+			->setInputParameter(offsetTable2, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
+		commandPrefixScanSwaped = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable2, offsetTableSize)  //use buffer hosted GPU
+			->setInputParameter(offsetTable1, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
 		commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(offsetTableResult, offsetTableSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder");
@@ -90,7 +105,7 @@ namespace NAMESPACE_PHYSICS
 		commandReorderSwapped = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(offsetTableResult, offsetTableSize)
 			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder");
@@ -106,10 +121,13 @@ namespace NAMESPACE_PHYSICS
 	cl_mem GpuRadixSorting::execute()
 	{
 		sp_bool indexesChanged = false;
+		sp_bool offsetChanged = false;
 		cl_event previousEvent = NULL;
-
+		
 		globalWorkSize[0] = threadsLength;
 		localWorkSize[0] = defaultLocalWorkSize;
+
+		const sp_uint maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength))) + 1u;
 		
 		for (sp_uint digitIndex = 0; digitIndex < 7; digitIndex++)  // for each digit in the number ...
 		{
@@ -123,63 +141,55 @@ namespace NAMESPACE_PHYSICS
 			else
 				if (indexesChanged)
 				{
+					commandCount->updateInputParameter(3, offsetTableResult);
 					commandCountSwapped->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 					previousEvent = commandCountSwapped->lastEvent;
 				}
 				else
 				{
+					commandCount->updateInputParameter(3, offsetTableResult);
 					commandCount->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 					previousEvent = commandCount->lastEvent;
 				}
 
 			//std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeCount[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-
 			//currentTime = std::chrono::high_resolution_clock::now();
 
-			sp_uint offset = 1u;
-			while (globalWorkSize[0] != 1u)
+			sp_bool prefixScanSwaped = false;
+			sp_uint offsetPrefixScanCpu = BUCKET_LENGTH;
+			for (sp_uint i = 0; i < maxIteration; i++)
 			{
-				offset = multiplyBy2(offset);
-				globalWorkSize[0] = (sp_uint)std::ceil(globalWorkSize[0] / 2.0);
-
-				if (globalWorkSize[0] < localWorkSize[0])
-					localWorkSize[0] = globalWorkSize[0];
-
-				commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset, &previousEvent, 1u);
-				previousEvent = commandPrefixScanUp->lastEvent;
-			}
-			sp_uint threadLength = globalWorkSize[0];
-			while (offset != 2u)
-			{
-				offset = divideBy2(offset);
-				threadLength = multiplyBy2(threadLength);
-				globalWorkSize[0] = threadLength - 1;
-
-				if (globalWorkSize[0] <= defaultLocalWorkSize)
-					localWorkSize[0] = globalWorkSize[0];
+				if (prefixScanSwaped)
+				{
+					commandPrefixScanSwaped->execute(1, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, &previousEvent, 1u);
+					previousEvent = commandPrefixScanSwaped->lastEvent;
+				}
 				else
-					localWorkSize[0] = nextDivisorOf(globalWorkSize[0], defaultLocalWorkSize);
+				{
+					commandPrefixScan->execute(1, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, &previousEvent, 1u);
+					previousEvent = commandPrefixScan->lastEvent;
+				}
 
-				commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset, &previousEvent, 1u);
-				previousEvent = commandPrefixScanDown->lastEvent;
+				offsetChanged = !offsetChanged;
+				prefixScanSwaped = !prefixScanSwaped;
+				offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
 			}
+			offsetTableResult = offsetChanged ? offsetTable2 : offsetTable1;
 
 			//currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeScan[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-
-			globalWorkSize[0] = threadsLength;
-			localWorkSize[0] = defaultLocalWorkSize;
-
 			//currentTime = std::chrono::high_resolution_clock::now();
 
 			if (indexesChanged)
 			{
+				commandReorderSwapped->updateInputParameter(2, offsetTableResult);
 				commandReorderSwapped->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 				previousEvent = commandReorderSwapped->lastEvent;
 			}
 			else
 			{
+				commandReorder->updateInputParameter(2, offsetTableResult);
 				commandReorder->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 				previousEvent = commandReorder->lastEvent;
 			}

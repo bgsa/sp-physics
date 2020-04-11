@@ -27,6 +27,17 @@ namespace NAMESPACE_PHYSICS
 		GpuCommand* commandReorder;
 		GpuCommand* commandReorderSwapped;
 
+
+
+		cl_mem offsetTable1;
+		cl_mem offsetTable2;
+		cl_mem offsetTableResult;
+		cl_mem offsetPrefixScanGpu;
+		GpuCommand* commandPrefixScan;
+		GpuCommand* commandPrefixScanSwaped;
+
+
+
 		cl_program program;
 
 		cl_mem offsetTable;

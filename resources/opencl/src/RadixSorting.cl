@@ -32,6 +32,20 @@
             startIndex[9] = startIndex[8] + offsetTable[offsetTable_LastBucketIndex + 8];
 
 
+#define UPDATE_OFFSET_TABLE()\
+            nextOffsetTable[offsetTableIndex    ] = previousOffsetTable[offset    ] + previousOffsetTable[offsetTableIndex    ]; \
+            nextOffsetTable[offsetTableIndex + 1] = previousOffsetTable[offset + 1] + previousOffsetTable[offsetTableIndex + 1]; \
+            nextOffsetTable[offsetTableIndex + 2] = previousOffsetTable[offset + 2] + previousOffsetTable[offsetTableIndex + 2]; \
+            nextOffsetTable[offsetTableIndex + 3] = previousOffsetTable[offset + 3] + previousOffsetTable[offsetTableIndex + 3]; \
+            nextOffsetTable[offsetTableIndex + 4] = previousOffsetTable[offset + 4] + previousOffsetTable[offsetTableIndex + 4]; \
+            nextOffsetTable[offsetTableIndex + 5] = previousOffsetTable[offset + 5] + previousOffsetTable[offsetTableIndex + 5]; \
+            nextOffsetTable[offsetTableIndex + 6] = previousOffsetTable[offset + 6] + previousOffsetTable[offsetTableIndex + 6]; \
+            nextOffsetTable[offsetTableIndex + 7] = previousOffsetTable[offset + 7] + previousOffsetTable[offsetTableIndex + 7]; \
+            nextOffsetTable[offsetTableIndex + 8] = previousOffsetTable[offset + 8] + previousOffsetTable[offsetTableIndex + 8]; \
+            nextOffsetTable[offsetTableIndex + 9] = previousOffsetTable[offset + 9] + previousOffsetTable[offsetTableIndex + 9];
+
+
+
 #define MANTISSA_LENGTH 1000  // = 10^3  // 3 mantissas digits are taken
 #define DIGIT_WITH_POWER(doubleValue, power)\
                     (sp_uint) fmod( (doubleValue * MANTISSA_LENGTH) / power, 10.0)
@@ -60,6 +74,25 @@ __kernel void count(
         ]++;
 
     UPDATE_GLOBAL_OFFSET_TABLE();
+}
+
+
+__kernel void prefixScan(
+    __global sp_uint * previousOffsetTable,
+    __global sp_uint * nextOffsetTable
+    )
+{
+    __private const sp_uint offsetTableIndex = (THREAD_ID - THREAD_OFFSET) * BUCKET_LENGTH;
+    __private const sp_uint offset = offsetTableIndex - THREAD_OFFSET;
+
+    if (offsetTableIndex < offset)
+    {
+        COPY_ARRAY_10_ELEMENTS(previousOffsetTable, nextOffsetTable, offsetTableIndex)
+    }
+    else 
+    {
+        UPDATE_OFFSET_TABLE()
+    }
 }
 
 
