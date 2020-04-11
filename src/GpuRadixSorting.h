@@ -19,35 +19,27 @@ namespace NAMESPACE_PHYSICS
 		sp_uint threadsLength;
 		sp_uint defaultLocalWorkSize;
 
+		cl_program program;
+
 		GpuIndexes* commandCreateIndexes;
 		GpuCommand* commandCount;
 		GpuCommand* commandCountSwapped;
-		GpuCommand* commandPrefixScanUp;
-		GpuCommand* commandPrefixScanDown;
+		GpuCommand* commandPrefixScan;
+		GpuCommand* commandPrefixScanSwaped;
 		GpuCommand* commandReorder;
 		GpuCommand* commandReorderSwapped;
-
-
 
 		cl_mem offsetTable1;
 		cl_mem offsetTable2;
 		cl_mem offsetTableResult;
 		cl_mem offsetPrefixScanGpu;
-		GpuCommand* commandPrefixScan;
-		GpuCommand* commandPrefixScanSwaped;
 
-
-
-		cl_program program;
-
-		cl_mem offsetTable;
-		cl_mem indexesGpu;
-		cl_mem outputIndexes;
+		cl_mem inputIndexesGpu;
+		cl_mem outputIndexesGpu;
 
 	public:
 		cl_mem inputGpu;
 		cl_mem indexesLengthGpu;
-		cl_mem offsetGpu;
 		cl_mem output = NULL;
 
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;

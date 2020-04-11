@@ -34,11 +34,11 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint inputSize = inputLength * strider * SIZEOF_FLOAT;
 		
 		commandCreateIndexes->setParametersCreateIndexes(inputLength);
-		indexesGpu = commandCreateIndexes->execute();
+		inputIndexesGpu = commandCreateIndexes->execute();
 
 		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
 		indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		outputIndexes = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
+		outputIndexesGpu = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
 
 		threadsLength = gpu->getThreadLength(inputLength);
 		threadsLength = divideBy2(threadsLength);
@@ -55,34 +55,22 @@ namespace NAMESPACE_PHYSICS
 			threadsLength = divideBy2(threadsLength);
 
 		const sp_uint offsetTableSize = SIZEOF_UINT * 10u * threadsLength;
-		offsetTable = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
-
-
 		offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 		offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
-		offsetTableResult = offsetTable2;
 
 		commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
 
 		commandCountSwapped = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
+			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
-
-		commandPrefixScanUp = gpu->commandManager->createCommand()
-			->setInputParameter(offsetTable, offsetTableSize)
-			->buildFromProgram(program, "prefixScanUp");
-
-		commandPrefixScanDown = gpu->commandManager->createCommand()
-			->setInputParameter(offsetTable, offsetTableSize)
-			->buildFromProgram(program, "prefixScanDown");
 
 		commandPrefixScan = gpu->commandManager->createCommand()
 			->setInputParameter(offsetTable1, offsetTableSize)  //use buffer hosted GPU
@@ -97,17 +85,17 @@ namespace NAMESPACE_PHYSICS
 		commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(offsetTableResult, offsetTableSize)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
+			->setInputParameter(offsetTable1, offsetTableSize)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder");
 
 		commandReorderSwapped = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
-			->setInputParameter(offsetTableResult, offsetTableSize)
-			->setInputParameter(outputIndexes, SIZEOF_UINT * inputLength)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(offsetTable1, offsetTableSize)
+			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder");
 
 		return this;
@@ -139,18 +127,21 @@ namespace NAMESPACE_PHYSICS
 				previousEvent = commandCount->lastEvent;
 			}
 			else
-				if (indexesChanged)
-				{
+			{
+				if (offsetChanged)
 					commandCount->updateInputParameter(3, offsetTableResult);
+
+				if (indexesChanged)
+				{	
 					commandCountSwapped->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 					previousEvent = commandCountSwapped->lastEvent;
 				}
 				else
 				{
-					commandCount->updateInputParameter(3, offsetTableResult);
 					commandCount->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 					previousEvent = commandCount->lastEvent;
 				}
+			}
 
 			//std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			//timeCount[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
@@ -181,15 +172,16 @@ namespace NAMESPACE_PHYSICS
 			//timeScan[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 			//currentTime = std::chrono::high_resolution_clock::now();
 
-			if (indexesChanged)
-			{
+			if (offsetChanged)
 				commandReorderSwapped->updateInputParameter(2, offsetTableResult);
+
+			if (indexesChanged)
+			{	
 				commandReorderSwapped->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 				previousEvent = commandReorderSwapped->lastEvent;
 			}
 			else
 			{
-				commandReorder->updateInputParameter(2, offsetTableResult);
 				commandReorder->execute(1, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, 1u);
 				previousEvent = commandReorder->lastEvent;
 			}
@@ -203,9 +195,9 @@ namespace NAMESPACE_PHYSICS
 		lastEvent = commandReorder->lastEvent;
 
 		if (indexesChanged)
-			output = indexesGpu;
+			output = inputIndexesGpu;
 		else
-			output = outputIndexes;
+			output = outputIndexesGpu;
 
 		return output;
 	}
@@ -213,16 +205,17 @@ namespace NAMESPACE_PHYSICS
 	GpuRadixSorting::~GpuRadixSorting()
 	{
 		gpu->releaseBuffer(inputGpu);
-		gpu->releaseBuffer(indexesGpu);
-		gpu->releaseBuffer(outputIndexes);
+		gpu->releaseBuffer(inputIndexesGpu);
+		gpu->releaseBuffer(outputIndexesGpu);
 		gpu->releaseBuffer(indexesLengthGpu);
-		gpu->releaseBuffer(offsetTable);
+		gpu->releaseBuffer(offsetTable1);
+		gpu->releaseBuffer(offsetTable2);
 
 		ALLOC_DELETE(commandCreateIndexes, GpuIndexes);
 		ALLOC_DELETE(commandCount, GpuCommand);
 		ALLOC_DELETE(commandCountSwapped, GpuCommand);
-		ALLOC_DELETE(commandPrefixScanUp, GpuCommand);
-		ALLOC_DELETE(commandPrefixScanDown, GpuCommand);
+		ALLOC_DELETE(commandPrefixScan, GpuCommand);
+		ALLOC_DELETE(commandPrefixScanSwaped, GpuCommand);
 		ALLOC_DELETE(commandReorder, GpuCommand);
 		ALLOC_DELETE(commandReorderSwapped, GpuCommand);
 	}
