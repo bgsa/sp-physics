@@ -20,7 +20,6 @@ namespace NAMESPACE_PHYSICS
 		sp_uint threadsLength;
 		sp_uint defaultLocalWorkSize;
 		sp_uint maxIteration;
-		sp_uint maxIterationNegatives;
 
 		cl_program program;
 

@@ -47,7 +47,6 @@ namespace NAMESPACE_PHYSICS
 		defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
 
 		maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength))) + ONE_UINT;
-		maxIterationNegatives = (sp_uint)std::ceil(std::log(threadsLength));
 
 		const sp_uint offsetTableSize = SIZEOF_UINT * TEN_UINT * threadsLength;
 		offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
