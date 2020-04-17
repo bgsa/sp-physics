@@ -199,6 +199,7 @@
     <ClCompile Include="src\GpuFindMinMax.cpp" />
     <ClCompile Include="src\GpuIndexes.cpp" />
     <ClCompile Include="src\GpuRadixSorting.cpp" />
+    <ClCompile Include="src\GpuReverse.cpp" />
     <ClCompile Include="src\HashGrid.cpp" />
     <ClCompile Include="src\Line2D.cpp" />
     <ClCompile Include="src\Line3D.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="src\GpuFindMinMax.h" />
     <ClInclude Include="src\GpuIndexes.h" />
     <ClInclude Include="src\GpuRadixSorting.h" />
+    <ClInclude Include="src\GpuReverse.h" />
     <ClInclude Include="src\HashGrid.h" />
     <ClInclude Include="src\Line2D.h" />
     <ClInclude Include="src\Line3D.h" />
@@ -299,6 +301,7 @@
     <None Include="resources\opencl\src\RadixSorting.cl" />
     <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
     <None Include="resources\opencl\src\RadixSortingByThread.cl" />
+    <None Include="resources\opencl\src\Reverse.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />
     <None Include="resources\opencl\src\SweepAndPruneKdop.cl" />
   </ItemGroup>

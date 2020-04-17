@@ -39,9 +39,26 @@ typedef unsigned int   sp_size;
 typedef float          sp_float;
 typedef double         sp_double;
 
-#define ZERO_UINT 0u
-#define ONE_UINT  1u
-#define TWO_UINT  2u
+
+#define ZERO_INT  0
+#define ONE_INT   1
+#define TWO_INT   2
+#define TEN_INT  10
+
+#define ZERO_UINT  0u
+#define ONE_UINT   1u
+#define TWO_UINT   2u
+#define TEN_UINT  10u
+
+#define ZERO_FLOAT  0.0f
+#define ONE_FLOAT   1.0f
+#define TWO_FLOAT   2.0f
+#define TEN_FLOAT  10.0f
+
+#define ZERO_DOUBLE  0.0
+#define ONE_DOUBLE   1.0
+#define TWO_DOUBLE   2.0
+#define TEN_DOUBLE  10.0
 
 #define SET_ARRAY_10_ELEMENTS(_name, _value)\
             _name[0] = _value;  \

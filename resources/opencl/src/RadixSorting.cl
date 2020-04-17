@@ -47,11 +47,14 @@
 
 
 #define MANTISSA_LENGTH 1000  // = 10^3  // 3 mantissas digits are taken
-#define DIGIT_WITH_POWER(doubleValue, power)\
+#define DIGIT_WITH_POWER_D(doubleValue, power)\
                     (sp_uint) fmod( (doubleValue * MANTISSA_LENGTH) / power, 10.0)
 
-#define DIGIT(doubleValue, idx)\
-                    DIGIT_WITH_POWER( doubleValue , pow(10.0, idx))
+#define DIGIT_WITH_POWER(floatValue, power)\
+            DIGIT_WITH_POWER_D( (sp_double) fabs(floatValue), power )
+
+#define DIGIT(floatValue, idx)\
+                    DIGIT_WITH_POWER_F( floatValue , pow(10.0, idx) )
 
 __kernel void count(
     __constant sp_float* input,
@@ -70,10 +73,33 @@ __kernel void count(
 
     for (sp_uint i = 0 ; i < elementsPerWorkItem; i++) // make private histogram for expoent of float
         bucket[
-            DIGIT_WITH_POWER( ((sp_double) input[indexes[inputThreadIndex + i] * OFFSET_GLOBAL]) , power )
+            DIGIT_WITH_POWER( input[indexes[inputThreadIndex + i] * OFFSET_GLOBAL] , power )
         ]++;
 
     UPDATE_GLOBAL_OFFSET_TABLE();
+}
+
+__kernel void countNegatives(
+    __constant sp_float* input,
+    __constant sp_uint * indexes,
+    __constant sp_uint * inputLength,
+    __global   sp_uint * offsetTable
+    )
+{
+    __private const sp_uint   elementsPerWorkItem = max( (sp_uint) (INPUT_LENGTH / THREAD_LENGTH) , ONE_UINT );
+    __private const sp_uint   globalBucketOffset = THREAD_ID * TWO_UINT;
+    __private const sp_uint   inputThreadIndex = THREAD_ID * elementsPerWorkItem;
+    __private       sp_uint   negatives = ZERO_UINT;
+    __private       sp_uint   positives = ZERO_UINT;
+
+    for (sp_uint i = 0 ; i < elementsPerWorkItem; i++) // make private histogram for expoent of float
+        if( input[indexes[inputThreadIndex + i] * OFFSET_GLOBAL] < ZERO_FLOAT )
+            negatives++;
+        else
+            positives++;
+
+    offsetTable[globalBucketOffset    ] = negatives;
+    offsetTable[globalBucketOffset + 1] = positives;
 }
 
 
@@ -92,6 +118,26 @@ __kernel void prefixScan(
     else 
     {
         UPDATE_OFFSET_TABLE()
+    }
+}
+
+__kernel void prefixScanNegatives(
+    __global sp_uint * previousOffsetTable,
+    __global sp_uint * nextOffsetTable
+    )
+{
+    __private const sp_uint offsetTableIndex = (THREAD_ID - THREAD_OFFSET) * TWO_UINT;
+    __private const sp_uint offset = offsetTableIndex - THREAD_OFFSET;
+
+    if (offsetTableIndex < offset)
+    {
+        nextOffsetTable[offsetTableIndex    ] = previousOffsetTable[offsetTableIndex    ];
+        nextOffsetTable[offsetTableIndex + 1] = previousOffsetTable[offsetTableIndex + 1];
+    }
+    else 
+    {
+        nextOffsetTable[offsetTableIndex    ] = previousOffsetTable[offset    ] + previousOffsetTable[offsetTableIndex    ];
+        nextOffsetTable[offsetTableIndex + 1] = previousOffsetTable[offset + 1] + previousOffsetTable[offsetTableIndex + 1];
     }
 }
 
@@ -156,14 +202,44 @@ __kernel void reorder(
     
     INIT_START_INDEXES()
 
-    for (sp_int i = elementsPerWorkItem - 1; i >= 0; i--)
+    for (sp_int i = elementsPerWorkItem - ONE_INT; i >= ZERO_INT; i--)
     {
-        currentDigit = DIGIT_WITH_POWER( ((sp_double) input[indexesInput[indexesInputBegin + i] * OFFSET_GLOBAL])  , power );
+        currentDigit = DIGIT_WITH_POWER( input[indexesInput[indexesInputBegin + i] * OFFSET_GLOBAL] , power );
 
         indexesOutput[
                         startIndex[currentDigit] + offsetTable[offsetTable_Index + currentDigit] - 1 // get the global output address where the element is going to be stored
                     ] = indexesInput[indexesInputBegin + i];
 
         offsetTable[offsetTable_Index + currentDigit]--;    // decrement the offset table to store the others elements before
+    }
+}
+
+
+__kernel void reorderNegatives(
+    __constant sp_float* input,
+    __constant sp_uint * inputLength,
+    __global   sp_uint * offsetTable,
+    __constant sp_uint * indexesInput,
+    __global   sp_uint * indexesOutput
+    )
+{
+    __private const sp_uint elementsPerWorkItem = max( (sp_uint) (INPUT_LENGTH / THREAD_LENGTH) , ONE_UINT );
+    __private const sp_uint indexesInputBegin = THREAD_ID * elementsPerWorkItem;
+    __private const sp_uint offsetTable_Index = THREAD_ID * TWO_UINT;
+    __private const sp_uint offsetTable_LastBucketIndex = ( min((sp_int)THREAD_LENGTH, INPUT_LENGTH) * TWO_UINT) - TWO_UINT;
+
+    __private sp_uint currentSign;
+    __private sp_uint startIndex[2];
+
+    startIndex[0] = ZERO_UINT;
+    startIndex[1] = offsetTable[offsetTable_LastBucketIndex];
+    
+    for (sp_int i = elementsPerWorkItem - ONE_INT; i >= ZERO_INT; i--)
+    {
+        currentSign = input[indexesInput[indexesInputBegin + i] * OFFSET_GLOBAL] < ZERO_FLOAT ? ZERO_UINT : ONE_UINT;
+
+        indexesOutput[
+                        startIndex[currentSign] + (--offsetTable[offsetTable_Index + currentSign]) // get the global output address where the element is going to be stored
+                    ] = indexesInput[indexesInputBegin + i];
     }
 }

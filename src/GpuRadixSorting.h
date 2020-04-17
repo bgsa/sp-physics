@@ -3,7 +3,8 @@
 #ifndef GPU_RADIX_DORTING
 #define GPU_RADIX_DORTING
 
-#include "GpuFindMinMax.h"
+#include "GpuIndexes.h"
+#include "GpuReverse.h"
 #include "GpuComposedCommand.h"
 
 namespace NAMESPACE_PHYSICS
@@ -18,6 +19,8 @@ namespace NAMESPACE_PHYSICS
 		sp_uint maxDigits = MAX_DIGITS_MANTISSA - 1;
 		sp_uint threadsLength;
 		sp_uint defaultLocalWorkSize;
+		sp_uint maxIteration;
+		sp_uint maxIterationNegatives;
 
 		cl_program program;
 
@@ -29,10 +32,19 @@ namespace NAMESPACE_PHYSICS
 		GpuCommand* commandReorder;
 		GpuCommand* commandReorderSwapped;
 
+		GpuCommand* commandCountNegative;
+		GpuCommand* commandPrefixScanNegative;
+		GpuCommand* commandReorderNegative;
+		GpuReverse* commandReverse;
+
 		cl_mem offsetTable1;
+		cl_mem offsetTable1Negatives;
 		cl_mem offsetTable2;
-		cl_mem offsetTableResult;
+		cl_mem offsetTable2Negatives;
 		cl_mem offsetPrefixScanGpu;
+
+		cl_mem negativeCounterLocation1;
+		cl_mem negativeCounterLocation2;
 
 		cl_mem inputIndexesGpu;
 		cl_mem outputIndexesGpu;
@@ -47,6 +59,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuRadixSorting* setParameters(sp_float* input, sp_uint indexesLengthCpu, sp_uint striderCpu, sp_uint offsetCpu);
 
 		API_INTERFACE cl_mem execute() override;
+
+		API_INTERFACE cl_mem executeNegatives(sp_bool indexChanged, sp_bool offsetChanged);
 
 		API_INTERFACE ~GpuRadixSorting();
 

@@ -62,11 +62,14 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE cl_mem createBuffer(size_t sizeOfValue, cl_mem_flags memoryFlags);
 		API_INTERFACE cl_mem createBuffer(void * value, size_t sizeOfValue, cl_mem_flags memoryFlags, bool writeValueOnDevice = true);
+		API_INTERFACE cl_mem createSubBuffer(cl_mem buffer, cl_buffer_region* region, cl_mem_flags memoryFlags);
+
 		API_INTERFACE void releaseBuffer(cl_mem memoryBuffer);
 		API_INTERFACE void releaseBuffer(size_t length, cl_mem memoryBuffers ...);
 		
 		API_INTERFACE sp_uint getThreadLength(sp_uint inputLength);
 		API_INTERFACE sp_uint getGroupLength(sp_uint threadLength, sp_uint inputLength);
+		API_INTERFACE sp_uint getDefaultGroupLength();
 
 		~GpuDevice();
 	};

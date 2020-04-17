@@ -69,27 +69,51 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(profileAsArray);;
 	}
 
+	sp_uint GpuDevice::getDefaultGroupLength()
+	{
+		return nextPowOf2(multiplyBy2(computeUnits));
+	}
+
 	sp_uint GpuDevice::getThreadLength(sp_uint inputLength)
 	{
 		if (isOdd(inputLength))
 			inputLength--;
 
-		return divideBy2(inputLength);
+		sp_uint defaultGroupLength = getDefaultGroupLength();
+
+		if (inputLength < defaultGroupLength)
+			return inputLength;
+
+		inputLength = divideBy2(inputLength);
+
+		sp_uint maxLength = 2u;
+		for (; maxLength < inputLength; maxLength *= 2)
+		{
+			sp_uint divisor = nextDivisorOf(maxLength - 1, defaultGroupLength);
+			if (divisor > maxWorkGroupSize)
+				break;
+		}
+		while (inputLength >= maxLength)
+			inputLength = divideBy2(inputLength);
+
+		return inputLength;
 	}
 
 	sp_uint GpuDevice::getGroupLength(sp_uint threadLength, sp_uint inputLength)
 	{
-		sp_uint groupLength = nextPowOf2(multiplyBy2(computeUnits));
+		sp_uint groupLength = getDefaultGroupLength();
 
-		while (groupLength > threadLength)
-			groupLength = divideBy2(groupLength);
+		//while (groupLength > threadLength)
+		//	groupLength = divideBy2(groupLength);
+		if (groupLength > threadLength)
+			return ONE_UINT;
 
 		groupLength = nextDivisorOf(threadLength, groupLength);
 
 		if (threadLength == ONE_UINT)
 		{
-			threadLength = (sp_uint)std::ceil(nextPowOf2(inputLength) / 2.0);
-			groupLength = (sp_uint)std::ceil(threadLength / 2.0);
+			threadLength = (sp_uint)std::ceil(nextPowOf2(inputLength) / TWO_DOUBLE);
+			groupLength = (sp_uint)std::ceil(threadLength / TWO_DOUBLE);
 		}
 
 		return groupLength;
@@ -125,6 +149,16 @@ namespace NAMESPACE_PHYSICS
 
 		return memoryBuffer;
 	}
+
+	cl_mem GpuDevice::createSubBuffer(cl_mem buffer, cl_buffer_region* region, cl_mem_flags memoryFlags)
+	{
+		cl_int errorCode;		
+		cl_mem subBuffer = clCreateSubBuffer(buffer, memoryFlags, CL_BUFFER_CREATE_TYPE_REGION, region, &errorCode);
+		HANDLE_OPENCL_ERROR(errorCode);
+
+		return subBuffer;
+	}
+
 
 	void GpuDevice::releaseBuffer(cl_mem memoryBuffer)
 	{
