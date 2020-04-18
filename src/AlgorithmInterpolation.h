@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_INTERPOLATION_HEADER
+#define ALGORITHM_INTERPOLATION_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <iostream>
 #include <sstream>
 
@@ -89,3 +90,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // ALGORITHM_INTERPOLATION_HEADER

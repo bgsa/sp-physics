@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_STEFFESEN_HEADER
+#define ALGORITHM_STEFFESEN_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -20,3 +21,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // !ALGORITHM_STEFFESEN_HEADER

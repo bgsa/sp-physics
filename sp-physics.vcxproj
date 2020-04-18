@@ -263,7 +263,7 @@
     <ClInclude Include="src\Mat3.h" />
     <ClInclude Include="src\Mat4.h" />
     <ClInclude Include="src\OBB.h" />
-    <ClInclude Include="src\OpenML.h" />
+    <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />
     <ClInclude Include="src\Particle.h" />
     <ClInclude Include="src\ParticleSystem.h" />

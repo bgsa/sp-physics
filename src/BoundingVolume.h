@@ -1,7 +1,7 @@
 #ifndef BOUNDING_VOLUME_HEADER
 #define BOUNDING_VOLUME_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Vec3.h"
 #include "ParticleSystem.h"
 

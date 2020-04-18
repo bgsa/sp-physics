@@ -1,6 +1,7 @@
-#pragma once
+#ifndef COLLISION_DETECTION_HEADER
+#define COLLISION_DETECTION_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "AABB.h"
 #include "DOP18.h"
 
@@ -24,3 +25,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // COLLISION_DETECTION_HEADER

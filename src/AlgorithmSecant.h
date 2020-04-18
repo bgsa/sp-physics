@@ -1,7 +1,7 @@
 #ifndef ALGORITHM_SECANT_HEADER
 #define ALGORITHM_SECANT_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {

@@ -1,7 +1,7 @@
 #ifndef MAT2_HEADER
 #define MAT2_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {

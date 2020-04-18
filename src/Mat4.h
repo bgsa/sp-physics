@@ -1,7 +1,7 @@
 #ifndef MAT4_HEADER
 #define MAT4_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Mat.h"
 #include "Mat3.h"
 #include "Vec4.h"

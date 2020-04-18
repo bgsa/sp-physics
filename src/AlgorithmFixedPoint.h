@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_FIXED_POSITION_HEADER
+#define ALGORITHM_FIXED_POSITION_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -21,3 +22,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // ALGORITHM_FIXED_POSITION_HEADER

@@ -1,7 +1,7 @@
 #ifndef DOP18_HEADER
 #define DOP18_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Vec3.h"
 #include "BoundingVolume.h"
 #include "Plane3D.h"

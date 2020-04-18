@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_HORNER_HEADER
+#define ALGORITHM_HORNER_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -29,3 +30,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // ALGORITHM_HORNER_HEADER

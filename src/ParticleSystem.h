@@ -1,7 +1,7 @@
 #ifndef PARTICLE_SYSTEM
 #define PARTICLE_SYSTEM
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Particle.h"
 #include <vector>
 

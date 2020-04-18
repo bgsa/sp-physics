@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_BISECTION_HEADER
+#define ALGORITHM_BISECTION_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS 
 {
@@ -24,3 +25,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // ALGORITHM_BISECTION_HEADER

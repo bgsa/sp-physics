@@ -1,7 +1,7 @@
 #ifndef COLLISION_RESPONSE
 #define COLLISION_RESPONSE
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Sphere.h"
 
 namespace NAMESPACE_PHYSICS

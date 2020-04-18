@@ -1,7 +1,7 @@
 #ifndef TRIANGLE3D_HEADER
 #define TRIANGLE3D_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Line3D.h"
 
 namespace NAMESPACE_PHYSICS

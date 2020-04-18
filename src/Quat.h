@@ -1,6 +1,7 @@
-#pragma once
+#ifndef QUAT_HEADER
+#define QUAT_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -198,3 +199,5 @@ namespace NAMESPACE_PHYSICS
 	typedef Quat<double> Quatd;
 
 }
+
+#endif // QUAT_HEADER

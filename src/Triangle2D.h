@@ -1,7 +1,7 @@
 #ifndef TRIANGLE2D_HEADER
 #define TRIANGLE2D_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {

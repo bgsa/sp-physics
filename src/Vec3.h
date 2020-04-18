@@ -1,7 +1,7 @@
 #ifndef VEC3_HEADER
 #define VEC3_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {

@@ -1,6 +1,7 @@
 #ifdef OPENCL_ENABLED
 
-#pragma once
+#ifndef GPU_CONTEXT_HEADER
+#define GPU_CONTEXT_HEADER
 
 #ifdef APPLE
 	#include <OpenCL/opencl.h>
@@ -8,7 +9,7 @@
 	#include <CL/cl.h>
 #endif
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "GpuDevice.h"
 
 namespace NAMESPACE_PHYSICS
@@ -36,4 +37,6 @@ namespace NAMESPACE_PHYSICS
 
 }
 
-#endif
+#endif // GPU_CONTEXT_HEADER
+
+#endif // OPENCL_ENABLED

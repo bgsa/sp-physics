@@ -1,6 +1,7 @@
-#pragma once
+#ifndef RECTANGLE2D_HEADER
+#define RECTANGLE2D_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Line2D.h"
 #include "Triangle2D.h"
 
@@ -81,3 +82,5 @@ namespace NAMESPACE_PHYSICS
 	typedef Rectangle2D<float> Rectangle2Df;
 	typedef Rectangle2D<double> Rectangle2Dd;
 }
+
+#endif // RECTANGLE2D_HEADER

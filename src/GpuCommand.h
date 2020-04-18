@@ -3,7 +3,7 @@
 #ifndef GPU_COMMAND_HEADER
 #define GPU_COMMAND_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "GpuLog.hpp"
 #include "CL/cl.h"
 

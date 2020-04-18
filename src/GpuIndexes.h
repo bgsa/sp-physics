@@ -3,7 +3,7 @@
 #ifndef GPU_INDEXES_HEADER
 #define GPU_INDEXES_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <algorithm>
 #include "GpuDevice.h"
 #include "GpuCommand.h"

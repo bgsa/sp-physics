@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_AITKEN_HEADER
+#define ALGORITHM_AITKEN_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -19,3 +20,5 @@ namespace NAMESPACE_PHYSICS
 
 	};
 }
+
+#endif // !ALGORITHM_AITKEN_HEADER

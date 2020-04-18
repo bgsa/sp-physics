@@ -1,6 +1,7 @@
-#pragma once
+#ifndef VEC4_HEADER
+#define VEC4_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -231,3 +232,5 @@ namespace NAMESPACE_PHYSICS
 	typedef Vec4<double> Vec4d;
 
 }
+
+#endif // VEC4_HEADER

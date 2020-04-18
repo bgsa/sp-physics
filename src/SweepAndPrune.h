@@ -1,7 +1,7 @@
 #ifndef SWEEP_AND_PRUNE_HEADER
 #define SWEEP_AND_PRUNE_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "AABB.h"
 #include "AlgorithmSorting.h"
 

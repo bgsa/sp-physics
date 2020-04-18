@@ -1,8 +1,9 @@
 #ifdef OPENCL_ENABLED
 
-#pragma once
+#ifndef GPU_LOG_HEADER
+#define GPU_LOG_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <CL/cl.h>
 
 #if DEBUG
@@ -283,4 +284,6 @@ namespace NAMESPACE_PHYSICS
 	};
 }
 
-#endif
+#endif // GPU_LOG_HEADER
+
+#endif // OPENCL_ENALBED

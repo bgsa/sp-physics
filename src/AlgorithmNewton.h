@@ -1,7 +1,7 @@
 #ifndef ALGORITHM_NEWTON_HEADER
 #define ALGORITHM_NEWTON_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {

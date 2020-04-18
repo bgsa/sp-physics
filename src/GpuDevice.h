@@ -3,7 +3,7 @@
 #ifndef GPU_DEVICE_HEADER
 #define GPU_DEVICE_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <algorithm>
 #include <CL/cl.h>
 

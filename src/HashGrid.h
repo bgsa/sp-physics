@@ -1,6 +1,7 @@
-#pragma once
+#ifndef HASH_GRID_HEADER
+#define HASH_GRID_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "AABB.h"
 #include <unordered_map>
 #include <map>
@@ -35,3 +36,4 @@ namespace NAMESPACE_PHYSICS
 
 }
 
+#endif // HASH_GRID_HEADER

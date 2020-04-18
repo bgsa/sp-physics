@@ -1,7 +1,7 @@
 #ifndef PARTICLE
 #define PARTICLE
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {

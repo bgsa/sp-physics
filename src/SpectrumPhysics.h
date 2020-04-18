@@ -1,8 +1,7 @@
-#ifndef OPENML_HEADER
-#define OPENML_HEADER
+#ifndef SPECTRUM_PHYSICS_HEADER
+#define SPECTRUM_PHYSICS_HEADER
 
 #include <SpectrumFoundation.h>
-
 #include <cassert>
 #include <cmath>
 #include <iostream>

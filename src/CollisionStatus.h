@@ -1,7 +1,7 @@
 #ifndef COLLISION_STATUS_HEADER
 #define COLLISION_STATUS_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {

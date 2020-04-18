@@ -1,6 +1,7 @@
-#pragma once
+#ifndef BINARY_TREE_NODE_HEADER
+#define BINARY_TREE_NODE_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <algorithm>
 #include <vector>
 #include "BoundingVolume.h"
@@ -51,3 +52,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // BINARY_TREE_NODE_HEADER

@@ -1,6 +1,7 @@
-#pragma once
+#ifndef RANDOMIZER_HEADER
+#define RANDOMIZER_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <random>
 
 namespace NAMESPACE_PHYSICS
@@ -27,3 +28,5 @@ namespace NAMESPACE_PHYSICS
 		}
 	};
 }
+
+#endif // RANDOMIZER_HEADER

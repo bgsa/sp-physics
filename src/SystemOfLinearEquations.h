@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SYSTEM_OF_LINEAR_EQUATIONS_HEADER
+#define SYSTEM_OF_LINEAR_EQUATIONS_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <iomanip>
 
 namespace NAMESPACE_PHYSICS
@@ -159,3 +160,5 @@ namespace NAMESPACE_PHYSICS
 		}
 	};
 }
+
+#endif // !SYSTEM_OF_LINEAR_EQUATIONS_HEADER

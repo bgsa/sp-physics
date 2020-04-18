@@ -1,7 +1,7 @@
 #ifndef SPHERE_HEADER
 #define SPHERE_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include "Vec3.h"
 #include "Mat4.h"
 #include "Plane3D.h"

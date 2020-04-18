@@ -1,7 +1,7 @@
 #ifndef ALGORITHM_SORTING_HEADER
 #define ALGORITHM_SORTING_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <algorithm>
 #include <functional>
 #include <numeric>

@@ -1,6 +1,7 @@
-#pragma once
+#ifndef CIRCLE_HEADER
+#define CIRCLE_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -35,3 +36,5 @@ namespace NAMESPACE_PHYSICS
 	typedef Circle2D<float> Circle2Df;
 	typedef Circle2D<double> Circle2Dd;
 }
+
+#endif // CIRCLE_HEADER

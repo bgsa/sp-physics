@@ -1,6 +1,7 @@
-#pragma once
+#ifndef ALGORITHM_FALSE_POSITION_HEADER
+#define ALGORITHM_FALSE_POSITION_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -18,3 +19,5 @@ namespace NAMESPACE_PHYSICS
 	};
 
 }
+
+#endif // !ALGORITHM_FALSE_POSITION_HEADER

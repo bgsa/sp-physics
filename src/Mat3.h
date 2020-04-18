@@ -1,7 +1,7 @@
 #ifndef MAT3_HEADER
 #define MAT3_HEADER
 
-#include "OpenML.h"
+#include "SpectrumPhysics.h"
 #include <cstring>
 #include <vector>
 
