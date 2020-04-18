@@ -1,5 +1,4 @@
 #include "TestHeader.h"
-#include "OpenML.h"
 #include "SystemOfLinearEquations.h"
 
 #define CLASS_NAME SystemOfLinearEquationsTest

@@ -1,7 +1,7 @@
 #ifndef TEST_HEADER_HEADER
 #define TEST_HEADER_HEADER
 
-#include <OpenML.h>
+#include <SpectrumPhysics.h>
 #include <chrono>
 
 #ifndef NAMESPACE_PHYSICS_TEST

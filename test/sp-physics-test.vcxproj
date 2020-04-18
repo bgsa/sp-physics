@@ -55,7 +55,7 @@
     <ClCompile Include="src\Mat3Test.cpp" />
     <ClCompile Include="src\Mat4Test.cpp" />
     <ClCompile Include="src\OBBTest.cpp" />
-    <ClCompile Include="src\OpenMLTest.cpp" />
+    <ClCompile Include="src\SpectrumPhysicsTest.cpp" />
     <ClCompile Include="src\ParticleSystemTest.cpp" />
     <ClCompile Include="src\ParticleTest.cpp" />
     <ClCompile Include="src\Plane3DTest.cpp" />

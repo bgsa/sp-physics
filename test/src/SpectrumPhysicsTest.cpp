@@ -1,7 +1,6 @@
 #include "TestHeader.h"
-#include <OpenML.h>
 
-#define CLASS_NAME OpenMLTest
+#define CLASS_NAME SpectrumPhysicsTest
 
 namespace NAMESPACE_PHYSICS_TEST
 {
@@ -9,13 +8,13 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 	
-		SP_TEST_METHOD_DEF(OpenML_clamp_Test);
+		SP_TEST_METHOD_DEF(clamp_Test);
 
 		SP_TEST_METHOD_DEF(sign_Test);
 		
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, OpenML_clamp_Test)
+	SP_TEST_METHOD(CLASS_NAME, clamp_Test)
 	{
 		float result = clamp(1.0f, 0.0f, 2.0f);
 		float expected = 1.0f;			
