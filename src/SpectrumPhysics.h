@@ -2,6 +2,7 @@
 #define SPECTRUM_PHYSICS_HEADER
 
 #include <SpectrumFoundation.h>
+#include <Object.h>
 #include <cassert>
 #include <cmath>
 #include <iostream>
