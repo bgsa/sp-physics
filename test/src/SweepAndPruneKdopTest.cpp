@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <SweepAndPruneKdop.h>
 #include <CollisionDetection.h>
 

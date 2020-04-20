@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmInterpolation.h>
 
 #define CLASS_NAME AlgorithmInterpolationTest

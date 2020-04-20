@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmSorting.h>
 #include "Randomizer.h"
 

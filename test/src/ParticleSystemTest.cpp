@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <ParticleSystem.h>
 
 #define CLASS_NAME ParticleSystemTest

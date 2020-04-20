@@ -1,6 +1,6 @@
 #ifdef OPENCL_ENABLED
 
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include "Randomizer.h"
 #include <GpuReverse.h>
 #include "GpuContext.h"

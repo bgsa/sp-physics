@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmBisection.h>
 
 #define CLASS_NAME AlgorithmBisectionTest

@@ -1,7 +1,7 @@
 #ifndef ALGORITHM_AITKEN_TEST_HEADER
 #define ALGORITHM_AITKEN_TEST_HEADER
 
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmAitken.h>
 
 #define CLASS_NAME AlgorithmAitkenTest

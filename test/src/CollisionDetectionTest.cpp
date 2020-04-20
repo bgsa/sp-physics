@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <CollisionDetection.h>
 
 #define CLASS_NAME CollisionDetectionTest

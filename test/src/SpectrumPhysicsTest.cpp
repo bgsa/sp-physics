@@ -1,9 +1,21 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 
 #define CLASS_NAME SpectrumPhysicsTest
 
 namespace NAMESPACE_PHYSICS_TEST
 {
+
+#ifdef MSTEST_ENABLED
+	TEST_MODULE_INITIALIZE(ModuleInitialize)
+	{
+		MemoryAllocatorManager::init(ONE_MEGABYTE * 512);
+	}
+	TEST_MODULE_CLEANUP(ModuleCleanup)
+	{
+		MemoryAllocatorManager::release();
+	}
+#endif // MSTEST_ENABLED
+
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:

@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <Plane3D.h>
 #include <Vec3.h>
 #include <Vec4.h>

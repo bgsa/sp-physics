@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AABB.h>
 
 #define CLASS_NAME AABBTest

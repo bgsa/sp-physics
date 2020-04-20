@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmHorner.h>
 
 #define CLASS_NAME AlgorithmHornerTest

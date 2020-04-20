@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmFixedPoint.h>
 
 #define CLASS_NAME AlgorithmFixedPointTest

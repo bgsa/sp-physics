@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <Vec3.h>
 
 #define CLASS_NAME Vec3Test

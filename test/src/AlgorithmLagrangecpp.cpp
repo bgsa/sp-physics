@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmLagrange.h>
 
 #define CLASS_NAME AlgorithmLagrangeTest

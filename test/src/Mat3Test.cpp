@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <Mat3.h>
 
 #define CLASS_NAME Mat3Test

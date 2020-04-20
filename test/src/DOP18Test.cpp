@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <DOP18.h>
 
 #define CLASS_NAME DOP18Test

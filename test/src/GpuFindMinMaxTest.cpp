@@ -4,7 +4,7 @@
 #define GPU_FIND_MIN_MAX_TEST_HEADER
 
 #include "Log.hpp"
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include "Randomizer.h"
 #include <GpuFindMinMax.h>
 #include "GpuContext.h"

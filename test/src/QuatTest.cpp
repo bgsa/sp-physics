@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include "Quat.h"
 
 #define CLASS_NAME QuatTest

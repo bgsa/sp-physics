@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmSteffensen.h>
 
 #define CLASS_NAME AlgorithmSteffensenTest

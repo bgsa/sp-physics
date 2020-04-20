@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include "SystemOfLinearEquations.h"
 
 #define CLASS_NAME SystemOfLinearEquationsTest

@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <OBB.h>
 
 #define CLASS_NAME OBBTest 

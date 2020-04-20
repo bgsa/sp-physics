@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <BoundingVolumeHierarchy.h>
 
 #define CLASS_NAME BoundingVolumeHierarchyTest

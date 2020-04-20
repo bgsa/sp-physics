@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include "Vec2List.h"
 
 #define CLASS_NAME Rectangle2DTest 

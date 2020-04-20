@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmFalsePosition.h>
 
 #define CLASS_NAME AlgorithmFalsePositionTest

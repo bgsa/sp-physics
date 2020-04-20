@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <Sphere.h>
 
 #define CLASS_NAME SphereTest

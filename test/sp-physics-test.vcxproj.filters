@@ -18,7 +18,7 @@
     <ClInclude Include="src\Asserts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\TestHeader.h">
+    <ClInclude Include="src\SpectrumPhysicsTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -135,9 +135,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SystemOfLinearEquationsTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\TestHeader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Triangle2DTest.cpp">

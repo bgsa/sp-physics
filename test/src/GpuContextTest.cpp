@@ -1,6 +1,6 @@
 #ifdef OPENCL_ENABLED
 
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <GpuContext.h>
 
 #define CLASS_NAME GpuContextTest

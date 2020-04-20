@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <BinaryTreeNode.h>
 
 #define CLASS_NAME BinaryTreeNodeTest

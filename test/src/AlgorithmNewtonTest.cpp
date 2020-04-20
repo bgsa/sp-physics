@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmNewton.h>
 
 #define CLASS_NAME AlgorithmNewtonTest

@@ -3,7 +3,7 @@
 #ifndef GPU_RADIX_SORTING_TEST
 #define GPU_RADIX_SORTING_TEST
 
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include "Randomizer.h"
 #include <GpuRadixSorting.h>
 #include <AABB.h>

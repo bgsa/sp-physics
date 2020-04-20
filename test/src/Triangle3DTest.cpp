@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <Triangle3D.h>
 
 #define CLASS_NAME Triangle3DTest

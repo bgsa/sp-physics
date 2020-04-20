@@ -1,4 +1,4 @@
-#include "TestHeader.h"
+#include "SpectrumPhysicsTest.h"
 #include <AlgorithmSecant.h>
 
 #define CLASS_NAME AlgorithmSecantTest
