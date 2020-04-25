@@ -3,6 +3,7 @@
 
 #include "SweepAndPrune.h"
 #include "DOP18.h"
+#include <mutex>
 
 namespace NAMESPACE_PHYSICS
 {
