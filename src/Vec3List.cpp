@@ -5,8 +5,8 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Vec3List<T>::Vec3List()
 	{
-		points = nullptr;
-		count = 0;
+		points = NULL;
+		count = ZERO_UINT;
 	}
 
 	template <typename T>
@@ -22,9 +22,9 @@ namespace NAMESPACE_PHYSICS
 		T minProjection = std::numeric_limits<T>().max();
 		T maxProjection = -minProjection;
 
-		sp_int* result = ALLOC_ARRAY(int, 2);
+		sp_int* result = ALLOC_ARRAY(sp_int, 2);
 			
-		for (sp_uint i = 0; i < count; i++) 
+		for (sp_uint i = ZERO_UINT; i < count; i++)
 		{ 
 			// Project vector from origin to point onto direction vector 
 			T projection = points[i].dot(direction);
@@ -81,9 +81,9 @@ namespace NAMESPACE_PHYSICS
 		Vec3<T> directionY = Vec3<T>(T(0), T(1), T(0));
 		Vec3<T> directionZ = Vec3<T>(T(0), T(0), T(1));
 
-		int* result = ALLOC_ARRAY(int, 6);
+		sp_int* result = ALLOC_ARRAY(sp_int, 6);
 
-		for (int i = 0; i < count; i++)
+		for (sp_uint i = ZERO_UINT; i < count; ++i)
 		{
 			T projectionX = points[i].dot(directionX);
 			T projectionY = points[i].dot(directionY);
@@ -131,13 +131,13 @@ namespace NAMESPACE_PHYSICS
 	{ 
 		T u = T(0);
 		
-		for (sp_uint i = 0; i < count; i++) 
+		for (sp_uint i = ZERO_UINT; i < count; ++i)
 			u += points[i][axisIndex];
 		u /= count; 
 
 		T s2 = T(0); 
 		
-		for (int i = 0; i < count; i++) 
+		for (sp_uint i = ZERO_UINT; i < count; ++i)
 			s2 += (points[i][axisIndex] - u) * (points[i][axisIndex] - u);
 
 		return s2 / count; 
@@ -151,12 +151,12 @@ namespace NAMESPACE_PHYSICS
 		T e00 = T(0), e11 = T(0), e22 = T(0), e01 = T(0), e02 = T(0), e12 = T(0);
 		
 		// Compute the center of mass (centroid) of the points 
-		for (sp_uint i = 0; i < count; i++)
+		for (sp_uint i = ZERO_UINT; i < count; ++i)
 			centerOfMass += points[i];
 		centerOfMass *= oon;
 		
 		// Compute covariance elements 
-		for (sp_uint i = 0; i < count; i++) 
+		for (sp_uint i = ZERO_UINT; i < count; ++i)
 		{ 
 			// Translate points so center of mass is at origin 
 			Vec3<T> p = points[i] - centerOfMass;
@@ -185,8 +185,8 @@ namespace NAMESPACE_PHYSICS
 
 		sp_int* result = ALLOC_ARRAY(sp_int, 2);
 
-		for (sp_uint i = 0; i < count; i++)
-			for (sp_uint j = i+1; j < count; j++)
+		for (sp_uint i = ZERO_UINT; i < count; ++i)
+			for (sp_uint j = i + ONE_UINT; j < count; j++)
 			{
 				T currentDistance = points[i].squaredDistance(points[j]);
 
@@ -208,8 +208,8 @@ namespace NAMESPACE_PHYSICS
 		if (points != nullptr)
 		{
 			ALLOC_RELEASE(points);
-			points = nullptr;
-			count = 0;
+			points = NULL;
+			count = ZERO_UINT;
 		}
 	}
 

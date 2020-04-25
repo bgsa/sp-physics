@@ -13,7 +13,7 @@ namespace NAMESPACE_PHYSICS
 	{
 	public:
 		Vec3<T>* points;
-		int count;
+		sp_uint count;
 
 		///<summary>
 		///Default Constructor

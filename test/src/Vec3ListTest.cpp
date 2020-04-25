@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec3List<float> list = Vec3List<float>(points, 2);
 
-		Assert::AreEqual(2, list.count, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(TWO_UINT, list.count, L"Wrong value.", LINE_INFO());
 
 		for (int i = 0; i < 2; i++)
 			for (int j = 0; j < 3; j++)
