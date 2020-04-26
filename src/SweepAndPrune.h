@@ -8,9 +8,8 @@
 #if OPENCL_ENABLED
 	#include "GpuComposedCommand.h"
 	#include "GpuContext.h"
-	#include "Factory.h"
-	#include "IFileManager.h"
 	#include "GpuRadixSorting.h"
+	#include <FileSystem.h>
 #endif
 
 namespace NAMESPACE_PHYSICS

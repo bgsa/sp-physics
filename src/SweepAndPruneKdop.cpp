@@ -190,13 +190,15 @@ namespace NAMESPACE_PHYSICS
 		radixSorting = ALLOC_NEW(GpuRadixSorting)();
 		radixSorting->init(gpu, NULL);
 
-		IFileManager* fileManager = Factory::getFileManagerInstance();
+		SP_FILE file;
+		file.open("SweepAndPruneKdop.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.close();
 
-		std::string source = fileManager->readTextFile("SweepAndPruneKdop.cl");
+		sapKdopProgramIndex = gpu->commandManager->cacheProgram(source, sizeof(char) * fileSize, buildOptions);
 
-		sapKdopProgramIndex = gpu->commandManager->cacheProgram(source.c_str(), sizeof(char) * source.length(), buildOptions);
-
-		delete fileManager;
+		ALLOC_RELEASE(source);
 		return this;
 	}
 

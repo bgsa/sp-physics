@@ -137,11 +137,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, buildOptions.str().c_str());
 		commandIndexes->setParametersCreateIndexes(count);
 				
-		IFileManager* fileManager = Factory::getFileManagerInstance();
-		std::string sourceRadixSort = fileManager->readTextFile("RadixSorting.cl");
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(sourceRadixSort.c_str(), SIZEOF_CHAR * sourceRadixSort.length(), buildOptions.str().c_str());
+		SP_FILE file;
+		file.open("RadixSorting.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.close();
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
-		delete fileManager;
+		
 
 		sp_uint offsetPrefixScanCpu = 10;
 		sp_bool useExpoent = false;
@@ -213,11 +220,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, buildOptions.str().c_str());
 		commandIndexes->setParametersCreateIndexes(count);
 		
-		IFileManager* fileManager = Factory::getFileManagerInstance();
-		std::string sourceRadixSort = fileManager->readTextFile("RadixSorting.cl");
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(sourceRadixSort.c_str(), SIZEOF_CHAR * sourceRadixSort.length(), buildOptions.str().c_str());
+		SP_FILE file;
+		file.open("RadixSorting.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.close();
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
-		delete fileManager;
 
 		sp_uint offsetPrefixScanCpu = 10;
 		sp_bool useExpoent = false;

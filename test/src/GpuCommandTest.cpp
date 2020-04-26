@@ -3,10 +3,7 @@
 #include "SpectrumPhysicsTest.h"
 #include "GpuContext.h"
 #include "GpuCommand.h"
-
-#include <IFile.h>
-#include <IFileManager.h>
-#include <Factory.h>
+#include "FileSystem.h"
 
 #define CLASS_NAME GpuCommandTest
 
@@ -37,9 +34,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice;
 
-		IFileManager* fileManager = Factory::getFileManagerInstance();
-		std::string source = fileManager->readTextFile("sumVector.cl");
-		sp_size sumProgram = gpu->commandManager->cacheProgram(source.c_str(), SIZEOF_CHAR * source.length(), NULL);
+		SP_FILE file;
+		file.open("sumVector.cl", std::ios::in);
+		const sp_size fileLength = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileLength);
+		file.read(source, fileLength);
+		sp_size sumProgram = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileLength, NULL);
+		file.close();
+		ALLOC_RELEASE(source);
 
 		GpuCommand* command = gpu->commandManager->createCommand();
 		sp_float* result = ALLOC_NEW_ARRAY(sp_float, 1);
@@ -54,7 +56,6 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::AreEqual(1024.0f, result[0], L"Wrong value.", LINE_INFO());
 		
-		delete fileManager;
 		command->~GpuCommand();
 		ALLOC_RELEASE(result);
 		ALLOC_RELEASE(command);

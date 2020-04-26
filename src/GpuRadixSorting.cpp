@@ -2,7 +2,7 @@
 
 #include "GpuRadixSorting.h"
 
-#define BUCKET_LENGTH 10u
+#define BUCKET_LENGTH TEN_UINT
 
 namespace NAMESPACE_PHYSICS
 {
@@ -19,14 +19,20 @@ namespace NAMESPACE_PHYSICS
 		commandReverse = ALLOC_NEW(GpuReverse)();
 		commandReverse->init(gpu, buildOptions);
 
-		IFileManager* fileManager = Factory::getFileManagerInstance();
+		SP_FILE file;
+		file.open("RadixSorting.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
 
-		std::string sourceRadixSort = fileManager->readTextFile("RadixSorting.cl");
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(sourceRadixSort.c_str(), SIZEOF_CHAR * sourceRadixSort.length(), buildOptions);
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
+
+		ALLOC_RELEASE(source);
 
 		program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 
-		delete fileManager;
+		
 		return this;
 	}
 

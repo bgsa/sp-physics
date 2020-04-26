@@ -6,6 +6,7 @@
 #include "GpuIndexes.h"
 #include "GpuReverse.h"
 #include "GpuComposedCommand.h"
+#include <FileSystem.h>
 
 namespace NAMESPACE_PHYSICS
 {

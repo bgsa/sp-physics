@@ -12,13 +12,17 @@ namespace NAMESPACE_PHYSICS
 
 		this->gpu = gpu;
 
-		IFileManager* fileManager = Factory::getFileManagerInstance();
+		SP_FILE file;
+		file.open("Reverse.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 
-		std::string sourceBasic = fileManager->readTextFile("Reverse.cl");
-		sp_uint programIndex = gpu->commandManager->cacheProgram(sourceBasic.c_str(), SIZEOF_CHAR * sourceBasic.length(), buildOptions);
+		sp_uint programIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
+
+		ALLOC_RELEASE(source);
+
 		program = gpu->commandManager->cachedPrograms[programIndex];
 
-		delete fileManager;
 		return this;
 	}
 

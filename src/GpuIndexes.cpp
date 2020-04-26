@@ -12,13 +12,18 @@ namespace NAMESPACE_PHYSICS
 
 		this->gpu = gpu;
 
-		IFileManager* fileManager = Factory::getFileManagerInstance();
+		SP_FILE file;
+		file.open("Indexes.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* sourceBasic = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(sourceBasic, fileSize);
+		file.close();
 
-		std::string sourceBasic = fileManager->readTextFile("Indexes.cl");
-		createIndexesProgramIndex = gpu->commandManager->cacheProgram(sourceBasic.c_str(), SIZEOF_CHAR * sourceBasic.length(), buildOptions);
+		createIndexesProgramIndex = gpu->commandManager->cacheProgram(sourceBasic, SIZEOF_CHAR * fileSize, buildOptions);
+
+		ALLOC_RELEASE(sourceBasic);
+
 		program = gpu->commandManager->cachedPrograms[createIndexesProgramIndex];
-
-		delete fileManager;
 	}
 
 	void GpuIndexes::setParametersCreateIndexes(sp_uint length)

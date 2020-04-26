@@ -6,6 +6,7 @@
 #include "GpuDevice.h"
 #include "GpuIndexes.h"
 #include "GpuCommand.h"
+#include "FileSystem.h"
 
 namespace NAMESPACE_PHYSICS
 {

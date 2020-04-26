@@ -7,8 +7,7 @@
 #include <algorithm>
 #include "GpuDevice.h"
 #include "GpuCommand.h"
-#include "IFileManager.h"
-#include "Factory.h"
+#include "FileSystem.h"
 
 namespace NAMESPACE_PHYSICS
 {

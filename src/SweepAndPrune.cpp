@@ -88,14 +88,19 @@ namespace NAMESPACE_PHYSICS
 		radixSorting = ALLOC_NEW(GpuRadixSorting)();
 		radixSorting->init(gpu, buildOptions);
 
-		IFileManager* fileManager = Factory::getFileManagerInstance();
 
-		std::string source = fileManager->readTextFile("SweepAndPrune.cl");
+		SP_FILE file;
+		file.open("SweepAndPrune.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
 
-		sp_uint sapIndex = gpu->commandManager->cacheProgram(source.c_str(), sizeof(char) * source.length(), buildOptions);
+		sp_uint sapIndex = gpu->commandManager->cacheProgram(source, sizeof(char) * fileSize, buildOptions);
+
+		ALLOC_RELEASE(source);
+
 		sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
-
-		delete fileManager;
 		return this;
 	}
 

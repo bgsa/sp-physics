@@ -14,12 +14,14 @@ namespace NAMESPACE_PHYSICS
 		commandIndexes = ALLOC_NEW(GpuIndexes)();
 		commandIndexes->init(gpu, buildOptions);
 
-		IFileManager* fileManager = Factory::getFileManagerInstance();
+		SP_FILE file;
+		file.open("FindMinMax.cl", std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 
-		std::string sourceRadixSort = fileManager->readTextFile("FindMinMax.cl");
-		findMinMaxProgramIndex = this->gpu->commandManager->cacheProgram(sourceRadixSort.c_str(), SIZEOF_CHAR * sourceRadixSort.length(), buildOptions);
+		findMinMaxProgramIndex = this->gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
 
-		delete fileManager;
+		ALLOC_RELEASE(source);		
 		return this;
 	}
 
