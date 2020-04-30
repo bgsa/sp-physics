@@ -252,7 +252,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Vec2<T>::operator[](const sp_int index)
 	{
-		assert(index >= 0 && index < VEC2_SIZE);
+		assert(index >= ZERO_INT && index < VEC2_SIZE);
 
 		return reinterpret_cast<T*>(this)[index];
 	}
@@ -260,10 +260,44 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T Vec2<T>::operator[](const sp_int index) const
 	{
-		assert(index >= 0 && index < VEC2_SIZE);
+		assert(index >= ZERO_INT && index < VEC2_SIZE);
 
 		return reinterpret_cast<const T*>(this)[index];
 	}
+
+	template <typename T>
+	T& Vec2<T>::operator[](const sp_uint index)
+	{
+		assert(index >= ZERO_UINT && index < VEC2_SIZE);
+
+		return reinterpret_cast<T*>(this)[index];
+	}
+
+	template <typename T>
+	T Vec2<T>::operator[](const sp_uint index) const
+	{
+		assert(index >= ZERO_UINT && index < VEC2_SIZE);
+
+		return reinterpret_cast<const T*>(this)[index];
+	}
+
+#ifdef ENV_64BITS
+	template <typename T>
+	T& Vec2<T>::operator[](const sp_size index)
+	{
+		assert(index >= ZERO_SIZE && index < VEC2_SIZE);
+
+		return reinterpret_cast<T*>(this)[index];
+	}
+
+	template <typename T>
+	T Vec2<T>::operator[](const sp_size index) const
+	{
+		assert(index >= ZERO_SIZE && index < VEC2_SIZE);
+
+		return reinterpret_cast<const T*>(this)[index];
+	}
+#endif
 
 	template <typename T>
 	Vec2<T>::operator T*()

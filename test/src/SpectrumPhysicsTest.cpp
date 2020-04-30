@@ -8,11 +8,11 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MSTEST_ENABLED
 	TEST_MODULE_INITIALIZE(ModuleInitialize)
 	{
-		StackMemoryAllocator::init(ONE_MEGABYTE * 512);
+		StackMemoryAllocator::main()->init(ONE_MEGABYTE * 512);
 	}
 	TEST_MODULE_CLEANUP(ModuleCleanup)
 	{
-		StackMemoryAllocator::release();
+		StackMemoryAllocator::main()->release();
 	}
 #endif // MSTEST_ENABLED
 

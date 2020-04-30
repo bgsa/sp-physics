@@ -10,7 +10,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		template<typename T>
 		static void isCloseEnough(T value, T compare, T epsilon, const wchar_t* message, const __LineInfo* lineInfo = nullptr)
 		{
-			sp_bool result = SpPhyiscs::isCloseEnough(value, compare, epsilon);
+			sp_bool result = NAMESPACE_FOUNDATION::isCloseEnough(value, compare, epsilon);
 
 			Assert::IsTrue(result, message, lineInfo);
 		}

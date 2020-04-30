@@ -63,26 +63,26 @@ namespace NAMESPACE_PHYSICS
 		return findCellIndexByCellId(cell);
 	}
 
-	Vec3List<float>* HashGrid::findRangeCell(const AABB& aabb)
+	Vec3List<sp_float>* HashGrid::findRangeCell(const AABB& aabb)
 	{	
-		Vec3List<float>* list = ALLOC(Vec3List<float>);
+		Vec3List<sp_float>* list = ALLOC(Vec3List<sp_float>);
 		Vec3f minCell = findCell(aabb.minPoint);
 		Vec3f maxCell = findCell(aabb.maxPoint);
 
 		Vec3f deltaPoints = (maxCell - minCell) + 1.0f;
 			
-		list->count = int(std::abs(
+		list->count = sp_int(std::abs(
 				(deltaPoints.x == 0.0f ? 1.0f : deltaPoints.x)
 			* (deltaPoints.y == 0.0f ? 1.0f : deltaPoints.y)
 			* (deltaPoints.z == 0.0f ? 1.0f : deltaPoints.z)));
 
 		list->points = ALLOC_ARRAY(Vec3f, list->count);
 
-		size_t index = 0;
+		sp_size index = 0;
 		
-		for (float x = minCell.x; x <= maxCell.x; x++)
-			for (float y = minCell.y; y <= maxCell.y; y++)
-				for (float z = minCell.z; z <= maxCell.z; z++)
+		for (sp_float x = minCell.x; x <= maxCell.x; x++)
+			for (sp_float y = minCell.y; y <= maxCell.y; y++)
+				for (sp_float z = minCell.z; z <= maxCell.z; z++)
 				{
 					list->points[index] = Vec3f(x, y, z);
 					index++;
@@ -91,13 +91,13 @@ namespace NAMESPACE_PHYSICS
 		return list;
 	}
 
-	std::vector<int> HashGrid::findRangeCellIndex(const AABB& aabb)
+	std::vector<sp_int> HashGrid::findRangeCellIndex(const AABB& aabb)
 	{
-		Vec3List<float>* cells = findRangeCell(aabb);
+		Vec3List<sp_float>* cells = findRangeCell(aabb);
 
-		std::vector<int> hashes = std::vector<int>(cells->count);
+		std::vector<sp_int> hashes = std::vector<sp_int>(cells->count);
 
-		for (int i = 0; i < cells->count; i++)
+		for (sp_uint i = 0; i < cells->count; i++)
 			hashes[i] = findCellIndexByCellId(cells->points[i]);
 
 		ALLOC_RELEASE(cells);
@@ -105,7 +105,7 @@ namespace NAMESPACE_PHYSICS
 		return hashes;
 	}
 
-	bool findValue(const std::unordered_multimap<AABB, AABB, AABB, AABB>& map, const AABB& key, const AABB& value)
+	sp_bool findValue(const std::unordered_multimap<AABB, AABB, AABB, AABB>& map, const AABB& key, const AABB& value)
 	{
 		std::pair<AABB, AABB> pair = std::make_pair(key, value);
 		auto its = map.equal_range(key);
@@ -117,7 +117,7 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	bool findValue2(const std::unordered_multimap<AABB, AABB, AABB, AABB>& map, const AABB& key, const AABB& value)
+	sp_bool findValue2(const std::unordered_multimap<AABB, AABB, AABB, AABB>& map, const AABB& key, const AABB& value)
 	{
 		std::pair<AABB, AABB> pair = std::make_pair(key, value);
 		auto its = map.equal_range(key);

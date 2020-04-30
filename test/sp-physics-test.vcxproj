@@ -172,7 +172,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OPENCL_ENABLED;MSTEST_ENABLED;ENV_64BITS;MAJOR_COLUMN_ORDER;WINDOWS;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>OPENCL_ENABLED;MSTEST_ENABLED;MAJOR_COLUMN_ORDER;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -201,7 +201,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MSTEST_ENABLED;ENV_32BITS;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;WINDOWS;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -228,7 +228,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MSTEST_ENABLED;ENV_32BITS;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -257,7 +257,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MSTEST_ENABLED;ENV_64BITS;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>

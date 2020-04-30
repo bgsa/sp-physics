@@ -154,7 +154,7 @@ namespace NAMESPACE_PHYSICS
 				minElement = tempExp;
 		}
 		minElement = std::abs(minElement);
-		const sp_int maxDigitExpoent = (sp_int) digitCount(std::max(minElement, maxElement));
+		const sp_uint maxDigitExpoent = digitCount(std::max(minElement, maxElement));
 
 		sp_float* output = ALLOC_ARRAY(sp_float, n);
 		sp_uint* digitsCache = ALLOC_ARRAY(sp_uint, n);
