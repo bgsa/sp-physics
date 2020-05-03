@@ -283,7 +283,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE T operator[](sp_uint index) const;
 
-#if defined(WINDOWS) && defined(ENV_64BITS)
+#ifdef ENV_64BITS
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
@@ -312,8 +312,12 @@ namespace NAMESPACE_PHYSICS
 	};
 
 	typedef Vec3<sp_int> Vec3i;
+	typedef Vec3<sp_uint> Vec3ui;
 	typedef Vec3<sp_float> Vec3f;
 	typedef Vec3<sp_double> Vec3d;
+#ifdef ENV_64BITS
+	typedef Vec3<sp_size> Vec3sz;
+#endif
 
 }
 

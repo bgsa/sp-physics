@@ -186,6 +186,17 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		API_INTERFACE T operator[](const sp_uint index) const;
 
+#ifdef ENV_64BTIS
+		/// <summary>
+		/// Get a index from the vector
+		/// <summary>
+		API_INTERFACE T& operator[](const sp_size index);
+		/// <summary>
+		/// Get a index from the vector
+		/// <summary>
+		API_INTERFACE T operator[](const sp_size index) const;
+#endif
+
 		/// <summary>
 		/// Auto convertion to void *
 		/// </summary>
@@ -202,9 +213,13 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE std::istream& deserialize(std::istream& inputStream);
 	};
 	
-	typedef Vec2<int> Vec2i;
-	typedef Vec2<float> Vec2f;
-	typedef Vec2<double> Vec2d;
+	typedef Vec2<sp_int> Vec2i;
+	typedef Vec2<sp_uint> Vec2ui;
+	typedef Vec2<sp_float> Vec2f;
+	typedef Vec2<sp_double> Vec2d;
+#ifdef ENV_64BTIS
+	typedef Vec2<sp_size> Vec2sz;
+#endif
 
 }
 

@@ -220,6 +220,18 @@ namespace NAMESPACE_PHYSICS
 			-y
 			);
 	}
+	template <>
+	Vec2<sp_uint> Vec2<sp_uint>::operator-() const
+	{
+		return Vec2<sp_uint>(x,y);
+	}
+#ifdef ENV_64BTIS
+	template <>
+	Vec2<sp_size> Vec2<sp_size>::operator-() const
+	{
+		return Vec2<sp_size>(x, y);
+	}
+#endif
 
 	template <typename T>
 	bool Vec2<T>::operator==(const Vec2<T>& vector) const
@@ -332,6 +344,11 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template class Vec2<sp_int>;
+	template class Vec2<sp_uint>;
 	template class Vec2<sp_float>;
 	template class Vec2<sp_double>;
+#ifdef ENV_64BTIS
+	template class Vec2<sp_size>;
+#endif
+
 }

@@ -46,6 +46,11 @@ namespace NAMESPACE_PHYSICS
 			(T)std::abs(z)
 		);
 	}
+	template <>
+	Vec3<sp_uint> Vec3<sp_uint>::abs() const
+	{
+		return Vec3<sp_uint>(x, y, z);
+	}
 
 	template <typename T>
 	T Vec3<T>::squaredLength() const
@@ -207,6 +212,11 @@ namespace NAMESPACE_PHYSICS
 		);
 
 		return result;
+	}
+	template <>
+	Vec3<sp_uint> Vec3<sp_uint>::cross(const Vec3<sp_uint>& vector) const
+	{
+		return Vec3ui(ZERO_UINT);
 	}
 
 	template <typename T>
@@ -405,6 +415,11 @@ namespace NAMESPACE_PHYSICS
 			-z
 			);
 	}
+	template <>
+	Vec3<sp_uint> Vec3<sp_uint>::operator-() const
+	{
+		return Vec3<sp_uint>(x, y, z);
+	}
 
 	template <typename T>
 	bool Vec3<T>::operator==(const Vec3<T>& vector) const
@@ -468,7 +483,7 @@ namespace NAMESPACE_PHYSICS
 		return reinterpret_cast<const T*>(this)[index];
 	}
 
-#if defined(WINDOWS) && defined(ENV_64BITS)
+#ifdef ENV_64BITS
 	template <typename T>
 	T& Vec3<T>::operator[](sp_size index)
 	{
@@ -534,6 +549,10 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template class Vec3<sp_int>;
+	template class Vec3<sp_uint>;
 	template class Vec3<sp_float>;
 	template class Vec3<sp_double>;
+#ifdef ENV_64BTIS
+	template class Vec3<sp_size>;
+#endif
 }
