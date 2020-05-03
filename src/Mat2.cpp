@@ -243,7 +243,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Mat2<T>::operator[](sp_int index)
 	{
-		assert(index >= 0 && index < MAT2_SIZE);
+		sp_assert(index >= 0 && index < MAT2_SIZE);
 
 		return values[index];
 	}
@@ -251,7 +251,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T Mat2<T>::operator[](sp_int index) const
 	{
-		assert(index >= 0 && index < MAT2_SIZE);
+		sp_assert(index >= 0 && index < MAT2_SIZE);
 
 		return values[index];
 	}

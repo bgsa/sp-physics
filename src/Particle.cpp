@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 
 	void Particle::update(long long elapsedTime) 
 	{
-		assert(elapsedTime > 0);
+		sp_assert(elapsedTime > 0);
 
 		Vec3f newAcceleration = force * inverseMass;
 

@@ -130,7 +130,7 @@ namespace NAMESPACE_PHYSICS
 
 	SweepAndPruneResultCpu SweepAndPruneKdop::findCollisions(DOP18* kdops, size_t count)
 	{
-		assert(kdops != NULL);
+		sp_assert(kdops != NULL);
 		sapMutex.lock();
 		kdopsGlobal = kdops;
 

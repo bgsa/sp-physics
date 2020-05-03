@@ -4,7 +4,7 @@ namespace NAMESPACE_PHYSICS
 {
 	ParticleSystem::ParticleSystem(size_t particlesCount)
 	{
-		assert(particlesCount > 0);
+		sp_assert(particlesCount > 0);
 
 		this->particles = ALLOC_NEW_ARRAY(Particle, particlesCount);
 		this->particlesCount = particlesCount;
@@ -14,7 +14,7 @@ namespace NAMESPACE_PHYSICS
 
 	ParticleSystem::ParticleSystem(Particle* particles, size_t particlesCount)
 	{
-		assert(particlesCount > 0);
+		sp_assert(particlesCount > 0);
 
 		this->particles = particles;
 		this->particlesCount = particlesCount;

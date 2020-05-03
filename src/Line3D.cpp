@@ -6,7 +6,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line3D::Line3D(const Vec3f& point1, const Vec3f& point2)
 	{
-		assert(point1 != point2);
+		sp_assert(point1 != point2);
 
 		this->point1 = point1;
 		this->point2 = point2;
@@ -14,7 +14,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line3D::Line3D(Vec3f* points)
 	{
-		assert(points[0] != points[1]);
+		sp_assert(points[0] != points[1]);
 
 		this->point1 = points[0];
 		this->point2 = points[1];
@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line3D::Line3D(float* point1, float* point2)
 	{
-		assert(point1 != point2);
+		sp_assert(point1 != point2);
 
 		this->point1 = Vec3f(point1[0], point1[1], point1[2]);
 		this->point2 = Vec3f(point2[0], point2[1], point2[2]);
@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Vec3f lineDirection = point2 - point1;
 
-		bool isOnTheLine = lineDirection.cross(point) == 0.0f;
+		bool isOnTheLine = lineDirection.cross(point) == ZERO_FLOAT;
 
 		return isOnTheLine;
 	}
@@ -56,7 +56,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Vec3f lineDirection = point2 - point1;
 
-		bool isOnTheLine = lineDirection.cross(point) == 0.0f;
+		bool isOnTheLine = lineDirection.cross(point) == ZERO_FLOAT;
 
 		if (!isOnTheLine)
 			return false;
@@ -64,10 +64,10 @@ namespace NAMESPACE_PHYSICS
 		float ab = lineDirection.dot(lineDirection);
 		float ac = lineDirection.dot(point - point1);
 		
-		if (ac < 0.0f || ac > ab)
+		if (ac < ZERO_FLOAT || ac > ab)
 			return false;
 
-		return (0.0f <= ac && ac <= ab);
+		return (ZERO_FLOAT <= ac && ac <= ab);
 	}
 
 	Vec3f* Line3D::findIntersection(const Line3D& line2) const
@@ -78,19 +78,19 @@ namespace NAMESPACE_PHYSICS
 
 		Vec3f dAcrossB = da.cross(db);
 
-		float value = dc.dot(dAcrossB);
+		sp_float value = dc.dot(dAcrossB);
 
-		if (value != 0.0f)
+		if (value != ZERO_FLOAT)
 			return nullptr;
 
-		float numerador = dc.cross(db).dot(dAcrossB);
-		float denominador = dAcrossB.squaredLength();
+		sp_float numerador = dc.cross(db).dot(dAcrossB);
+		sp_float denominador = dAcrossB.squaredLength();
 
-		float s = numerador / denominador;
-		int valueSign = sign(s);
+		sp_float s = numerador / denominador;
+		sp_float valueSign = (sp_float) sign(s);
 		s = fabsf(s);
 
-		if (s >= 0.0f && s <= 1.0f)
+		if (s >= ZERO_FLOAT && s <= ONE_FLOAT)
 			return ALLOC_NEW(Vec3f)(da * s * valueSign + point1);
 
 		return nullptr;
@@ -101,10 +101,10 @@ namespace NAMESPACE_PHYSICS
 		Vec3f lineDirection = point2 - point1;
 		
 		// Project target onto lineDirection, computing parameterized position closestPoint(t) = point1 + t*(point2 � point1) 
-		float t = (target - point1).dot(lineDirection) / lineDirection.dot(lineDirection);
+		sp_float t = (target - point1).dot(lineDirection) / lineDirection.dot(lineDirection);
 
 		// If outside segment, clamp t (and therefore d) to the closest endpoint 
-		t = clamp(t, 0.0f, 1.0f); // clamp t from 0.0 to 1.0
+		t = clamp(t, ZERO_FLOAT, ONE_FLOAT); // clamp t from 0.0 to 1.0
 		
 		//closestPoint(t) = point1 + t * (point2 � point1)
 		Vec3f closestPoint = point1 + lineDirection * t;
@@ -126,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 		float b = m.dot(d);
 		
 		// Early exit if ray origin outside sphere and ray pointing away from sphere 
-		if (b > 0.0f) 
+		if (b > ZERO_FLOAT)
 			return false; 
 		
 		float disc = b*b - c;
@@ -149,7 +149,7 @@ namespace NAMESPACE_PHYSICS
 		float t = (d - plane.normalVector.dot(point1)) / plane.normalVector.dot(lineDirection);
 		
 		// If t in [0..1] compute and return intersection point 
-		if (t >= 0.0f && t <= 1.0f) 
+		if (t >= ZERO_FLOAT && t <= ZERO_FLOAT)
 		{
 			Vec3f intersectionPoint = point1 + lineDirection * t;
 			return ALLOC_NEW(Vec3f)(intersectionPoint);
@@ -196,12 +196,12 @@ namespace NAMESPACE_PHYSICS
 		float t1 = -b - sqrtDisctiminant;   // -b - sqrt(b^2 - c)
 
 		// If t is negative, ray started inside sphere so clamp t to zero 	
-		if (t1 < 0.0f)
-			t1 = 0.0f;
+		if (t1 < ZERO_FLOAT)
+			t1 = ZERO_FLOAT;
 
 		Vec3f intersectionPoint1 = point1 + lineDirection * t1;
 		
-		if (isCloseEnough(discriminant, 0.0f)) 
+		if (isCloseEnough(discriminant, ZERO_FLOAT))
 			return DetailedCollisionStatus<float>(CollisionStatus::INLINE, intersectionPoint1);
 
 		// discriminant > T(0)  =>  the quadratic equation has 2 real root, then the ray intersect in 2 points
@@ -232,7 +232,7 @@ namespace NAMESPACE_PHYSICS
 
 	DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const AABB& aabb) const
 	{
-		float tmin = 0.0f;
+		float tmin = ZERO_FLOAT;
 		float tmax = std::numeric_limits<float>().max();
 		Vec3f lineDirection = direction();
 
@@ -331,7 +331,7 @@ namespace NAMESPACE_PHYSICS
 		
 		float e = ac.dot(ab); // Handle cases where point projects outside the line segment
 		
-		if (e <= 0.0f) 
+		if (e <= ZERO_FLOAT)
 			return ac.dot(ac); 
 		
 		float f = ab.dot(ab);

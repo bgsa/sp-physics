@@ -249,7 +249,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Quat<T>::operator[](int index)
 	{
-		assert(index >= 0 && index < QUAT_SIZE);
+		sp_assert(index >= 0 && index < QUAT_SIZE);
 
 		return values[index];
 	}
@@ -257,7 +257,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T Quat<T>::operator[](int index) const
 	{
-		assert(index >= 0 && index < QUAT_SIZE);
+		sp_assert(index >= 0 && index < QUAT_SIZE);
 
 		return values[index];
 	}

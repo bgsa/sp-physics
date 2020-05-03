@@ -224,7 +224,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Vec3<T> Vec3<T>::normalize() const
 	{
-		//assert(length() != T(0));   // avoid division by zero
+		//sp_assert(length() != T(0));   // avoid division by zero
 		T len = length();
 
 		if (len == T(0))
@@ -441,14 +441,14 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Vec3<T>::operator[](sp_int index)
 	{
-		assert(index >= 0 && index < VEC3_SIZE);
+		sp_assert(index >= 0 && index < VEC3_SIZE);
 
 		return reinterpret_cast<T*>(this)[index];
 	}
 	template <typename T>
 	T Vec3<T>::operator[](sp_int index) const
 	{
-		assert(index >= 0 && index < VEC3_SIZE);
+		sp_assert(index >= 0 && index < VEC3_SIZE);
 
 		return reinterpret_cast<const T*>(this)[index];
 	}
@@ -456,14 +456,14 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Vec3<T>::operator[](sp_uint index)
 	{
-		assert(index >= 0 && index < VEC3_SIZE);
+		sp_assert(index >= 0 && index < VEC3_SIZE);
 
 		return reinterpret_cast<T*>(this)[index];
 	}
 	template <typename T>
 	T Vec3<T>::operator[](sp_uint index) const
 	{
-		assert(index >= 0 && index < VEC3_SIZE);
+		sp_assert(index >= 0 && index < VEC3_SIZE);
 
 		return reinterpret_cast<const T*>(this)[index];
 	}
@@ -472,14 +472,14 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Vec3<T>::operator[](sp_size index)
 	{
-		assert(index >= 0 && index < VEC3_SIZE);
+		sp_assert(index >= 0 && index < VEC3_SIZE);
 
 		return reinterpret_cast<T*>(this)[index];
 	}
 	template <typename T>
 	T Vec3<T>::operator[](sp_size index) const
 	{
-		assert(index >= 0 && index < VEC3_SIZE);
+		sp_assert(index >= 0 && index < VEC3_SIZE);
 
 		return reinterpret_cast<const T*>(this)[index];
 	}

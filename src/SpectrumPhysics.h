@@ -3,7 +3,6 @@
 
 #include <SpectrumFoundation.h>
 #include <Object.h>
-#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <sstream>

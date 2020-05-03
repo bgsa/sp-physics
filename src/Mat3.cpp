@@ -432,14 +432,14 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Mat3<T>::operator[](sp_int index)
 	{
-		assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
 	template <typename T>
 	T Mat3<T>::operator[](sp_int index) const
 	{
-		assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
@@ -447,14 +447,14 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Mat3<T>::operator[](sp_uint index)
 	{
-		assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
 	template <typename T>
 	T Mat3<T>::operator[](sp_uint index) const
 	{
-		assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
@@ -463,14 +463,14 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Mat3<T>::operator[](sp_size index)
 	{
-		assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
 	template <typename T>
 	T Mat3<T>::operator[](sp_size index) const
 	{
-		assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}

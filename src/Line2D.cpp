@@ -9,7 +9,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Line2D<T>::Line2D(const Vec2<T>& point1, const Vec2<T>& point2)
 	{
-		assert(point1 != point2);
+		sp_assert(point1 != point2);
 
 		this->point1 = point1;
 		this->point2 = point2;
@@ -18,7 +18,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Line2D<T>::Line2D(T* point1, T* point2)
 	{
-		assert(point1 != point2);
+		sp_assert(point1 != point2);
 
 		this->point1 = Vec2<T>(point1[0], point1[1]);
 		this->point2 = Vec2<T>(point2[0], point2[1]);

@@ -99,7 +99,7 @@ namespace NAMESPACE_PHYSICS
 			{			
 				result[row] = upperMatrix[row * colSize + colSize - 1];
 
-				for (int column = colSize - 1; column > size_t(row) + 1; column--)
+				for (int column = colSize - 1; column > row + 1; column--)
 				{
 					result[row] -= upperMatrix[row * colSize + column - 1] * result[column - 1];
 				}
