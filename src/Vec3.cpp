@@ -507,15 +507,9 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template <typename T>
-	Vec3<T>::operator void*()
+	Vec3<T>::operator T*() const
 	{
-		return reinterpret_cast<void*>(this);
-	}
-
-	template <typename T>
-	Vec3<T>::operator T*()
-	{
-		return reinterpret_cast<T*>(this);
+		return (T*) this;
 	}
 
 	template <typename T>

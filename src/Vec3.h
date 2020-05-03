@@ -298,16 +298,12 @@ namespace NAMESPACE_PHYSICS
 		/// Auto convertion to void *
 		/// </summary> 
 		API_INTERFACE operator void*() const;
-		/// <summary>
-		/// Auto convertion to void *
-		/// </summary> 
-		API_INTERFACE operator void*();
 
 		/// <summary>
 		/// Auto convertion to T *
 		/// It is the same of convertion to float* or int* or double*, whatever T is.
 		/// </summary>
-		API_INTERFACE operator T*();
+		API_INTERFACE operator T*() const;
 
 	};
 

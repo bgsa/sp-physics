@@ -200,7 +200,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Auto convertion to void *
 		/// </summary>
-		API_INTERFACE operator T*();
+		API_INTERFACE operator T*() const;
 
 		/// <summary>
 		/// Serialize current object

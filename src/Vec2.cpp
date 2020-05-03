@@ -312,9 +312,9 @@ namespace NAMESPACE_PHYSICS
 #endif
 
 	template <typename T>
-	Vec2<T>::operator T*()
+	Vec2<T>::operator T*() const
 	{
-		return reinterpret_cast<T*>(this);
+		return (T*) this;
 	}
 
 	template <typename T>

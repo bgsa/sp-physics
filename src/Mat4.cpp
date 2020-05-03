@@ -729,7 +729,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Mat4<T>::operator T*() const
 	{
-		return (T*) values;
+		return(T*)values;
 	}
 
 	template <typename T>

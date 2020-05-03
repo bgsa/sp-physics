@@ -263,9 +263,9 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template <typename T>
-	Mat2<T>::operator T*()
+	Mat2<T>::operator T*() const
 	{
-		return values;
+		return (T*) values;
 	}
 
 	template <typename T>

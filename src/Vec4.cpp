@@ -400,7 +400,7 @@ namespace NAMESPACE_PHYSICS
 		return reinterpret_cast<const T*>(this)[index];
 	}
 
-#if defined(WINDOWS) && defined(ENV_64BITS)
+#ifdef ENV_64BITS
 	template <typename T>
 	T& Vec4<T>::operator[](const sp_size index)
 	{
@@ -421,19 +421,19 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Vec4<T>::operator void*() const
 	{
-		return (void*)(this);
+		return (void*) this;
 	}
 
 	template <typename T>
 	Vec4<T>::operator void*()
 	{
-		return (void*)(this);
+		return (void*) this;
 	}
 
 	template <typename T>
-	Vec4<T>::operator T*()
+	Vec4<T>::operator T*() const
 	{
-		return reinterpret_cast<T*>(this);
+		return (T*) this;
 	}
 
 	template class Vec4<sp_int>;
