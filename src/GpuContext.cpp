@@ -49,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 			return platforms;
 		
 		cl_uint platformCount;
-		HANDLE_OPENCL_ERROR(clGetPlatformIDs(NULL, NULL, &platformCount));
+		HANDLE_OPENCL_ERROR(clGetPlatformIDs(ZERO_UINT, NULL, &platformCount));
 
 		cl_platform_id* platformsAsArray = new cl_platform_id[platformCount];
 		platforms.resize(platformCount);

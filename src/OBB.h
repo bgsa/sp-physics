@@ -59,4 +59,4 @@ namespace NAMESPACE_PHYSICS
 	};
 }
 
-#endif OBB_HEADER
+#endif // OBB_HEADER

@@ -15,7 +15,7 @@ cd $BUILD_DIR
 
 cmake .. -G "Unix Makefiles"               \
 	-DOPERATING_SYSTEM:STRING=LINUX        \
-	-DARCH_BITS:STRING=64                  \
+	-DARCH_BITS:STRING=32                  \
 	-DBUILD_SHARED_LIBS:BOOL=$SHARED_LIB   \
 	-DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE  \
 	-DCMAKE_ENABLE_EXPORTS:BOOL=ON         \

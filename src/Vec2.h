@@ -212,7 +212,8 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE std::istream& deserialize(std::istream& inputStream);
 	};
-	
+
+
 	typedef Vec2<sp_int> Vec2i;
 	typedef Vec2<sp_uint> Vec2ui;
 	typedef Vec2<sp_float> Vec2f;

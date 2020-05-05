@@ -198,7 +198,6 @@ namespace NAMESPACE_PHYSICS
 	typedef Mat2<sp_int>	 Mat2i;
 	typedef Mat2<sp_float>  Mat2f;
 	typedef Mat2<sp_double> Mat2d;
-
 }
 
 #endif // !MAT2_HEADER

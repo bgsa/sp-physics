@@ -16,7 +16,7 @@ namespace NAMESPACE_PHYSICS
 		cl_context deviceContext;
 		cl_command_queue commandQueue;
 
-		GpuCommandManager(cl_context deviceContext, cl_device_id deviceId, cl_command_queue_properties queueProperties = NULL);
+		GpuCommandManager(cl_context deviceContext, cl_device_id deviceId, cl_command_queue_properties queueProperties = ZERO_SIZE);
 
 	public:
 		std::vector<cl_program> cachedPrograms;
