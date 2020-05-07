@@ -213,7 +213,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Sum this vector to another one
 		/// </summary>
-		API_INTERFACE Vec3<T> operator+=(const Vec3<T>& vector);
+		API_INTERFACE void operator+=(const Vec3<T>& vector);
 
 		/// <summary>
 		/// Sum a scalar to this vector

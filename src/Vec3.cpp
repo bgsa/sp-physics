@@ -357,13 +357,11 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template <typename T>
-	Vec3<T> Vec3<T>::operator+=(const Vec3<T>& vector)
+	void Vec3<T>::operator+=(const Vec3<T>& vector)
 	{
 		x += vector.x;
 		y += vector.y;
 		z += vector.z;
-
-		return *this;
 	}
 
 	template <typename T>
