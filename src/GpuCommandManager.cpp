@@ -14,8 +14,12 @@ namespace NAMESPACE_PHYSICS
 	#ifdef DEBUG
 			queueProperties |= CL_QUEUE_PROFILING_ENABLE;
 	#endif
+	#if defined(CL_VERSION_1_0) || defined(CL_VERSION_1_1) || defined(CL_VERSION_1_2)
+			commandQueue = clCreateCommandQueue(deviceContext, deviceId, queueProperties, &errorCode);
 
-		commandQueue = clCreateCommandQueue(deviceContext, deviceId, queueProperties, &errorCode);
+	#else
+			commandQueue = clCreateCommandQueueWithProperties(deviceContext, deviceId, queueProperties, &errorCode);
+	#endif
 
 		HANDLE_OPENCL_ERROR(errorCode);
 	}
