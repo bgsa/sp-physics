@@ -38,7 +38,6 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	class Mat4;
 
-	template <typename T>
 	class Quat;
 
 	template <class T>

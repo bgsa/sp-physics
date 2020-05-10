@@ -2,303 +2,219 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Quat<T>::Quat()
+	Quat::Quat()
 	{
-		static T emptyQuaternion[QUAT_SIZE] = { T(0), T(0), T(0), T(0) };
+		static sp_float emptyQuaternion[QUAT_LENGTH] = { 
+			ZERO_FLOAT, 
+			ZERO_FLOAT, 
+			ZERO_FLOAT, 
+			ZERO_FLOAT 
+		};
 
-		memcpy(&values, emptyQuaternion, sizeof(values));
+		std::memcpy(this, emptyQuaternion, QUAT_SIZE);
 	}
 
-	template <typename T>
-	Quat<T>::Quat(T* values)
+	Quat::Quat(sp_float* values)
 	{
-		memcpy(&this->values, values, sizeof(this->values));
+		std::memcpy(this, values, QUAT_SIZE);
 	}
 
-	template <typename T>
-	Quat<T>::Quat(T value1, T value2, T value3, T value4)
+	Quat::Quat(sp_float w, sp_float x, sp_float y, sp_float z)
 	{
-		values[0] = value1;
-		values[1] = value2;
-		values[2] = value3;
-		values[3] = value4;
+		this->w = w;
+		this->x = x;
+		this->y = y;
+		this->z = z;
 	}
 
-	template <typename T>
-	Quat<T>::Quat(const Vec3<T>& vector)
+	Quat::Quat(const Vec3f& vector)
 	{
-		values[0] = vector[0];
-		values[1] = vector[1];
-		values[2] = vector[2];
-		values[3] = T(0);
+		w = ZERO_FLOAT;
+		x = vector.x;
+		y = vector.y;
+		z = vector.z;
 	}
 
-	template <typename T>
-	T* Quat<T>::getValues()
+	sp_float* Quat::values()
 	{
-		return values;
+		return (sp_float*)this;
 	}
 
-	template <typename T>
-	T Quat<T>::x() const
+	Quat Quat::add(const Quat& quatB) const
 	{
-		return values[0];
-	}
-
-	template <typename T>
-	T Quat<T>::y() const
-	{
-		return values[1];
-	}
-
-	template <typename T>
-	T Quat<T>::z() const
-	{
-		return values[2];
-	}
-
-	template <typename T>
-	T Quat<T>::w() const
-	{
-		return values[3];
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::add(const Quat<T>& quatB) const
-	{
-		Quat<T> result;
-
-		result[0] = values[0] + quatB[0];
-		result[1] = values[1] + quatB[1];
-		result[2] = values[2] + quatB[2];
-		result[3] = values[3] + quatB[3];
-
-		return result;
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::subtract(const Quat<T>& quatB) const
-	{
-		Quat<T> result;
-
-		result[0] = values[0] - quatB[0];
-		result[1] = values[1] - quatB[1];
-		result[2] = values[2] - quatB[2];
-		result[3] = values[3] - quatB[3];
-
-		return result;
-	}
-
-	template <typename T>
-	void Quat<T>::scale(T value)
-	{
-		values[0] *= value;
-		values[1] *= value;
-		values[2] *= value;
-		values[3] *= value;
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::createScale(T value) const
-	{
-		Quat<T> result;
-
-		result[0] = values[0] * value;
-		result[1] = values[1] * value;
-		result[2] = values[2] * value;
-		result[3] = values[3] * value;
-
-		return result;
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::multiply(const Quat<T>& quat) const
-	{
-		Quat<T> result;
-
-		result[0] = values[0] * quat[3] + values[1] * quat[2] - values[2] * quat[1] + values[3] * quat[0];
-		result[1] = -values[0] * quat[2] + values[1] * quat[3] + values[2] * quat[0] + values[3] * quat[1];
-		result[2] = values[0] * quat[1] - values[1] * quat[0] + values[2] * quat[3] + values[3] * quat[2];
-		result[3] = -values[0] * quat[0] - values[1] * quat[1] - values[2] * quat[2] + values[3] * quat[3];
-
-		return result;
-	}
-
-	template <typename T>
-	T Quat<T>::length() const
-	{
-		double value = sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2] + values[3] * values[3]);
-
-		return T(value);
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::normalize() const
-	{
-		Quat<T> quat;
-
-		T magnitude = length();
-
-		quat[0] = values[0] / magnitude;
-		quat[1] = values[1] / magnitude;
-		quat[2] = values[2] / magnitude;
-		quat[3] = values[3] / magnitude;
-
-		return quat;
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::conjugate() const
-	{
-		Quat<T> quat;
-
-		quat[0] = -values[0];
-		quat[1] = -values[1];
-		quat[2] = -values[2];
-		quat[3] = values[3];
-
-		return quat;
-	}
-
-	template <typename T>
-	T Quat<T>::dot(Quat<T> quatB) const
-	{
-		T result = T(sqrt(values[3] * quatB[3] + values[0] * quatB[0] + values[1] * quatB[1] + values[2] * quatB[2]));
-
-		return result;
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::inverse() const
-	{
-		Quat<T> result(
-			values[0],
-			values[1],
-			values[2],
-			values[3]
+		return Quat(
+			w + quatB.w,
+			x + quatB.x,
+			y + quatB.y,
+			z + quatB.z
 		);
+	}
 
-		T magnitude = length();
+	Quat Quat::subtract(const Quat& quatB) const
+	{
+		return Quat(
+			w - quatB.w,
+			x - quatB.x,
+			y - quatB.y,
+			z - quatB.z
+		);
+	}
 
-		if (magnitude == T(0))
+	void Quat::scale(sp_float value)
+	{
+		w *= value;
+		x *= value;
+		y *= value;
+		z *= value;
+	}
+
+	Quat Quat::createScale(sp_float value) const
+	{
+		return Quat(
+			w * value,
+			x * value,
+			y * value,
+			z * value
+		);
+	}
+
+	Quat Quat::multiply(const Quat& quat) const
+	{
+		return Quat(
+			-x * quat.x - y * quat.y - z * quat.z + w * quat.w,
+			x * quat.w + y * quat.z - z * quat.y + w * quat.x,
+			-x * quat.z + y * quat.w + z * quat.x + w * quat.y,
+			x * quat.y - y * quat.x + z * quat.w + w * quat.z
+		);
+	}
+
+	sp_float Quat::length() const
+	{
+		return sqrtf(x * x + y * y + z * z + w * w);
+	}
+
+	Quat Quat::normalize() const
+	{
+		sp_float magnitude = ONE_FLOAT / length();
+
+		return Quat(
+			w * magnitude,
+			x * magnitude,
+			y * magnitude,
+			z * magnitude
+		);
+	}
+
+	Quat Quat::conjugate() const
+	{
+		return Quat(w, -x, -y, -z);
+	}
+
+	sp_float Quat::dot(Quat quatB) const
+	{
+		// ERROR !!!!
+		sp_float result = sqrtf(w * quatB.w + x * quatB.x + y * quatB.y + z * quatB.z);
+
+		return result;
+	}
+
+	Quat Quat::inverse() const
+	{
+		Quat result(w, x, y, z);
+
+		sp_float magnitude = length();
+
+		if (magnitude == ZERO_FLOAT)
 			return result;
 
-		result.scale(1 / (magnitude * magnitude));
+		result.scale(ONE_FLOAT / (magnitude * magnitude));
 
 		return result;
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::createRotate(double angleInRadians, Vec3<T> position)
+	Quat Quat::createRotate(sp_float angle, const Vec3f& position)
 	{
-		double halfAngle = angleInRadians / 2;
-		double sinHalfAngle = sin(halfAngle);
-		double cosineHalfAngle = cos(halfAngle);
+		sp_float halfAngle = (angle / TWO_FLOAT);
+		sp_float sinHalfAngle = sinf(halfAngle);
+		sp_float cosineHalfAngle = cosf(halfAngle);
 
-		Vec3<T> positionNomralized = position.normalize();
+		Vec3f positionNomralized = position.normalize();
 
-		Quat<T> result(
-			T(sinHalfAngle * positionNomralized[0]),
-			T(sinHalfAngle * positionNomralized[1]),
-			T(sinHalfAngle * positionNomralized[2]),
-			T(cosineHalfAngle)
+		return Quat(
+			cosineHalfAngle,
+			sinHalfAngle * positionNomralized.x,
+			sinHalfAngle * positionNomralized.y,
+			sinHalfAngle * positionNomralized.z
 		);
-
-		return result;
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::rotate(const Quat<T>& r) const
+	Quat Quat::rotate(const Quat& r) const
 	{
 		return r * (*this * r.conjugate());
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::rotate(double angleInRadians, const Vec3<T>& vector) const
+	Quat Quat::rotate(sp_float angle, const Vec3f& vector) const
 	{
-		Quat<T> rotationalQuaternion = Quat<T>::createRotate(angleInRadians, vector);
+		Quat rotationalQuaternion = Quat::createRotate(angle, vector);
 
 		return rotate(rotationalQuaternion);
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::linearInterpolate(const Quat<T>& quatB, T t) const
+	Quat Quat::linearInterpolate(const Quat& quatB, sp_float t) const
 	{
-		return createScale(T(1) - t) + quatB.createScale(t);
+		return createScale(ONE_FLOAT - t) + quatB.createScale(t);
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::linearInterpolateNormalized(const Quat<T>& quatB, T t) const
+	Quat Quat::linearInterpolateNormalized(const Quat& quatB, sp_float t) const
 	{
 		return linearInterpolate(quatB, t).normalize();
 	}
 
-	template <typename T>
-	size_t Quat<T>::sizeInBytes() const
+	sp_size Quat::sizeInBytes() const
 	{
-		return QUAT_SIZE * sizeof(T);
+		return QUAT_SIZE;
 	}
 
-	template <typename T>
-	Vec3<T> Quat<T>::toVec3() const
+	Vec3f Quat::toVec3() const
 	{
-		return Vec3<T>(values[0], values[1], values[2]);
+		return Vec3f(x, y, z);
 	}
 
-	template <typename T>
-	T& Quat<T>::operator[](int index)
+	sp_float Quat::operator[](sp_int index)
 	{
-		sp_assert(index >= 0 && index < QUAT_SIZE);
+		sp_assert(index >= 0 && index < QUAT_LENGTH);
 
-		return values[index];
+		return ((sp_float*)this)[index];
 	}
 
-	template <typename T>
-	T Quat<T>::operator[](int index) const
-	{
-		sp_assert(index >= 0 && index < QUAT_SIZE);
-
-		return values[index];
-	}
-
-	template <typename T>
-	Quat<T> Quat<T>::operator+(const Quat<T>& quatB) const
+	Quat Quat::operator+(const Quat& quatB) const
 	{
 		return add(quatB);
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::operator-(const Quat<T>& quatB) const
+	Quat Quat::operator-(const Quat& quatB) const
 	{
 		return subtract(quatB);
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::operator*(const Quat<T>& quat) const
+	Quat Quat::operator*(const Quat& quat) const
 	{
 		return multiply(quat);
 	}
 
-	template <typename T>
-	Quat<T> Quat<T>::operator*(T value) const
+	Quat Quat::operator*(sp_float value) const
 	{
 		return createScale(value);
 	}
 
-	template <typename T>
-	Quat<T>::operator void*() const
+	Quat::operator void*() const
 	{
-		return (void*)values;
+		return (void*)this;
 	}
 
-	template <typename T>
-	Quat<T>::operator Vec3<T>() const
+	Quat::operator Vec3f() const
 	{
-		return Vec3<T>(values[0], values[1], values[2]);
+		return Vec3f(x, y, z);
 	}
 
-	template class Quat<int>;
-	template class Quat<float>;
-	template class Quat<double>;
 }
