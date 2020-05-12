@@ -135,6 +135,27 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template <typename T>
+	Vec3<T> Vec3<T>::rotate(sp_float angle, const Vec3<T>& axis)
+	{
+		sp_float cosAngle = cosf(angle);
+		sp_float sinAngle = sinf(angle);
+
+		Vec3<T> result = (operator*(cosAngle)) + (axis.cross(*this) * sinAngle) + (axis * dot(axis)) * (ONE_FLOAT - cosAngle);
+
+		return result;
+	}
+	template <>
+	Vec3<sp_int> Vec3<sp_int>::rotate(sp_float angle, const Vec3<sp_int>& axis)
+	{
+		return Vec3i(ZERO_INT);
+	}
+	template <>
+	Vec3<sp_uint> Vec3<sp_uint>::rotate(sp_float angle, const Vec3<sp_uint>& axis)
+	{
+		return Vec3ui(ZERO_UINT);
+	}
+
+	template <typename T>
 	Vec3<T> Vec3<T>::rotateX(sp_float angle)
 	{
 		return Vec3<T>(
@@ -142,19 +163,6 @@ namespace NAMESPACE_PHYSICS
 				T(y * cosf(angle) - z * sinf(angle)),
 				T(y * sinf(angle) + z * cosf(angle))
 			);
-	}
-
-	template <typename T>
-	Vec3<T> Vec3<T>::rotateX(sp_float angle, Vec3<T> referencePoint)
-	{
-		Vec3<T> direction = this->subtract(referencePoint);
-		angle *= -1.0f;
-
-		return Vec3<T>(
-			x,
-			T(referencePoint[1] + direction[1] * cosf(angle) + (referencePoint[2] - z) * sinf(angle)),
-			T(referencePoint[2] + direction[1] * sinf(angle) + direction[2] * cosf(angle))
-		);
 	}
 
 	template <typename T>
@@ -168,7 +176,7 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template <typename T>
-	Vec3<T> Vec3<T>::rotateY(sp_float angle, Vec3<T> referencePoint)
+	Vec3<T> Vec3<T>::rotateY(sp_float angle, const Vec3<T>& referencePoint)
 	{
 		Vec3<T> direction = this->subtract(referencePoint);
 		angle *= -1.0f;
@@ -191,7 +199,7 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template <typename T>
-	Vec3<T> Vec3<T>::rotateZ(sp_float angle, Vec3<T> referencePoint)
+	Vec3<T> Vec3<T>::rotateZ(sp_float angle, const Vec3<T>& referencePoint)
 	{
 		Vec3<T> direction = this->subtract(referencePoint);
 

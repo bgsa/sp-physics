@@ -2,7 +2,6 @@
 #define QUAT_HEADER
 
 #include "SpectrumPhysics.h"
-#include "Vec3.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -36,6 +35,22 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Quat(const Vec3<sp_float>& vector);
 
 		/// <summary>
+		/// Create a new quanternion from euler angles provided
+		/// </summary>
+		API_INTERFACE static Quat fromEulerAngles(sp_float roll, sp_float pitch, sp_float yaw);
+
+		/// <summary>
+		/// Convert the quaternions to angles (x, y, z)
+		/// The quaternion has to be normalized !
+		/// </summary>
+		API_INTERFACE Vec3<sp_float> toEulerAngles() const;
+
+		/// <summary>
+		/// Constructor with a 3D vector
+		/// </summary>
+		API_INTERFACE static Quat identity();
+
+		/// <summary>
 		/// Get the values from current quaternion
 		/// </summary>
 		API_INTERFACE sp_float* values();
@@ -53,15 +68,10 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Scale a quaternion
 		/// </summary>
-		API_INTERFACE void scale(sp_float value);
+		API_INTERFACE Quat scale(sp_float value) const;
 
 		/// <summary>
-		/// Create a new quaternion scaled
-		/// </summary>
-		API_INTERFACE Quat createScale(sp_float value) const;
-
-		/// <summary>
-		/// Scale a quaternion
+		/// Multiply / Cross Product of quaternions
 		/// </summary>
 		API_INTERFACE Quat multiply(const Quat& quat) const;
 
@@ -81,9 +91,24 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Quat conjugate() const;
 
 		/// <summary>
+		/// Get the angle from this quaternion
+		/// </summary>
+		API_INTERFACE sp_float angle() const;
+
+		/// <summary>
+		/// Get the rotation axis from this quaternion
+		/// </summary>
+		API_INTERFACE Vec3<sp_float> axis() const;
+
+		/// <summary>
 		/// Product Scalar of two quaternion
 		/// </summary>
-		API_INTERFACE sp_float dot(Quat quatB) const;
+		API_INTERFACE sp_float dot(const Quat& quatB) const;
+
+		/// <summary>
+		/// Cross Product of two quaternion
+		/// </summary>
+		API_INTERFACE Quat cross(const Quat& quatB) const;
 
 		/// <summary>
 		/// Craete a Inversed Quaternion
@@ -92,48 +117,102 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Quat inverse() const;
 
 		/// <summary>
+		/// Rotate the point provided by this quaternion axis
+		/// This quaternion is the rotation axis
+		/// Returns the point rotated
+		/// </summary>
+		API_INTERFACE Vec3<sp_float> rotate(const Vec3<sp_float>& point) const;
+
+		/// <summary>
 		/// Craete a rotation unit quaternion bases on angle (in radians) and directional vector provided
 		/// </summary>
-		API_INTERFACE static Quat createRotate(sp_float angleInRadians, const Vec3<sp_float>& position);
+		API_INTERFACE static Quat createRotate(sp_float angle, const Vec3<sp_float>& axis);
 
 		/// <summary>
-		/// Return a quaternion rotated bases on rotation quaternion provided in parameter
-		/// The parameter can/must be used with createRotation static method
+		/// Create a quaternion rotation around X axis
 		/// </summary>
-		API_INTERFACE Quat rotate(const Quat& r) const;
+		API_INTERFACE static Quat createRotationAxisX(sp_float angle)
+		{
+			return Quat(
+				std::cosf(angle / TWO_FLOAT),
+				std::sinf(angle / TWO_FLOAT),
+				ZERO_FLOAT,
+				ZERO_FLOAT
+			);
+		}
 
 		/// <summary>
-		/// Return a quaternion rotated bases on angle and a directional vector
+		/// Create a quaternion rotation around Y axis
 		/// </summary>
-		API_INTERFACE Quat rotate(sp_float angle, const Vec3<sp_float>& vector) const;
+		API_INTERFACE static Quat createRotationAxisY(sp_float angle)
+		{
+			return Quat(
+				std::cosf(angle / TWO_FLOAT),
+				ZERO_FLOAT,
+				std::sinf(angle / TWO_FLOAT),
+				ZERO_FLOAT
+			);
+		}
 
 		/// <summary>
-		/// Quaternion lerp. Linear quaternion interpolation method. This method is the quickest, but is also least accurate. The method does not always generate normalized output.
+		/// Create a quaternion rotation around Z axis
+		/// </summary>
+		API_INTERFACE static Quat createRotationAxisZ(sp_float angle)
+		{
+			return Quat(
+				std::cosf(angle * HALF_FLOAT),
+				ZERO_FLOAT,
+				ZERO_FLOAT,
+				std::sinf(angle * HALF_FLOAT)
+			);
+		}
+		
+		/// <summary>
+		/// Quaternion Linear Interpolation. This method is the quickest, but is also least accurate. The method does not always generate normalized output.
 		/// t parameter is [0,1]
 		/// </summary>
-		API_INTERFACE Quat linearInterpolate(const Quat& quatB, sp_float t) const;
+		API_INTERFACE Quat lerp(const Quat& quatB, sp_float t) const;
 
 		/// <summary>
-		/// Quaternion nlerp. Linear quaternion interpolation method. This method is the quickest, but is also least accurate.
-		/// This method normalize the result
+		/// Spherical quaternion interpolation method
+		/// Both of quaternions should be normalized
 		/// t parameter is [0,1]
 		/// </summary>
-		API_INTERFACE Quat linearInterpolateNormalized(const Quat& quatB, sp_float t) const;
+		API_INTERFACE Quat slerp(const Quat& quatB, sp_float t) const;
 
 		/// <summary>
-		/// Get the size in Bytes of Quaternion
+		/// Spherical quaternion interpolation method
+		/// Both of quaternions should be normalized
+		/// t parameter is [0,1]
 		/// </summary>
-		API_INTERFACE sp_size sizeInBytes() const;
+		API_INTERFACE Quat slerp(const Quat& quatB, sp_float t, sp_int spinCount) const;
 
 		/// <summary>
 		/// Convertion to Vec3
 		/// </summary>
-		API_INTERFACE Vec3<sp_float> toVec3() const;
+		API_INTERFACE inline Vec3<sp_float> toVec3() const;
+
+		/// <summary>
+		/// Convertion to rotational matrix 3x3
+		/// </summary>
+		API_INTERFACE inline Mat3<sp_float> toMat3() const;
 
 		/// <summary>
 		/// Get a index from the quaternion
 		/// </summary>
-		API_INTERFACE sp_float operator[](sp_int index);
+		API_INTERFACE inline sp_float operator[](sp_int index) const;
+
+		/// <summary>
+		/// Get a index from the quaternion
+		/// </summary>
+		API_INTERFACE inline sp_float operator[](sp_uint index) const;
+
+#ifdef ENV_64BITS
+		/// <summary>
+		/// Get a index from the quaternion
+		/// </summary>
+		API_INTERFACE inline sp_float operator[](sp_size index) const;
+#endif
 
 		/// <summary>
 		/// Add/Sum two quaternions
@@ -141,9 +220,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Quat operator+(const Quat& quatB) const;
 
 		/// <summary>
-		/// Add/Sum two quaternions
+		/// Sibtract two quaternions
 		/// </summary>
 		API_INTERFACE Quat operator-(const Quat& quatB) const;
+
+		/// <summary>
+		/// Subtract the current quaternion
+		/// </summary>
+		API_INTERFACE Quat operator-() const;
 
 		/// <summary>
 		/// Multiply the quaternion to another one
@@ -155,6 +239,11 @@ namespace NAMESPACE_PHYSICS
 		/// Return a new quaternion scaled
 		/// </summary>
 		API_INTERFACE Quat operator*(sp_float value) const;
+
+		/// <summary>
+		/// Divide the quaternion by scalar
+		/// </summary>
+		API_INTERFACE Quat operator/(sp_float value) const;
 		
 		/// <summary>
 		/// Auto convertion to void *
@@ -164,7 +253,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Auto convertion to Vec3
 		/// </summary>
-		API_INTERFACE operator Vec3<sp_float>() const;
+		API_INTERFACE inline operator Vec3<sp_float>() const;
 	};
 }
 

@@ -88,14 +88,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void scale(T scale);
 
 		/// <summary>
+		/// Rotate the vector over a given axis and angle
+		/// </summary>
+		API_INTERFACE Vec3<T> rotate(sp_float angle, const Vec3<T>& axis);
+
+		/// <summary>
 		/// Rotate the vector on X axis, given an angle
 		/// </summary>
 		API_INTERFACE Vec3<T> rotateX(sp_float angle);
-
-		/// <summary>
-		/// Rotate the vector on X axis, given an angle and the reference point (rotate around this point)
-		/// </summary>
-		API_INTERFACE Vec3<T> rotateX(sp_float angle, Vec3<T> referencePoint);
 
 		/// <summary>
 		/// Rotate the vector on Y axis, given an angle
@@ -105,7 +105,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Rotate the vector on Y axis, given an angle and the reference point (rotate around this point)
 		/// </summary>
-		API_INTERFACE Vec3<T> rotateY(sp_float angle, Vec3<T> referencePoint);
+		API_INTERFACE Vec3<T> rotateY(sp_float angle, const Vec3<T>& referencePoint);
 
 		/// <summary>
 		/// Rotate the vector on Z axis, given an angle
@@ -115,7 +115,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Rotate the vector on Z axis, given an angle and the reference point (rotate around this point)
 		/// </summary>
-		API_INTERFACE Vec3<T> rotateZ(sp_float angle, Vec3<T> referencePoint);
+		API_INTERFACE Vec3<T> rotateZ(sp_float angle, const Vec3<T>& referencePoint);
 
 		/// <summary>
 		/// Cross Product - return a perpendicular vector, regards two vectors => u x v
