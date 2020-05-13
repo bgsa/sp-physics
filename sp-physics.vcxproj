@@ -287,12 +287,6 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\sp-foundation\sp-foundation.vcxproj">
-      <Project>{0607c5ac-e8da-43db-a0b4-279c05ec6613}</Project>
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="resources\opencl\src\BasicCommands.cl" />
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
     <None Include="resources\opencl\src\FindMinMax.cl" />
