@@ -233,7 +233,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Subtract this vector to another one
 		/// </summary>
-		API_INTERFACE Vec3<T> operator-=(const Vec3<T>& vector) const;
+		API_INTERFACE void operator-=(const Vec3<T>& vector);
 
 		/// <summary>
 		/// Subtract a scalar from this vector

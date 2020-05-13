@@ -389,17 +389,15 @@ namespace NAMESPACE_PHYSICS
 			x - vector.x,
 			y - vector.y,
 			z - vector.z
-			);
+		);
 	}
 
 	template <typename T>
-	Vec3<T> Vec3<T>::operator-=(const Vec3<T>& vector) const
+	void Vec3<T>::operator-=(const Vec3<T>& vector)
 	{
-		return Vec3<T>(
-			x - vector.x,
-			y - vector.y,
-			z - vector.z
-		);
+		x -= vector.x;
+		y -= vector.y;
+		z -= vector.z;
 	}
 
 	template <typename T>
