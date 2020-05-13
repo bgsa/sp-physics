@@ -9,7 +9,8 @@ namespace NAMESPACE_PHYSICS
 {
 
 	template <typename T>
-	class BoundingVolume
+	class BoundingVolume :
+		public Object
 	{
 	public:
 
@@ -17,9 +18,9 @@ namespace NAMESPACE_PHYSICS
 		
 		API_INTERFACE virtual Vec3f centerOfBoundingVolume() const = 0;
 
-		API_INTERFACE virtual T* translate(float xAxis, float yAxis, float zAxis) = 0;
-		API_INTERFACE virtual T* rotate(float angleInRadians, float xAxis, float yAxis, float zAxis) = 0;
-		API_INTERFACE virtual T* scale(float xAxis, float yAxis, float zAxis) = 0;
+		API_INTERFACE virtual T* translate(sp_float xAxis, sp_float yAxis, sp_float zAxis) = 0;
+		API_INTERFACE virtual T* rotate(sp_float angleInRadians, sp_float xAxis, sp_float yAxis, sp_float zAxis) = 0;
+		API_INTERFACE virtual T* scale(sp_float xAxis, sp_float yAxis, sp_float zAxis) = 0;
 
 		API_INTERFACE virtual Mat3f modelView() = 0;
 

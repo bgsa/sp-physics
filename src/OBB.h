@@ -52,6 +52,20 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE CollisionStatus collisionStatus(const OBB& aabb);
 
+		///<summary>
+		/// Releases all allocated resources
+		///</summary>
+		API_INTERFACE virtual void dispose() override
+		{
+		}
+
+		API_INTERFACE virtual const sp_char* toString() override
+		{
+			return "OBB Bounding Volume";
+		}
+
+
+
 		// TODO: verificar colisao com AABB
 
 		// TODO: verificar colisao com esferas

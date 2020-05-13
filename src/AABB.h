@@ -150,6 +150,17 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE bool operator()(const AABB& aabb1, const AABB& aabb2) const;
 
+		/// <summary>
+		/// Releases all allocated resouces
+		/// </summary>
+		API_INTERFACE virtual void dispose() override
+		{
+		}
+
+		API_INTERFACE virtual const sp_char* toString() override
+		{
+			return "AABB";
+		}
 	};
 
 }

@@ -19,7 +19,7 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 		Vec3f center;
-		float ray;
+		sp_float ray;
 
 		/// <summary>
 		/// Default construct - unit sphere with the center in origin
@@ -29,7 +29,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Construct with the center point and a ray
 		/// </summary>
-		API_INTERFACE Sphere(const Vec3f &center, float ray);
+		API_INTERFACE Sphere(const Vec3f &center, sp_float ray);
 
 		/// <summary>
 		/// Build the sphere from 1 point (center) and ray = 1
@@ -61,12 +61,12 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Translate the sphere
 		/// </summary>
-		API_INTERFACE Sphere* translate(float xAxis, float yAxis, float zAxis) override;
+		API_INTERFACE Sphere* translate(sp_float xAxis, sp_float yAxis, sp_float zAxis) override;
 
 		/// <summary>
 		/// Bounding volume of Sphere do not rotate.
 		/// </summary>
-		API_INTERFACE Sphere* rotate(float angleInRadians, float xAxis, float yAxis, float zAxis) override;
+		API_INTERFACE Sphere* rotate(sp_float angleInRadians, sp_float xAxis, sp_float yAxis, sp_float zAxis) override;
 
 		/// <summary>
 		/// Get model view of Sphere
@@ -76,7 +76,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Scale the sphere
 		/// </summary>
-		API_INTERFACE Sphere* scale(float xAxis, float yAxis, float zAxis) override;
+		API_INTERFACE Sphere* scale(sp_float xAxis, sp_float yAxis, sp_float zAxis) override;
 
 		/// <summary>
 		/// Check the status of collision against the point
@@ -112,6 +112,18 @@ namespace NAMESPACE_PHYSICS
 		/// Enclose/add the sphere in AABB
 		/// </summary>
 		API_INTERFACE Sphere enclose(const AABB& aabb);
+
+		/// <summary>
+		/// Releases all allocated resouces
+		/// </summary>
+		API_INTERFACE virtual void dispose() override
+		{
+		}
+
+		API_INTERFACE virtual const sp_char* toString() override
+		{
+			return "Sphere Bounding Volume";
+		}
 
 	};
 

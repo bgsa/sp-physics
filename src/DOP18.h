@@ -129,6 +129,18 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE void fixDegenerations();
 
+		/// <summary>
+		/// Releases all allocated resouces
+		/// </summary>
+		API_INTERFACE virtual void dispose() override
+		{
+		}
+
+		API_INTERFACE virtual const sp_char* toString() override
+		{
+			return "k-DOP 18";
+		}
+
 	};
 
 }
