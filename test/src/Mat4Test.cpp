@@ -89,13 +89,13 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Mat4f result;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(0.0f, result[i], L"Value shoud be 0", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_constructorValues_Test)
 	{
-		float emptyMatrix[MAT4_SIZE] = {
+		float emptyMatrix[MAT4_LENGTH] = {
 				1.0f,  2.0f,  3.0f,  4.0f, 
 				5.0f,  6.0f,  7.0f,  8.0f, 
 				9.0f, 10.0f, 11.0f, 12.0f,
@@ -104,7 +104,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = Mat4f(emptyMatrix);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(emptyMatrix[i], result[i], L"Value shoud be 0", LINE_INFO());
 	}
 
@@ -125,7 +125,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			4.0f, 8.0f, 12.0f, 16.0f
 		);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], matrix[i], L"Value shoud be 0", LINE_INFO());
 #else
 		for (int i = 0; i < 4; i++)
@@ -153,7 +153,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		float* result = matrix.getValues();
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Value shoud be 0", LINE_INFO());
 	}
 
@@ -377,8 +377,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Mat4f result = Mat4f::identity();
 
-		for (int i = 0; i < MAT4_SIZE; i++)
-			if (i % (MAT4_ROWSIZE+1) == 0)
+		for (int i = 0; i < MAT4_LENGTH; i++)
+			if (i % (MAT4_ROW_LENGTH+1) == 0)
 				Assert::AreEqual(1.0f, result[i], L"Value shoud be 0", LINE_INFO());
 			else
 				Assert::AreEqual(0.0f, result[i], L"Value shoud be 0", LINE_INFO());
@@ -460,14 +460,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		};
 		Mat4f result = matrix.transpose();
 
-		float expected[MAT4_SIZE] = {
+		float expected[MAT4_LENGTH] = {
 			1.0f,  5.0f,  9.0f,  13.0f,
 			2.0f,  6.0f,  10.0f,  14.0f,
 			3.0f, 7.0f, 11.0f, 15.0f,
 			4.0f, 8.0f, 12.0f, 16.0f
 		};
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value", LINE_INFO());
 	}
 
@@ -495,7 +495,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA * matrixB;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -522,7 +522,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA.multiply(matrixB);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 #endif
@@ -551,7 +551,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA.multiply(matrixB);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -580,7 +580,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA * matrixB;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 #endif
@@ -596,7 +596,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = Mat4f::createScale(2.0f, 4.0f, -3.0f);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -617,7 +617,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		matrixA.scale(2.0f, 4.0f, -3.0f);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -634,7 +634,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		Mat4f result = Mat4f::createRotate(angle, 1.0f, 0.0f, 0.0f);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -650,7 +650,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = Mat4f::createTranslate(0.0f, 2.0f, -3.0f);
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 #endif
@@ -667,7 +667,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = Mat4f::createTranslate(4.0f, 2.0f, -3.0f);
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 #endif
@@ -691,7 +691,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrix.clone();
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Wrong number", LINE_INFO());
 	}
 	
@@ -733,7 +733,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA * 2.0f;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 #endif
@@ -755,7 +755,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA + 2.0f;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -782,7 +782,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA + matrixB;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -809,7 +809,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA - matrixB;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -830,7 +830,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = -matrixA;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -851,7 +851,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA - 2.0f;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -935,7 +935,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -968,13 +968,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		Mat4f upperMatrixResult = decomposeLU[1];
 		Mat4f result = lowerMatrixResult * upperMatrixResult;
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(upperMatrixResult[i], upperMatrixExpected[i], L"Wrong number", LINE_INFO());
 	}
 #endif
@@ -1016,16 +1016,16 @@ namespace NAMESPACE_PHYSICS_TEST
 		Mat4f upperMatrixResult = decomposeLDU[2];
 		Mat4f result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(upperMatrixResult[i], upperMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(diagonalMatrixResult[i], diagonalMatrixExpected[i], L"Wrong number", LINE_INFO());
 	}
 #endif
@@ -1047,7 +1047,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat4f result = matrixA / 2.0f;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -1068,7 +1068,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		matrixA /= 2.0f;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 

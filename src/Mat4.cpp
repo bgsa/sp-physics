@@ -5,7 +5,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Mat4<T>::Mat4(const T defaultValue)
 	{
-		for (sp_ushort i = 0; i < MAT4_SIZE; i++)
+		for (sp_ushort i = 0; i < MAT4_LENGTH; i++)
 			values[i] = defaultValue;
 	}
 
@@ -98,7 +98,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T Mat4<T>::getValue(const sp_int x, const sp_int y) const
 	{
-		return values[(y-1) * MAT4_ROWSIZE + (x-1)];
+		return values[(y-1) * MAT4_ROW_LENGTH + (x-1)];
 	}
 
 	template <typename T>
@@ -106,17 +106,17 @@ namespace NAMESPACE_PHYSICS
 	{
 	#if MAJOR_COLUMN_ORDER
 		return Vec4<T> {
-			values[0 * MAT4_ROWSIZE + 0],
-				values[1 * MAT4_ROWSIZE + 0],
-				values[2 * MAT4_ROWSIZE + 0],
-				values[3 * MAT4_ROWSIZE + 0]
+			values[0 * MAT4_ROW_LENGTH + 0],
+				values[1 * MAT4_ROW_LENGTH + 0],
+				values[2 * MAT4_ROW_LENGTH + 0],
+				values[3 * MAT4_ROW_LENGTH + 0]
 		};
 	#else
 		return Vec4<T> {
-			values[0 * MAT4_ROWSIZE + 0],
-				values[0 * MAT4_ROWSIZE + 1],
-				values[0 * MAT4_ROWSIZE + 2],
-				values[0 * MAT4_ROWSIZE + 3]
+			values[0 * MAT4_ROW_LENGTH + 0],
+				values[0 * MAT4_ROW_LENGTH + 1],
+				values[0 * MAT4_ROW_LENGTH + 2],
+				values[0 * MAT4_ROW_LENGTH + 3]
 		};
 	#endif
 	}
@@ -126,17 +126,17 @@ namespace NAMESPACE_PHYSICS
 	{
 	#if MAJOR_COLUMN_ORDER
 		return Vec4<T> {
-			values[0 * MAT4_ROWSIZE + 1],
-				values[1 * MAT4_ROWSIZE + 1],
-				values[2 * MAT4_ROWSIZE + 1],
-				values[3 * MAT4_ROWSIZE + 1]
+			values[0 * MAT4_ROW_LENGTH + 1],
+				values[1 * MAT4_ROW_LENGTH + 1],
+				values[2 * MAT4_ROW_LENGTH + 1],
+				values[3 * MAT4_ROW_LENGTH + 1]
 		};
 	#else
 		return Vec4<T> {
-			values[1 * MAT4_ROWSIZE + 0],
-				values[1 * MAT4_ROWSIZE + 1],
-				values[1 * MAT4_ROWSIZE + 2],
-				values[1 * MAT4_ROWSIZE + 3]
+			values[1 * MAT4_ROW_LENGTH + 0],
+				values[1 * MAT4_ROW_LENGTH + 1],
+				values[1 * MAT4_ROW_LENGTH + 2],
+				values[1 * MAT4_ROW_LENGTH + 3]
 		};
 	#endif
 	}
@@ -146,17 +146,17 @@ namespace NAMESPACE_PHYSICS
 	{
 	#if MAJOR_COLUMN_ORDER
 		return Vec4<T> {
-			values[0 * MAT4_ROWSIZE + 2],
-				values[1 * MAT4_ROWSIZE + 2],
-				values[2 * MAT4_ROWSIZE + 2],
-				values[3 * MAT4_ROWSIZE + 2]
+			values[0 * MAT4_ROW_LENGTH + 2],
+				values[1 * MAT4_ROW_LENGTH + 2],
+				values[2 * MAT4_ROW_LENGTH + 2],
+				values[3 * MAT4_ROW_LENGTH + 2]
 		};
 	#else
 		return Vec4<T> {
-			values[2 * MAT4_ROWSIZE + 0],
-				values[2 * MAT4_ROWSIZE + 1],
-				values[2 * MAT4_ROWSIZE + 2],
-				values[2 * MAT4_ROWSIZE + 3]
+			values[2 * MAT4_ROW_LENGTH + 0],
+				values[2 * MAT4_ROW_LENGTH + 1],
+				values[2 * MAT4_ROW_LENGTH + 2],
+				values[2 * MAT4_ROW_LENGTH + 3]
 		};
 	#endif
 	}
@@ -166,17 +166,17 @@ namespace NAMESPACE_PHYSICS
 	{
 	#if MAJOR_COLUMN_ORDER
 		return Vec4<T> {
-			values[0 * MAT4_ROWSIZE + 3],
-				values[1 * MAT4_ROWSIZE + 3],
-				values[2 * MAT4_ROWSIZE + 3],
-				values[3 * MAT4_ROWSIZE + 3]
+			values[0 * MAT4_ROW_LENGTH + 3],
+				values[1 * MAT4_ROW_LENGTH + 3],
+				values[2 * MAT4_ROW_LENGTH + 3],
+				values[3 * MAT4_ROW_LENGTH + 3]
 		};
 	#else
 		return Vec4<T> {
-			values[3 * MAT4_ROWSIZE + 0],
-				values[3 * MAT4_ROWSIZE + 1],
-				values[3 * MAT4_ROWSIZE + 2],
-				values[3 * MAT4_ROWSIZE + 3]
+			values[3 * MAT4_ROW_LENGTH + 0],
+				values[3 * MAT4_ROW_LENGTH + 1],
+				values[3 * MAT4_ROW_LENGTH + 2],
+				values[3 * MAT4_ROW_LENGTH + 3]
 		};
 	#endif
 	}
@@ -206,7 +206,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Mat4<T> Mat4<T>::identity()
 	{
-		static T identityMatrix[MAT4_SIZE] = {
+		static T identityMatrix[MAT4_LENGTH] = {
 			T(1), T(0), T(0), T(0),
 			T(0), T(1), T(0), T(0),
 			T(0), T(0), T(1), T(0),
@@ -307,7 +307,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		T det = T(0);
 
-		for (sp_int i = 0; i < MAT4_ROWSIZE; i++)
+		for (sp_int i = 0; i < MAT4_ROW_LENGTH; i++)
 		{
 			det += (i & 0x1) ? 
 				(-values[i] * determinantIJ(0, i)) 
@@ -323,32 +323,32 @@ namespace NAMESPACE_PHYSICS
 		Mat4<T> result;
 
 	#if MAJOR_COLUMN_ORDER
-		for (int line = 0; line < MAT4_ROWSIZE; line++)
+		for (int line = 0; line < MAT4_ROW_LENGTH; line++)
 		{
-			const T ai0 = values[(0 * MAT4_ROWSIZE) + line];
-			const T ai1 = values[(1 * MAT4_ROWSIZE) + line];
-			const T ai2 = values[(2 * MAT4_ROWSIZE) + line];
-			const T ai3 = values[(3 * MAT4_ROWSIZE) + line];
+			const T ai0 = values[(0 * MAT4_ROW_LENGTH) + line];
+			const T ai1 = values[(1 * MAT4_ROW_LENGTH) + line];
+			const T ai2 = values[(2 * MAT4_ROW_LENGTH) + line];
+			const T ai3 = values[(3 * MAT4_ROW_LENGTH) + line];
 
 			T a = matrixB[0];
 
-			result[(0 * MAT4_ROWSIZE) + line] = ai0 * matrixB[(0 * MAT4_ROWSIZE) + 0] + ai1 * matrixB[(0 * MAT4_ROWSIZE) + 1] + ai2 * matrixB[(0 * MAT4_ROWSIZE) + 2] + ai3 * matrixB[(0 * MAT4_ROWSIZE) + 3];
-			result[(1 * MAT4_ROWSIZE) + line] = ai0 * matrixB[(1 * MAT4_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT4_ROWSIZE) + 1] + ai2 * matrixB[(1 * MAT4_ROWSIZE) + 2] + ai3 * matrixB[(1 * MAT4_ROWSIZE) + 3];
-			result[(2 * MAT4_ROWSIZE) + line] = ai0 * matrixB[(2 * MAT4_ROWSIZE) + 0] + ai1 * matrixB[(2 * MAT4_ROWSIZE) + 1] + ai2 * matrixB[(2 * MAT4_ROWSIZE) + 2] + ai3 * matrixB[(2 * MAT4_ROWSIZE) + 3];
-			result[(3 * MAT4_ROWSIZE) + line] = ai0 * matrixB[(3 * MAT4_ROWSIZE) + 0] + ai1 * matrixB[(3 * MAT4_ROWSIZE) + 1] + ai2 * matrixB[(3 * MAT4_ROWSIZE) + 2] + ai3 * matrixB[(3 * MAT4_ROWSIZE) + 3];
+			result[(0 * MAT4_ROW_LENGTH) + line] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(0 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(0 * MAT4_ROW_LENGTH) + 2] + ai3 * matrixB[(0 * MAT4_ROW_LENGTH) + 3];
+			result[(1 * MAT4_ROW_LENGTH) + line] = ai0 * matrixB[(1 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(1 * MAT4_ROW_LENGTH) + 2] + ai3 * matrixB[(1 * MAT4_ROW_LENGTH) + 3];
+			result[(2 * MAT4_ROW_LENGTH) + line] = ai0 * matrixB[(2 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(2 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(2 * MAT4_ROW_LENGTH) + 2] + ai3 * matrixB[(2 * MAT4_ROW_LENGTH) + 3];
+			result[(3 * MAT4_ROW_LENGTH) + line] = ai0 * matrixB[(3 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(3 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(3 * MAT4_ROW_LENGTH) + 2] + ai3 * matrixB[(3 * MAT4_ROW_LENGTH) + 3];
 		}
 	#else 
-		for (int column = 0; column < MAT4_ROWSIZE; column++)
+		for (int column = 0; column < MAT4_ROW_LENGTH; column++)
 		{
-			T ai0 = values[(column * MAT4_ROWSIZE) + 0];
-			T ai1 = values[(column * MAT4_ROWSIZE) + 1];
-			T ai2 = values[(column * MAT4_ROWSIZE) + 2];
-			T ai3 = values[(column * MAT4_ROWSIZE) + 3];
+			T ai0 = values[(column * MAT4_ROW_LENGTH) + 0];
+			T ai1 = values[(column * MAT4_ROW_LENGTH) + 1];
+			T ai2 = values[(column * MAT4_ROW_LENGTH) + 2];
+			T ai3 = values[(column * MAT4_ROW_LENGTH) + 3];
 
-			result[(column * MAT4_ROWSIZE) + 0] = ai0 * matrixB[(0 * MAT4_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT4_ROWSIZE) + 0] + ai2 * matrixB[(2 * MAT4_ROWSIZE) + 0] + ai3 * matrixB[(3 * MAT4_ROWSIZE) + 0];
-			result[(column * MAT4_ROWSIZE) + 1] = ai0 * matrixB[(0 * MAT4_ROWSIZE) + 1] + ai1 * matrixB[(1 * MAT4_ROWSIZE) + 1] + ai2 * matrixB[(2 * MAT4_ROWSIZE) + 1] + ai3 * matrixB[(3 * MAT4_ROWSIZE) + 1];
-			result[(column * MAT4_ROWSIZE) + 2] = ai0 * matrixB[(0 * MAT4_ROWSIZE) + 2] + ai1 * matrixB[(1 * MAT4_ROWSIZE) + 2] + ai2 * matrixB[(2 * MAT4_ROWSIZE) + 2] + ai3 * matrixB[(3 * MAT4_ROWSIZE) + 2];
-			result[(column * MAT4_ROWSIZE) + 3] = ai0 * matrixB[(0 * MAT4_ROWSIZE) + 3] + ai1 * matrixB[(1 * MAT4_ROWSIZE) + 3] + ai2 * matrixB[(2 * MAT4_ROWSIZE) + 3] + ai3 * matrixB[(3 * MAT4_ROWSIZE) + 3];
+			result[(column * MAT4_ROW_LENGTH) + 0] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 0] + ai2 * matrixB[(2 * MAT4_ROW_LENGTH) + 0] + ai3 * matrixB[(3 * MAT4_ROW_LENGTH) + 0];
+			result[(column * MAT4_ROW_LENGTH) + 1] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 1] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(2 * MAT4_ROW_LENGTH) + 1] + ai3 * matrixB[(3 * MAT4_ROW_LENGTH) + 1];
+			result[(column * MAT4_ROW_LENGTH) + 2] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 2] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 2] + ai2 * matrixB[(2 * MAT4_ROW_LENGTH) + 2] + ai3 * matrixB[(3 * MAT4_ROW_LENGTH) + 2];
+			result[(column * MAT4_ROW_LENGTH) + 3] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 3] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 3] + ai2 * matrixB[(2 * MAT4_ROW_LENGTH) + 3] + ai3 * matrixB[(3 * MAT4_ROW_LENGTH) + 3];
 		}
 	#endif
 
@@ -362,54 +362,54 @@ namespace NAMESPACE_PHYSICS
 
 	#if MAJOR_COLUMN_ORDER
 		result[0]
-			= vector[0] * values[0 * MAT4_ROWSIZE + 0]
-			+ vector[1] * values[1 * MAT4_ROWSIZE + 0]
-			+ vector[2] * values[2 * MAT4_ROWSIZE + 0]
-			+ vector[3] * values[3 * MAT4_ROWSIZE + 0];
+			= vector[0] * values[0 * MAT4_ROW_LENGTH + 0]
+			+ vector[1] * values[1 * MAT4_ROW_LENGTH + 0]
+			+ vector[2] * values[2 * MAT4_ROW_LENGTH + 0]
+			+ vector[3] * values[3 * MAT4_ROW_LENGTH + 0];
 
 		result[1]
-			= vector[0] * values[0 * MAT4_ROWSIZE + 1]
-			+ vector[1] * values[1 * MAT4_ROWSIZE + 1]
-			+ vector[2] * values[2 * MAT4_ROWSIZE + 1]
-			+ vector[3] * values[3 * MAT4_ROWSIZE + 1];
+			= vector[0] * values[0 * MAT4_ROW_LENGTH + 1]
+			+ vector[1] * values[1 * MAT4_ROW_LENGTH + 1]
+			+ vector[2] * values[2 * MAT4_ROW_LENGTH + 1]
+			+ vector[3] * values[3 * MAT4_ROW_LENGTH + 1];
 
 		result[2]
-			= vector[0] * values[0 * MAT4_ROWSIZE + 2]
-			+ vector[1] * values[1 * MAT4_ROWSIZE + 2]
-			+ vector[2] * values[2 * MAT4_ROWSIZE + 2]
-			+ vector[3] * values[3 * MAT4_ROWSIZE + 2];
+			= vector[0] * values[0 * MAT4_ROW_LENGTH + 2]
+			+ vector[1] * values[1 * MAT4_ROW_LENGTH + 2]
+			+ vector[2] * values[2 * MAT4_ROW_LENGTH + 2]
+			+ vector[3] * values[3 * MAT4_ROW_LENGTH + 2];
 
 		result[3]
-			= vector[0] * values[0 * MAT4_ROWSIZE + 3]
-			+ vector[1] * values[1 * MAT4_ROWSIZE + 3]
-			+ vector[2] * values[2 * MAT4_ROWSIZE + 3]
-			+ vector[3] * values[3 * MAT4_ROWSIZE + 3];
+			= vector[0] * values[0 * MAT4_ROW_LENGTH + 3]
+			+ vector[1] * values[1 * MAT4_ROW_LENGTH + 3]
+			+ vector[2] * values[2 * MAT4_ROW_LENGTH + 3]
+			+ vector[3] * values[3 * MAT4_ROW_LENGTH + 3];
 
 	#else
 
 		result[0]
-			= values[0 * MAT4_ROWSIZE + 0] * vector[0]
-			+ values[0 * MAT4_ROWSIZE + 1] * vector[1]
-			+ values[0 * MAT4_ROWSIZE + 2] * vector[2]
-			+ values[0 * MAT4_ROWSIZE + 3] * vector[3];
+			= values[0 * MAT4_ROW_LENGTH + 0] * vector[0]
+			+ values[0 * MAT4_ROW_LENGTH + 1] * vector[1]
+			+ values[0 * MAT4_ROW_LENGTH + 2] * vector[2]
+			+ values[0 * MAT4_ROW_LENGTH + 3] * vector[3];
 
 		result[1]
-			= values[1 * MAT4_ROWSIZE + 0] * vector[0]
-			+ values[1 * MAT4_ROWSIZE + 1] * vector[1]
-			+ values[1 * MAT4_ROWSIZE + 2] * vector[2]
-			+ values[1 * MAT4_ROWSIZE + 3] * vector[3];
+			= values[1 * MAT4_ROW_LENGTH + 0] * vector[0]
+			+ values[1 * MAT4_ROW_LENGTH + 1] * vector[1]
+			+ values[1 * MAT4_ROW_LENGTH + 2] * vector[2]
+			+ values[1 * MAT4_ROW_LENGTH + 3] * vector[3];
 
 		result[2]
-			= values[2 * MAT4_ROWSIZE + 0] * vector[0]
-			+ values[2 * MAT4_ROWSIZE + 1] * vector[1]
-			+ values[2 * MAT4_ROWSIZE + 2] * vector[2]
-			+ values[2 * MAT4_ROWSIZE + 3] * vector[3];
+			= values[2 * MAT4_ROW_LENGTH + 0] * vector[0]
+			+ values[2 * MAT4_ROW_LENGTH + 1] * vector[1]
+			+ values[2 * MAT4_ROW_LENGTH + 2] * vector[2]
+			+ values[2 * MAT4_ROW_LENGTH + 3] * vector[3];
 
 		result[3]
-			= values[3 * MAT4_ROWSIZE + 0] * vector[0]
-			+ values[3 * MAT4_ROWSIZE + 1] * vector[1]
-			+ values[3 * MAT4_ROWSIZE + 2] * vector[2]
-			+ values[3 * MAT4_ROWSIZE + 3] * vector[3];
+			= values[3 * MAT4_ROW_LENGTH + 0] * vector[0]
+			+ values[3 * MAT4_ROW_LENGTH + 1] * vector[1]
+			+ values[3 * MAT4_ROW_LENGTH + 2] * vector[2]
+			+ values[3 * MAT4_ROW_LENGTH + 3] * vector[3];
 	#endif
 
 		return result;
@@ -491,7 +491,7 @@ namespace NAMESPACE_PHYSICS
 
 		Mat4<T> result;
 
-	#define M(row,col)  result[col * MAT4_ROWSIZE + row]
+	#define M(row,col)  result[col * MAT4_ROW_LENGTH + row]
 		M(0, 0) = (one_c * xx) + cosineAngle;
 		M(0, 1) = (one_c * xy) - zs;
 		M(0, 2) = (one_c * zx) + ys;
@@ -553,7 +553,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	sp_size Mat4<T>::sizeInBytes() const
 	{
-		return MAT4_SIZE * sizeof(T);
+		return MAT4_LENGTH * sizeof(T);
 	}
 
 	template <typename T>
@@ -571,7 +571,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat4<T> result;
 
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] * value;
 
 		return result;
@@ -609,7 +609,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	void Mat4<T>::operator/=(const T value)
 	{
-		for (size_t i = 0; i < MAT4_SIZE; i++)
+		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			values[i] /= value;
 	}
 
@@ -618,7 +618,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat4<T> result;
 
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = -values[i];
 
 		return result;
@@ -629,7 +629,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat4<T> result;
 
-		for (int i = 0; i < MAT4_SIZE; i++)
+		for (int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] + matrix[i];
 
 		return result;
@@ -640,7 +640,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat4<T> result;
 
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] + value;
 
 		return result;
@@ -651,7 +651,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat4<T> result;
 
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] - matrix[i];
 
 		return result;
@@ -662,7 +662,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat4<T> result;
 
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] - value;
 
 		return result;
@@ -671,7 +671,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	sp_bool Mat4<T>::operator==(const Mat4<T>& matrix) const
 	{
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			if (values[i] != matrix[i])
 				return false;
 
@@ -681,7 +681,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	sp_bool Mat4<T>::operator==(const T value) const
 	{
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			if (values[i] != value)
 				return false;
 
@@ -691,7 +691,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	sp_bool Mat4<T>::operator!=(const Mat4<T>& matrix) const
 	{
-		for (sp_int i = 0; i < MAT4_SIZE; i++)
+		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			if (values[i] != matrix[i])
 				return true;
 
@@ -701,7 +701,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T& Mat4<T>::operator[](const sp_int index)
 	{
-		sp_assert(index >= 0 && index < MAT4_SIZE);
+		sp_assert(index >= 0 && index < MAT4_LENGTH);
 
 		return values[index];
 	}
@@ -709,7 +709,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	T Mat4<T>::operator[](const sp_int index) const
 	{
-		sp_assert(index >= 0 && index < MAT4_SIZE);
+		sp_assert(index >= 0 && index < MAT4_LENGTH);
 
 		return values[index];
 	}
@@ -745,7 +745,7 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	std::string Mat4<T>::toString() const
 	{
-		return Mat<T>::toString(values, MAT4_SIZE);
+		return Mat<T>::toString(values, MAT4_LENGTH);
 	}
 
 	template <typename T>
@@ -758,8 +758,8 @@ namespace NAMESPACE_PHYSICS
 		std::vector<Mat4<T>> elementarInverseMatrixes;
 		Mat4<T> elementarInverseMatrix;
 
-		int rowSize = MAT4_ROWSIZE;
-		int colSize = MAT4_ROWSIZE;
+		int rowSize = MAT4_ROW_LENGTH;
+		int colSize = MAT4_ROW_LENGTH;
 
 	#if MAJOR_COLUMN_ORDER
 		sp_int pivotRowIndex = 0;
@@ -847,26 +847,26 @@ namespace NAMESPACE_PHYSICS
 		unsigned short diagonalIndex = 0;
 
 	#if MAJOR_COLUMN_ORDER
-		for (sp_int column = 0; column < MAT4_ROWSIZE; column++)
+		for (sp_int column = 0; column < MAT4_ROW_LENGTH; column++)
 		{
-			T pivot = upperMatrix[diagonalIndex * MAT4_ROWSIZE + column];
+			T pivot = upperMatrix[diagonalIndex * MAT4_ROW_LENGTH + column];
 
-			diagonalMatrix[column * MAT4_ROWSIZE + diagonalIndex] = pivot;
+			diagonalMatrix[column * MAT4_ROW_LENGTH + diagonalIndex] = pivot;
 
-			for (sp_int row = column; row < MAT4_ROWSIZE; row++)
-				upperMatrix[column * MAT4_ROWSIZE + row] /= pivot;
+			for (sp_int row = column; row < MAT4_ROW_LENGTH; row++)
+				upperMatrix[column * MAT4_ROW_LENGTH + row] /= pivot;
 
 			diagonalIndex++;
 		}
 	#else
-		for (sp_int row = 0; row < MAT4_ROWSIZE; row++)
+		for (sp_int row = 0; row < MAT4_ROW_LENGTH; row++)
 		{
-			T pivot = upperMatrix[row * MAT4_ROWSIZE + diagonalIndex];
+			T pivot = upperMatrix[row * MAT4_ROW_LENGTH + diagonalIndex];
 
-			diagonalMatrix[row * MAT4_ROWSIZE + diagonalIndex] = pivot;
+			diagonalMatrix[row * MAT4_ROW_LENGTH + diagonalIndex] = pivot;
 
-			for (sp_int column = row; column < MAT4_ROWSIZE; column++)
-				upperMatrix[row * MAT4_ROWSIZE + column] /= pivot;
+			for (sp_int column = row; column < MAT4_ROW_LENGTH; column++)
+				upperMatrix[row * MAT4_ROW_LENGTH + column] /= pivot;
 
 			diagonalIndex++;
 		}

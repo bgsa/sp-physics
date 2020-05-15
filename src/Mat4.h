@@ -8,8 +8,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define MAT4_SIZE 16
-#define MAT4_ROWSIZE 4
+#define MAT4_LENGTH 16
+#define MAT4_ROW_LENGTH 4
 
 	template <typename T>
 	class AutovalueAutovector4
@@ -23,7 +23,7 @@ namespace NAMESPACE_PHYSICS
 	class Mat4 : public Mat<T>
 	{
 	private:
-		T values[MAT4_SIZE];
+		T values[MAT4_LENGTH];
 
 	public:
 

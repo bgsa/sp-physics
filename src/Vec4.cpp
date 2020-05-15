@@ -288,54 +288,54 @@ namespace NAMESPACE_PHYSICS
 	#if MAJOR_COLUMN_ORDER
 
 		result[0]
-			= matrix4x4[0 * MAT4_ROWSIZE + 0] * x
-			+ matrix4x4[0 * MAT4_ROWSIZE + 1] * y
-			+ matrix4x4[0 * MAT4_ROWSIZE + 2] * z
-			+ matrix4x4[0 * MAT4_ROWSIZE + 3] * w;
+			= matrix4x4[0 * MAT4_ROW_LENGTH + 0] * x
+			+ matrix4x4[0 * MAT4_ROW_LENGTH + 1] * y
+			+ matrix4x4[0 * MAT4_ROW_LENGTH + 2] * z
+			+ matrix4x4[0 * MAT4_ROW_LENGTH + 3] * w;
 
 		result[1]
-			= matrix4x4[1 * MAT4_ROWSIZE + 0] * x
-			+ matrix4x4[1 * MAT4_ROWSIZE + 1] * y
-			+ matrix4x4[1 * MAT4_ROWSIZE + 2] * z
-			+ matrix4x4[1 * MAT4_ROWSIZE + 3] * w;
+			= matrix4x4[1 * MAT4_ROW_LENGTH + 0] * x
+			+ matrix4x4[1 * MAT4_ROW_LENGTH + 1] * y
+			+ matrix4x4[1 * MAT4_ROW_LENGTH + 2] * z
+			+ matrix4x4[1 * MAT4_ROW_LENGTH + 3] * w;
 
 		result[2]
-			= matrix4x4[2 * MAT4_ROWSIZE + 0] * x
-			+ matrix4x4[2 * MAT4_ROWSIZE + 1] * y
-			+ matrix4x4[2 * MAT4_ROWSIZE + 2] * z
-			+ matrix4x4[2 * MAT4_ROWSIZE + 3] * w;
+			= matrix4x4[2 * MAT4_ROW_LENGTH + 0] * x
+			+ matrix4x4[2 * MAT4_ROW_LENGTH + 1] * y
+			+ matrix4x4[2 * MAT4_ROW_LENGTH + 2] * z
+			+ matrix4x4[2 * MAT4_ROW_LENGTH + 3] * w;
 
 		result[3]
-			= matrix4x4[3 * MAT4_ROWSIZE + 0] * x
-			+ matrix4x4[3 * MAT4_ROWSIZE + 1] * y
-			+ matrix4x4[3 * MAT4_ROWSIZE + 2] * z
-			+ matrix4x4[3 * MAT4_ROWSIZE + 3] * w;
+			= matrix4x4[3 * MAT4_ROW_LENGTH + 0] * x
+			+ matrix4x4[3 * MAT4_ROW_LENGTH + 1] * y
+			+ matrix4x4[3 * MAT4_ROW_LENGTH + 2] * z
+			+ matrix4x4[3 * MAT4_ROW_LENGTH + 3] * w;
 
 	#else
 
 		result[0]
-			= x * matrix4x4[0 * MAT4_ROWSIZE + 0]
-			+ y * matrix4x4[1 * MAT4_ROWSIZE + 0]
-			+ z * matrix4x4[2 * MAT4_ROWSIZE + 0]
-			+ w * matrix4x4[3 * MAT4_ROWSIZE + 0];
+			= x * matrix4x4[0 * MAT4_ROW_LENGTH + 0]
+			+ y * matrix4x4[1 * MAT4_ROW_LENGTH + 0]
+			+ z * matrix4x4[2 * MAT4_ROW_LENGTH + 0]
+			+ w * matrix4x4[3 * MAT4_ROW_LENGTH + 0];
 
 		result[1]
-			= x * matrix4x4[0 * MAT4_ROWSIZE + 0]
-			+ y * matrix4x4[1 * MAT4_ROWSIZE + 0]
-			+ z * matrix4x4[2 * MAT4_ROWSIZE + 0]
-			+ w * matrix4x4[3 * MAT4_ROWSIZE + 0];
+			= x * matrix4x4[0 * MAT4_ROW_LENGTH + 0]
+			+ y * matrix4x4[1 * MAT4_ROW_LENGTH + 0]
+			+ z * matrix4x4[2 * MAT4_ROW_LENGTH + 0]
+			+ w * matrix4x4[3 * MAT4_ROW_LENGTH + 0];
 
 		result[2]
-			= x * matrix4x4[0 * MAT4_ROWSIZE + 0]
-			+ y * matrix4x4[1 * MAT4_ROWSIZE + 0]
-			+ z * matrix4x4[2 * MAT4_ROWSIZE + 0]
-			+ w * matrix4x4[3 * MAT4_ROWSIZE + 0];
+			= x * matrix4x4[0 * MAT4_ROW_LENGTH + 0]
+			+ y * matrix4x4[1 * MAT4_ROW_LENGTH + 0]
+			+ z * matrix4x4[2 * MAT4_ROW_LENGTH + 0]
+			+ w * matrix4x4[3 * MAT4_ROW_LENGTH + 0];
 
 		result[3]
-			= x * matrix4x4[0 * MAT4_ROWSIZE + 0]
-			+ y * matrix4x4[1 * MAT4_ROWSIZE + 0]
-			+ z * matrix4x4[2 * MAT4_ROWSIZE + 0]
-			+ w * matrix4x4[3 * MAT4_ROWSIZE + 0];
+			= x * matrix4x4[0 * MAT4_ROW_LENGTH + 0]
+			+ y * matrix4x4[1 * MAT4_ROW_LENGTH + 0]
+			+ z * matrix4x4[2 * MAT4_ROW_LENGTH + 0]
+			+ w * matrix4x4[3 * MAT4_ROW_LENGTH + 0];
 	#endif
 
 		return result;
