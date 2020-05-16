@@ -10,6 +10,8 @@ namespace NAMESPACE_PHYSICS
 {
 #define MAT4_LENGTH 16
 #define MAT4_ROW_LENGTH 4
+#define MAT4_FLOAT_SIZE (MAT4_LENGTH * SIZEOF_FLOAT)
+#define MAT4_DOUBLE_SIZE (MAT4_LENGTH * SIZEOF_DOUBLE)
 
 	template <typename T>
 	class AutovalueAutovector4
@@ -146,6 +148,11 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static Mat4<T> createScale(const T xScale, const T yScale, const T zScale);
 
 		/// <summary>
+		/// Create a scaled matrix
+		/// </summary>
+		API_INTERFACE static Mat4<T> createScale(const Vec3<T>& scale);
+
+		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
 		API_INTERFACE void scale(const T xScale, const T yScale, const T zScale);
@@ -157,9 +164,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static Mat4<T> createRotate(const T angleRadians, const T x, const T y, const T z);
 
 		/// <summary>
-		/// Craete a translation matrix
+		/// Create a translation matrix
 		/// </summary>
 		API_INTERFACE static Mat4<T> createTranslate(const T x, const T y, const T z);
+
+		/// <summary>
+		/// Create a translation matrix
+		/// </summary>
+		API_INTERFACE static Mat4<T> createTranslate(const Vec3<T>& position);
 
 		/// <summary>
 		/// Craete a orthographic matrix projection
@@ -307,7 +319,6 @@ namespace NAMESPACE_PHYSICS
 		*/
 	};
 
-	typedef Mat4<sp_int> Mat4i;
 	typedef Mat4<sp_float> Mat4f;
 	typedef Mat4<sp_double> Mat4d;
 

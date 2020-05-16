@@ -40,7 +40,7 @@ namespace NAMESPACE_PHYSICS
 	///
 	/// </summary>
 	class DOP18
-		: public BoundingVolumeDOP18
+		: public BoundingVolume
 	{
 	private:
 		void fixTopDegeneration(const Plane3D* planes);
@@ -100,26 +100,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3f centerOfBoundingVolume() const override;
 
 		/// <summary>
-		/// Translate the k-DOP
-		/// </summary>
-		API_INTERFACE DOP18* translate(float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// k-DOP is never rotated! Use OBB instead.
-		/// </summary>
-		API_INTERFACE DOP18* rotate(float angleInRadians, float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// Scale the k-DOP
-		/// </summary>
-		API_INTERFACE DOP18* scale(float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// Get model view of k-DOP
-		/// </summary>
-		API_INTERFACE Mat3f modelView() override;
-
-		/// <summary>
 		/// Check collision with another k-DOP
 		/// </summary>
 		API_INTERFACE CollisionStatus collisionStatus(const DOP18& kDop);
@@ -128,6 +108,11 @@ namespace NAMESPACE_PHYSICS
 		/// Fix degenerated 18-DOP pulling their planes on the right position
 		/// </summary>
 		API_INTERFACE void fixDegenerations();
+
+		/// <summary>
+		/// Returns the type og bounding volume
+		/// </summary>
+		API_INTERFACE BoundingVolumeType DOP18::type() const;
 
 		/// <summary>
 		/// Releases all allocated resouces

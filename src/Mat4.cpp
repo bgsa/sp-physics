@@ -447,11 +447,23 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	Mat4<T> Mat4<T>::createScale(const T xScale, const T yScale, const T zScale)
 	{
-		Mat4<T> result = Mat4<T>::identity();
+		return Mat4<T>(
+			xScale, 0.0f, 0.0f, 0.0f,
+			0.0f, yScale, 0.0f, 0.0f,
+			0.0f, 0.0f, zScale, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+			);
+	}
 
-		result.scale(xScale, yScale, zScale);
-
-		return result;
+	template <typename T>
+	Mat4<T> Mat4<T>::createScale(const Vec3<T>& scale)
+	{
+		return Mat4<T>(
+			ONE_FLOAT + scale.x, 0.0f, 0.0f, 0.0f,
+			0.0f, ONE_FLOAT + scale.y, 0.0f, 0.0f,
+			0.0f, 0.0f, ONE_FLOAT + scale.z, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		);
 	}
 
 	template <typename T>
@@ -530,6 +542,24 @@ namespace NAMESPACE_PHYSICS
 		result[7] = y;
 		result[11] = z;
 	#endif
+
+		return result;
+	}
+
+	template <typename T>
+	Mat4<T> Mat4<T>::createTranslate(const Vec3<T>& position)
+	{
+		Mat4<T> result = Mat4<T>::identity();
+
+#if MAJOR_COLUMN_ORDER
+		result[12] = position.x;
+		result[13] = position.y;
+		result[14] = position.z;
+#else
+		result[3] = position.x;
+		result[7] = position.y;
+		result[11] = position.z;
+#endif
 
 		return result;
 	}
@@ -906,7 +936,6 @@ namespace NAMESPACE_PHYSICS
 	}
 	*/
 
-	template class Mat4<sp_int>;
 	template class Mat4<sp_float>;
 	template class Mat4<sp_double>;
 }

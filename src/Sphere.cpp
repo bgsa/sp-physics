@@ -2,7 +2,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	Sphere WelzlSphere(Vec3f* points, int numPts, Vec3f suportPoints[], int suportPointsCount)
+	Sphere WelzlSphere(Vec3f* points, int numPts, Vec3f suportPoints[], sp_int suportPointsCount)
 	{
 		// if no input points, the recursion has bottomed out. Now compute an 
 		// exact sphere based on points in set of support (zero through four points) 
@@ -45,24 +45,18 @@ namespace NAMESPACE_PHYSICS
 	{
 		this->center = Vec3f(0.0f);
 		this->ray = 1.0f;
-
-		initParticleSystem();
 	}
 
-	Sphere::Sphere(const Vec3f &center, float ray)
+	Sphere::Sphere(const Vec3f &center, sp_float ray)
 	{
 		this->center = center;
 		this->ray = ray;
-
-		initParticleSystem();
 	}
 
 	Sphere::Sphere(const Vec3f &point1)
 	{
 		this->center = point1;
 		this->ray = 1.0f;
-
-		initParticleSystem();
 	}
 
 	Sphere::Sphere(const Vec3f &point1, const Vec3f &point2)
@@ -70,8 +64,6 @@ namespace NAMESPACE_PHYSICS
 		Line3D line = Line3D(point1, point2);
 		this->center = line.centerOfSegment();
 		this->ray = line.lengthOfSegment() / 2.0f;
-
-		initParticleSystem();
 	}
 
 	Sphere::Sphere(const Vec3f &point1, const Vec3f &point2, const Vec3f &point3)
@@ -86,8 +78,6 @@ namespace NAMESPACE_PHYSICS
 		// The 3 space coords of the circumsphere center then:
 		this->center = point1 + toCircumsphereCenter; // now this is the actual 3space location
 		this->ray = toCircumsphereCenter.length();
-
-		initParticleSystem();
 	}
 
 	Sphere::Sphere(const Vec3f &point1, const Vec3f &point2, const Vec3f &point3, const Vec3f &point4)
@@ -99,12 +89,12 @@ namespace NAMESPACE_PHYSICS
 			Vec4f(point4, 1.0f)
 			);
 
-		float invertedDeterminant = 1.0f / m.determinant();
+		sp_float invertedDeterminant = 1.0f / m.determinant();
 
-		float t1 = -(point1.dot(point1));
-		float t2 = -(point2.dot(point2));
-		float t3 = -(point3.dot(point3));
-		float t4 = -(point4.dot(point4));
+		sp_float t1 = -(point1.dot(point1));
+		sp_float t2 = -(point2.dot(point2));
+		sp_float t3 = -(point3.dot(point3));
+		sp_float t4 = -(point4.dot(point4));
 
 		m = Mat4f(
 			Vec4f(t1, point1[1], point1[2], 1.0f),
@@ -112,8 +102,8 @@ namespace NAMESPACE_PHYSICS
 			Vec4f(t3, point3[1], point3[2], 1.0f),
 			Vec4f(t4, point4[1], point4[2], 1.0f)
 			);
-		float a = m.determinant() * invertedDeterminant;
-		float x = a * -0.5f;
+		sp_float a = m.determinant() * invertedDeterminant;
+		sp_float x = a * -0.5f;
 
 		m = Mat4f(
 			Vec4f(point1[0], t1, point1[2], 1.0f),
@@ -121,8 +111,8 @@ namespace NAMESPACE_PHYSICS
 			Vec4f(point3[0], t3, point3[2], 1.0f),
 			Vec4f(point4[0], t4, point4[2], 1.0f)
 			);
-		float b = m.determinant() * invertedDeterminant;
-		float y = b * -0.5f;
+		sp_float b = m.determinant() * invertedDeterminant;
+		sp_float y = b * -0.5f;
 
 		m = Mat4f(
 			Vec4f(point1[0], point1[1], t1, 1.0f),
@@ -130,8 +120,8 @@ namespace NAMESPACE_PHYSICS
 			Vec4f(point3[0], point3[1], t3, 1.0f),
 			Vec4f(point4[0], point4[1], t4, 1.0f)
 			);
-		float c = m.determinant() * invertedDeterminant;
-		float z = c * -0.5f;
+		sp_float c = m.determinant() * invertedDeterminant;
+		sp_float z = c * -0.5f;
 
 		m = Mat4f(
 			Vec4f(point1[0], point1[1], point1[2], t1),
@@ -139,40 +129,15 @@ namespace NAMESPACE_PHYSICS
 			Vec4f(point3[0], point3[1], point3[2], t3),
 			Vec4f(point4[0], point4[1], point4[2], t4)
 			);
-		float d = m.determinant() * invertedDeterminant;
+		sp_float d = m.determinant() * invertedDeterminant;
 
 		center = { x, y, z };
 		ray = std::sqrt(a * a + b * b + c * c - 4 * d) / 2.0f;
-
-		initParticleSystem();
-	}
-
-	Sphere* Sphere::translate(float xAxis, float yAxis, float zAxis)
-	{
-		center += Vec3f(xAxis, yAxis, zAxis);
-		return this;
-	}
-
-	Sphere* Sphere::scale(float xAxis, float yAxis, float zAxis)
-	{
-		ray *= xAxis;
-		return this;
-	}
-
-	Sphere* Sphere::rotate(float angleInRadians, float xAxis, float yAxis, float zAxis)
-	{
-		return this;
-	}
-
-	Mat3f Sphere::modelView() 
-	{
-		return Mat3f::createTranslate(center.x, center.y, center.z)
-			* Mat3f::createScale(ray, ray, ray);
 	}
 
 	CollisionStatus Sphere::collisionStatus(const Vec3f &point)  const
 	{
-		float distanceToPoint = center.distance(point);
+		sp_float distanceToPoint = center.distance(point);
 		
 		if (isCloseEnough(distanceToPoint, ray))
 			return CollisionStatus::INLINE;
@@ -186,11 +151,11 @@ namespace NAMESPACE_PHYSICS
 	CollisionStatus Sphere::collisionStatus(const Sphere& sphere)  const
 	{
 		Vec3f rayToSphere = center - sphere.center; 
-		float squaredDistance = rayToSphere.dot(rayToSphere);
+		sp_float squaredDistance = rayToSphere.dot(rayToSphere);
 
 		// Spheres intersect if squared distance is less than squared sum of radius 
-		float diameter = ray + sphere.ray;
-		float squaredDiameter = diameter * diameter;
+		sp_float diameter = ray + sphere.ray;
+		sp_float squaredDiameter = diameter * diameter;
 
 		if (isCloseEnough(squaredDistance, squaredDiameter))
 			return CollisionStatus::INLINE;
@@ -218,8 +183,8 @@ namespace NAMESPACE_PHYSICS
 
 		// optimized implementation
 
-		float d = plane.getDcomponent();
-		float distanceToPlane = center.dot(plane.normalVector) + d;
+		sp_float d = plane.getDcomponent();
+		sp_float distanceToPlane = center.dot(plane.normalVector) + d;
 
 		if (isCloseEnough(distanceToPlane, ray))
 			return CollisionStatus::INLINE;
@@ -232,7 +197,7 @@ namespace NAMESPACE_PHYSICS
 
 	Sphere Sphere::buildFrom(const AABB &aabb)
 	{
-		float maxDistance = aabb.maxPoint[0] - aabb.minPoint[0];
+		sp_float maxDistance = aabb.maxPoint[0] - aabb.minPoint[0];
 
 		maxDistance = std::max(maxDistance, aabb.maxPoint[1] - aabb.minPoint[1]);
 
@@ -259,7 +224,7 @@ namespace NAMESPACE_PHYSICS
 		Sphere result;
 
 		Vec3f d = sphere.center - center;
-		float squaredDistance = d.dot(d);  	// Compute the squared distance between the sphere centers 
+		sp_float squaredDistance = d.dot(d);  	// Compute the squared distance between the sphere centers 
 
 		if (std::pow(double(sphere.ray - ray), 2) >= squaredDistance)
 		{
@@ -273,7 +238,7 @@ namespace NAMESPACE_PHYSICS
 		else
 		{
 			// Spheres partially overlapping or disjoint 
-			float distance = sqrtf(squaredDistance);
+			sp_float distance = sqrtf(squaredDistance);
 
 			result.ray = (distance + ray + sphere.ray) * 0.5f;
 			result.center = center;
@@ -292,10 +257,8 @@ namespace NAMESPACE_PHYSICS
 		return enclose(sphere);
 	}
 
-	void Sphere::initParticleSystem()
+	BoundingVolumeType Sphere::type() const
 	{
-		particleSystem = ALLOC_NEW(ParticleSystem)(1);
-		particleSystem->particles[0].position = center;
-		particleSystem->particles[0].previousPosition = center;
+		return BoundingVolumeType::Sphere;
 	}
 }

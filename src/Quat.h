@@ -198,6 +198,16 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline Mat3<sp_float> toMat3() const;
 
 		/// <summary>
+		/// Convertion to rotational and translation matrix 4x4
+		/// </summary>
+		API_INTERFACE inline Mat4<sp_float> toMat4(const Vec3<sp_float>& position) const;
+
+		/// <summary>
+		/// Convertion to rotational matrix 4x4
+		/// </summary>
+		API_INTERFACE inline Mat4<sp_float> toMat4() const;
+
+		/// <summary>
 		/// Get a index from the quaternion
 		/// </summary>
 		API_INTERFACE inline sp_float operator[](sp_int index) const;
@@ -253,7 +263,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Auto convertion to Vec3
 		/// </summary>
-		API_INTERFACE inline operator Vec3<sp_float>() const;
+		API_INTERFACE operator Vec3<sp_float>() const;
 	};
 }
 

@@ -8,29 +8,26 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	template <typename T>
-	class BoundingVolume :
-		public Object
+	enum class BoundingVolumeType
+		: sp_int
+	{
+		Sphere = 1,
+		OBB = 2,
+		AABB = 3,
+		DOP18 = 4,
+	};
+
+	class BoundingVolume 
+		: public Object
 	{
 	public:
 
-		ParticleSystem* particleSystem = NULL;
-		
 		API_INTERFACE virtual Vec3f centerOfBoundingVolume() const = 0;
 
-		API_INTERFACE virtual T* translate(sp_float xAxis, sp_float yAxis, sp_float zAxis) = 0;
-		API_INTERFACE virtual T* rotate(sp_float angleInRadians, sp_float xAxis, sp_float yAxis, sp_float zAxis) = 0;
-		API_INTERFACE virtual T* scale(sp_float xAxis, sp_float yAxis, sp_float zAxis) = 0;
-
-		API_INTERFACE virtual Mat3f modelView() = 0;
+		API_INTERFACE virtual BoundingVolumeType type() const = 0;
 
 	};
 
-	typedef BoundingVolume<Sphere> BoundingVolumeSphere;
-	typedef BoundingVolume<AABB> BoundingVolumeAABB;
-	typedef BoundingVolume<OBB> BoundingVolumeOBB;
-	typedef BoundingVolume<DOP18> BoundingVolumeDOP18;
-
 }
 
-#endif // !BOUNDING_VOLUME_HEADER
+#endif // BOUNDING_VOLUME_HEADER

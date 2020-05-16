@@ -214,6 +214,8 @@
     <ClCompile Include="src\Quat.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
+    <ClCompile Include="src\SpPhysicSimulator.cpp" />
+    <ClCompile Include="src\SpTransform.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
     <ClCompile Include="src\SweepAndPruneKdop.cpp" />
     <ClCompile Include="src\Triangle2D.cpp" />
@@ -272,6 +274,9 @@
     <ClInclude Include="src\Randomizer.h" />
     <ClInclude Include="src\Rectangle2D.h" />
     <ClInclude Include="src\Sphere.h" />
+    <ClInclude Include="src\SpPhysicObject.h" />
+    <ClInclude Include="src\SpPhysicSimulator.h" />
+    <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SweepAndPrune.h" />
     <ClInclude Include="src\SweepAndPruneKdop.h" />
     <ClInclude Include="src\SystemOfLinearEquations.h" />

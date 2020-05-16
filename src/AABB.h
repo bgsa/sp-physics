@@ -14,7 +14,7 @@ namespace NAMESPACE_PHYSICS
 #define AABB_OFFSET 2
 
 	class AABB
-		: public BoundingVolumeAABB
+		: public BoundingVolume
 	{
 	public:
 		Vec3f minPoint;
@@ -54,26 +54,6 @@ namespace NAMESPACE_PHYSICS
 		///Get the distance from a point and AABB
 		///</summary>
 		API_INTERFACE float distance(const Vec3f& target);
-
-		/// <summary>
-		/// Translate the AABB
-		/// </summary>
-		API_INTERFACE AABB* translate(float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// AABB is never rotated! Use OBB instead.
-		/// </summary>
-		API_INTERFACE AABB* rotate(float angleInRadians, float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// Scale the AABB
-		/// </summary>
-		API_INTERFACE AABB* scale(float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// Get model view of AABB
-		/// </summary>
-		API_INTERFACE Mat3f modelView() override;
 
 		///<summary>
 		///Check whether the AABBs are in contact each other
@@ -149,6 +129,11 @@ namespace NAMESPACE_PHYSICS
 		///Equals function
 		/// </summary>
 		API_INTERFACE bool operator()(const AABB& aabb1, const AABB& aabb2) const;
+
+		/// <summary>
+		/// Returns the type of bounding volume
+		/// </summary>
+		API_INTERFACE BoundingVolumeType type() const override;
 
 		/// <summary>
 		/// Releases all allocated resouces

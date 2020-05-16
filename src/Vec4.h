@@ -227,9 +227,8 @@ namespace NAMESPACE_PHYSICS
 
 	};
 
-	typedef Vec4<int> Vec4i;
-	typedef Vec4<float> Vec4f;
-	typedef Vec4<double> Vec4d;
+	typedef Vec4<sp_float> Vec4f;
+	typedef Vec4<sp_double> Vec4d;
 
 }
 

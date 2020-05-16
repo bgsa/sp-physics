@@ -278,7 +278,7 @@ namespace NAMESPACE_PHYSICS
 
 	Mat3<sp_float> Quat::toMat3() const
 	{
-		Mat3f result;
+		Mat3f matrix;
 
 		sp_float sqw = w * w;
 		sp_float sqx = x * x;
@@ -291,70 +291,96 @@ namespace NAMESPACE_PHYSICS
 		sp_float invs = ONE_FLOAT / (sqx + sqy + sqz + sqw);
 
 		// row,col
-		result[0] = (sqx - sqy - sqz + sqw) *invs; // since sqw + sqx + sqy + sqz =1/invs*invs
-		result[4] = (-sqx + sqy - sqz + sqw)*invs;
-		result[8] = (-sqx - sqy + sqz + sqw)*invs;
+		matrix[0] = (sqx - sqy - sqz + sqw) *invs; // since sqw + sqx + sqy + sqz =1/invs*invs
+		matrix[4] = (-sqx + sqy - sqz + sqw)*invs;
+		matrix[8] = (-sqx - sqy + sqz + sqw)*invs;
 
-		result[3] = TWO_FLOAT * (tmp1 + tmp2)*invs;
-		result[1] = TWO_FLOAT * (tmp1 - tmp2)*invs;
+		matrix[3] = TWO_FLOAT * (tmp1 + tmp2)*invs;
+		matrix[1] = TWO_FLOAT * (tmp1 - tmp2)*invs;
 
 		tmp1 = x * z;
 		tmp2 = y * w;
-		result[6] = TWO_FLOAT * (tmp1 - tmp2)*invs;
-		result[2] = TWO_FLOAT * (tmp1 + tmp2)*invs;
+		matrix[6] = TWO_FLOAT * (tmp1 - tmp2)*invs;
+		matrix[2] = TWO_FLOAT * (tmp1 + tmp2)*invs;
 		tmp1 = y * z;
 		tmp2 = x * w;
-		result[7] = TWO_FLOAT * (tmp1 + tmp2)*invs;
-		result[5] = TWO_FLOAT * (tmp1 - tmp2)*invs;
+		matrix[7] = TWO_FLOAT * (tmp1 + tmp2)*invs;
+		matrix[5] = TWO_FLOAT * (tmp1 - tmp2)*invs;
 
-		return result;
+		return matrix;
 	}
 
-	/*
-	toMat4(const Vec3f& postion = Vec3f(ZERO_FLOAT))
+	Mat4<sp_float> Quat::toMat4(const Vec3<sp_float>& position) const
 	{
-	// HANDLE EQUAL MAT3 ...
+		sp_float sqw = w*w;
+		sp_float sqx = x*x;
+		sp_float sqy = y*y;
+		sp_float sqz = z*z;
 
-	   double sqw = q.w*q.w;
-	   double sqx = q.x*q.x;
-	   double sqy = q.y*q.y;
-	   double sqz = q.z*q.z;
-	   m00 = sqx - sqy - sqz + sqw; // since sqw + sqx + sqy + sqz =1
-	   m11 = -sqx + sqy - sqz + sqw;
-	   m22 = -sqx - sqy + sqz + sqw;
+		sp_float m00 = sqx - sqy - sqz + sqw; // since sqw + sqx + sqy + sqz =1
+		sp_float m11 = -sqx + sqy - sqz + sqw;
+		sp_float m22 = -sqx - sqy + sqz + sqw;
 
-	   double tmp1 = q.x*q.y;
-	   double tmp2 = q.z*q.w;
-	   m01 = 2.0 * (tmp1 + tmp2);
-	   m10 = 2.0 * (tmp1 - tmp2);
+		sp_float tmp1 = x*y;
+		sp_float tmp2 = z*w;
+		sp_float m01 = TWO_FLOAT * (tmp1 + tmp2);
+		sp_float m10 = TWO_FLOAT * (tmp1 - tmp2);
 
-	   tmp1 = q.x*q.z;
-	   tmp2 = q.y*q.w;
-	   m02 = 2.0 * (tmp1 - tmp2);
-	   m20 = 2.0 * (tmp1 + tmp2);
+		tmp1 = x*z;
+		tmp2 = y*w;
+		sp_float m02 = TWO_FLOAT * (tmp1 - tmp2);
+		sp_float m20 = TWO_FLOAT * (tmp1 + tmp2);
 
-	   tmp1 = q1.y*q.z;
-	   tmp2 = q1.x*q.w;
-	   m12 = 2.0 * (tmp1 + tmp2);
-	   m21 = 2.0 * (tmp1 - tmp2);
+		tmp1 = y*z;
+		tmp2 = x*w;
+		sp_float m12 = TWO_FLOAT * (tmp1 + tmp2);
+		sp_float m21 = TWO_FLOAT * (tmp1 - tmp2);
 
+		sp_float m03 = position.x - position.x * m00 - position.y * m01 - position.z * m02;
+		sp_float m13 = position.y - position.x * m10 - position.y * m11 - position.z * m12;
+		sp_float m23 = position.z - position.x * m20 - position.y * m21 - position.z * m22;
 
-	   // SET POSITION TO MAT4  or ZERO
-		double a1,a2,a3;
-		 if (centre == null) {
-			a1=a2=a3=0;
-		 } else {
-			a1 = centre.x;
-			a2 = centre.y;
-			a3 = centre.z;
-		}
-		m03 = a1 - a1 * m00 - a2 * m01 - a3 * m02;
-		m13 = a2 - a1 * m10 - a2 * m11 - a3 * m12;
-		m23 = a3 - a1 * m20 - a2 * m21 - a3 * m22;
-		m30 = m31 = m32 = ZERO_FLOAT;
-		m33 = ONE_FLOAT;
+		return Mat4f(
+			m00, m10, m20, ZERO_FLOAT,
+			m01, m11, m21, ZERO_FLOAT,
+			m02, m12, m22, ZERO_FLOAT,
+			m03, m13, m23, ONE_FLOAT
+		);
 	}
-	*/
+
+	Mat4<sp_float> Quat::toMat4() const
+	{
+		sp_float sqw = w * w;
+		sp_float sqx = x * x;
+		sp_float sqy = y * y;
+		sp_float sqz = z * z;
+
+		sp_float m00 = sqx - sqy - sqz + sqw; // since sqw + sqx + sqy + sqz =1
+		sp_float m11 = -sqx + sqy - sqz + sqw;
+		sp_float m22 = -sqx - sqy + sqz + sqw;
+
+		sp_float tmp1 = x * y;
+		sp_float tmp2 = z * w;
+		sp_float m01 = TWO_FLOAT * (tmp1 + tmp2);
+		sp_float m10 = TWO_FLOAT * (tmp1 - tmp2);
+
+		tmp1 = x * z;
+		tmp2 = y * w;
+		sp_float m02 = TWO_FLOAT * (tmp1 - tmp2);
+		sp_float m20 = TWO_FLOAT * (tmp1 + tmp2);
+
+		tmp1 = y * z;
+		tmp2 = x * w;
+		sp_float m12 = TWO_FLOAT * (tmp1 + tmp2);
+		sp_float m21 = TWO_FLOAT * (tmp1 - tmp2);
+
+		return Mat4f(
+			m00, m10, m20, ZERO_FLOAT,
+			m01, m11, m21, ZERO_FLOAT,
+			m02, m12, m22, ZERO_FLOAT,
+			ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
+		);
+	}
 
 	Quat Quat::fromEulerAngles(sp_float roll, sp_float pitch, sp_float yaw)
 	{

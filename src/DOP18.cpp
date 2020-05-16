@@ -53,25 +53,6 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	DOP18* DOP18::translate(float xAxis, float yAxis, float zAxis)
-	{
-		min[0] += xAxis;
-		max[0] += xAxis;
-
-		min[1] += yAxis;
-		max[1] += yAxis;
-
-		min[2] += zAxis;
-		max[2] += zAxis;
-
-		return this;
-	}
-
-	DOP18* DOP18::rotate(float angleInRadians, float xAxis, float yAxis, float zAxis)
-	{
-		return this;
-	}
-
 	CollisionStatus DOP18::collisionStatus(const DOP18& kDop)
 	{
 		// check aligned-axis orientation
@@ -241,25 +222,9 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(p);
 	}
 
-	DOP18* DOP18::scale(float xAxis, float yAxis, float zAxis)
+	BoundingVolumeType DOP18::type() const
 	{
-		min[0] *= xAxis;
-		max[0] *= xAxis;
-
-		min[1] *= yAxis;
-		max[1] *= yAxis;
-
-		min[2] *= zAxis;
-		max[2] *= zAxis;
-
-		fixDegenerations();
-
-		return this;
-	}
-
-	Mat3f DOP18::modelView()
-	{
-		return Mat3f::identity();
+		return BoundingVolumeType::DOP18;
 	}
 
 	#undef DOP18_PLANES_LEFT_INDEX

@@ -436,7 +436,6 @@ namespace NAMESPACE_PHYSICS
 		return (T*) this;
 	}
 
-	template class Vec4<sp_int>;
 	template class Vec4<sp_float>;
 	template class Vec4<sp_double>;
 }

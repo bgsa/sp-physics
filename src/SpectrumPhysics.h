@@ -40,7 +40,8 @@ namespace NAMESPACE_PHYSICS
 
 	class Quat;
 
-	template <class T>
+	class SpTransform;
+
 	class BoundingVolume;
 
 	template <typename T>

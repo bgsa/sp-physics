@@ -7,7 +7,7 @@
 namespace NAMESPACE_PHYSICS
 {
 	class OBB
-		: public BoundingVolumeOBB
+		: public BoundingVolume
 	{
 	public:
 		Vec3f center;
@@ -27,30 +27,15 @@ namespace NAMESPACE_PHYSICS
 			return Vec3f(0.0f); // Not Implemented
 		}
 
-		/// <summary>
-		/// Translate the OBB
-		/// </summary>
-		API_INTERFACE OBB* translate(float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// Rotate the OBB
-		/// </summary>
-		API_INTERFACE OBB* rotate(float angleInRadians, float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// Scale the OBB
-		/// </summary>
-		API_INTERFACE OBB* scale(float xAxis, float yAxis, float zAxis) override;
-
-		/// <summary>
-		/// Get the model view matrix of OBB
-		/// </summary>
-		API_INTERFACE Mat3f modelView() override;
-
 		///<summary>
 		/// Check whether the OBBs are in contact each other
 		///</summary>
 		API_INTERFACE CollisionStatus collisionStatus(const OBB& aabb);
+
+		/// <summary>
+		/// Returns the type og bounding volume
+		/// </summary>
+		API_INTERFACE BoundingVolumeType OBB::type() const;
 
 		///<summary>
 		/// Releases all allocated resources
@@ -63,8 +48,6 @@ namespace NAMESPACE_PHYSICS
 		{
 			return "OBB Bounding Volume";
 		}
-
-
 
 		// TODO: verificar colisao com AABB
 

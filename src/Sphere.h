@@ -12,11 +12,8 @@ namespace NAMESPACE_PHYSICS
 {
 
 	class Sphere
-		: public BoundingVolumeSphere
+		: public BoundingVolume
 	{
-	private:
-		void initParticleSystem();
-
 	public:
 		Vec3f center;
 		sp_float ray;
@@ -59,26 +56,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Translate the sphere
-		/// </summary>
-		API_INTERFACE Sphere* translate(sp_float xAxis, sp_float yAxis, sp_float zAxis) override;
-
-		/// <summary>
-		/// Bounding volume of Sphere do not rotate.
-		/// </summary>
-		API_INTERFACE Sphere* rotate(sp_float angleInRadians, sp_float xAxis, sp_float yAxis, sp_float zAxis) override;
-
-		/// <summary>
-		/// Get model view of Sphere
-		/// </summary>
-		API_INTERFACE Mat3f modelView() override;
-
-		/// <summary>
-		/// Scale the sphere
-		/// </summary>
-		API_INTERFACE Sphere* scale(sp_float xAxis, sp_float yAxis, sp_float zAxis) override;
-
-		/// <summary>
 		/// Check the status of collision against the point
 		/// </summary>
 		API_INTERFACE CollisionStatus collisionStatus(const Vec3f &point) const;
@@ -112,6 +89,11 @@ namespace NAMESPACE_PHYSICS
 		/// Enclose/add the sphere in AABB
 		/// </summary>
 		API_INTERFACE Sphere enclose(const AABB& aabb);
+
+		/// <summary>
+		/// Returns the type og bounding volume
+		/// </summary>
+		API_INTERFACE BoundingVolumeType type() const;
 
 		/// <summary>
 		/// Releases all allocated resouces

@@ -9,42 +9,6 @@ namespace NAMESPACE_PHYSICS
 		this->orientation = Mat3f::identity();
 	}
 
-	OBB* OBB::translate(float xAxis, float yAxis, float zAxis)
-	{
-		Vec3f scaled = this->halfWidth / 0.5f;
-
-		float f1 = xAxis * scaled.x;
-		float f2 = yAxis * scaled.y;
-		float f3 = zAxis * scaled.z;
-
-		this->center = this->center + Vec3f(f1, f2, f3);
-
-		return this;
-	}
-
-	OBB* OBB::scale(float xAxis, float yAxis, float zAxis)
-	{
-		this->halfWidth = Vec3f(
-								xAxis * this->halfWidth.x,
-								yAxis * this->halfWidth.y,
-								zAxis * this->halfWidth.z
-							);
-		return this;
-	}
-
-	OBB* OBB::rotate(float angleInRadians, float xAxis, float yAxis, float zAxis)
-	{
-		this->orientation *= Mat3f::createRotate(angleInRadians, xAxis, yAxis, zAxis);
-		return this;
-	}
-
-	Mat3f OBB::modelView()
-	{
-		return Mat3f::createTranslate(center.x, center.y, center.z)
-			* Mat3f::createScale(halfWidth.x * 2.0f, halfWidth.y * 2.0f, halfWidth.z * 2.0f)
-			* orientation;
-	}
-
 	CollisionStatus OBB::collisionStatus(const OBB& obb)
 	{
 		float ra, rb; 
@@ -156,4 +120,10 @@ namespace NAMESPACE_PHYSICS
 			
 		return CollisionStatus::INSIDE; // Since no separating axis is found, the OBBs must be intersecting 
 	}
+
+	BoundingVolumeType OBB::type() const
+	{
+		return BoundingVolumeType::OBB;
+	}
+
 }

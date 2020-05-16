@@ -59,48 +59,6 @@ namespace NAMESPACE_PHYSICS
 		return float(sqrt(squaredDistance(target)));
 	}
 
-	AABB* AABB::translate(float xAxis, float yAxis, float zAxis)
-	{
-		//Mat3f translation = Mat3f::createTranslate(xAxis, yAxis, zAxis);
-		Vec3f translation = Vec3f(xAxis, yAxis, zAxis);
-
-		minPoint += translation;
-		maxPoint += translation;
-
-		return this;
-	}
-
-	AABB* AABB::scale(float xAxis, float yAxis, float zAxis)
-	{
-		minPoint = Vec3f(
-			minPoint.x * (xAxis * 0.5f),
-			minPoint.y * (yAxis * 0.5f),
-			minPoint.z * (zAxis * 0.5f)
-		);
-
-		maxPoint = Vec3f(
-			maxPoint.x * (xAxis * 0.5f),
-			maxPoint.y * (yAxis * 0.5f),
-			maxPoint.z * (zAxis * 0.5f)
-		);
-
-		return this;
-	}
-
-	AABB* AABB::rotate(float angleInRadians, float xAxis, float yAxis, float zAxis)
-	{
-		return this;
-	}
-
-	Mat3f AABB::modelView()
-	{
-		Vec3f midPoint = center();
-		Vec3f halfWidth = maxPoint - midPoint;
-
-		return Mat3f::createTranslate(midPoint.x, midPoint.y, midPoint.z)
-			* Mat3f::createScale(halfWidth.x, halfWidth.y, halfWidth.z);
-	}
-
 	CollisionStatus AABB::collisionStatus(const AABB& aabb) 
 	{
 		if (maxPoint.x < aabb.minPoint.x || minPoint.x > aabb.maxPoint.x)
@@ -289,4 +247,10 @@ namespace NAMESPACE_PHYSICS
 	{
 		return aabb1 == aabb2;
 	}
+
+	BoundingVolumeType AABB::type() const
+	{
+		return BoundingVolumeType::AABB;
+	}
+
 }

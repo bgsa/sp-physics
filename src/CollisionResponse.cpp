@@ -12,6 +12,7 @@ namespace NAMESPACE_PHYSICS
 		this->contactPoint = contactPoint;
 	}
 
+	/*
 	void CollisionResponse::separeteSpheres(Sphere* sphere1, Sphere* sphere2)
 	{
 		float factor = ((sphere1->ray + sphere2->ray) - sphere2->center.distance(sphere1->center)) * 0.5f;
@@ -71,4 +72,5 @@ namespace NAMESPACE_PHYSICS
 
 		return response;
 	}
+	*/
 }
