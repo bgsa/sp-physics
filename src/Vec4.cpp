@@ -371,7 +371,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Vec4::operator[](const sp_int index)
 	{
-		sp_assert(index >= 0 && index < VEC4_SIZE);
+		sp_assert(index >= 0 && index < VEC4_SIZE, "IndexOutOfrangeException");
 
 		return ((sp_float*)this)[index];
 	}
@@ -379,7 +379,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float Vec4::operator[](const sp_int index) const
 	{
-		sp_assert(index >= 0 && index < VEC4_SIZE);
+		sp_assert(index >= 0 && index < VEC4_SIZE, "IndexOutOfrangeException");
 
 		return reinterpret_cast<const sp_float*>(this)[index];
 	}
@@ -387,7 +387,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Vec4::operator[](const sp_uint index)
 	{
-		sp_assert(index >= 0 && index < VEC4_SIZE);
+		sp_assert(index >= 0 && index < VEC4_SIZE, "IndexOutOfrangeException");
 
 		return ((sp_float*)this)[index];
 	}
@@ -395,7 +395,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float Vec4::operator[](const sp_uint index) const
 	{
-		sp_assert(index >= 0 && index < VEC4_SIZE);
+		sp_assert(index >= 0 && index < VEC4_SIZE, "IndexOutOfrangeException");
 
 		return reinterpret_cast<const sp_float*>(this)[index];
 	}

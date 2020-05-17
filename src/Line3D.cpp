@@ -6,7 +6,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line3D::Line3D(const Vec3& point1, const Vec3& point2)
 	{
-		sp_assert(point1 != point2);
+		sp_assert(point1 != point2, "InvalidArgumentException");
 
 		this->point1 = point1;
 		this->point2 = point2;
@@ -14,7 +14,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line3D::Line3D(Vec3* points)
 	{
-		sp_assert(points[0] != points[1]);
+		sp_assert(points[0] != points[1], "InvalidArgumentException");
 
 		this->point1 = points[0];
 		this->point2 = points[1];
@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line3D::Line3D(float* point1, float* point2)
 	{
-		sp_assert(point1 != point2);
+		sp_assert(point1 != point2, "InvalidArgumentException");
 
 		this->point1 = Vec3(point1[0], point1[1], point1[2]);
 		this->point2 = Vec3(point2[0], point2[1], point2[2]);

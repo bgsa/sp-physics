@@ -432,14 +432,14 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Mat3::operator[](sp_int index)
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 	
 	sp_float Mat3::operator[](sp_int index) const
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}
@@ -447,14 +447,14 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Mat3::operator[](sp_uint index)
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 	
 	sp_float Mat3::operator[](sp_uint index) const
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}
@@ -463,14 +463,14 @@ namespace NAMESPACE_PHYSICS
 	
 	T& Mat3::operator[](sp_size index)
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 	
 	T Mat3::operator[](sp_size index) const
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE);
+		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}

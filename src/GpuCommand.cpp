@@ -176,7 +176,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_double GpuCommand::getTimeOfExecution()
 	{
-		sp_assert(lastEvent != NULL);
+		sp_assert(lastEvent != NULL, "NullPointerException");
 
 		cl_ulong timeStart, timeEnd;
 
@@ -194,7 +194,7 @@ namespace NAMESPACE_PHYSICS
 
 	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset, cl_event* eventstoWait, const sp_uint eventLength)
 	{
-		sp_assert(globalWorkSize[0] % localWorkSize[0] == 0);
+		sp_assert(globalWorkSize[0] % localWorkSize[0] == 0, "InvalidArgumentException");
 		
 		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, threadOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, &lastEvent));
 

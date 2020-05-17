@@ -27,7 +27,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE SpTransform* translate(const sp_float x, const sp_float y, const sp_float z);
 
-		API_INTERFACE inline Mat4 toMat4();
+		API_INTERFACE inline Mat4 toMat4() const;
 	};
 
 }

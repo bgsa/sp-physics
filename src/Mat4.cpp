@@ -731,7 +731,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Mat4::operator[](const sp_int index)
 	{
-		sp_assert(index >= 0 && index < MAT4_LENGTH);
+		sp_assert(index >= 0 && index < MAT4_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
@@ -739,7 +739,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float Mat4::operator[](const sp_int index) const
 	{
-		sp_assert(index >= 0 && index < MAT4_LENGTH);
+		sp_assert(index >= 0 && index < MAT4_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}

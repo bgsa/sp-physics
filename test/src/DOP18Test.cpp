@@ -9,15 +9,15 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(DOP18_constructor_empty);
+		SP_TEST_METHOD_DEF(constructor_empty);
 
-		SP_TEST_METHOD_DEF(DOP18_collisionStatus_outside);
+		SP_TEST_METHOD_DEF(collisionStatus_outside);
 
-		SP_TEST_METHOD_DEF(DOP18_collisionStatus_inside);
+		SP_TEST_METHOD_DEF(collisionStatus_inside);
 		
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, DOP18_constructor_empty)
+	SP_TEST_METHOD(CLASS_NAME, constructor_empty)
 	{
 		DOP18 kdop = DOP18();
 
@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		}
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, DOP18_collisionStatus_outside)
+	SP_TEST_METHOD(CLASS_NAME, collisionStatus_outside)
 	{
 		DOP18 kdop1 = DOP18();
 		DOP18 kdop2 = DOP18();
@@ -69,7 +69,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(CollisionStatus::OUTSIDE, result, L"Wrong value.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, DOP18_collisionStatus_inside)
+	SP_TEST_METHOD(CLASS_NAME, collisionStatus_inside)
 	{
 		DOP18 kdop1 = DOP18();
 		DOP18 kdop2 = DOP18();

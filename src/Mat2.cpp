@@ -222,14 +222,14 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float& Mat2::operator[](sp_int index)
 	{
-		sp_assert(index >= 0 && index < MAT2_SIZE);
+		sp_assert(index >= 0 && index < MAT2_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 
 	sp_float Mat2::operator[](sp_int index) const
 	{
-		sp_assert(index >= 0 && index < MAT2_SIZE);
+		sp_assert(index >= 0 && index < MAT2_SIZE, "IndexOutOfrangeException");
 
 		return values[index];
 	}

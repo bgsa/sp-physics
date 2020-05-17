@@ -8,7 +8,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line2D::Line2D(const Vec2& point1, const Vec2& point2)
 	{
-		sp_assert(point1 != point2);
+		sp_assert(point1 != point2, "InvalidArgumentException");
 
 		this->point1 = point1;
 		this->point2 = point2;
@@ -16,7 +16,7 @@ namespace NAMESPACE_PHYSICS
 
 	Line2D::Line2D(sp_float* point1, sp_float* point2)
 	{
-		sp_assert(point1 != point2);
+		sp_assert(point1 != point2, "InvalidArgumentException");
 
 		this->point1 = Vec2(point1[0], point1[1]);
 		this->point2 = Vec2(point2[0], point2[1]);

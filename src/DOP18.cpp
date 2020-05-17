@@ -2,31 +2,13 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	#define DOP18_PLANES_LEFT_INDEX 0
-	#define DOP18_PLANES_RIGHT_INDEX 1
-	#define DOP18_PLANES_UP_INDEX 2
-	#define DOP18_PLANES_DOWN_INDEX 3
-	#define DOP18_PLANES_FRONT_INDEX 4
-	#define DOP18_PLANES_DEPTH_INDEX 5
-	#define DOP18_PLANES_UP_LEFT_INDEX 6
-	#define DOP18_PLANES_DOWN_RIGHT_INDEX 7
-	#define DOP18_PLANES_UP_RIGHT_INDEX 8
-	#define DOP18_PLANES_DOWN_LEFT_INDEX 9
-	#define DOP18_PLANES_UP_FRONT_INDEX 10
-	#define DOP18_PLANES_DOWN_DEPTH_INDEX 11
-	#define DOP18_PLANES_UP_DEPTH_INDEX 12
-	#define DOP18_PLANES_DOWN_FRONT_INDEX 13
-	#define DOP18_PLANES_LEFT_DEPTH_INDEX 14
-	#define DOP18_PLANES_RIGHT_FRONT_INDEX 15
-	#define DOP18_PLANES_RIGHT_DEPTH_INDEX 16
-	#define DOP18_PLANES_LEFT_FRONT_INDEX 17
 
 	DOP18::DOP18()
 	{
 		min[0] = min[1] = min[2] = -0.5f;
 		max[0] = max[1] = max[2] = 0.5f;
 		min[3] = min[4] = min[5] = min[6] = min[7] = min[8] = -0.375f;
-		max[3] = max[4] = max[5] = max[6] = max[7] = max[8] = 0.375f;
+		max[3] = max[4] = max[5] = max[6] = max[7] = max[8] = 0.375f; // = (0.5f / 2) + (0.5f / 4)
 	}
 
 	Vec3 DOP18::centerOfBoundingVolume() const
@@ -40,19 +22,55 @@ namespace NAMESPACE_PHYSICS
 
 	void DOP18::translate(const Vec3& translation)
 	{
-		min[0] += translation.x;
+		min[DOP18_AXIS_X] += translation.x;
+		max[DOP18_AXIS_X] += translation.x;
+
+		min[DOP18_AXIS_Y] += translation.y;
+		max[DOP18_AXIS_Y] += translation.y;
+
+		min[DOP18_AXIS_Z] += translation.z;
+		max[DOP18_AXIS_Z] += translation.z;
+
+		min[DOP18_AXIS_UP_LEFT] += translation.x + translation.y;
+		max[DOP18_AXIS_UP_LEFT] += translation.x + translation.y;
+
+		min[DOP18_AXIS_UP_RIGHT] += translation.x + translation.y;
+		max[DOP18_AXIS_UP_RIGHT] += translation.x + translation.y;
+
+		min[DOP18_AXIS_UP_FRONT] += translation.y + translation.z;
+		max[DOP18_AXIS_UP_FRONT] += translation.y + translation.z;
+
+		min[DOP18_AXIS_UP_DEPTH] += translation.y + translation.z;
+		max[DOP18_AXIS_UP_DEPTH] += translation.y + translation.z;
+
+		min[DOP18_AXIS_LEFT_DEPTH] += translation.x + translation.z;
+		max[DOP18_AXIS_LEFT_DEPTH] += translation.x + translation.z;
+
+		min[DOP18_AXIS_RIGHT_DEPTH] += translation.x + translation.z;
+		max[DOP18_AXIS_RIGHT_DEPTH] += translation.x + translation.z;
 	}
 
-	void DOP18::scale(const Vec3& factor)
+	void DOP18::scale(const Vec3& factor) 
 	{
+		min[DOP18_AXIS_X] *= factor.x;
+		max[DOP18_AXIS_X] *= factor.x;
 
+		min[DOP18_AXIS_Y] *= factor.y;
+		max[DOP18_AXIS_Y] *= factor.y;
+
+		min[DOP18_AXIS_Z] *= factor.z;
+		max[DOP18_AXIS_Z] *= factor.z;
 	}
 
 	void DOP18::rotate(const Vec3& angles) { }
 
 	CollisionStatus DOP18::collisionStatus(const DOP18& kDop)
 	{
-		// check aligned-axis orientation
+		for (sp_int i = 0; i < DOP18_ORIENTATIONS; i++)
+			if (min[i] > kDop.max[i] || max[i] < kDop.min[i])
+				return CollisionStatus::OUTSIDE;
+
+		/*
 		for (sp_int i = 0; i < 3; i++)
 			if (min[i] > kDop.max[i] || max[i] < kDop.min[i])
 				return CollisionStatus::OUTSIDE;
@@ -92,6 +110,7 @@ namespace NAMESPACE_PHYSICS
 		if (min[8] + distanceFromOriginXZ > kDop.max[8] + distanceFromOriginKDopXZ
 			|| max[8] + distanceFromOriginXZ < kDop.min[8] + distanceFromOriginKDopXZ) // right-front
 			return CollisionStatus::OUTSIDE;
+		*/
 
 		return CollisionStatus::INSIDE;
 	}
@@ -101,33 +120,33 @@ namespace NAMESPACE_PHYSICS
 		const Vec3* n = normals();
 		const Vec3 center = centerOfBoundingVolume();
 
-		Plane3D* result = ALLOC_NEW_ARRAY(Plane3D, 18) {
-			Plane3D(Vec3(min[0], center.y, center.z), n[0]), // left
-			Plane3D(Vec3(max[0], center.y, center.z), n[1]), // right
+		Plane3D* result = sp_mem_new_array(Plane3D, 18) {
+			Plane3D(Vec3(min[DOP18_AXIS_X], center.y, center.z), n[0]), // left
+			Plane3D(Vec3(max[DOP18_AXIS_X], center.y, center.z), n[1]), // right
 
-			Plane3D(Vec3(center.x, max[1], center.z), n[2]), // up
-			Plane3D(Vec3(center.x, min[1], center.z), n[3]), // down
+			Plane3D(Vec3(center.x, max[DOP18_AXIS_Y], center.z), n[2]), // up
+			Plane3D(Vec3(center.x, min[DOP18_AXIS_Y], center.z), n[3]), // down
 
-			Plane3D(Vec3(center.x, center.y, min[2]), n[4]), // front
-			Plane3D(Vec3(center.x, center.y, max[2]), n[5]), // depth
+			Plane3D(Vec3(center.x, center.y, min[DOP18_AXIS_Z]), n[4]), // front
+			Plane3D(Vec3(center.x, center.y, max[DOP18_AXIS_Z]), n[5]), // depth
 
-			Plane3D(Vec3(center.x + min[3], center.y + max[3], center.z), n[6]), // up-left
-			Plane3D(Vec3(center.x + max[3], center.y + min[3], center.z), n[7]), // down-right
+			Plane3D(Vec3(center.x + min[DOP18_AXIS_UP_LEFT], center.y + max[DOP18_AXIS_UP_LEFT], center.z), n[6]), // up-left
+			Plane3D(Vec3(center.x + max[DOP18_AXIS_UP_LEFT], center.y + min[DOP18_AXIS_UP_LEFT], center.z), n[7]), // down-right
 
-			Plane3D(Vec3(center.x + max[4], center.y + max[4], center.z), n[8]), // up-right
-			Plane3D(Vec3(center.x + min[4], center.y + min[4], center.z), n[9]), // down-left
+			Plane3D(Vec3(center.x + max[DOP18_AXIS_UP_RIGHT], center.y + max[DOP18_AXIS_UP_RIGHT], center.z), n[8]), // up-right
+			Plane3D(Vec3(center.x + min[DOP18_AXIS_UP_RIGHT], center.y + min[DOP18_AXIS_UP_RIGHT], center.z), n[9]), // down-left
 
-			Plane3D(Vec3(center.x, center.y + max[5], center.z + min[5]), n[10]), // up-front
-			Plane3D(Vec3(center.x, center.y + min[5], center.z + max[5]), n[11]), // down-depth
+			Plane3D(Vec3(center.x, center.y + max[DOP18_AXIS_UP_FRONT], center.z + min[DOP18_AXIS_UP_FRONT]), n[10]), // up-front
+			Plane3D(Vec3(center.x, center.y + min[DOP18_AXIS_UP_FRONT], center.z + max[DOP18_AXIS_UP_FRONT]), n[11]), // down-depth
 
-			Plane3D(Vec3(center.x, center.y + max[6], center.z + max[6]), n[12]), // up-depth
-			Plane3D(Vec3(center.x, center.y + min[6], center.z + min[6]), n[13]), // down-front
+			Plane3D(Vec3(center.x, center.y + max[DOP18_AXIS_UP_DEPTH], center.z + max[DOP18_AXIS_UP_DEPTH]), n[12]), // up-depth
+			Plane3D(Vec3(center.x, center.y + min[DOP18_AXIS_UP_DEPTH], center.z + min[DOP18_AXIS_UP_DEPTH]), n[13]), // down-front
 
-			Plane3D(Vec3(center.x + min[7], center.y, center.z + max[7]), n[14]), // left-depth
-			Plane3D(Vec3(center.x + max[7], center.y, center.z + min[7]), n[15]), // right-front
+			Plane3D(Vec3(center.x + min[DOP18_AXIS_LEFT_DEPTH], center.y, center.z + max[DOP18_AXIS_LEFT_DEPTH]), n[14]), // left-depth
+			Plane3D(Vec3(center.x + max[DOP18_AXIS_LEFT_DEPTH], center.y, center.z + min[DOP18_AXIS_LEFT_DEPTH]), n[15]), // right-front
 
-			Plane3D(Vec3(center.x + max[8], center.y, center.z + max[8]), n[16]), // right-depth
-			Plane3D(Vec3(center.x + min[8], center.y, center.z + min[8]), n[17]), // left-front
+			Plane3D(Vec3(center.x + max[DOP18_AXIS_RIGHT_DEPTH], center.y, center.z + max[DOP18_AXIS_RIGHT_DEPTH]), n[16]), // right-depth
+			Plane3D(Vec3(center.x + min[DOP18_AXIS_RIGHT_DEPTH], center.y, center.z + min[DOP18_AXIS_RIGHT_DEPTH]), n[17]), // left-front
 		};
 
 		return result;
@@ -216,7 +235,7 @@ namespace NAMESPACE_PHYSICS
 		fixFrontDegeneration(p);
 		fixDepthDegeneration(p);
 
-		ALLOC_RELEASE(p);
+		sp_mem_delete(p, Plane3D);
 	}
 
 	BoundingVolumeType DOP18::type() const
@@ -224,22 +243,4 @@ namespace NAMESPACE_PHYSICS
 		return BoundingVolumeType::DOP18;
 	}
 
-	#undef DOP18_PLANES_LEFT_INDEX
-	#undef DOP18_PLANES_RIGHT_INDEX
-	#undef DOP18_PLANES_UP_INDEX
-	#undef DOP18_PLANES_DOWN_INDEX
-	#undef DOP18_PLANES_FRONT_INDEX
-	#undef DOP18_PLANES_DEPTH_INDEX
-	#undef DOP18_PLANES_UP_LEFT_INDEX
-	#undef DOP18_PLANES_DOWN_RIGHT_INDEX
-	#undef DOP18_PLANES_UP_RIGHT_INDEX
-	#undef DOP18_PLANES_DOWN_LEFT_INDEX
-	#undef DOP18_PLANES_UP_FRONT_INDEX
-	#undef DOP18_PLANES_DOWN_DEPTH_INDEX
-	#undef DOP18_PLANES_UP_DEPTH_INDEX
-	#undef DOP18_PLANES_DOWN_FRONT_INDEX
-	#undef DOP18_PLANES_LEFT_DEPTH_INDEX
-	#undef DOP18_PLANES_RIGHT_FRONT_INDEX
-	#undef DOP18_PLANES_RIGHT_DEPTH_INDEX
-	#undef DOP18_PLANES_LEFT_FRONT_INDEX
 }

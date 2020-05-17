@@ -2,9 +2,9 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	ParticleSystem::ParticleSystem(size_t particlesCount)
+	ParticleSystem::ParticleSystem(sp_size particlesCount)
 	{
-		sp_assert(particlesCount > 0);
+		sp_assert(particlesCount > 0, "InvalidArgumentException");
 
 		this->particles = ALLOC_NEW_ARRAY(Particle, particlesCount);
 		this->particlesCount = particlesCount;
@@ -12,9 +12,9 @@ namespace NAMESPACE_PHYSICS
 		this->angularVelocity = Vec3(0.0f);
 	}
 
-	ParticleSystem::ParticleSystem(Particle* particles, size_t particlesCount)
+	ParticleSystem::ParticleSystem(Particle* particles, sp_size particlesCount)
 	{
-		sp_assert(particlesCount > 0);
+		sp_assert(particlesCount > 0, "InvalidArgumentException");
 
 		this->particles = particles;
 		this->particlesCount = particlesCount;
@@ -26,16 +26,16 @@ namespace NAMESPACE_PHYSICS
 			this->particles[i].addForce(force);
 	}
 
-	size_t ParticleSystem::addConstantForce(const Vec3& constantForce)
+	sp_size ParticleSystem::addConstantForce(const Vec3& constantForce)
 	{
 		constantForces.push_back(constantForce);
 
 		return constantForces.size() - 1;
 	}
 
-	void ParticleSystem::update(long long elapsedTime)
+	void ParticleSystem::update(sp_longlong elapsedTime)
 	{
-		for (size_t i = 0; i < particlesCount; i++)
+		for (sp_size i = 0; i < particlesCount; i++)
 		{
 			for (std::vector<Vec3>::iterator contantForce = constantForces.begin(); contantForce != constantForces.end(); ++contantForce)
 				this->particles[i].addForce(*contantForce);

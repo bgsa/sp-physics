@@ -484,13 +484,13 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Quat::operator[](sp_int index) const
 	{
-		sp_assert(index >= ZERO_INT && index < QUAT_LENGTH);
+		sp_assert(index >= ZERO_INT && index < QUAT_LENGTH, "IndexOutOfrangeException");
 		return ((sp_float*)this)[index];
 	}
 
 	sp_float Quat::operator[](sp_uint index) const
 	{
-		sp_assert(index >= ZERO_UINT && index < QUAT_LENGTH);
+		sp_assert(index >= ZERO_UINT && index < QUAT_LENGTH, "IndexOutOfrangeException");
 		return ((sp_float*)this)[index];
 	}
 
