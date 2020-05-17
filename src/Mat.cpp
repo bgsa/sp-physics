@@ -2,8 +2,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	void Mat<T>::gaussianElimination(T *matrix, const sp_int rowSize)
+	void Mat::gaussianElimination(sp_float *matrix, const sp_int rowSize)
 	{
 		sp_int       i = 0;
 		sp_int       j = 0;
@@ -17,24 +16,24 @@ namespace NAMESPACE_PHYSICS
 				if (abs(matrix[k * rowSize + j]) > abs(matrix[maxi * rowSize + j]))
 					maxi = k;
 
-			if (matrix[maxi * rowSize + j] != T(0))
+			if (matrix[maxi * rowSize + j] != 0.0f)
 			{
 				if (i != maxi)
 					for (sp_int k = 0; k < rowSize; k++)
 					{
-						const T aux = matrix[i * rowSize + k];
+						const sp_float aux = matrix[i * rowSize + k];
 						matrix[i * rowSize + k] = matrix[maxi * rowSize + k];
 						matrix[maxi * rowSize + k] = aux;
 					}
 
-				const T aIj = matrix[i * rowSize + j];
+				const sp_float aIj = matrix[i * rowSize + j];
 
 				for (sp_int k = 0; k < rowSize; k++)
 					matrix[i * rowSize + k] /= aIj;
 
 				for (sp_int u = i + 1; u < m; u++)
 				{
-					const T aUj = matrix[u * rowSize + j];
+					const sp_float aUj = matrix[u * rowSize + j];
 
 					for (int k = 0; k < rowSize; k++)
 						matrix[u * rowSize + k] -= aUj * matrix[i * rowSize + k];
@@ -51,10 +50,9 @@ namespace NAMESPACE_PHYSICS
 				matrix[i * rowSize + m] -= matrix[i * rowSize + j] * matrix[j * rowSize + m];
 	}
 
-	template <typename T>
-	Mat3<T> Mat<T>::getPerspectiveTransform2D(const Vec2<T> sourcePoints[4], const Vec2<T> targetPoints[4])
+	Mat3 Mat::getPerspectiveTransform2D(const Vec2 sourcePoints[4], const Vec2 targetPoints[4])
 	{
-		T homographyMatrix[8][9] = 
+		sp_float homographyMatrix[8][9] =
 		{
 			{ -sourcePoints[0][0], -sourcePoints[0][1], -1, 0, 0, 0, sourcePoints[0][0] * targetPoints[0][0], sourcePoints[0][1] * targetPoints[0][0], -targetPoints[0][0] }, // h11
 			{ 0, 0, 0, -sourcePoints[0][0], -sourcePoints[0][1], -1, sourcePoints[0][0] * targetPoints[0][1], sourcePoints[0][1] * targetPoints[0][1], -targetPoints[0][1] }, // h12
@@ -68,16 +66,13 @@ namespace NAMESPACE_PHYSICS
 
 		gaussianElimination(&homographyMatrix[0][0], 9);
 
-		Mat3<T> result = Mat3<T>(
+		Mat3 result = Mat3(
 			homographyMatrix[0][8], homographyMatrix[1][8], homographyMatrix[2][8],
 			homographyMatrix[3][8], homographyMatrix[4][8], homographyMatrix[5][8],
-			homographyMatrix[6][8], homographyMatrix[7][8], T(1)
+			homographyMatrix[6][8], homographyMatrix[7][8], ONE_FLOAT
 		);
 
 		return result;
 	}
 
-	template class Mat<sp_int>;
-	template class Mat<sp_float>;
-	template class Mat<sp_double>;
 }

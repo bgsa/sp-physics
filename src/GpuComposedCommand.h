@@ -3,6 +3,7 @@
 #ifndef GPU_COMPOSED_COMMAND
 #define GPU_COMPOSED_COMMAND
 
+#include "SpectrumPhysics.h"
 #include "GpuDevice.h"
 #include "GpuCommand.h"
 

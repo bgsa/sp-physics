@@ -59,7 +59,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_constructorEmpty_Test)
 	{
-		Mat2f result;
+		Mat2 result;
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(0.0f, result[i], L"Value shoud be 0", LINE_INFO());
@@ -72,7 +72,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			4.0f, 5.0f
 		};
 
-		Mat2f result = Mat2f(emptyMatrix);
+		Mat2 result = Mat2(emptyMatrix);
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(emptyMatrix[i], result[i], L"Value shoud be 0", LINE_INFO());
@@ -80,7 +80,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_getValues_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
@@ -93,7 +93,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_getValue_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
@@ -108,12 +108,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_xAxis_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
 
-		Vec2f xAxis = matrix.xAxis();
+		Vec2 xAxis = matrix.xAxis();
 
 		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(4.0f, xAxis[1], L"Wrong value", LINE_INFO());
@@ -121,12 +121,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_yAxis_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
 
-		Vec2f yAxis = matrix.yAxis();
+		Vec2 yAxis = matrix.yAxis();
 
 		Assert::AreEqual(2.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, yAxis[1], L"Wrong value", LINE_INFO());
@@ -134,20 +134,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_multiply_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, 3.0f,
 			3.0f, 4.0f
 		};
-		Mat2f matrixB = {
+		Mat2 matrixB = {
 			0.0f, 1.0f,
 			-1.0f, 0.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			3.0f, 4.0f,
 			-2.0f, -3.0f
 		};
 
-		Mat2f result = matrixA.multiply(matrixB);
+		Mat2 result = matrixA.multiply(matrixB);
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -155,12 +155,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_createTranslate_Test)
 	{
-		Mat2f expected = {
+		Mat2 expected = {
 			1.0f, 0.0f,
 			5.0f, 2.0f
 		};
 
-		Mat2f result = Mat2f::createTranslate(5.0f, 2.0f);
+		Mat2 result = Mat2::createTranslate(5.0f, 2.0f);
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -172,12 +172,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_xAxis_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
 
-		Vec2f xAxis = matrix.xAxis();
+		Vec2 xAxis = matrix.xAxis();
 
 		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(2.0f, xAxis[1], L"Wrong value", LINE_INFO());
@@ -185,12 +185,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_yAxis_RowMajorRow_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
 
-		Vec2f yAxis = matrix.yAxis();
+		Vec2 yAxis = matrix.yAxis();
 
 		Assert::AreEqual(4.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, yAxis[1], L"Wrong value", LINE_INFO());
@@ -198,20 +198,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_multiply_MajorRowOrder_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, 3.0f,
 			3.0f, 4.0f
 		};
-		Mat2f matrixB = {
+		Mat2 matrixB = {
 			0.0f, 1.0f,
 			-1.0f, 0.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			-3.0f, 2.0f,
 			-4.0f, 3.0f
 		};
 
-		Mat2f result = matrixA.multiply(matrixB);
+		Mat2 result = matrixA.multiply(matrixB);
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -219,12 +219,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_createTranslate_MajorRowOrder_Test)
 	{
-		Mat2f expected = {
+		Mat2 expected = {
 			1.0f, 5.0f,
 			0.0f, 2.0f
 		};
 
-		Mat2f result = Mat2f::createTranslate(5.0f, 2.0f);
+		Mat2 result = Mat2::createTranslate(5.0f, 2.0f);
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -234,12 +234,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_primaryDiagonal_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
 
-		Vec2f primaryDiagonal = matrix.primaryDiagonal();
+		Vec2 primaryDiagonal = matrix.primaryDiagonal();
 
 		Assert::AreEqual(1.0f, primaryDiagonal[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, primaryDiagonal[1], L"Wrong value", LINE_INFO());
@@ -247,12 +247,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_secondaryDiagonal_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
 
-		Vec2f secondaryDiagonal = matrix.secondaryDiagonal();
+		Vec2 secondaryDiagonal = matrix.secondaryDiagonal();
 
 		Assert::AreEqual(2.0f, secondaryDiagonal[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(4.0f, secondaryDiagonal[1], L"Wrong value", LINE_INFO());
@@ -260,7 +260,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_identity_Test)
 	{
-		Mat2f result = Mat2f::identity();
+		Mat2 result = Mat2::identity();
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			if (i % 3 == 0)
@@ -271,11 +271,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_transpose_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
-		Mat2f result = matrix.transpose();
+		Mat2 result = matrix.transpose();
 
 		float expected[MAT2_SIZE] = {
 			1.0f, 4.0f,
@@ -288,12 +288,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_createScaled_Test)
 	{
-		Mat2f expected = {
+		Mat2 expected = {
 			3.0f, 0.0f,
 			0.0f, 4.0f
 		};
 
-		Mat2f result = Mat2f::createScale(3.0f, 4.0f);
+		Mat2 result = Mat2::createScale(3.0f, 4.0f);
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -301,11 +301,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_scale_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, 0.0f,
 			0.0f, 4.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			4.0f, 0.0f,
 			0.0f, 16.0f,
 		};
@@ -318,7 +318,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_determinant_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			2.0f, 9.0f,
 			-1.0f, 6.0f
 		};
@@ -331,7 +331,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_sizeInBytes_Test)
 	{
-		size_t result = Mat2f::identity().sizeInBytes();
+		size_t result = Mat2::identity().sizeInBytes();
 		size_t expected = 16;
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
@@ -339,12 +339,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_clone_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			1.0f, 2.0f,
 			4.0f, 5.0f
 		};
 
-		Mat2f result = matrix.clone();
+		Mat2 result = matrix.clone();
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Wrong number", LINE_INFO());
@@ -352,33 +352,33 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_getAutovalueAndAutovector_Test)
 	{
-		Mat2f matrix = {
+		Mat2 matrix = {
 			3.0f, 2.0f,
 			2.0f, 3.0f
 		};
 
 		float expectedValue = 5.0f;
-		Vec2f expectedVector = Vec2f{ 1.0f, 1.0f }; // VERIFICAR no livro algebra linear !
-		AutovalueAutovector2<float> result = matrix.getAutovalueAndAutovector();
+		Vec2 expectedVector = Vec2{ 1.0f, 1.0f }; // VERIFICAR no livro algebra linear !
+		AutoValueAutoVector2 result = matrix.getAutovalueAndAutovector();
 
-		Assert::AreEqual(ceil(expectedValue), ceil(result.autovalue), L"Wrong number", LINE_INFO());
+		Assert::AreEqual(ceilf(expectedValue), ceilf(result.autovalue), L"Wrong number", LINE_INFO());
 
 		for (int i = 0; i < MAT2_ROWSIZE; i++)
-			Assert::AreEqual(ceil(expectedVector[i]), ceil(result.autovector[i]), L"Wrong number", LINE_INFO());
+			Assert::AreEqual(ceil(expectedVector[i]), ceil(result.autoVector[i]), L"Wrong number", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_operatorMinus_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, -1.0f,
 			0.0f, 4.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			-2.0f, 1.0f,
 			0.0f, -4.0f,
 		};
 
-		Mat2f result = -matrixA;
+		Mat2 result = -matrixA;
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -386,20 +386,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_operatorMinus_matrix2_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, -1.0f,
 			0.0f, 4.0f
 		};
-		Mat2f matrixB = {
+		Mat2 matrixB = {
 			4.0f, -10.0f,
 			2.0f, -5.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			-2.0f, 9.0f,
 			-2.0f, 9.0f,
 		};
 		
-		Mat2f result = matrixA - matrixB;
+		Mat2 result = matrixA - matrixB;
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -407,20 +407,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_operatorSum_matrix2_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, -1.0f,
 			0.0f, 4.0f
 		};
-		Mat2f matrixB = {
+		Mat2 matrixB = {
 			4.0f, -10.0f,
 			2.0f, -5.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			6.0f, -11.0f,
 			2.0f, -1.0f,
 		};
 
-		Mat2f result = matrixA + matrixB;
+		Mat2 result = matrixA + matrixB;
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -428,16 +428,16 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_operatorDivide_scalar_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, 1.0f,
 			0.0f, 4.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			1.0f, 0.5f,
 			0.0f, 2.0f,
 		};
 
-		Mat2f result = matrixA / 2.0f;
+		Mat2 result = matrixA / 2.0f;
 
 		for (int i = 0; i < MAT2_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -445,11 +445,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_divide_equal_operator_Test)
 	{
-		Mat2f matrixA = {
+		Mat2 matrixA = {
 			2.0f, 1.0f,
 			0.0f, 4.0f
 		};
-		Mat2f expected = {
+		Mat2 expected = {
 			1.0f, 0.5f,
 			0.0f, 2.0f,
 		};

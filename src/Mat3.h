@@ -2,6 +2,7 @@
 #define MAT3_HEADER
 
 #include "SpectrumPhysics.h"
+#include "AutoValueAutoVector.h"
 #include <cstring>
 #include <vector>
 
@@ -11,17 +12,10 @@ namespace NAMESPACE_PHYSICS
 #define MAT3_ROWSIZE 3
 #define TWO_MAT3_ROWSIZE 6
 
-	template <typename T>
-	struct AutovalueAutovector3 {
-		T autovalue;
-		Vec3<T> autovector;
-	};
-
-	template <typename T>
-	class Mat3 : public Mat<T>
+	class Mat3
 	{
 	private:
-		T values[MAT3_SIZE];
+		sp_float values[MAT3_SIZE];
 
 	public:
 
@@ -29,130 +23,130 @@ namespace NAMESPACE_PHYSICS
 		/// Default constructor
 		/// Load a empty matrix = 0
 		/// </summary>
-		API_INTERFACE  Mat3(const T defaultValue = T(0));
+		API_INTERFACE  Mat3(const sp_float defaultValue = ZERO_FLOAT);
 
 		/// <summary>
 		/// Constructor with initialized values
 		/// </summary>
-		API_INTERFACE  Mat3(T* values);
+		API_INTERFACE  Mat3(sp_float* values);
 
 		/// <summary>
 		/// Constructor with initialized values - COL ORDER
 		/// </summary>
 		API_INTERFACE Mat3(
-			const T value11, const T value21, const T value31,
-			const T value12, const T value22, const T value32,
-			const T value13, const T value23, const T value33);
+			const sp_float value11, const sp_float value21, const sp_float value31,
+			const sp_float value12, const sp_float value22, const sp_float value32,
+			const sp_float value13, const sp_float value23, const sp_float value33);
 
 		/// <summary>
 		/// Get the values from current matrix
 		/// </summary>
-		API_INTERFACE T* getValues();
+		API_INTERFACE sp_float* getValues();
 
 		/// <summary>
 		/// Get the value from current matrix
 		/// COLUMN MAJOR ORDER
 		/// X and Y: 1 index base
 		/// </summary>
-		API_INTERFACE T getValue(const sp_int x, const sp_int y) const;
+		API_INTERFACE sp_float getValue(const sp_int x, const sp_int y) const;
 
 		/// <summary>
 		/// Get the axis
 		/// </summary>
-		API_INTERFACE Vec3<T> getAxis(const sp_int index) const;
+		API_INTERFACE Vec3 getAxis(const sp_int index) const;
 
 		/// <summary>
 		/// Get the X axis
 		/// </summary>
-		API_INTERFACE Vec3<T> xAxis() const;
+		API_INTERFACE Vec3 xAxis() const;
 
 		/// <summary>
 		/// Get the Y axis
 		/// </summary>
-		API_INTERFACE Vec3<T> yAxis() const;
+		API_INTERFACE Vec3 yAxis() const;
 
 		/// <summary>
 		/// Get the Z axis
 		/// </summary>
-		API_INTERFACE Vec3<T> zAxis() const;
+		API_INTERFACE Vec3 zAxis() const;
 
 		/// <summary>
 		/// Get the main / principal / major / primary diagonal from matrix
 		/// </summary>
-		API_INTERFACE Vec3<T> primaryDiagonal() const;
+		API_INTERFACE Vec3 primaryDiagonal() const;
 
 		/// <summary>
 		/// Get the antidiagonal / counter / minor / secondary diagonal from matrix
 		/// </summary>
-		API_INTERFACE Vec3<T> secondaryDiagonal() const;
+		API_INTERFACE Vec3 secondaryDiagonal() const;
 
 		/// <summary>
 		/// Load a identity matrix
 		/// </summary>
-		API_INTERFACE static Mat3<T> identity();
+		API_INTERFACE static Mat3 identity();
 
 		/// <summary>
 		/// Transpose matrix - swap rows by columns
 		/// </summary>
-		API_INTERFACE Mat3<T> transpose() const;
+		API_INTERFACE Mat3 transpose() const;
 
 		/// <summary>
 		/// Multiply this matrix with the parametrized matrix => AxB
 		/// </summary>
-		API_INTERFACE Mat3<T> multiply(const Mat3<T>& matrixB) const;
+		API_INTERFACE Mat3 multiply(const Mat3& matrixB) const;
 
 		/// <summary>
 		/// Multiply this matrix with the parametrized vector => AxB
 		/// </summary>
-		API_INTERFACE Vec3<T> multiply(const Vec3<T>& vector) const;
+		API_INTERFACE Vec3 multiply(const Vec3& vector) const;
 
 		/// <summary>
 		/// Get the determinant from index i,j
 		/// Zero-Index based
 		/// </summary>
-		API_INTERFACE T determinantIJ(const sp_size i, const sp_size j) const;
+		API_INTERFACE sp_float determinantIJ(const sp_size i, const sp_size j) const;
 
 		/// <summary>
 		/// Get the cofactor of the index i,j
 		/// Zero-Index based
 		/// </summary>
-		API_INTERFACE T cofactorIJ(const sp_size i, const sp_size j) const;
+		API_INTERFACE sp_float cofactorIJ(const sp_size i, const sp_size j) const;
 
 		/// <summary>
 		/// Create a scaled matrix
 		/// </summary>
-		API_INTERFACE static Mat3<T> createScale(const T xScale, const T yScale, const T zScale);
+		API_INTERFACE static Mat3 createScale(const sp_float xScale, const sp_float yScale, const sp_float zScale);
 
 		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
-		API_INTERFACE void scale(const T xScale, const T yScale, const T zScale);
+		API_INTERFACE void scale(const sp_float xScale, const sp_float yScale, const sp_float zScale);
 
 		/// <summary>
 		/// Create a rotation matrix
 		/// Example: x = 1.0 to rotate over X axis; x = 0.0 to not rotate over X axis
 		/// </summary>
-		API_INTERFACE static Mat3<T> createRotate(const T angleRadians, const T x, const T y, const T z);
+		API_INTERFACE static Mat3 createRotate(const sp_float angleRadians, const sp_float x, const sp_float y, const sp_float z);
 
 		/// <summary>
 		/// Craete a translation matrix
 		/// </summary>
-		API_INTERFACE static Mat3<T> createTranslate(const T x, const T y, const T z);
+		API_INTERFACE static Mat3 createTranslate(const sp_float x, const sp_float y, const sp_float z);
 
 		/// <summary>
 		/// Craete a translation matrix
 		/// </summary>
-		API_INTERFACE static Mat3<T> createTranslate(const Vec3<T>& position);
+		API_INTERFACE static Mat3 createTranslate(const Vec3& position);
 
 		/// <summary>
 		/// Get the determinant of the matrix
 		/// </summary>
-		API_INTERFACE T determinant() const;
+		API_INTERFACE sp_float determinant() const;
 		
 		/// <summary>
 		/// Get the inverse matrix from current matrix => A^-1
 		/// <summary>
-		API_INTERFACE Mat3<T> invert() const;
+		API_INTERFACE Mat3 invert() const;
 
 		/// <summary>
 		/// Check if the matrix is identity
@@ -167,38 +161,38 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Clone this matrix
 		/// </summary>
-		API_INTERFACE Mat3<T> clone() const;
+		API_INTERFACE Mat3 clone() const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T& operator[](const sp_int index);
+		API_INTERFACE sp_float& operator[](const sp_int index);
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T operator[](const sp_int index) const;
+		API_INTERFACE sp_float operator[](const sp_int index) const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T& operator[](const sp_uint index);
+		API_INTERFACE sp_float& operator[](const sp_uint index);
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T operator[](const sp_uint index) const;
+		API_INTERFACE sp_float operator[](const sp_uint index) const;
 		
 #if defined(WINDOWS) && defined(ENV_64BITS)
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T& operator[](const sp_size index);
+		API_INTERFACE sp_float& operator[](const sp_size index);
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE T operator[](const sp_size index) const;
+		API_INTERFACE sp_float operator[](const sp_size index) const;
 #endif
 
 		/// <summary>
@@ -210,62 +204,62 @@ namespace NAMESPACE_PHYSICS
 		/// Auto convertion to T *
 		/// It is the same of convertion to float* or int* or double*, whatever T is.
 		/// </summary>
-		API_INTERFACE operator T*() const;
+		API_INTERFACE operator sp_float*() const;
 
 		/// <summary>
 		/// Get the negative matrix
 		/// </summary>
-		API_INTERFACE Mat3<T> operator-() const;
+		API_INTERFACE Mat3 operator-() const;
 
 		/// <summary>
 		/// Subtract the matrix to another one
 		/// </summary>
-		API_INTERFACE Mat3<T> operator-(const Mat3<T>& matrix) const;
+		API_INTERFACE Mat3 operator-(const Mat3& matrix) const;
 
 		/// <summary>
 		/// Sum the matrix to another one
 		/// </summary>
-		API_INTERFACE Mat3<T> operator+(const Mat3<T>& matrix) const;
+		API_INTERFACE Mat3 operator+(const Mat3& matrix) const;
 
 		/// <summary>
 		/// Multiply the matrix to another one
 		/// </summary>
-		API_INTERFACE Mat3<T> operator*(const Mat3<T>& matrix) const;
+		API_INTERFACE Mat3 operator*(const Mat3& matrix) const;
 
 		/// <summary>
 		/// Multiply the matrix to 3D vector
 		/// </summary>
-		API_INTERFACE Vec3<T> operator*(const Vec3<T>& matrix) const;
+		API_INTERFACE Vec3 operator*(const Vec3& matrix) const;
 
 		/// <summary>
 		/// Multiply the matrix to another one
 		/// </summary>
-		API_INTERFACE void operator*=(const Mat3<T>& matrix);
+		API_INTERFACE void operator*=(const Mat3& matrix);
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE Mat3<T> operator/(const T value) const;
+		API_INTERFACE Mat3 operator/(const sp_float value) const;
 
 		/// <summary>
 		/// Divide the matrix by a scalar value
 		/// </summary>
-		API_INTERFACE void operator/=(const T value);
+		API_INTERFACE void operator/=(const sp_float value);
 
 		/// <summary>
 		/// Check the matrix is equal the other
 		/// </summary>
-		API_INTERFACE sp_bool operator==(const Mat3<T>& matrix) const;
+		API_INTERFACE sp_bool operator==(const Mat3& matrix) const;
 
 		/// <summary>
 		/// Check the matrix is equal the other
 		/// </summary>
-		API_INTERFACE sp_bool operator==(const T value) const;
+		API_INTERFACE sp_bool operator==(const sp_float value) const;
 
 		/// <summary>
 		/// Check the matrix is different the other
 		/// </summary>
-		API_INTERFACE sp_bool operator!=(const Mat3<T>& matrix) const;
+		API_INTERFACE sp_bool operator!=(const Mat3& matrix) const;
 
 		/// <summary>
 		/// Get the matrix content as string
@@ -275,23 +269,19 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Decompose the matrix to Lower and Upper matrix
 		/// </summary>
-		API_INTERFACE Mat3<T>* decomposeLU() const;
+		API_INTERFACE Mat3* decomposeLU() const;
 
 		/// <summary>
 		/// Decompose the matrix to Lower, Diagonal Matrix and Upper matrix
 		/// </summary>
-		API_INTERFACE Mat3<T>* decomposeLDU() const;
+		API_INTERFACE Mat3* decomposeLDU() const;
 
 		/// <summary>
 		/// Get the autovalue of the matrix
 		/// </summary>
-		API_INTERFACE AutovalueAutovector3<T> getAutovalueAndAutovector(const sp_ushort maxIteration = 5) const;
+		API_INTERFACE AutoValueAutoVector3 getAutovalueAndAutovector(const sp_ushort maxIteration = 5) const;
 
 	};
-
-	typedef Mat3<sp_int> Mat3i;
-	typedef Mat3<sp_float> Mat3f;
-	typedef Mat3<sp_double> Mat3d;
 
 }
 

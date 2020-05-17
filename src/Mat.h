@@ -6,12 +6,11 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
 	class Mat
-	{
-	protected:
+	{		
+	public:
 
-		std::string toString(const T* values, const sp_int size, const sp_int precision = 4) const
+		static std::string toString(const sp_float* values, const sp_int size, const sp_int precision = 4)
 		{
 			std::string content;
 			sp_size total = (sp_size)(size * size);
@@ -35,15 +34,13 @@ namespace NAMESPACE_PHYSICS
 
 			return content;
 		}
-			
-	public:
 
-		static void gaussianElimination(T *matrix, const sp_int rowSize);
+		static void gaussianElimination(sp_float *matrix, const sp_int rowSize);
 
 		/// <summary>
 		/// Get the Homography Matrix (the transformation perspective matrix from a plane to another one)
 		/// <summary>
-		static Mat3<T> getPerspectiveTransform2D(const Vec2<T> sourcePoints[4], const Vec2<T> targetPoints[4] );
+		static Mat3 getPerspectiveTransform2D(const Vec2 sourcePoints[4], const Vec2 targetPoints[4] );
 
 	};
 	

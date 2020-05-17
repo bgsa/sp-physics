@@ -2,7 +2,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	int findCellIndexByCellId(const Vec3f& cell)
+	int findCellIndexByCellId(const Vec3& cell)
 	{
 		const int h1 = 0x8da6b343; // Large multiplicative constants; 
 		const int h2 = 0xd8163841; // here arbitrarily chosen primes 
@@ -32,7 +32,7 @@ namespace NAMESPACE_PHYSICS
 		return cellSize;
 	}
 
-	Vec3f HashGrid::findCell(const Vec3f& point) 
+	Vec3 HashGrid::findCell(const Vec3& point) 
 	{
 		int negativeCellX = 0;
 		int negativeCellY = 0;
@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 		if (point.z < 0.0f)
 			negativeCellZ = -1;
 
-		Vec3f cell = {
+		Vec3 cell = {
 			float(int(point.x * cellSizeInverted) + negativeCellX),
 			float(int(point.y * cellSizeInverted) + negativeCellY),
 			float(int(point.z * cellSizeInverted) + negativeCellZ)
@@ -56,27 +56,27 @@ namespace NAMESPACE_PHYSICS
 		return cell;
 	}
 
-	int HashGrid::findCellIndex(const Vec3f& point)
+	int HashGrid::findCellIndex(const Vec3& point)
 	{
-		Vec3f cell = findCell(point);
+		Vec3 cell = findCell(point);
 
 		return findCellIndexByCellId(cell);
 	}
 
-	Vec3List<sp_float>* HashGrid::findRangeCell(const AABB& aabb)
+	Vec3List* HashGrid::findRangeCell(const AABB& aabb)
 	{	
-		Vec3List<sp_float>* list = ALLOC(Vec3List<sp_float>);
-		Vec3f minCell = findCell(aabb.minPoint);
-		Vec3f maxCell = findCell(aabb.maxPoint);
+		Vec3List* list = ALLOC(Vec3List);
+		Vec3 minCell = findCell(aabb.minPoint);
+		Vec3 maxCell = findCell(aabb.maxPoint);
 
-		Vec3f deltaPoints = (maxCell - minCell) + 1.0f;
+		Vec3 deltaPoints = (maxCell - minCell) + 1.0f;
 			
 		list->count = sp_int(std::abs(
 				(deltaPoints.x == 0.0f ? 1.0f : deltaPoints.x)
 			* (deltaPoints.y == 0.0f ? 1.0f : deltaPoints.y)
 			* (deltaPoints.z == 0.0f ? 1.0f : deltaPoints.z)));
 
-		list->points = ALLOC_ARRAY(Vec3f, list->count);
+		list->points = ALLOC_ARRAY(Vec3, list->count);
 
 		sp_size index = 0;
 		
@@ -84,7 +84,7 @@ namespace NAMESPACE_PHYSICS
 			for (sp_float y = minCell.y; y <= maxCell.y; y++)
 				for (sp_float z = minCell.z; z <= maxCell.z; z++)
 				{
-					list->points[index] = Vec3f(x, y, z);
+					list->points[index] = Vec3(x, y, z);
 					index++;
 				}
 
@@ -93,7 +93,7 @@ namespace NAMESPACE_PHYSICS
 
 	std::vector<sp_int> HashGrid::findRangeCellIndex(const AABB& aabb)
 	{
-		Vec3List<sp_float>* cells = findRangeCell(aabb);
+		Vec3List* cells = findRangeCell(aabb);
 
 		std::vector<sp_int> hashes = std::vector<sp_int>(cells->count);
 

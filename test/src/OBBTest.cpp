@@ -19,14 +19,14 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		OBB obb = OBB();
 
-		Assert::AreEqual(Vec3f(0.0f), obb.center, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3f(0.5f), obb.halfWidth, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(Mat3f::identity() == obb.orientation, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3(0.0f), obb.center, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3(0.5f), obb.halfWidth, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(Mat3::identity() == obb.orientation, L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, OBB_constructor_withCenter_Test)
 	{
-		Vec3f center(1.0f, 2.0f, 3.0f);
+		Vec3 center(1.0f, 2.0f, 3.0f);
 
 		OBB obb = OBB(center);
 

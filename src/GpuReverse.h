@@ -1,8 +1,9 @@
 #if OPENCL_ENABLED
 
-#ifndef GPU_REVERSE
-#define GPU_REVERSE
+#ifndef GPU_REVERSE_HEADER
+#define GPU_REVERSE_HEADER
 
+#include "SpectrumPhysics.h"
 #include "GpuDevice.h"
 #include "GpuComposedCommand.h"
 #include "FileSystem.h"
@@ -47,7 +48,6 @@ namespace NAMESPACE_PHYSICS
 	};
 }
 
-#endif // GPU_REVERSE
+#endif // GPU_REVERSE_HEADER
 
 #endif // OPENCL_ENABLED
-

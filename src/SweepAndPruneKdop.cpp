@@ -26,8 +26,8 @@ namespace NAMESPACE_PHYSICS
 		DOP18 obj1 = kdopsGlobal[*(size_t*)a];
 		DOP18 obj2 = kdopsGlobal[*(size_t*)b];
 
-		Vec3f centerObj1 = obj1.centerOfBoundingVolume();
-		Vec3f centerObj2 = obj2.centerOfBoundingVolume();
+		Vec3 centerObj1 = obj1.centerOfBoundingVolume();
+		Vec3 centerObj2 = obj2.centerOfBoundingVolume();
 
 		sp_float translateXYObj1 = std::sqrt(centerObj1[axisToSweep] * centerObj1[axisToSweep] + centerObj1[axisToSweep2] * centerObj1[axisToSweep2]);
 		sp_float translateXYObj2 = std::sqrt(centerObj2[axisToSweep] * centerObj2[axisToSweep] + centerObj2[axisToSweep2] * centerObj2[axisToSweep2]);
@@ -84,12 +84,12 @@ namespace NAMESPACE_PHYSICS
 
 		for (size_t i = 0; i < count; i++)
 		{
-			Vec3f centerObj1 = CURRENT_ELEMENT.centerOfBoundingVolume();
+			Vec3 centerObj1 = CURRENT_ELEMENT.centerOfBoundingVolume();
 			float translateToPlaneObj1 = std::sqrt(centerObj1[axis1] * centerObj1[axis1] + centerObj1[axis2] * centerObj1[axis2]);
 
 			for (size_t j = i + 1; j < count; j++)
 			{
-				Vec3f centerObj2 = NEXT_ELEMENT.centerOfBoundingVolume();
+				Vec3 centerObj2 = NEXT_ELEMENT.centerOfBoundingVolume();
 				float translateToPlaneObj2 = std::sqrt(centerObj2[axis1] * centerObj2[axis1] + centerObj2[axis2] * centerObj2[axis2]);
 
 				if (CURRENT_ELEMENT.max[swaapIndex] + translateToPlaneObj1 > NEXT_ELEMENT.min[swaapIndex] + translateToPlaneObj2

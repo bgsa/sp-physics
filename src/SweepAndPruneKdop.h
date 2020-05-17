@@ -1,6 +1,7 @@
 #ifndef SWEEP_AND_PRUNE_KDOP_HEADER
 #define SWEEP_AND_PRUNE_KDOP_HEADER
 
+#include "SpectrumPhysics.h"
 #include "SweepAndPrune.h"
 #include "DOP18.h"
 #include <mutex>

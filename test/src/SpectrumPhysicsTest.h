@@ -19,43 +19,43 @@ using namespace NAMESPACE_PHYSICS;
 			namespace CppUnitTestFramework
 			{
 				template<>
-				static std::wstring ToString<Vec2f>(const Vec2f& vector)
+				static std::wstring ToString<Vec2>(const Vec2& vector)
 				{
 					return L"Some string representing Vector2D.";
 				}
 
 				template<>
-				static std::wstring ToString<Vec3f>(const Vec3f& vector)
+				static std::wstring ToString<Vec3>(const Vec3& vector)
 				{
 					return L"Some string representing Vector3D.";
 				}
 
 				template<>
-				static std::wstring ToString<Vec4f>(const Vec4f& vector)
+				static std::wstring ToString<Vec4>(const Vec4& vector)
 				{
 					return L"Some string representing Vector4D.";
 				}
 
 				template<>
-				static std::wstring ToString<Mat2f>(const Mat2f& matrix)
+				static std::wstring ToString<Mat2>(const Mat2& matrix)
 				{
 					return L"Some string representing Matrix2D.";
 				}
 
 				template<>
-				static std::wstring ToString<Mat3f>(const Mat3f& matrix)
+				static std::wstring ToString<Mat3>(const Mat3& matrix)
 				{
 					return L"Some string representing Matrix3D.";
 				}
 
 				template<>
-				static std::wstring ToString<Mat4f>(const Mat4f& matrix)
+				static std::wstring ToString<Mat4>(const Mat4& matrix)
 				{
 					return L"Some string representing Matrix4D.";
 				}
 
 				template<>
-				static std::wstring ToString<Rectangle2Df>(const Rectangle2Df& rectangle)
+				static std::wstring ToString<Rectangle2D>(const Rectangle2D& rectangle)
 				{
 					return L"Some string representing Rectangle2D.";
 				}

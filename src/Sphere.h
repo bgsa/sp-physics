@@ -5,7 +5,7 @@
 #include "Vec3.h"
 #include "Mat4.h"
 #include "Plane3D.h"
-#include "CollisionStatus.h"
+#include "DetailedCollisionStatus.h"
 #include "BoundingVolume.h"
 
 namespace NAMESPACE_PHYSICS
@@ -14,8 +14,15 @@ namespace NAMESPACE_PHYSICS
 	class Sphere
 		: public BoundingVolume
 	{
+	private:
+
+		/// <summary>
+		/// This method is not applied to k-DOPs
+		/// </summary>
+		API_INTERFACE void rotate(const Vec3& angles) override;
+
 	public:
-		Vec3f center;
+		Vec3 center;
 		sp_float ray;
 
 		/// <summary>
@@ -26,39 +33,49 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Construct with the center point and a ray
 		/// </summary>
-		API_INTERFACE Sphere(const Vec3f &center, sp_float ray);
+		API_INTERFACE Sphere(const Vec3 &center, sp_float ray);
 
 		/// <summary>
 		/// Build the sphere from 1 point (center) and ray = 1
 		/// </summary>
-		API_INTERFACE Sphere(const Vec3f &point1);
+		API_INTERFACE Sphere(const Vec3 &point1);
 
 		/// <summary>
 		/// Build the sphere from 2 (support) points
 		/// </summary>
-		API_INTERFACE Sphere(const Vec3f &point1, const Vec3f &point2);
+		API_INTERFACE Sphere(const Vec3 &point1, const Vec3 &point2);
 
 		/// <summary>
 		/// Build the sphere from 3 (support) points
 		/// </summary>
-		API_INTERFACE Sphere(const Vec3f &point1, const Vec3f &point2, const Vec3f &point3);
+		API_INTERFACE Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3);
 
 		/// <summary>
 		/// Build the sphere from 4 points
 		/// </summary>
-		API_INTERFACE Sphere(const Vec3f &point1, const Vec3f &point2, const Vec3f &point3, const Vec3f &point4);
+		API_INTERFACE Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3, const Vec3 &point4);
 
 		/// <summary>
 		/// Get the center of sphere
 		/// </summary>
-		API_INTERFACE inline Vec3f centerOfBoundingVolume() const override {
+		API_INTERFACE inline Vec3 centerOfBoundingVolume() const override {
 			return center;
 		}
 
 		/// <summary>
+		/// Translate the bounding volume
+		/// </summary>
+		API_INTERFACE void translate(const Vec3& translation) override;
+
+		/// <summary>
+		/// Scale the bounding volume (only in X, Y and Z)
+		/// </summary>
+		API_INTERFACE void scale(const Vec3& factor) override;
+
+		/// <summary>
 		/// Check the status of collision against the point
 		/// </summary>
-		API_INTERFACE CollisionStatus collisionStatus(const Vec3f &point) const;
+		API_INTERFACE CollisionStatus collisionStatus(const Vec3 &point) const;
 
 		/// <summary>
 		/// Check the status of collision against the plane
@@ -78,7 +95,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Build a enclosing sphere from an AABB
 		/// </summary>
-		API_INTERFACE static Sphere buildFrom(const Vec3List<float>& pointList);
+		API_INTERFACE static Sphere buildFrom(const Vec3List& pointList);
 
 		/// <summary>
 		/// Enclose/add the sphere in another one

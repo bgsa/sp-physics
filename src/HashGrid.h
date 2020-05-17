@@ -22,11 +22,11 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void setCellSize(size_t cellSize);
 		API_INTERFACE size_t getCellSize();
 
-		API_INTERFACE Vec3f findCell(const Vec3f& point);
+		API_INTERFACE Vec3 findCell(const Vec3& point);
 
-		API_INTERFACE int findCellIndex(const Vec3f& point);
+		API_INTERFACE int findCellIndex(const Vec3& point);
 
-		API_INTERFACE Vec3List<float>* findRangeCell(const AABB& aabb);
+		API_INTERFACE Vec3List* findRangeCell(const AABB& aabb);
 
 		API_INTERFACE std::vector<int> findRangeCellIndex(const AABB& aabb);
 

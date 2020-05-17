@@ -2,10 +2,9 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Mat2<T>::Mat2(const T defaultValue)
+	Mat2::Mat2(const sp_float defaultValue)
 	{
-		static T emptyMatrix[MAT2_SIZE] = {
+		static sp_float emptyMatrix[MAT2_SIZE] = {
 			defaultValue, defaultValue,
 			defaultValue, defaultValue
 		};
@@ -13,14 +12,12 @@ namespace NAMESPACE_PHYSICS
 		std::memcpy(&values, emptyMatrix, sizeof(values));
 	}
 
-	template <typename T>
-	Mat2<T>::Mat2(T* values)
+	Mat2::Mat2(sp_float* values)
 	{
 		std::memcpy(&this->values, values, sizeof(this->values));
 	}
 
-	template <typename T>
-	Mat2<T>::Mat2(const T value11, const T value12,	const T value21, const T value22)
+	Mat2::Mat2(const sp_float value11, const sp_float value12,const sp_float value21, const sp_float value22)
 	{
 		values[0] = value11;
 		values[1] = value12;
@@ -28,12 +25,11 @@ namespace NAMESPACE_PHYSICS
 		values[3] = value22;
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::identity()
+	Mat2 Mat2::identity()
 	{
-		static T identityMatrix[MAT2_SIZE] = {
-			T(1), T(0),
-			T(0), T(1)
+		static sp_float identityMatrix[MAT2_SIZE] = {
+			ONE_FLOAT, ZERO_FLOAT,
+			ZERO_FLOAT, ONE_FLOAT
 		};
 
 		Mat2 result;
@@ -42,30 +38,27 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	T* Mat2<T>::getValues()
+	sp_float* Mat2::getValues()
 	{
 		return values;
 	}
 
-	template <typename T>
-	T Mat2<T>::getValue(const sp_int x, const sp_int y)
+	sp_float Mat2::getValue(const sp_int x, const sp_int y)
 	{
 		return values[ (y-1) * MAT2_ROWSIZE + (x-1)];
 	}
 
-	template <typename T>
-	Vec2<T> Mat2<T>::xAxis() const
+	Vec2 Mat2::xAxis() const
 	{
-		Vec2<T> result;
+		Vec2 result;
 
 	#ifdef MAJOR_COLUMN_ORDER
-		result = Vec2<T>{
+		result = Vec2{
 			values[0],
 			values[2]
 		};
 	#else
-		result = Vec2<T>{
+		result = Vec2{
 			values[0],
 			values[1]
 		};
@@ -74,18 +67,17 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec2<T> Mat2<T>::yAxis() const
+	Vec2 Mat2::yAxis() const
 	{
-		Vec2<T> result;
+		Vec2 result;
 
 	#ifdef MAJOR_COLUMN_ORDER
-		result = Vec2<T>{
+		result = Vec2{
 			values[1],
 			values[3]
 		};
 	#else
-		result = Vec2<T>{
+		result = Vec2{
 			values[2],
 			values[3]
 		};
@@ -94,60 +86,56 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec2<T> Mat2<T>::primaryDiagonal() const
+	Vec2 Mat2::primaryDiagonal() const
 	{
-		return Vec2<T> {
+		return Vec2 {
 			values[0],
 				values[3]
 		};
 	}
 
-	template <typename T>
-	Vec2<T> Mat2<T>::secondaryDiagonal() const
+	Vec2 Mat2::secondaryDiagonal() const
 	{
-		return Vec2<T> {
+		return Vec2 {
 			values[1],
 				values[2]
 		};
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::transpose() const
+	Mat2 Mat2::transpose() const
 	{
-		Mat2<T> result;
+		Mat2 result;
 
 		//copy principal diagonal
 		result[0] = values[0];
 		result[3] = values[3];
 
 		//swap others numbers
-		T temp = values[1];
+		sp_float temp = values[1];
 		result[1] = values[2];
 		result[2] = temp;
 
 		return result;
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::multiply(const Mat2<T>& matrixB) const
+	Mat2 Mat2::multiply(const Mat2& matrixB) const
 	{
-		Mat2<T> result;
+		Mat2 result;
 
 	#ifdef MAJOR_COLUMN_ORDER
-		for (int line = 0; line < MAT2_ROWSIZE; line++)
+		for (sp_int line = 0; line < MAT2_ROWSIZE; line++)
 		{
-			T ai0 = values[(0 * MAT2_ROWSIZE) + line];
-			T ai1 = values[(1 * MAT2_ROWSIZE) + line];
+			sp_float ai0 = values[(0 * MAT2_ROWSIZE) + line];
+			sp_float ai1 = values[(1 * MAT2_ROWSIZE) + line];
 
 			result[(0 * MAT2_ROWSIZE) + line] = ai0 * matrixB[(0 * MAT2_ROWSIZE) + 0] + ai1 * matrixB[(0 * MAT2_ROWSIZE) + 1];
 			result[(1 * MAT2_ROWSIZE) + line] = ai0 * matrixB[(1 * MAT2_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT2_ROWSIZE) + 1];
 		}
 	#else
-		for (int column = 0; column < MAT2_ROWSIZE; column++)
+		for (sp_int column = 0; column < MAT2_ROWSIZE; column++)
 		{
-			T ai0 = values[(column * MAT2_ROWSIZE) + 0];
-			T ai1 = values[(column * MAT2_ROWSIZE) + 1];
+			sp_float ai0 = values[(column * MAT2_ROWSIZE) + 0];
+			sp_float ai1 = values[(column * MAT2_ROWSIZE) + 1];
 
 			result[(column * MAT2_ROWSIZE) + 0] = ai0 * matrixB[(0 * MAT2_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT2_ROWSIZE) + 0];
 			result[(column * MAT2_ROWSIZE) + 1] = ai0 * matrixB[(0 * MAT2_ROWSIZE) + 1] + ai1 * matrixB[(1 * MAT2_ROWSIZE) + 1];
@@ -157,10 +145,9 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec2<T> Mat2<T>::multiply(const Vec2<T>& vector) const
+	Vec2 Mat2::multiply(const Vec2& vector) const
 	{
-		Vec2<T> result;
+		Vec2 result;
 
 		result[0] = values[0 * MAT2_ROWSIZE + 0] * vector[0] + values[0 * MAT2_ROWSIZE + 1] * vector[1];
 		result[1] = values[1 * MAT2_ROWSIZE + 0] * vector[0] + values[1 * MAT2_ROWSIZE + 1] * vector[1];
@@ -168,27 +155,24 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::createScale(const T xScale, const T yScale)
+	Mat2 Mat2::createScale(const sp_float xScale, const sp_float yScale)
 	{
-		Mat2<T> result = Mat2<T>::identity();
+		Mat2 result = Mat2::identity();
 
 		result.scale(xScale, yScale);
 
 		return result;
 	}
 
-	template <typename T>
-	void Mat2<T>::scale(const T xScale, const T yScale)
+	void Mat2::scale(const sp_float xScale, const sp_float yScale)
 	{
 		values[0] *= xScale;
 		values[3] *= yScale;
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::createTranslate(const T x, const T y)
+	Mat2 Mat2::createTranslate(const sp_float x, const sp_float y)
 	{
-		Mat2<T> result = Mat2<T>::identity();
+		Mat2 result = Mat2::identity();
 
 	#ifdef MAJOR_COLUMN_ORDER
 		result[2] = x;
@@ -201,77 +185,68 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	T Mat2<T>::determinant() const
+	sp_float Mat2::determinant() const
 	{
 		return values[0] * values[3] - values[1] * values[2];
 	}
 
-	template <typename T>
-	AutovalueAutovector2<T> Mat2<T>::getAutovalueAndAutovector(const sp_ushort maxIteration) const
+	AutoValueAutoVector2 Mat2::getAutovalueAndAutovector(const sp_ushort maxIteration) const
 	{
-		Mat2<T> matrix = *this;
-		Vec2<T> autovector = { T(1), T(1) };
-		T autovalue;
+		Mat2 matrix = *this;
+		Vec2 autovector(1.0f, 1.0f);
+		sp_float autovalue;
 
 		for (unsigned short iterationIndex = 0; iterationIndex < maxIteration; iterationIndex++)
 		{
-			Vec2<T> ax = matrix * autovector;
+			Vec2 ax = matrix * autovector;
 			autovalue = ax.maximum();
 			autovector = ax / autovalue;
 		}
 
-		return AutovalueAutovector2<T>{ autovalue, autovector };
+		return AutoValueAutoVector2{ autovalue, {autovector.x, autovector.y} };
 	}
 
-	template <typename T>
-	sp_size Mat2<T>::sizeInBytes() const
+	sp_size Mat2::sizeInBytes() const
 	{
-		return MAT2_SIZE * sizeof(T);
+		return MAT2_SIZE * SIZEOF_FLOAT;
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::clone() const
+	Mat2 Mat2::clone() const
 	{
-		Mat2<T> result;
+		Mat2 result;
 
-		std::memcpy(&result, this, sizeof(Mat2<T>));
+		std::memcpy(&result, this, sizeof(Mat2));
 
 		return result;
 	}
 
-	template <typename T>
-	T& Mat2<T>::operator[](sp_int index)
+	sp_float& Mat2::operator[](sp_int index)
 	{
 		sp_assert(index >= 0 && index < MAT2_SIZE);
 
 		return values[index];
 	}
 
-	template <typename T>
-	T Mat2<T>::operator[](sp_int index) const
+	sp_float Mat2::operator[](sp_int index) const
 	{
 		sp_assert(index >= 0 && index < MAT2_SIZE);
 
 		return values[index];
 	}
 
-	template <typename T>
-	Mat2<T>::operator void*() const
+	Mat2::operator void*() const
 	{
 		return (void*) values;
 	}
 
-	template <typename T>
-	Mat2<T>::operator T*() const
+	Mat2::operator sp_float*() const
 	{
-		return (T*) values;
+		return (sp_float*) values;
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::operator-() const
+	Mat2 Mat2::operator-() const
 	{
-		return Mat2<T> {
+		return Mat2 {
 			-values[0],
 			-values[1],
 			-values[2],
@@ -279,10 +254,9 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::operator-(const Mat2<T>& matrix) const
+	Mat2 Mat2::operator-(const Mat2& matrix) const
 	{
-		return Mat2<T> {
+		return Mat2 {
 			values[0] - matrix[0],
 			values[1] - matrix[1],
 			values[2] - matrix[2],
@@ -290,10 +264,9 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::operator+(const Mat2<T>& matrix) const
+	Mat2 Mat2::operator+(const Mat2& matrix) const
 	{
-		return Mat2<T> {
+		return Mat2 {
 			values[0] + matrix[0],
 			values[1] + matrix[1],
 			values[2] + matrix[2],
@@ -301,51 +274,46 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::operator*(const Mat2<T>& matrix) const
+	Mat2 Mat2::operator*(const Mat2& matrix) const
 	{
 		return multiply(matrix);
 	}
 
-	template <typename T>
-	Vec2<T> Mat2<T>::operator*(const Vec2<T>& vector) const
+	Vec2 Mat2::operator*(const Vec2& vector) const
 	{
 		return multiply(vector);
 	}
 
-	template <typename T>
-	void Mat2<T>::operator*=(const Mat2<T>& matrix)
+	void Mat2::operator*=(const Mat2& matrix)
 	{
 		std::memcpy(&this->values, multiply(matrix).values, sizeof(this->values));
 	}
 
-	template <typename T>
-	Mat2<T> Mat2<T>::operator/(const T value) const
+	Mat2 Mat2::operator/(const sp_float value) const
 	{
-		return Mat2<T> {
-			values[0] / value,
-			values[1] / value,
-			values[2] / value,
-			values[3] / value
+		sp_float inverted = 1.0f / value;
+
+		return Mat2 {
+			values[0] * inverted,
+			values[1] * inverted,
+			values[2] * inverted,
+			values[3] * inverted
 		};
 	}
 
-	template <typename T>
-	void Mat2<T>::operator/=(const T value)
+	void Mat2::operator/=(const sp_float value)
 	{
-		values[0] /= value;
-		values[1] /= value;
-		values[2] /= value;
-		values[3] /= value;
+		sp_float inverted = 1.0f / value;
+
+		values[0] *= inverted;
+		values[1] *= inverted;
+		values[2] *= inverted;
+		values[3] *= inverted;
 	}
 
-	template <typename T>
-	std::string Mat2<T>::toString() const
+	std::string Mat2::toString() const
 	{
-		return Mat<T>::toString(values, MAT2_SIZE);
+		return Mat::toString(values, MAT2_SIZE);
 	}
 
-	template class Mat2<sp_int>;
-	template class Mat2<sp_float>;
-	template class Mat2<sp_double>;
 }

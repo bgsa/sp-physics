@@ -1,9 +1,9 @@
 #ifndef AABB_HEADER
 #define AABB_HEADER
 
+#include "SpectrumPhysics.h"
+#include "DetailedCollisionStatus.h"
 #include <algorithm>
-#include "Vec3.h"
-#include "Vec3List.h"
 #include "BoundingVolume.h"
 #include "Plane3D.h"
 #include "Sphere.h"
@@ -16,9 +16,16 @@ namespace NAMESPACE_PHYSICS
 	class AABB
 		: public BoundingVolume
 	{
+	private:
+
+		/// <summary>
+		/// This method is not applied to k-DOPs
+		/// </summary>
+		API_INTERFACE void rotate(const Vec3& angles) override;
+
 	public:
-		Vec3f minPoint;
-		Vec3f maxPoint;
+		Vec3 minPoint;
+		Vec3 maxPoint;
 
 		///<summary>
 		///Default constructur - build a unit AABB with the center in the origin
@@ -28,32 +35,42 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Constructor using min and max points
 		///</summary>
-		API_INTERFACE AABB(Vec3f minPoint, Vec3f maxPoint);
+		API_INTERFACE AABB(Vec3 minPoint, Vec3 maxPoint);
 
 		///<summary>
 		///Constructur using min points and distances from this point in the axis
 		///</summary>
-		API_INTERFACE AABB(Vec3f minPoint, float width, float height, float depth);
+		API_INTERFACE AABB(Vec3 minPoint, sp_float width, sp_float height, sp_float depth);
 
 		///<summary>
 		///Get the center of AABB
 		///</summary>
-		API_INTERFACE Vec3f center() const;
+		API_INTERFACE Vec3 center() const;
 
 		///<summary>
 		///Get the center of bounding volumne (AABB)
 		///</summary>
-		API_INTERFACE Vec3f centerOfBoundingVolume() const override;
+		API_INTERFACE Vec3 centerOfBoundingVolume() const override;
 
 		///<summary>
 		///Get the SQUARED distance from a point and AABB
 		///</summary>
-		API_INTERFACE float squaredDistance(const Vec3f& target);
+		API_INTERFACE sp_float squaredDistance(const Vec3& target);
 
 		///<summary>
 		///Get the distance from a point and AABB
 		///</summary>
-		API_INTERFACE float distance(const Vec3f& target);
+		API_INTERFACE sp_float distance(const Vec3& target);
+
+		/// <summary>
+		/// Translate the bounding volume
+		/// </summary>
+		API_INTERFACE void translate(const Vec3& translation) override;
+
+		/// <summary>
+		/// Scale the bounding volume (only in X, Y and Z)
+		/// </summary>
+		API_INTERFACE void scale(const Vec3& factor) override;
 
 		///<summary>
 		///Check whether the AABBs are in contact each other
@@ -73,17 +90,17 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Given a point, find the closest point in AABB
 		///</summary>
-		API_INTERFACE Vec3f closestPointInAABB(const Vec3f& target);
+		API_INTERFACE Vec3 closestPointInAABB(const Vec3& target);
 
 		///<summary>
 		///Given a point, find the closest point in AABB
 		///</summary>
-		API_INTERFACE Vec3f closestPointInAABB(const Sphere& sphgere);
+		API_INTERFACE Vec3 closestPointInAABB(const Sphere& sphgere);
 
 		///<summary>
 		///Given a list of point (mesh), build the AABB
 		///</summary>
-		API_INTERFACE static AABB buildFrom(const Vec3List<float>& pointList);
+		API_INTERFACE static AABB buildFrom(const Vec3List& pointList);
 
 		///<summary>
 		///Given a sphere, build the AABB to enclose the sphere
@@ -103,22 +120,22 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		///Compare this AABB to another one. Compare each minPoint and maxPoint
 		/// </summary>
-		API_INTERFACE bool operator==(const AABB& aabb) const;
+		API_INTERFACE sp_bool operator==(const AABB& aabb) const;
 
 		/// <summary>
 		///Compare this AABB to another one. Compare each minPoint and maxPoint
 		/// </summary>
-		API_INTERFACE bool operator!=(const AABB& aabb) const;
+		API_INTERFACE sp_bool operator!=(const AABB& aabb) const;
 
 		/// <summary>
 		///Comparator function
 		/// </summary>
-		API_INTERFACE bool operator<(const AABB& aabb) const;
+		API_INTERFACE sp_bool operator<(const AABB& aabb) const;
 
 		/// <summary>
 		///Comparator function
 		/// </summary>
-		API_INTERFACE bool operator>(const AABB& aabb) const;
+		API_INTERFACE sp_bool operator>(const AABB& aabb) const;
 
 		/// <summary>
 		///Hash code function

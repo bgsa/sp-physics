@@ -2,69 +2,63 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template<typename T>
-	Circle2D<T>::Circle2D() 
+	Circle2D::Circle2D() 
 	{
-		ray = T(0);
-		center = Vec2<T>(T(0));
+		ray = ZERO_FLOAT;
+		center = Vec2(ZERO_FLOAT);
 	}
 
-	template<typename T>
-	Circle2D<T>::Circle2D(const Vec2<T>& center, T ray)
+	Circle2D::Circle2D(const Vec2& center, sp_float ray)
 	{
 		this->center = center;
 		this->ray = ray;
 	}
 
-	template<typename T>
-	Circle2D<T>::Circle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3)
+	Circle2D::Circle2D(const Vec2& point1, const Vec2& point2, const Vec2& point3)
 	{
-		Mat4<T> matrix = {
-			T(1), T(1), T(1), T(1),
-			point1.x * point1.x + point1.y * point1.y, point1.x, point1.y, T(1),
-			point2.x * point2.x + point2.y * point2.y, point2.x, point2.y, T(1),
-			point3.x * point3.x + point3.y * point3.y, point3.x, point3.y, T(1),
+		Mat4 matrix = {
+			ONE_FLOAT, ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
+			point1.x * point1.x + point1.y * point1.y, point1.x, point1.y, ONE_FLOAT,
+			point2.x * point2.x + point2.y * point2.y, point2.x, point2.y, ONE_FLOAT,
+			point3.x * point3.x + point3.y * point3.y, point3.x, point3.y, ONE_FLOAT,
 		};
 
-		T value = matrix.cofactorIJ(0, 0);
+		sp_float value = matrix.cofactorIJ(0, 0);
 
-		T a = value / value;
-		T b = matrix.cofactorIJ(0, 1) / value;
-		T c = matrix.cofactorIJ(0, 2) / value;
-		T d = matrix.cofactorIJ(0, 3) / value;
+		sp_float a = value / value;
+		sp_float b = matrix.cofactorIJ(0, 1) / value;
+		sp_float c = matrix.cofactorIJ(0, 2) / value;
+		sp_float d = matrix.cofactorIJ(0, 3) / value;
 
-		T numerator = (b*b) + (c*c) - (4 * a * d);
-		T denominator = 4 * a * a;
+		sp_float numerator = (b*b) + (c*c) - (4 * a * d);
+		sp_float denominator = 4 * a * a;
 
-		this->center = Vec2<T>(-(b / 2 * a), -(c / 2 * a));
-		this->ray = T(sqrt(numerator / denominator));
+		this->center = Vec2(-(b / 2 * a), -(c / 2 * a));
+		this->ray = std::sqrtf(numerator / denominator);
 	}
 
-	template<typename T>
-	T Circle2D<T>::area() const 
+	sp_float Circle2D::area() const
 	{
-		return T(PI * ray * ray);
+		return (PI * ray * ray);
 	}
 
-	template<typename T>
-	T Circle2D<T>::circumference() const
+	sp_float Circle2D::circumference() const
 	{
-		return T(2 * PI * ray);
+		return 2.0f * PI * ray;
 	}
 
-	template<typename T>
-	T* Circle2D<T>::calculatePoints(size_t& pointsCount) const
+	sp_float* Circle2D::calculatePoints(size_t& pointsCount) const
 	{
-		const size_t vertexCount = 126;
-		pointsCount = vertexCount / 2;
+		const sp_uint vertexCount = 126;
+		pointsCount = divideBy2(vertexCount);
 
-		T* points = ALLOC_ARRAY(T, vertexCount);
+		sp_float* points = ALLOC_ARRAY(sp_float, vertexCount);
 		size_t index = 0;
 
-		for (double angle = 0.0; angle < TWO_PI; angle += 0.1)
+		for (sp_float angle = 0.0f; angle < TWO_PI; angle += 0.1f)
 		{
-			points[index + 0] = T(ray * cos(angle) + center.x);
-			points[index + 1] = T(ray * sin(angle) + center.y);
+			points[index + 0] = ray * std::cosf(angle) + center.x;
+			points[index + 1] = ray * std::sinf(angle) + center.y;
 
 			index += 2;
 		}
@@ -72,18 +66,15 @@ namespace NAMESPACE_PHYSICS
 		return points;
 	}
 
-	template<typename T>
-	T Circle2D<T>::distance(const Vec2<T>& point) const
+	sp_float Circle2D::distance(const Vec2& point) const
 	{
-		T distance = center.distance(point);
-		return distance;
+		 return center.distance(point);
 	}
 
-	template<typename T>
-	CollisionStatus Circle2D<T>::collisionStatus(const Vec2<T>& point) const
+	CollisionStatus Circle2D::collisionStatus(const Vec2& point) const
 	{
-		double distance = ceil(point.distance(center));
-		double rayDistance = ceil(ray);
+		sp_float distance = std::ceilf(point.distance(center));
+		sp_float rayDistance = std::ceilf(ray);
 
 		if (distance > rayDistance)
 			return CollisionStatus::OUTSIDE;
@@ -94,60 +85,55 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INLINE;
 	}
 
-	template<typename T>
-	bool Circle2D<T>::hasIntersection(const Circle2D<T>& circle2) const
+	sp_bool Circle2D::hasIntersection(const Circle2D& circle2) const
 	{
-		T distance = center.distance(circle2.center);
+		sp_float distance = center.distance(circle2.center);
 
-		bool intersectionFound = ray + circle2.ray >= distance;
+		sp_bool intersectionFound = ray + circle2.ray >= distance;
 
 		return intersectionFound;
 	}
 
-	template<typename T>
-	Vec2<T>* Circle2D<T>::findIntersection(const Circle2D<T>& circle2) const
+	Vec2* Circle2D::findIntersection(const Circle2D& circle2) const
 	{
-		Vec2<T> point1AsVector = center;
-		Vec2<T> point2AsVector = circle2.center;
+		Vec2 point1AsVector = center;
+		Vec2 point2AsVector = circle2.center;
 
-		T distance = point1AsVector.distance(point2AsVector);
+		sp_float distance = point1AsVector.distance(point2AsVector);
 
-		bool intersectionFound = ray + circle2.ray >= distance;
+		sp_bool intersectionFound = ray + circle2.ray >= distance;
 
 		if (!intersectionFound)
 			return nullptr;
 
-		double a = (ray*ray - circle2.ray*circle2.ray + distance * distance) / (2 * distance);
-		double h = sqrt((ray * ray) - (a * a));
+		sp_float a = (ray*ray - circle2.ray*circle2.ray + distance * distance) / (2.0f * distance);
+		sp_float h = sqrt((ray * ray) - (a * a));
 
-		Vec2<T> p3 = ((point2AsVector - point1AsVector) * T(a / distance)) + center;
+		Vec2 p3 = ((point2AsVector - point1AsVector) * (a / distance)) + center;
 
-		T x3 = T( p3[0] + h * (circle2.center.y - center.y) / distance );
-		T y3 = T( p3[1] - h * (circle2.center.x - center.x) / distance );
+		sp_float x3 = p3[0] + h * (circle2.center.y - center.y) / distance;
+		sp_float y3 = p3[1] - h * (circle2.center.x - center.x) / distance;
 
-		Vec2<T>* result;
+		Vec2* result;
 
 		if (ray + circle2.ray == distance)   //has only one point
 		{
-			result = ALLOC_ARRAY(Vec2<T>, 1);
-			result[0] = Vec2<T>(x3, y3);
+			result = ALLOC_ARRAY(Vec2, 1);
+			result[0] = Vec2(x3, y3);
 
 			return result;
 		}
 		else
 		{
-			T x4 = T( p3[0] - h * (circle2.center.y - center.y) / distance);
-			T y4 = T( p3[1] + h * (circle2.center.x - center.x) / distance);
+			sp_float x4 = p3[0] - h * (circle2.center.y - center.y) / distance;
+			sp_float y4 = p3[1] + h * (circle2.center.x - center.x) / distance;
 
-			result = ALLOC_ARRAY(Vec2<T>, 2);
-			result[0] = Vec2<T>(x3, y3);
-			result[1] = Vec2<T>(x4, y4);
+			result = ALLOC_ARRAY(Vec2, 2);
+			result[0] = Vec2(x3, y3);
+			result[1] = Vec2(x4, y4);
 		}
 
 		return result;
 	}
 
-	template class Circle2D<int>;
-	template class Circle2D<float>;
-	template class Circle2D<double>;
 }

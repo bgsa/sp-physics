@@ -31,11 +31,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_constructorDefault_Test)
 	{
-		Vec3f* points = ALLOC_ARRAY(Vec3f, 2);
+		Vec3* points = ALLOC_ARRAY(Vec3, 2);
 		points[0] = { 0.0f, 2.0f, -3.3f };
 		points[1] = { -5.1f, 2.0f, 3.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, 2);
+		Vec3List list = Vec3List(points, 2);
 
 		Assert::AreEqual(TWO_UINT, list.count, L"Wrong value.", LINE_INFO());
 
@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_findExtremePointsAlongAxisX_Test)
 	{
 		int pointsCount = 6;
-		Vec3f* points = ALLOC_ARRAY(Vec3f, pointsCount);
+		Vec3* points = ALLOC_ARRAY(Vec3, pointsCount);
 		points[0] = { 0.0f, 0.0f, 0.3f };
 		points[1] = { 10.0f, 10.0f, 10.0f };
 		points[2] = { 5.0f, 5.0f, 5.0f };
@@ -55,7 +55,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		points[4] = { 12.0f, 10.0f, 10.0f }; // max point (index 4)
 		points[5] = { 8.0f, 1.0f, 1.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, pointsCount);
+		Vec3List list = Vec3List(points, pointsCount);
 
 		int* result = list.findExtremePointsAlongAxisX();
 
@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_findExtremePointsAlongAxisY_Test)
 	{
 		int pointsCount = 6;
-		Vec3f* points = ALLOC_ARRAY(Vec3f, pointsCount);
+		Vec3* points = ALLOC_ARRAY(Vec3, pointsCount);
 		points[0] = { 0.0f, 0.0f, 0.3f };
 		points[1] = { 10.0f, 10.0f, 10.0f };
 		points[2] = { 5.0f, 5.0f, 5.0f };
@@ -74,7 +74,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		points[4] = { 12.0f, 10.0f, 10.0f };
 		points[5] = { 8.0f, 1.0f, 1.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, pointsCount);
+		Vec3List list = Vec3List(points, pointsCount);
 
 		int* result = list.findExtremePointsAlongAxisY();
 
@@ -85,7 +85,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_findExtremePointsAlongAxisZ_Test)
 	{
 		int pointsCount = 6;
-		Vec3f* points = ALLOC_ARRAY(Vec3f, pointsCount);
+		Vec3* points = ALLOC_ARRAY(Vec3, pointsCount);
 		points[0] = { 0.0f, 0.0f, 0.3f };
 		points[1] = { 10.0f, 10.0f, 10.0f };
 		points[2] = { 5.0f, 5.0f, 5.0f };
@@ -93,7 +93,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		points[4] = { 12.0f, 10.0f, 10.0f };
 		points[5] = { 8.0f, 1.0f, 17.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, pointsCount);
+		Vec3List list = Vec3List(points, pointsCount);
 
 		int* result = list.findExtremePointsAlongAxisZ();
 
@@ -104,7 +104,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_findExtremePointsAlongAxisXYZ_Test)
 	{
 		int pointsCount = 6;
-		Vec3f* points = ALLOC_ARRAY(Vec3f, pointsCount);
+		Vec3* points = ALLOC_ARRAY(Vec3, pointsCount);
 		points[0] = { 0.0f, 0.0f, 0.3f };
 		points[1] = { 10.0f, 10.0f, 10.0f };
 		points[2] = { 5.0f, 5.0f, 5.0f };
@@ -112,7 +112,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		points[4] = { 12.0f, 10.0f, 10.0f };
 		points[5] = { 8.0f, 1.0f, 17.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, pointsCount);
+		Vec3List list = Vec3List(points, pointsCount);
 
 		int* result = list.findExtremePointsAlongAxisXYZ();
 
@@ -127,12 +127,12 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_covarianceOnAxis_Test)
 	{
 		int pointsCount = 3;
-		Vec3f* points = ALLOC_ARRAY(Vec3f, pointsCount);
+		Vec3* points = ALLOC_ARRAY(Vec3, pointsCount);
 		points[0] = { 1.0f, 3.0f, -7.0f };
 		points[1] = { 3.0f, 9.0f, 2.0f };
 		points[2] = { -5.0f, 4.0f, 6.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, pointsCount);
+		Vec3List list = Vec3List(points, pointsCount);
 
 		float result = list.covarianceOnAxis(0);
 		float expectedOnAxisX = 11.5556f;
@@ -150,15 +150,15 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_covariance_Test)
 	{
 		int pointsCount = 3;
-		Vec3f* points = ALLOC_ARRAY(Vec3f, pointsCount);
+		Vec3* points = ALLOC_ARRAY(Vec3, pointsCount);
 		points[0] = { 1.0f, 3.0f, -7.0f };
 		points[1] = { 3.0f, 9.0f, 2.0f };
 		points[2] = { -5.0f, 4.0f, 6.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, pointsCount);
+		Vec3List list = Vec3List(points, pointsCount);
 
-		Mat3f result = list.covariance();
-		Mat3f expected = Mat3f(
+		Mat3 result = list.covariance();
+		Mat3 expected = Mat3(
 			11.5556f, 5.1111f, -10.2222f,
 			5.1111f, 6.8889f, 5.2222f,
 			-10.2222f, 5.2222f, 29.5556f
@@ -171,14 +171,14 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec3List_closetPoint_UsingBruteForce_Test)
 	{
 		int pointsCount = 5;
-		Vec3f* points = ALLOC_ARRAY(Vec3f, pointsCount);
+		Vec3* points = ALLOC_ARRAY(Vec3, pointsCount);
 		points[0] = { 1.0f, 1.0f, 1.0f };
 		points[1] = { 10.0f, 0.0f, 0.0f };
 		points[2] = { 0.0f, 5.0f, 5.0f };
 		points[3] = { 3.0f, 4.0f, 10.0f };
 		points[4] = { 0.0f, 4.0f, 4.0f };
 
-		Vec3List<float> list = Vec3List<float>(points, pointsCount);
+		Vec3List list = Vec3List(points, pointsCount);
 
 		int* result = list.closestPoint_UsingBruteForce();
 		int expected[2] = { 2,4 };

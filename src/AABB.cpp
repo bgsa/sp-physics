@@ -4,38 +4,38 @@ namespace NAMESPACE_PHYSICS
 {
 	AABB::AABB()
 	{
-		this->minPoint = Vec3f(-0.5f);
+		this->minPoint = Vec3(-0.5f);
 		this->maxPoint = -this->minPoint;
 	}
 
-	AABB::AABB(Vec3f minPoint, Vec3f maxPoint)
+	AABB::AABB(Vec3 minPoint, Vec3 maxPoint)
 	{
 		this->minPoint = minPoint;
 		this->maxPoint = maxPoint;
 	}
 
-	AABB::AABB(Vec3f minPoint, float width, float height, float depth)
+	AABB::AABB(Vec3 minPoint, sp_float width, sp_float height, sp_float depth)
 	{
 		this->minPoint = minPoint;
 
-		maxPoint = Vec3f(
+		maxPoint = Vec3(
 			minPoint.x + width,
 			minPoint.y + height,
 			minPoint.z + depth
 			);
 	}
 
-	Vec3f AABB::center() const
+	Vec3 AABB::center() const
 	{
 		return (maxPoint + minPoint) * 0.5f;
 	}
 
-	Vec3f AABB::centerOfBoundingVolume() const
+	Vec3 AABB::centerOfBoundingVolume() const
 	{
 		return center();
 	}
 
-	float AABB::squaredDistance(const Vec3f& target)
+	sp_float AABB::squaredDistance(const Vec3& target)
 	{
 		float result = 0.0f;
 
@@ -54,10 +54,29 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	float AABB::distance(const Vec3f& target)
+	sp_float AABB::distance(const Vec3& target)
 	{
 		return float(sqrt(squaredDistance(target)));
 	}
+
+	void AABB::translate(const Vec3& translation)
+	{
+		minPoint += translation;
+		maxPoint += translation;
+	}
+
+	void AABB::scale(const Vec3& factor)
+	{
+		minPoint.x *= factor.x;
+		minPoint.y *= factor.y;
+		minPoint.z *= factor.z;
+
+		maxPoint.x *= factor.x;
+		maxPoint.y *= factor.y;
+		maxPoint.z *= factor.z;
+	}
+
+	void AABB::rotate(const Vec3& factor) { }
 
 	CollisionStatus AABB::collisionStatus(const AABB& aabb) 
 	{
@@ -75,9 +94,9 @@ namespace NAMESPACE_PHYSICS
 
 	CollisionStatus AABB::collisionStatus(const Plane3D& plane)
 	{
-		Vec3f centerPoint = center(); 
+		Vec3 centerPoint = center(); 
 		float d = plane.getDcomponent();
-		Vec3f halfDistanceFromCenter = maxPoint - centerPoint;
+		Vec3 halfDistanceFromCenter = maxPoint - centerPoint;
 
 		// Compute the projection interval radius of AABB onto L(t) = center + t * normalPlane
 		double r = 
@@ -112,9 +131,9 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::OUTSIDE;
 	}
 
-	Vec3f AABB::closestPointInAABB(const Vec3f& target)
+	Vec3 AABB::closestPointInAABB(const Vec3& target)
 	{
-		Vec3f result;
+		Vec3 result;
 
 		for (int axis = 0; axis < 3; axis++)
 		{
@@ -129,22 +148,22 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	Vec3f AABB::closestPointInAABB(const Sphere& sphere)
+	Vec3 AABB::closestPointInAABB(const Sphere& sphere)
 	{
 		return closestPointInAABB(sphere.center);
 	}
 
-	AABB AABB::buildFrom(const Vec3List<float>& pointList)
+	AABB AABB::buildFrom(const Vec3List& pointList)
 	{
 		int* indexes = pointList.findExtremePointsAlongAxisXYZ();
 
 		return AABB(
-			Vec3f(
+			Vec3(
 				pointList.points[indexes[0]].x,
 				pointList.points[indexes[2]].y,
 				pointList.points[indexes[4]].z
 				), 
-			Vec3f(
+			Vec3(
 				pointList.points[indexes[1]].x,
 				pointList.points[indexes[3]].y,
 				pointList.points[indexes[5]].z
@@ -155,12 +174,12 @@ namespace NAMESPACE_PHYSICS
 	AABB AABB::buildFrom(const Sphere& sphere)
 	{	
 		return AABB(
-			Vec3f(
+			Vec3(
 				sphere.center.x - sphere.ray,
 				sphere.center.y - sphere.ray,
 				sphere.center.z - sphere.ray
 				),
-			Vec3f(
+			Vec3(
 				sphere.center.x + sphere.ray,
 				sphere.center.y + sphere.ray,
 				sphere.center.z + sphere.ray
@@ -171,12 +190,12 @@ namespace NAMESPACE_PHYSICS
 	AABB AABB::enclose(const AABB& aabb)
 	{
 		return AABB(
-			Vec3f(
+			Vec3(
 				std::min(this->minPoint.x, aabb.minPoint.x),
 				std::min(this->minPoint.y, aabb.minPoint.y),
 				std::min(this->minPoint[2], aabb.minPoint.z)
 			),
-			Vec3f(
+			Vec3(
 				std::max(this->maxPoint.x, aabb.maxPoint.x),
 				std::max(this->maxPoint.y, aabb.maxPoint.y),
 				std::max(this->maxPoint.z, aabb.maxPoint.z)
@@ -189,18 +208,18 @@ namespace NAMESPACE_PHYSICS
 		return enclose(AABB::buildFrom(sphere));
 	}
 
-	bool AABB::operator==(const AABB& aabb) const
+	sp_bool AABB::operator==(const AABB& aabb) const
 	{
 		return this->minPoint == aabb.minPoint 
 			&& this->maxPoint == aabb.maxPoint;
 	}
 
-	bool AABB::operator!=(const AABB& aabb) const
+	sp_bool AABB::operator!=(const AABB& aabb) const
 	{
 		return ! (*this == aabb);
 	}
 
-	bool AABB::operator<(const AABB& aabb) const
+	sp_bool AABB::operator<(const AABB& aabb) const
 	{
 		if (this->minPoint.x < aabb.minPoint.x)
 			return true;
@@ -214,7 +233,7 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	bool AABB::operator>(const AABB& aabb) const
+	sp_bool AABB::operator>(const AABB& aabb) const
 	{
 		if (this->maxPoint.x > aabb.maxPoint.x)
 			return true;
@@ -228,7 +247,7 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	size_t AABB::operator()(const AABB& aabb) const
+	sp_size AABB::operator()(const AABB& aabb) const
 	{
 		float hash = 1.0f;
 		const float constant = 3.0f;
@@ -243,7 +262,7 @@ namespace NAMESPACE_PHYSICS
 		return size_t(hash);
 	}
 
-	bool AABB::operator()(const AABB& aabb1, const AABB& aabb2) const
+	sp_bool AABB::operator()(const AABB& aabb1, const AABB& aabb2) const
 	{
 		return aabb1 == aabb2;
 	}

@@ -15,13 +15,11 @@ namespace NAMESPACE_PHYSICS
 		commandIndexes->init(gpu, buildOptions);
 
 		SP_FILE file;
-		file.open("FindMinMax.cl", std::ios::in);
-		const sp_size fileSize = file.length();
-		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		SpString* source = file.readTextFile("FindMinMax.cl");
+		
+		findMinMaxProgramIndex = this->gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions);
 
-		findMinMaxProgramIndex = this->gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
-
-		ALLOC_RELEASE(source);		
+		sp_mem_delete(source, SpString);
 		return this;
 	}
 

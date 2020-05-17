@@ -2,10 +2,10 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Mat3<T>::Mat3(const T defaultValue)
+	
+	Mat3::Mat3(const sp_float defaultValue)
 	{
-		static T emptyMatrix[MAT3_SIZE] = {
+		static sp_float emptyMatrix[MAT3_SIZE] = {
 			defaultValue, defaultValue, defaultValue,
 			defaultValue, defaultValue, defaultValue,
 			defaultValue, defaultValue, defaultValue
@@ -14,17 +14,17 @@ namespace NAMESPACE_PHYSICS
 		std::memcpy(&values, emptyMatrix, sizeof(values));
 	}
 
-	template <typename T>
-	Mat3<T>::Mat3(T* values)
+	
+	Mat3::Mat3(sp_float* values)
 	{
 		std::memcpy(&this->values, values, sizeof(this->values));
 	}
 
-	template <typename T>
-	Mat3<T>::Mat3(
-		const T value11, const T value21, const T value31,
-		const T value12, const T value22, const T value32,
-		const T value13, const T value23, const T value33)
+	
+	Mat3::Mat3(
+		const sp_float value11, const sp_float value21, const sp_float value31,
+		const sp_float value12, const sp_float value22, const sp_float value32,
+		const sp_float value13, const sp_float value23, const sp_float value33)
 	{
 		values[0] = value11;
 		values[1] = value21;
@@ -37,31 +37,31 @@ namespace NAMESPACE_PHYSICS
 		values[8] = value33;
 	}
 
-	template <typename T>
-	T* Mat3<T>::getValues()
+	
+	sp_float* Mat3::getValues()
 	{
 		return values;
 	}
 
-	template <typename T>
-	T Mat3<T>::getValue(const sp_int x, const sp_int y) const
+	
+	sp_float Mat3::getValue(const sp_int x, const sp_int y) const
 	{
 		return values[(y-1) * MAT3_ROWSIZE + (x-1)];
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::getAxis(const sp_int index) const
+	
+	Vec3 Mat3::getAxis(const sp_int index) const
 	{
 	#if MAJOR_COLUMN_ORDER
 
-		return Vec3<T>(
+		return Vec3(
 			values[index],
 			values[index + MAT3_ROWSIZE],
 			values[index + MAT3_ROWSIZE + MAT3_ROWSIZE]
 		);
 	#else
 
-		return Vec3<T>(
+		return Vec3(
 			values[index * MAT3_ROWSIZE],
 			values[index * MAT3_ROWSIZE + 1],
 			values[index * MAT3_ROWSIZE + 2]
@@ -69,17 +69,17 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::xAxis() const
+	
+	Vec3 Mat3::xAxis() const
 	{
 	#if MAJOR_COLUMN_ORDER
-		return Vec3<T>{
+		return Vec3{
 			values[0],
 			values[3],
 			values[6]
 		};
 	#else
-		return Vec3<T>{
+		return Vec3{
 			values[0],
 			values[1],
 			values[2]
@@ -87,17 +87,17 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::yAxis() const
+	
+	Vec3 Mat3::yAxis() const
 	{
 	#if MAJOR_COLUMN_ORDER
-		return Vec3<T>{
+		return Vec3{
 			values[1],
 			values[4],
 			values[7]
 		};
 	#else
-		return Vec3<T>{
+		return Vec3{
 			values[3],
 			values[4],
 			values[5]
@@ -105,17 +105,17 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::zAxis() const
+	
+	Vec3 Mat3::zAxis() const
 	{
 	#if MAJOR_COLUMN_ORDER
-		return Vec3<T>{
+		return Vec3{
 			values[2],
 			values[5],
 			values[8]
 		};
 	#else
-		return Vec3<T>{
+		return Vec3{
 			values[6],
 			values[7],
 			values[8]
@@ -123,45 +123,45 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::identity()
+	
+	Mat3 Mat3::identity()
 	{
-		static T identityMatrix[MAT3_SIZE] = {
-			T(1), T(0), T(0),
-			T(0), T(1), T(0),
-			T(0), T(0), T(1)
+		static sp_float identityMatrix[MAT3_SIZE] = {
+			ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
+			ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT,
+			ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
 		};
 
-		Mat3<T> result;
+		Mat3 result;
 		std::memcpy(&result, identityMatrix, sizeof(values));
 
 		return result;
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::primaryDiagonal() const
+	
+	Vec3 Mat3::primaryDiagonal() const
 	{
-		return Vec3<T> {
+		return Vec3 {
 			values[0],
 			values[4],
 			values[8]
 		};
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::secondaryDiagonal() const
+	
+	Vec3 Mat3::secondaryDiagonal() const
 	{
-		return Vec3<T> {
+		return Vec3 {
 			values[2],
 				values[4],
 				values[6]
 		};
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::transpose() const
+	
+	Mat3 Mat3::transpose() const
 	{
-		Mat3<T> result;
+		Mat3 result;
 
 		//copy principal diagonal
 		result[0] = values[0];
@@ -169,7 +169,7 @@ namespace NAMESPACE_PHYSICS
 		result[8] = values[8];
 
 		//swap others numbers
-		T temp = values[1];
+		sp_float temp = values[1];
 		result[1] = values[3];
 		result[3] = temp;
 
@@ -184,17 +184,17 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::multiply(const Mat3<T>& matrixB) const
+	
+	Mat3 Mat3::multiply(const Mat3& matrixB) const
 	{
-		Mat3<T> result;
+		Mat3 result;
 
 	#if MAJOR_COLUMN_ORDER
 		for (int line = 0; line < MAT3_ROWSIZE; line++)
 		{
-			T ai0 = values[line];
-			T ai1 = values[MAT3_ROWSIZE + line];
-			T ai2 = values[TWO_MAT3_ROWSIZE + line];
+			sp_float ai0 = values[line];
+			sp_float ai1 = values[MAT3_ROWSIZE + line];
+			sp_float ai2 = values[TWO_MAT3_ROWSIZE + line];
 
 			result[line] = ai0 * matrixB[0] + ai1 * matrixB[1] + ai2 * matrixB[2];
 			result[MAT3_ROWSIZE + line] = ai0 * matrixB[MAT3_ROWSIZE] + ai1 * matrixB[MAT3_ROWSIZE + 1] + ai2 * matrixB[MAT3_ROWSIZE + 2];
@@ -203,9 +203,9 @@ namespace NAMESPACE_PHYSICS
 	#else
 		for (int column = 0; column < MAT3_ROWSIZE; column++)
 		{
-			T ai0 = values[(column * MAT3_ROWSIZE) + 0];
-			T ai1 = values[(column * MAT3_ROWSIZE) + 1];
-			T ai2 = values[(column * MAT3_ROWSIZE) + 2];
+			sp_float ai0 = values[(column * MAT3_ROWSIZE) + 0];
+			sp_float ai1 = values[(column * MAT3_ROWSIZE) + 1];
+			sp_float ai2 = values[(column * MAT3_ROWSIZE) + 2];
 
 			result[(column * MAT3_ROWSIZE) + 0] = ai0 * matrixB[(0 * MAT3_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT3_ROWSIZE) + 0] + ai2 * matrixB[(2 * MAT3_ROWSIZE) + 0];
 			result[(column * MAT3_ROWSIZE) + 1] = ai0 * matrixB[(0 * MAT3_ROWSIZE) + 1] + ai1 * matrixB[(1 * MAT3_ROWSIZE) + 1] + ai2 * matrixB[(2 * MAT3_ROWSIZE) + 1];
@@ -216,10 +216,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::multiply(const Vec3<T>& vector) const
+	
+	Vec3 Mat3::multiply(const Vec3& vector) const
 	{
-		Vec3<T> result;
+		Vec3 result;
 
 		result[0] = values[0] * vector[0] + values[1] * vector[1] + values[2] * vector[2];
 		result[1] = values[MAT3_ROWSIZE] * vector[0] + values[MAT3_ROWSIZE + 1] * vector[1] + values[MAT3_ROWSIZE + 2] * vector[2];
@@ -228,10 +228,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	T Mat3<T>::determinantIJ(const sp_size i, const sp_size j) const
+	
+	sp_float Mat3::determinantIJ(const sp_size i, const sp_size j) const
 	{
-		T* matrixValues = ALLOC_ARRAY(T, 4);
+		sp_float* matrixValues = ALLOC_ARRAY(sp_float, 4);
 		sp_size index = 0;
 
 		for (sp_size row = 0; row < MAT3_ROWSIZE; row++)
@@ -249,16 +249,16 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		Mat2<T> matrix = Mat2<T>(matrixValues);
-		T determinant = matrix.determinant();
+		Mat2 matrix = Mat2(matrixValues);
+		sp_float determinant = matrix.determinant();
 
 		return determinant;
 	}
 
-	template <typename T>
-	T Mat3<T>::cofactorIJ(const sp_size i, const sp_size j) const
+	
+	sp_float Mat3::cofactorIJ(const sp_size i, const sp_size j) const
 	{
-		T determinantIJValue = determinantIJ(i, j);
+		sp_float determinantIJValue = determinantIJ(i, j);
 
 		if (isOdd(i + j))
 			determinantIJValue *= -1;
@@ -266,52 +266,52 @@ namespace NAMESPACE_PHYSICS
 		return determinantIJValue;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::createScale(const T xScale, const T yScale, const T zScale)
+	
+	Mat3 Mat3::createScale(const sp_float xScale, const sp_float yScale, const sp_float zScale)
 	{
-		Mat3<T> result = Mat3<T>::identity();
+		Mat3 result = Mat3::identity();
 
 		result.scale(xScale, yScale, zScale);
 
 		return result;
 	}
 
-	template <typename T>
-	void Mat3<T>::scale(const T xScale, const T yScale, const T zScale)
+	
+	void Mat3::scale(const sp_float xScale, const sp_float yScale, const sp_float zScale)
 	{
 		values[0] *= xScale;
 		values[4] *= yScale;
 		values[8] *= zScale;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::createRotate(const T angleRadians, const T x, const T y, const T z)
+	
+	Mat3 Mat3::createRotate(const sp_float angleRadians, const sp_float x, const sp_float y, const sp_float z)
 	{	
-		const T sine = T(sin(angleRadians));
-		const T cosine = T(cos(angleRadians));
+		const sp_float sine = sinf(angleRadians);
+		const sp_float cosine = cosf(angleRadians);
 
-		const T mag = T(sqrt(x*x + y * y + z * z));
+		const sp_float mag = sqrtf(x*x + y * y + z * z);
 
 		if (mag == 0.0f)
 			return Mat3::identity();
 
 		// Rotation matrix is normalized
-		const T x1 = x / mag;
-		const T y1 = y / mag;
-		const T z1 = z / mag;
+		const sp_float x1 = x / mag;
+		const sp_float y1 = y / mag;
+		const sp_float z1 = z / mag;
 
-		const T xx = x1 * x1;
-		const T yy = y1 * y1;
-		const T zz = z1 * z1;
-		const T xy = x1 * y1;
-		const T yz = y1 * z1;
-		const T zx = z1 * x1;
-		const T xs = x1 * sine;
-		const T ys = y1 * sine;
-		const T zs = z1 * sine;
-		const T one_c = T(1) - cosine;
+		const sp_float xx = x1 * x1;
+		const sp_float yy = y1 * y1;
+		const sp_float zz = z1 * z1;
+		const sp_float xy = x1 * y1;
+		const sp_float yz = y1 * z1;
+		const sp_float zx = z1 * x1;
+		const sp_float xs = x1 * sine;
+		const sp_float ys = y1 * sine;
+		const sp_float zs = z1 * sine;
+		const sp_float one_c = ONE_FLOAT - cosine;
 
-		Mat3<T> result;
+		Mat3 result;
 
 		result[0 * MAT3_ROWSIZE + 0] = (one_c * xx) + cosine;
 		result[1 * MAT3_ROWSIZE + 0] = (one_c * xy) - zs;
@@ -328,10 +328,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::createTranslate(const T x, const T y, const T z)
+	
+	Mat3 Mat3::createTranslate(const sp_float x, const sp_float y, const sp_float z)
 	{
-		Mat3<T> result = Mat3<T>::identity();
+		Mat3 result = Mat3::identity();
 
 	#if MAJOR_COLUMN_ORDER
 		result[6] = x;
@@ -346,10 +346,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::createTranslate(const Vec3<T>& position)
+	
+	Mat3 Mat3::createTranslate(const Vec3& position)
 	{
-		Mat3<T> result = Mat3<T>::identity();
+		Mat3 result = Mat3::identity();
 
 	#if MAJOR_COLUMN_ORDER
 		result[6] = position.x;
@@ -364,8 +364,8 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	T Mat3<T>::determinant() const
+	
+	sp_float Mat3::determinant() const
 	{
 		return
 			(values[0] * values[4] * values[8]
@@ -379,13 +379,13 @@ namespace NAMESPACE_PHYSICS
 				);
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::invert() const
+	
+	Mat3 Mat3::invert() const
 	{
-		Mat3<T> matrixInverse;
-		T detij;
+		Mat3 matrixInverse;
+		sp_float detij;
 
-		T det = determinant();
+		sp_float det = determinant();
 
 		for (int i = 0; i < MAT3_ROWSIZE; i++)
 			for (int j = 0; j < MAT3_ROWSIZE; j++)
@@ -401,10 +401,10 @@ namespace NAMESPACE_PHYSICS
 		return matrixInverse;
 	}
 
-	template <typename T>
-	sp_bool Mat3<T>::isIdentity() const
+	
+	sp_bool Mat3::isIdentity() const
 	{
-		Mat3<T> identityMatrix = Mat3<T>::identity();
+		Mat3 identityMatrix = Mat3::identity();
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			if (values[i] != identityMatrix[i])
@@ -413,46 +413,46 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	template <typename T>
-	sp_size Mat3<T>::sizeInBytes() const
+	
+	sp_size Mat3::sizeInBytes() const
 	{
-		return MAT3_SIZE * sizeof(T);
+		return MAT3_SIZE * SIZEOF_FLOAT;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::clone() const
+	
+	Mat3 Mat3::clone() const
 	{
-		Mat3<T> result;
+		Mat3 result;
 
-		memcpy(&result, this, sizeof(Mat3<T>));
+		memcpy(&result, this, sizeof(Mat3));
 
 		return result;
 	}
 
-	template <typename T>
-	T& Mat3<T>::operator[](sp_int index)
+	
+	sp_float& Mat3::operator[](sp_int index)
 	{
 		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
-	template <typename T>
-	T Mat3<T>::operator[](sp_int index) const
+	
+	sp_float Mat3::operator[](sp_int index) const
 	{
 		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
 
-	template <typename T>
-	T& Mat3<T>::operator[](sp_uint index)
+	
+	sp_float& Mat3::operator[](sp_uint index)
 	{
 		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
-	template <typename T>
-	T Mat3<T>::operator[](sp_uint index) const
+	
+	sp_float Mat3::operator[](sp_uint index) const
 	{
 		sp_assert(index >= 0 && index < MAT3_SIZE);
 
@@ -460,15 +460,15 @@ namespace NAMESPACE_PHYSICS
 	}
 
 #if defined(WINDOWS) && defined(ENV_64BITS)
-	template <typename T>
-	T& Mat3<T>::operator[](sp_size index)
+	
+	T& Mat3::operator[](sp_size index)
 	{
 		sp_assert(index >= 0 && index < MAT3_SIZE);
 
 		return values[index];
 	}
-	template <typename T>
-	T Mat3<T>::operator[](sp_size index) const
+	
+	T Mat3::operator[](sp_size index) const
 	{
 		sp_assert(index >= 0 && index < MAT3_SIZE);
 
@@ -476,22 +476,22 @@ namespace NAMESPACE_PHYSICS
 	}
 #endif
 
-	template <typename T>
-	Mat3<T>::operator void*() const
+	
+	Mat3::operator void*() const
 	{
 		return (void*)values;
 	}
 
-	template <typename T>
-	Mat3<T>::operator T*() const
+	
+	Mat3::operator sp_float*() const
 	{
-		return (T*)values;
+		return (sp_float*)values;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::operator-() const
+	
+	Mat3 Mat3::operator-() const
 	{
-		Mat3<T> result;
+		Mat3 result;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			result[i] = -values[i];
@@ -499,10 +499,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::operator-(const Mat3<T>& matrix) const
+	
+	Mat3 Mat3::operator-(const Mat3& matrix) const
 	{
-		Mat3<T> result;
+		Mat3 result;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			result[i] = values[i] - matrix[i];
@@ -510,10 +510,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::operator+(const Mat3<T>& matrix) const
+	
+	Mat3 Mat3::operator+(const Mat3& matrix) const
 	{
-		Mat3<T> result;
+		Mat3 result;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			result[i] = values[i] + matrix[i];
@@ -521,38 +521,38 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::operator*(const Mat3<T>& matrix) const
+	
+	Mat3 Mat3::operator*(const Mat3& matrix) const
 	{
 		return multiply(matrix);
 	}
 
-	template <typename T>
-	Vec3<T> Mat3<T>::operator*(const Vec3<T>& matrix) const
+	
+	Vec3 Mat3::operator*(const Vec3& matrix) const
 	{
 		return multiply(matrix);
 	}
 
-	template <typename T>
-	void Mat3<T>::operator*=(const Mat3<T>& matrix)
+	
+	void Mat3::operator*=(const Mat3& matrix)
 	{
 		std::memcpy(&this->values, multiply(matrix).values, sizeof(this->values));
 	}
 
-	template <typename T>
-	Mat3<T> Mat3<T>::operator/(const T value) const
+	
+	Mat3 Mat3::operator/(const sp_float value) const
 	{
-		return Mat3<T> {
+		return Mat3 {
 			values[0] / value, values[1] / value, values[2] / value,
 			values[3] / value, values[4] / value, values[5] / value,
 			values[6] / value, values[7] / value, values[8] / value
 		};
 	}
 
-	template <typename T>
-	void Mat3<T>::operator/=(const T value)
+	
+	void Mat3::operator/=(const sp_float value)
 	{
-		T invValue = T(1) / value;
+		sp_float invValue = ONE_FLOAT / value;
 
 		values[0] *= invValue;
 		values[1] *= invValue;
@@ -565,8 +565,8 @@ namespace NAMESPACE_PHYSICS
 		values[8] *= invValue;
 	}
 
-	template <typename T>
-	sp_bool Mat3<T>::operator==(const Mat3<T>& matrix) const
+	
+	sp_bool Mat3::operator==(const Mat3& matrix) const
 	{
 		for (sp_int i = 0; i < MAT3_SIZE; i++)
 			if (values[i] != matrix[i])
@@ -575,8 +575,8 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	template <typename T>
-	sp_bool Mat3<T>::operator!=(const Mat3<T>& matrix) const
+	
+	sp_bool Mat3::operator!=(const Mat3& matrix) const
 	{
 		for (sp_int i = 0; i < MAT3_SIZE; i++)
 			if (values[i] != matrix[i])
@@ -585,8 +585,8 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	template <typename T>
-	sp_bool Mat3<T>::operator==(const T value) const
+	
+	sp_bool Mat3::operator==(const sp_float value) const
 	{
 		for (sp_int i = 0; i < MAT3_SIZE; i++)
 			if (values[i] != value)
@@ -595,21 +595,21 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	template <typename T>
-	std::string Mat3<T>::toString() const
+	
+	std::string Mat3::toString() const
 	{
-		return Mat<T>::toString(values, MAT3_SIZE);
+		return Mat::toString(values, MAT3_SIZE);
 	}
 
-	template <typename T>
-	Mat3<T>* Mat3<T>::decomposeLU() const
+	
+	Mat3* Mat3::decomposeLU() const
 	{
-		Mat3<T> lowerMatrix = Mat3<T>::identity();
-		Mat3<T> upperMatrix = this->clone();
-		Mat3<T>* result = ALLOC_ARRAY(Mat3<T>, 2);
+		Mat3 lowerMatrix = Mat3::identity();
+		Mat3 upperMatrix = this->clone();
+		Mat3* result = ALLOC_ARRAY(Mat3, 2);
 
-		std::vector<Mat3<T>> elementarInverseMatrixes;
-		Mat3<T> elementarInverseMatrix;
+		std::vector<Mat3> elementarInverseMatrixes;
+		Mat3 elementarInverseMatrix;
 
 		sp_int rowSize = MAT3_ROWSIZE;
 		sp_int colSize = MAT3_ROWSIZE;
@@ -619,13 +619,13 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_int column = 0; column < colSize; column++)
 		{
-			T pivot = upperMatrix[pivotRowIndex * rowSize + column];
-			T pivotOperator = 1 / pivot;
+			sp_float pivot = upperMatrix[pivotRowIndex * rowSize + column];
+			sp_float pivotOperator = 1.0f / pivot;
 
 			for (int row = 0; row < rowSize; row++)
 				upperMatrix[row * rowSize + column] *= pivotOperator;
 
-			elementarInverseMatrix = Mat3<T>::identity();
+			elementarInverseMatrix = Mat3::identity();
 			elementarInverseMatrix[pivotRowIndex * rowSize + column] = pivot;
 			elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
@@ -637,7 +637,7 @@ namespace NAMESPACE_PHYSICS
 				for (int row = 0; row < rowSize; row++)
 					upperMatrix[row * rowSize + lowerColumns] += pivotOperator * upperMatrix[row * rowSize + column];
 
-				elementarInverseMatrix = Mat3<T>::identity();
+				elementarInverseMatrix = Mat3::identity();
 				elementarInverseMatrix[pivotRowIndex * rowSize + lowerColumns] = pivot;
 				elementarInverseMatrixes.push_back(elementarInverseMatrix);
 			}
@@ -652,13 +652,13 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_size line = 0; line < rowSize; line++)
 		{
-			T pivot = upperMatrix[line * rowSize + pivotColumnIndex];
-			T pivotOperator = 1 / pivot;
+			sp_float pivot = upperMatrix[line * rowSize + pivotColumnIndex];
+			sp_float pivotOperator = 1.0f / pivot;
 
 			for (sp_int column = 0; column < colSize; column++)
 				upperMatrix[line * rowSize + column] *= pivotOperator;
 
-			elementarInverseMatrix = Mat3<T>::identity();
+			elementarInverseMatrix = Mat3::identity();
 			elementarInverseMatrix[line * rowSize + pivotColumnIndex] = pivot;
 			elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
@@ -670,7 +670,7 @@ namespace NAMESPACE_PHYSICS
 				for (sp_int column = 0; column < colSize; column++)
 					upperMatrix[lowerLines * rowSize + column] += pivotOperator * upperMatrix[line * rowSize + column];
 
-				elementarInverseMatrix = Mat3<T>::identity();
+				elementarInverseMatrix = Mat3::identity();
 				elementarInverseMatrix[lowerLines * rowSize + pivotColumnIndex] = pivot;
 				elementarInverseMatrixes.push_back(elementarInverseMatrix);
 			}
@@ -688,21 +688,21 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat3<T>* Mat3<T>::decomposeLDU() const
+	
+	Mat3* Mat3::decomposeLDU() const
 	{
-		Mat3<T> diagonalMatrix = Mat3<T>::identity();
-		Mat3<T>* result = ALLOC_ARRAY(Mat3<T>, 3);
+		Mat3 diagonalMatrix = Mat3::identity();
+		Mat3* result = ALLOC_ARRAY(Mat3, 3);
 
-		Mat3<T>* lowerAndUpperMatrixes = decomposeLU();
+		Mat3* lowerAndUpperMatrixes = decomposeLU();
 
-		Mat3<T> upperMatrix = lowerAndUpperMatrixes[1];
+		Mat3 upperMatrix = lowerAndUpperMatrixes[1];
 		int diagonalIndex = 0;
 
 	#if MAJOR_COLUMN_ORDER
 		for (sp_int column = 0; column < MAT3_ROWSIZE; column++)
 		{
-			T pivot = upperMatrix[diagonalIndex * MAT3_ROWSIZE + column];
+			sp_float pivot = upperMatrix[diagonalIndex * MAT3_ROWSIZE + column];
 
 			diagonalMatrix[column * MAT3_ROWSIZE + diagonalIndex] = pivot;
 
@@ -734,24 +734,21 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	AutovalueAutovector3<T> Mat3<T>::getAutovalueAndAutovector(const sp_ushort maxIteration) const
+	
+	AutoValueAutoVector3 Mat3::getAutovalueAndAutovector(const sp_ushort maxIteration) const
 	{
-		Mat3<T> matrix = *this;
-		Vec3<T> autovector = { T(1), T(1), T(1) };
-		T autovalue;
+		Mat3 matrix = *this;
+		Vec3 autovector = { ONE_FLOAT, ONE_FLOAT, ONE_FLOAT };
+		sp_float autovalue;
 
 		for (sp_short iterationIndex = 0; iterationIndex < maxIteration; iterationIndex++)
 		{
-			Vec3<T> ax = matrix * autovector;
+			Vec3 ax = matrix * autovector;
 			autovalue = ax.maximum();
 			autovector = ax / autovalue;
 		}
 
-		return AutovalueAutovector3<T>{ autovalue, autovector };
+		return AutoValueAutoVector3{ autovalue, { autovector.x, autovector.y, autovector.z} };
 	}
 
-	template class Mat3<sp_int>;
-	template class Mat3<sp_float>;
-	template class Mat3<sp_double>;
 }

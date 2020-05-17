@@ -141,6 +141,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		file.open("RadixSorting.cl", std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
 		file.close();
 
 		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
@@ -224,6 +225,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		file.open("RadixSorting.cl", std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
 		file.close();
 
 		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());

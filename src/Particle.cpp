@@ -2,7 +2,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	Particle::Particle(const Vec3f& position, const Vec3f& velocity, const float inverseMass, const float velocityDamping, float coeficientOfRestitution)
+	Particle::Particle(const Vec3& position, const Vec3& velocity, const float inverseMass, const float velocityDamping, float coeficientOfRestitution)
 	{
 		this->position = position;
 		this->previousPosition = position;
@@ -12,12 +12,12 @@ namespace NAMESPACE_PHYSICS
 		this->velocityDamping = velocityDamping;
 		this->coeficientOfRestitution = coeficientOfRestitution;
 
-		acceleration = Vec3f(0.0f);
-		force = Vec3f(0.0f);
+		acceleration = Vec3(0.0f);
+		force = Vec3(0.0f);
 		lifeTime = FLT_MAX;
 	}
 
-	void Particle::addForce(const Vec3f& force) 
+	void Particle::addForce(const Vec3& force) 
 	{
 		this->force.add(force);
 	}
@@ -26,11 +26,11 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_assert(elapsedTime > 0);
 
-		Vec3f newAcceleration = force * inverseMass;
+		Vec3 newAcceleration = force * inverseMass;
 
-		Vec3f newVelocity = (velocity * velocityDamping) + ((newAcceleration - acceleration) / elapsedTime);
+		Vec3 newVelocity = (velocity * velocityDamping) + ((newAcceleration - acceleration) / elapsedTime);
 
-		Vec3f newPosition = position + (newVelocity / elapsedTime);
+		Vec3 newPosition = position + (newVelocity / elapsedTime);
 
 		acceleration = newAcceleration;
 
@@ -43,19 +43,19 @@ namespace NAMESPACE_PHYSICS
 		force = 0.0f;
 	}
 
-	Vec3f Particle::direction() 
+	Vec3 Particle::direction() 
 	{
 		return (position - previousPosition).normalize();
 	}
 
-	Vec3f Particle::relativeVelocity(const Particle& particle)
+	Vec3 Particle::relativeVelocity(const Particle& particle)
 	{
 		return this->velocity - particle.velocity;
 	}
 
 	float Particle::closingVelocity(const Particle& particle)
 	{
-		Vec3f direction = this->position - particle.position;
+		Vec3 direction = this->position - particle.position;
 
 		return direction.dot(direction.normalize());
 	}

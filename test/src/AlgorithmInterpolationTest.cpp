@@ -34,9 +34,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_findInterpolation_Test)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const float x = 1.5f;
-		Vec2<float> points[5] = {
+		Vec2 points[5] = {
 			{1.0f, 0.7651977f},
 			{1.3f, 0.6200860f},
 			{1.6f, 0.4554022f},
@@ -51,9 +51,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_naturalSpline_Test)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const size_t pointsCount = 4;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.0f, 1.0f},
 			{1.0f, EULER_NUMBER},
 			{2.0f, powf(EULER_NUMBER, 2)},
@@ -77,9 +77,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_naturalSplineDescription_Test)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const size_t pointsCount = 4;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.0f, 1.0f},
 			{1.0f, EULER_NUMBER},
 			{2.0f, powf(EULER_NUMBER, 2)},
@@ -98,9 +98,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_fixedSpline_Test1)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const size_t pointsCount = 4;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.0f, 1.0f},
 			{1.0f, EULER_NUMBER},
 			{2.0f, powf(EULER_NUMBER, 2)},
@@ -126,9 +126,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_fixedSpline_Test2)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const size_t pointsCount = 3;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{1.0f, 2.0f},
 			{2.0f, 3.0f},
 			{3.0f, 5.0f}
@@ -152,9 +152,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_getInterpolationPolynomial_Test)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const float x = 1.5f;
-		Vec2<float> points[5] = {
+		Vec2 points[5] = {
 			{1.0f, 0.7651977f},
 			{1.3f, 0.6200860f},
 			{1.6f, 0.4554022f},
@@ -180,9 +180,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_getInterpolationPolynomialDescription_Test)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const float x = 1.5f;
-		Vec2<float> points[5] = {
+		Vec2 points[5] = {
 			{1.0f, 0.7651977f},
 			{1.3f, 0.6200860f},
 			{1.6f, 0.4554022f},
@@ -199,9 +199,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_getInterpolationPolynomialUsingHermite_Test1)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const size_t pointsCount = 3;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{-0.5f, -0.02475f},
 			{-0.25f, 0.3349375f},
 			{0.0f, 1.101f}
@@ -222,9 +222,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_getInterpolationPolynomialUsingHermite_Test2)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const size_t pointsCount = 4;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.1f, -0.62049958f},
 			{0.2f, -0.28398668f},
 			{0.3f, 0.00660095f},
@@ -251,9 +251,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmInterpolation_getInterpolationPolynomialUsingHermiteDescription_Test)
 	{
-		AlgorithmInterpolation<float> algorithm;
+		AlgorithmInterpolation algorithm;
 		const size_t pointsCount = 4;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.1f, -0.62049958f},
 			{0.2f, -0.28398668f},
 			{0.3f, 0.00660095f},
@@ -278,19 +278,19 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		AlgorithmInterpolation<float> algorithm;
 		const size_t pointsCount = 2;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.0f, 0.0f},
 			{5.0f, 2.0f}
 		};
-		Vec2f leftControlPoints[1] = { Vec2f(1.0f, 1.0f) };
-		Vec2f rightControlPoints[1] = { Vec2f(6.0f, 1.0f) };
+		Vec2 leftControlPoints[1] = { Vec2(1.0f, 1.0f) };
+		Vec2 rightControlPoints[1] = { Vec2(6.0f, 1.0f) };
 
-		Vec4f expected[2] = { 
-			Vec4f(-10.0f, 14.0f, 1.0f, 0.0f),
-			Vec4f(-2.0f, 3.0f, 1.0f, 0.0f)
+		Vec4 expected[2] = { 
+			Vec4(-10.0f, 14.0f, 1.0f, 0.0f),
+			Vec4(-2.0f, 3.0f, 1.0f, 0.0f)
 		};
 
-		Vec4f* result = algorithm.getInterpolationPolynomialUsingBezier(points, pointsCount, leftControlPoints, rightControlPoints);
+		Vec4* result = algorithm.getInterpolationPolynomialUsingBezier(points, pointsCount, leftControlPoints, rightControlPoints);
 
 		for (size_t i = 0; i < 2; i++)
 			for (size_t j = 0; j < 4; j++)
@@ -301,19 +301,19 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		AlgorithmInterpolation<float> algorithm;
 		const size_t pointsCount = 2;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.0f, 0.0f},
 			{5.0f, 2.0f}
 		};
-		Vec2f leftControlPoints[1] = { Vec2f(1.0f, 1.0f) };
-		Vec2f rightControlPoints[1] = { Vec2f(6.0f, 1.0f) };
+		Vec2 leftControlPoints[1] = { Vec2(1.0f, 1.0f) };
+		Vec2 rightControlPoints[1] = { Vec2(6.0f, 1.0f) };
 
-		Vec4f expected[2] = {
-			Vec4f(-10.0f, 14.0f, 1.0f, 0.0f),
-			Vec4f(-4.0f, 5.0f, 1.0f, 0.0f)
+		Vec4 expected[2] = {
+			Vec4(-10.0f, 14.0f, 1.0f, 0.0f),
+			Vec4(-4.0f, 5.0f, 1.0f, 0.0f)
 		};
 
-		Vec4f* result = algorithm.getInterpolationPolynomialUsingBezier(points, pointsCount, leftControlPoints, rightControlPoints);
+		Vec4* result = algorithm.getInterpolationPolynomialUsingBezier(points, pointsCount, leftControlPoints, rightControlPoints);
 
 		for (size_t i = 0; i < 2; i++)
 			for (size_t j = 0; j < 4; j++)
@@ -324,19 +324,19 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		AlgorithmInterpolation<float> algorithm;
 		const size_t pointsCount = 2;
-		Vec2<float> points[pointsCount] = {
+		Vec2 points[pointsCount] = {
 			{0.0f, 0.0f},
 			{5.0f, 2.0f}
 		};
-		Vec2f leftControlPoints[1] = { Vec2f(2.0f, 2.0f) };
-		Vec2f rightControlPoints[1] = { Vec2f(7.0f, 0.0f) };
+		Vec2 leftControlPoints[1] = { Vec2(2.0f, 2.0f) };
+		Vec2 rightControlPoints[1] = { Vec2(7.0f, 0.0f) };
 
-		Vec4f expected[2] = {
-			Vec4f(-10.0f, 13.0f, 2.0f, 0.0f),
-			Vec4f(0.0f, 0.0f, 2.0f, 0.0f)
+		Vec4 expected[2] = {
+			Vec4(-10.0f, 13.0f, 2.0f, 0.0f),
+			Vec4(0.0f, 0.0f, 2.0f, 0.0f)
 		};
 
-		Vec4f* result = algorithm.getInterpolationPolynomialUsingBezier(points, pointsCount, leftControlPoints, rightControlPoints);
+		Vec4* result = algorithm.getInterpolationPolynomialUsingBezier(points, pointsCount, leftControlPoints, rightControlPoints);
 
 		for (size_t i = 0; i < 2; i++)
 			for (size_t j = 0; j < 4; j++)

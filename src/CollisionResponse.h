@@ -10,12 +10,12 @@ namespace NAMESPACE_PHYSICS
 	class CollisionResponse
 	{
 	private:
-		CollisionResponse(const Vec3f& contactPoint);
+		CollisionResponse(const Vec3& contactPoint);
 
 	public:
-		Vec3f object1Impulse;
-		Vec3f object2Impulse;
-		Vec3f contactPoint;
+		Vec3 object1Impulse;
+		Vec3 object2Impulse;
+		Vec3 contactPoint;
 
 		CollisionResponse();
 

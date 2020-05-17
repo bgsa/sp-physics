@@ -8,7 +8,6 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	template <typename T>
 	class AlgorithmInterpolation
 	{
 	public:
@@ -18,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 		///find the interpolation on "x" (first parameter)
 		///This algorithm uses Neville Method
 		///</summary>
-		API_INTERFACE T findInterpolation(T x, Vec2<T>* points, size_t pointsCount);
+		API_INTERFACE sp_float findInterpolation(sp_float x, Vec2* points, sp_uint pointsCount);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter), 
@@ -26,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		///This method is not continous in the extreme points. For this, uses Fixed Spline Cubic Method
 		///This algorithm uses Natural Spline Cubic Method.
 		///</summary>
-		API_INTERFACE T** naturalSpline(Vec2<T>* points, size_t pointsCount);
+		API_INTERFACE sp_float** naturalSpline(Vec2* points, size_t pointsCount);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter), 
@@ -35,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 		///This algorithm uses Natural Spline Cubic Method.
 		///The description suffix mehotds just show how to use the method
 		///</summary>
-		API_INTERFACE std::string naturalSplineDescription(Vec2<T>* points, size_t pointsCount);
+		API_INTERFACE std::string naturalSplineDescription(Vec2* points, sp_uint pointsCount);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter), 
@@ -45,21 +44,21 @@ namespace NAMESPACE_PHYSICS
 		///2- derivedFx0 = Derived Function in xn, where "n" is the points count
 		///This algorithm uses Fixed Spline Cubic Method.
 		///</summary>
-		API_INTERFACE T** fixedSpline(Vec2<T>* points, size_t pointsCount, T derivedFx0, T derivedFxn);
+		API_INTERFACE sp_float** fixedSpline(Vec2* points, sp_uint pointsCount, sp_float derivedFx0, sp_float derivedFxn);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter), 
 		///find the interpolation polynomial
 		///This algorithm uses Newton Difference Divided Method
 		///</summary>
-		API_INTERFACE T* getInterpolationPolynomial(Vec2<T>* points, size_t pointsCount);
+		API_INTERFACE sp_float* getInterpolationPolynomial(Vec2* points, sp_uint pointsCount);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter), 
 		///find the description (formula) interpolation polynomial
 		///This algorithm uses Newton Difference Divided Method
 		///</summary>
-		API_INTERFACE std::string getInterpolationPolynomialDescription(Vec2<T>* points, size_t pointsCount);
+		API_INTERFACE std::string getInterpolationPolynomialDescription(Vec2* points, sp_uint pointsCount);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter) 
@@ -67,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 		///find the interpolation polynomial
 		///This algorithm uses Hermite Interpolation Method with Divided Difference Newton
 		///</summary>
-		API_INTERFACE T* getInterpolationPolynomialUsingHermite(Vec2<T>* points, size_t pointsCount, T* deriveds);
+		API_INTERFACE sp_float* getInterpolationPolynomialUsingHermite(Vec2* points, sp_uint pointsCount, sp_float* deriveds);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter) 
@@ -75,8 +74,7 @@ namespace NAMESPACE_PHYSICS
 		///find the interpolation polynomial
 		///This algorithm uses Hermite Interpolation Method with Divided Difference Newton
 		///</summary>
-		API_INTERFACE std::string getInterpolationPolynomialUsingHermiteDescription(Vec2<T>* points, size_t pointsCount, T* deriveds);
-	
+		API_INTERFACE std::string getInterpolationPolynomialUsingHermiteDescription(Vec2* points, sp_uint pointsCount, sp_float* deriveds);
 		/*
 		///<summary>
 		///Given a function by ordered points ("points" parameter) 
@@ -85,7 +83,7 @@ namespace NAMESPACE_PHYSICS
 		///This algorithm uses Cubic Bezier Interpolation Method
 		///Returns a list of Vec4. For each Vec, it contains the polynomial of the interval xi -> xi+1 and the next is the polynomial yi -> yi+1
 		///</summary>
-		API_INTERFACE Vec4<T>* getInterpolationPolynomialUsingBezier(Vec2<T>* points, size_t pointsCount, Vec2<T>* leftControlPoints, Vec2<T>* rightControlPoints);
+		API_INTERFACE Vec4* getInterpolationPolynomialUsingBezier(Vec2* points, size_t pointsCount, Vec2* leftControlPoints, Vec2* rightControlPoints);
 		*/
 	};
 

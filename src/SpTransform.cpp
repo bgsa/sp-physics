@@ -5,26 +5,40 @@ namespace NAMESPACE_PHYSICS
 	SpTransform::SpTransform()
 	{
 		orientation = Quat::identity();
-		positionVector = Vec3<sp_float>(ZERO_FLOAT);
-		scaleVector = Vec3<sp_float>(ZERO_FLOAT);
+		position = Vec3(ZERO_FLOAT);
+		scaleVector = Vec3(ZERO_FLOAT);
 	}
 
-	SpTransform* SpTransform::scale(const Vec3<sp_float>& scaleVector)
+	SpTransform* SpTransform::scale(const Vec3& scaleVector)
 	{
 		this->scaleVector += scaleVector;
 		return this;
 	}
 
-	SpTransform* SpTransform::translate(const Vec3<sp_float>& translationVector)
+	SpTransform* SpTransform::scale(const sp_float factor)
 	{
-		positionVector += translationVector;
+		scaleVector += factor;
 		return this;
 	}
 
-	Mat4f SpTransform::toMat4()
+	SpTransform* SpTransform::translate(const Vec3& translationVector)
 	{
-		return Mat4f::createTranslate(positionVector)
+		position += translationVector;
+		return this;
+	}
+
+	SpTransform* SpTransform::translate(const sp_float x, const sp_float y, const sp_float z)
+	{
+		position.x += x;
+		position.y += y;
+		position.z += z;
+		return this;
+	}
+
+	Mat4 SpTransform::toMat4()
+	{
+		return Mat4::createTranslate(position)
 			* orientation.toMat4()
-			* Mat4f::createScale(scaleVector);
+			* Mat4::createScale(scaleVector);
 	}
 }

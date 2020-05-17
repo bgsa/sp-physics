@@ -2,8 +2,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Vec4<T>::Vec4(const T defaultValue)
+	
+	Vec4::Vec4(const sp_float defaultValue)
 	{
 		x = defaultValue;
 		y = defaultValue;
@@ -11,8 +11,8 @@ namespace NAMESPACE_PHYSICS
 		w = defaultValue;
 	}
 
-	template <typename T>
-	Vec4<T>::Vec4(const Vec2<T>& xyComponents, const Vec2<T>& zwComponents)
+	
+	Vec4::Vec4(const Vec2& xyComponents, const Vec2& zwComponents)
 	{
 		x = xyComponents.x;
 		y = xyComponents.y;
@@ -20,8 +20,8 @@ namespace NAMESPACE_PHYSICS
 		w = zwComponents.y;
 	}
 
-	template <typename T>
-	Vec4<T>::Vec4(const Vec3<T>& vector, T w) 
+	
+	Vec4::Vec4(const Vec3& vector, sp_float w)
 	{
 		x = vector.x;
 		y = vector.y;
@@ -29,8 +29,8 @@ namespace NAMESPACE_PHYSICS
 		this->w = w;
 	}
 
-	template <typename T>
-	Vec4<T>::Vec4(const T x,const  T y, const T z, const T w)
+	
+	Vec4::Vec4(const sp_float x,const  sp_float y, const sp_float z, const sp_float w)
 	{
 		this->x = x;
 		this->y = y;
@@ -38,28 +38,28 @@ namespace NAMESPACE_PHYSICS
 		this->w = w;
 	}
 
-	template <typename T>
-	T* Vec4<T>::getValues() 
+	
+	sp_float* Vec4::getValues()
 	{
-		return reinterpret_cast<T*>(this);
+		return (sp_float*)(this);
 	}
 
-	template <typename T>
-	T Vec4<T>::length() const
+	
+	sp_float Vec4::length() const
 	{
-		return T(sqrt(squared()));
+		return std::sqrtf(squared());
 	}
 
-	template <typename T>
-	T Vec4<T>::squared() const
+	
+	sp_float Vec4::squared() const
 	{
 		return (x * x) + (y * y) + (z * z) + (w * w);
 	}
 
-	template <typename T>
-	T Vec4<T>::maximum() const
+	
+	sp_float Vec4::maximum() const
 	{
-		T value = x;
+		sp_float value = x;
 
 		if (y > value)
 			value = y;
@@ -73,10 +73,10 @@ namespace NAMESPACE_PHYSICS
 		return value;
 	}
 
-	template <typename T>
-	T Vec4<T>::minimum() const
+	
+	sp_float Vec4::minimum() const
 	{
-		T value = x;
+		sp_float value = x;
 
 		if (y < value)
 			value = y;
@@ -90,8 +90,8 @@ namespace NAMESPACE_PHYSICS
 		return value;
 	}
 
-	template <typename T>
-	void Vec4<T>::add(const Vec4<T>& vector)
+	
+	void Vec4::add(const Vec4& vector)
 	{
 		x += vector.x;
 		y += vector.y;
@@ -99,8 +99,8 @@ namespace NAMESPACE_PHYSICS
 		w += vector.w;
 	}
 
-	template <typename T>
-	void Vec4<T>::subtract(const Vec4<T>& vector)
+	
+	void Vec4::subtract(const Vec4& vector)
 	{
 		x -= vector.x;
 		y -= vector.y;
@@ -108,8 +108,8 @@ namespace NAMESPACE_PHYSICS
 		w -= vector.w;
 	}
 
-	template <typename T>
-	void Vec4<T>::scale(const T scale)
+	
+	void Vec4::scale(const sp_float scale)
 	{
 		x *= scale;
 		y *= scale;
@@ -117,31 +117,31 @@ namespace NAMESPACE_PHYSICS
 		w *= scale;
 	}
 
-	template <typename T>
-	T Vec4<T>::dot(const Vec4<T>& vector) const
+	
+	sp_float Vec4::dot(const Vec4& vector) const
 	{
 		return x * vector.x + y * vector.y + z * vector.z + w * vector.w;
 	}
 
-	template <typename T>
-	T Vec4<T>::angle(const Vec4<T>& vectorB) const
+	
+	sp_float Vec4::angle(const Vec4& vectorB) const
 	{
 		return dot(vectorB) / (length() * vectorB.length());
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::normalize() const
+	
+	Vec4 Vec4::normalize() const
 	{
 		//sp_assert(length() != T(0));  // avoid division by zero
 
-		T len = length();
+		sp_float len = length();
 
-		if (len == T(0))
-			return Vec4<T>(T(0));
+		if (len == 0.0f)
+			return Vec4(0.0f);
 
-		T vectorLengthInverted = T(1) / len;
+		sp_float vectorLengthInverted = 1.0f / len;
 
-		return Vec4<T> {
+		return Vec4 {
 			x * vectorLengthInverted,
 			y * vectorLengthInverted,
 			z * vectorLengthInverted,
@@ -149,44 +149,44 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	template <typename T>
-	T Vec4<T>::distance(const Vec4<T>& vector) const
+	
+	sp_float Vec4::distance(const Vec4& vector) const
 	{
-		T xTemp = x - vector.x;
-		T yTemp = y - vector.y;
-		T zTemp = z - vector.z;
-		T wTemp = w - vector.w;
+		sp_float xTemp = x - vector.x;
+		sp_float yTemp = y - vector.y;
+		sp_float zTemp = z - vector.z;
+		sp_float wTemp = w - vector.w;
 
-		return T(sqrt(xTemp * xTemp + yTemp * yTemp + zTemp * zTemp + wTemp * wTemp));
+		return std::sqrtf(xTemp * xTemp + yTemp * yTemp + zTemp * zTemp + wTemp * wTemp);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::fractional()
+	
+	Vec4 Vec4::fractional()
 	{
-		return Vec4<T> {
-			T(x - floor(x)),
-			T(y - floor(y)),
-			T(z - floor(z)),
-			T(w - floor(w))
+		return Vec4 {
+			x - floorf(x),
+			y - floorf(y),
+			z - floorf(z),
+			w - floorf(w)
 		};
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::clone() const
+	
+	Vec4 Vec4::clone() const
 	{
-		return Vec4<T>(x, y, z, w);
+		return Vec4(x, y, z, w);
 	}
 
-	template <typename T>
-	Vec3<T> Vec4<T>::toVec3() const
+	
+	Vec3 Vec4::toVec3() const
 	{
-		return Vec3<T>(x, y, z);
+		return Vec3(x, y, z);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator*(const T value)
+	
+	Vec4 Vec4::operator*(const sp_float value)
 	{
-		return Vec4<T>(
+		return Vec4(
 			x * value,
 			y * value,
 			z * value,
@@ -194,10 +194,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator*(const T value) const
+	
+	Vec4 Vec4::operator*(const sp_float value) const
 	{
-		return Vec4<T>(
+		return Vec4(
 			x * value,
 			y * value,
 			z * value,
@@ -205,10 +205,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator/(const T value) const
+	
+	Vec4 Vec4::operator/(const sp_float value) const
 	{
-		return Vec4<T> (
+		return Vec4 (
 			x / value,
 			y / value,
 			z / value,
@@ -216,8 +216,8 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	void Vec4<T>::operator/=(const T value)
+	
+	void Vec4::operator/=(const sp_float value)
 	{
 		x /= value;
 		y /= value;
@@ -225,10 +225,10 @@ namespace NAMESPACE_PHYSICS
 		w /= value;
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator+(const Vec4<T>& vector) const
+	
+	Vec4 Vec4::operator+(const Vec4& vector) const
 	{
-		return Vec4<T>(
+		return Vec4(
 			x + vector.x,
 			y + vector.y,
 			z + vector.z,
@@ -236,10 +236,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator+(const T value) const
+	
+	Vec4 Vec4::operator+(const sp_float value) const
 	{
-		return Vec4<T>(
+		return Vec4(
 			x + value,
 			y + value,
 			z + value,
@@ -247,10 +247,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator-(const Vec4<T>& vector) const
+	
+	Vec4 Vec4::operator-(const Vec4& vector) const
 	{
-		return Vec4<T>(
+		return Vec4(
 			x - vector.x,
 			y - vector.y,
 			z - vector.z,
@@ -258,10 +258,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator-(const T value) const
+	
+	Vec4 Vec4::operator-(const sp_float value) const
 	{
-		return Vec4<T>(
+		return Vec4(
 			x - value,
 			y - value,
 			z - value,
@@ -269,10 +269,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator-() const
+	
+	Vec4 Vec4::operator-() const
 	{
-		return Vec4<T>(
+		return Vec4(
 			-x,
 			-y,
 			-z,
@@ -280,10 +280,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Vec4<T> Vec4<T>::operator*(const Mat4<T>& matrix4x4) const
+	
+	Vec4 Vec4::operator*(const Mat4& matrix4x4) const
 	{
-		Vec4<T> result;
+		Vec4 result;
 
 	#if MAJOR_COLUMN_ORDER
 
@@ -341,8 +341,8 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	bool Vec4<T>::operator==(const Vec4<T>& vector) const
+	
+	sp_bool Vec4::operator==(const Vec4& vector) const
 	{
 		return x == vector.x
 			&& y == vector.y
@@ -350,8 +350,8 @@ namespace NAMESPACE_PHYSICS
 			&& w == vector.w;
 	}
 
-	template <typename T>
-	bool Vec4<T>::operator==(const T value) const
+	
+	sp_bool Vec4::operator==(const sp_float value) const
 	{
 		return x == value
 			&& y == value
@@ -359,8 +359,8 @@ namespace NAMESPACE_PHYSICS
 			&& w == value;
 	}
 
-	template <typename T>
-	bool Vec4<T>::operator!=(const Vec4<T>& vector) const
+	
+	sp_bool Vec4::operator!=(const Vec4& vector) const
 	{
 		return x != vector.x
 			|| y != vector.y
@@ -368,74 +368,72 @@ namespace NAMESPACE_PHYSICS
 			|| w != vector.w;
 	}
 
-	template <typename T>
-	T& Vec4<T>::operator[](const sp_int index)
+	
+	sp_float& Vec4::operator[](const sp_int index)
 	{
 		sp_assert(index >= 0 && index < VEC4_SIZE);
 
-		return reinterpret_cast<T*>(this)[index];
+		return ((sp_float*)this)[index];
 	}
 
-	template <typename T>
-	T Vec4<T>::operator[](const sp_int index) const
+	
+	sp_float Vec4::operator[](const sp_int index) const
 	{
 		sp_assert(index >= 0 && index < VEC4_SIZE);
 
-		return reinterpret_cast<const T*>(this)[index];
+		return reinterpret_cast<const sp_float*>(this)[index];
 	}
 
-	template <typename T>
-	T& Vec4<T>::operator[](const sp_uint index)
+	
+	sp_float& Vec4::operator[](const sp_uint index)
 	{
 		sp_assert(index >= 0 && index < VEC4_SIZE);
 
-		return reinterpret_cast<T*>(this)[index];
+		return ((sp_float*)this)[index];
 	}
 
-	template <typename T>
-	T Vec4<T>::operator[](const sp_uint index) const
+	
+	sp_float Vec4::operator[](const sp_uint index) const
 	{
 		sp_assert(index >= 0 && index < VEC4_SIZE);
 
-		return reinterpret_cast<const T*>(this)[index];
+		return reinterpret_cast<const sp_float*>(this)[index];
 	}
 
 #ifdef ENV_64BITS
-	template <typename T>
-	T& Vec4<T>::operator[](const sp_size index)
+	
+	sp_float& Vec4::operator[](const sp_size index)
 	{
 		sp_assert(index >= 0 && index < VEC4_SIZE);
 
-		return reinterpret_cast<T*>(this)[index];
+		return ((sp_float*)this)[index];
 	}
 
-	template <typename T>
-	T Vec4<T>::operator[](const sp_size index) const
+	
+	sp_float Vec4::operator[](const sp_size index) const
 	{
 		sp_assert(index >= 0 && index < VEC4_SIZE);
 
-		return reinterpret_cast<const T*>(this)[index];
+		return reinterpret_cast<const sp_float*>(this)[index];
 	}
 #endif
 
-	template <typename T>
-	Vec4<T>::operator void*() const
+	
+	Vec4::operator void*() const
 	{
 		return (void*) this;
 	}
 
-	template <typename T>
-	Vec4<T>::operator void*()
+	
+	Vec4::operator void*()
 	{
 		return (void*) this;
 	}
 
-	template <typename T>
-	Vec4<T>::operator T*() const
+	
+	Vec4::operator sp_float*() const
 	{
-		return (T*) this;
+		return (sp_float*) this;
 	}
 
-	template class Vec4<sp_float>;
-	template class Vec4<sp_double>;
 }

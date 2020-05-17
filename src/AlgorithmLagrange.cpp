@@ -2,16 +2,16 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	T AlgorithmLagrange<T>::polynomialApproximation(Vec2<T>* points, size_t pointsCount, T x)
+
+	sp_float AlgorithmLagrange::polynomialApproximation(Vec2* points, sp_uint pointsCount, sp_float x)
 	{
-		T result = T(0);
+		sp_float result = ZERO_FLOAT;
 
-		for (size_t i = 0; i < pointsCount; i++)
+		for (sp_uint i = 0; i < pointsCount; i++)
 		{
-			T li = T(1);
+			sp_float li = 1.0f;
 
-			for (size_t j = 0; j < pointsCount; j++)
+			for (sp_uint j = 0; j < pointsCount; j++)
 			{
 				if (i == j)
 					continue;
@@ -25,7 +25,4 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template class AlgorithmLagrange<int>;
-	template class AlgorithmLagrange<float>;
-	template class AlgorithmLagrange<double>;
 }

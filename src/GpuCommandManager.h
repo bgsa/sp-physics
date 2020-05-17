@@ -3,6 +3,7 @@
 #ifndef GPU_COMMAND_MANAGER
 #define GPU_COMMAND_MANAGER
 
+#include "SpectrumPhysics.h"
 #include "GpuCommand.h"
 
 namespace NAMESPACE_PHYSICS

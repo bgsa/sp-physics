@@ -1,18 +1,16 @@
 #ifndef VEC3_LIST_HEADER
 #define VEC3_LIST_HEADER
 
-#include "Vec3.h"
-#include "Mat3.h"
+#include "SpectrumPhysics.h"
 #include <limits>
 
 namespace NAMESPACE_PHYSICS
 {
 
-	template <typename T>
 	class Vec3List
 	{
 	public:
-		Vec3<T>* points;
+		Vec3* points;
 		sp_uint count;
 
 		///<summary>
@@ -23,13 +21,13 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Constructor with points
 		///</summary>
-		API_INTERFACE Vec3List(Vec3<T>* points, const sp_int count);
+		API_INTERFACE Vec3List(Vec3* points, const sp_int count);
 		
 		///<summary>
 		///Find the extreme points along the direction
 		///Return the INDEXES of point list
 		///</summary>
-		API_INTERFACE sp_int* findExtremePointsAlongDirection(const Vec3<T>& direction) const;
+		API_INTERFACE sp_int* findExtremePointsAlongDirection(const Vec3& direction) const;
 
 		///<summary>
 		///Find the extreme points along the axis X
@@ -66,12 +64,12 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Compute the variance, given an axis (axis X = 0, axis Y = 1, axis Z = 2)
 		///</summary>
-		API_INTERFACE T covarianceOnAxis(const sp_int axisIndex) const;
+		API_INTERFACE sp_float covarianceOnAxis(const sp_int axisIndex) const;
 
 		///<summary>
 		///Compute the covariance matrix
 		///</summary>
-		API_INTERFACE Mat3<T> covariance() const;
+		API_INTERFACE Mat3 covariance() const;
 
 		///<summary>
 		///Destructor
@@ -81,7 +79,7 @@ namespace NAMESPACE_PHYSICS
 	};
 
 	//typedef Vec3List<sp_int> Vec3iList;
-	//typedef Vec3List<sp_float> Vec3fList;
+	//typedef Vec3List<sp_float> Vec3List;
 	//typedef Vec3List<sp_double> Vec3List;
 
 }

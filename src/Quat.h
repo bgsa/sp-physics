@@ -32,7 +32,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Constructor with a 3D vector
 		/// </summary>
-		API_INTERFACE Quat(const Vec3<sp_float>& vector);
+		API_INTERFACE Quat(const Vec3& vector);
 
 		/// <summary>
 		/// Create a new quanternion from euler angles provided
@@ -43,7 +43,7 @@ namespace NAMESPACE_PHYSICS
 		/// Convert the quaternions to angles (x, y, z)
 		/// The quaternion has to be normalized !
 		/// </summary>
-		API_INTERFACE Vec3<sp_float> toEulerAngles() const;
+		API_INTERFACE Vec3 toEulerAngles() const;
 
 		/// <summary>
 		/// Constructor with a 3D vector
@@ -98,7 +98,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the rotation axis from this quaternion
 		/// </summary>
-		API_INTERFACE Vec3<sp_float> axis() const;
+		API_INTERFACE Vec3 axis() const;
 
 		/// <summary>
 		/// Product Scalar of two quaternion
@@ -121,12 +121,12 @@ namespace NAMESPACE_PHYSICS
 		/// This quaternion is the rotation axis
 		/// Returns the point rotated
 		/// </summary>
-		API_INTERFACE Vec3<sp_float> rotate(const Vec3<sp_float>& point) const;
+		API_INTERFACE Vec3 rotate(const Vec3& point) const;
 
 		/// <summary>
 		/// Craete a rotation unit quaternion bases on angle (in radians) and directional vector provided
 		/// </summary>
-		API_INTERFACE static Quat createRotate(sp_float angle, const Vec3<sp_float>& axis);
+		API_INTERFACE static Quat createRotate(sp_float angle, const Vec3& axis);
 
 		/// <summary>
 		/// Create a quaternion rotation around X axis
@@ -190,22 +190,22 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Convertion to Vec3
 		/// </summary>
-		API_INTERFACE inline Vec3<sp_float> toVec3() const;
+		API_INTERFACE inline Vec3 toVec3() const;
 
 		/// <summary>
 		/// Convertion to rotational matrix 3x3
 		/// </summary>
-		API_INTERFACE inline Mat3<sp_float> toMat3() const;
+		API_INTERFACE inline Mat3 toMat3() const;
 
 		/// <summary>
 		/// Convertion to rotational and translation matrix 4x4
 		/// </summary>
-		API_INTERFACE inline Mat4<sp_float> toMat4(const Vec3<sp_float>& position) const;
+		API_INTERFACE inline Mat4 toMat4(const Vec3& position) const;
 
 		/// <summary>
 		/// Convertion to rotational matrix 4x4
 		/// </summary>
-		API_INTERFACE inline Mat4<sp_float> toMat4() const;
+		API_INTERFACE inline Mat4 toMat4() const;
 
 		/// <summary>
 		/// Get a index from the quaternion
@@ -263,7 +263,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Auto convertion to Vec3
 		/// </summary>
-		API_INTERFACE operator Vec3<sp_float>() const;
+		API_INTERFACE operator Vec3() const;
 	};
 }
 

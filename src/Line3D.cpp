@@ -4,7 +4,7 @@ namespace NAMESPACE_PHYSICS
 {
 	Line3D::Line3D() {	};
 
-	Line3D::Line3D(const Vec3f& point1, const Vec3f& point2)
+	Line3D::Line3D(const Vec3& point1, const Vec3& point2)
 	{
 		sp_assert(point1 != point2);
 
@@ -12,7 +12,7 @@ namespace NAMESPACE_PHYSICS
 		this->point2 = point2;
 	}
 
-	Line3D::Line3D(Vec3f* points)
+	Line3D::Line3D(Vec3* points)
 	{
 		sp_assert(points[0] != points[1]);
 
@@ -24,16 +24,16 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_assert(point1 != point2);
 
-		this->point1 = Vec3f(point1[0], point1[1], point1[2]);
-		this->point2 = Vec3f(point2[0], point2[1], point2[2]);
+		this->point1 = Vec3(point1[0], point1[1], point1[2]);
+		this->point2 = Vec3(point2[0], point2[1], point2[2]);
 	}
 
-	Vec3f Line3D::direction() const
+	Vec3 Line3D::direction() const
 	{
 		return (point2 - point1).normalize();
 	}
 
-	Vec3f Line3D::centerOfSegment() const
+	Vec3 Line3D::centerOfSegment() const
 	{
 		return (point1 + point2) * 0.5f;
 	}
@@ -43,18 +43,18 @@ namespace NAMESPACE_PHYSICS
 		return point1.distance(point2);
 	}
 
-	bool Line3D::isOnLine(const Vec3f& point) const
+	bool Line3D::isOnLine(const Vec3& point) const
 	{
-		Vec3f lineDirection = point2 - point1;
+		Vec3 lineDirection = point2 - point1;
 
 		bool isOnTheLine = lineDirection.cross(point) == ZERO_FLOAT;
 
 		return isOnTheLine;
 	}
 
-	bool Line3D::isOnSegment(const Vec3f& point) const
+	bool Line3D::isOnSegment(const Vec3& point) const
 	{
-		Vec3f lineDirection = point2 - point1;
+		Vec3 lineDirection = point2 - point1;
 
 		bool isOnTheLine = lineDirection.cross(point) == ZERO_FLOAT;
 
@@ -70,13 +70,13 @@ namespace NAMESPACE_PHYSICS
 		return (ZERO_FLOAT <= ac && ac <= ab);
 	}
 
-	Vec3f* Line3D::findIntersection(const Line3D& line2) const
+	Vec3* Line3D::findIntersection(const Line3D& line2) const
 	{
-		Vec3f da = point2 - point1;
-		Vec3f db = line2.point2 - line2.point1;
-		Vec3f dc = line2.point1 - point1;
+		Vec3 da = point2 - point1;
+		Vec3 db = line2.point2 - line2.point1;
+		Vec3 dc = line2.point1 - point1;
 
-		Vec3f dAcrossB = da.cross(db);
+		Vec3 dAcrossB = da.cross(db);
 
 		sp_float value = dc.dot(dAcrossB);
 
@@ -91,14 +91,14 @@ namespace NAMESPACE_PHYSICS
 		s = fabsf(s);
 
 		if (s >= ZERO_FLOAT && s <= ONE_FLOAT)
-			return ALLOC_NEW(Vec3f)(da * s * valueSign + point1);
+			return ALLOC_NEW(Vec3)(da * s * valueSign + point1);
 
 		return nullptr;
 	}
 
-	Vec3f Line3D::closestPointOnTheLine(const Vec3f& target) const
+	Vec3 Line3D::closestPointOnTheLine(const Vec3& target) const
 	{
-		Vec3f lineDirection = point2 - point1;
+		Vec3 lineDirection = point2 - point1;
 		
 		// Project target onto lineDirection, computing parameterized position closestPoint(t) = point1 + t*(point2 � point1) 
 		sp_float t = (target - point1).dot(lineDirection) / lineDirection.dot(lineDirection);
@@ -107,21 +107,21 @@ namespace NAMESPACE_PHYSICS
 		t = clamp(t, ZERO_FLOAT, ONE_FLOAT); // clamp t from 0.0 to 1.0
 		
 		//closestPoint(t) = point1 + t * (point2 � point1)
-		Vec3f closestPoint = point1 + lineDirection * t;
+		Vec3 closestPoint = point1 + lineDirection * t;
 
 		return closestPoint;
 	}
 
 	bool Line3D::hasIntersectionOnRay(const Sphere& sphere) const
 	{	
-		Vec3f m = point1 - sphere.center; 
+		Vec3 m = point1 - sphere.center; 
 		float c = m.dot(m) - sphere.ray * sphere.ray;
 		
 		// If there is definitely at least one real root, there must be an intersection 
 		if (c <= 0.0f) 
 			return true; 
 		
-		Vec3f d = point2 - point1;
+		Vec3 d = point2 - point1;
 
 		float b = m.dot(d);
 		
@@ -138,9 +138,9 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	Vec3f* Line3D::findIntersectionOnSegment(const Plane3D& plane) const
+	Vec3* Line3D::findIntersectionOnSegment(const Plane3D& plane) const
 	{
-		Vec3f lineDirection = point2 - point1;
+		Vec3 lineDirection = point2 - point1;
 		float d = plane.getDcomponent();
 
 		// Segment = Poin1 + t . (Point2 - Point1)
@@ -149,18 +149,18 @@ namespace NAMESPACE_PHYSICS
 		float t = (d - plane.normalVector.dot(point1)) / plane.normalVector.dot(lineDirection);
 		
 		// If t in [0..1] compute and return intersection point 
-		if (t >= ZERO_FLOAT && t <= ZERO_FLOAT)
+		if (t >= ZERO_FLOAT && t <= ONE_FLOAT)
 		{
-			Vec3f intersectionPoint = point1 + lineDirection * t;
-			return ALLOC_NEW(Vec3f)(intersectionPoint);
+			Vec3 intersectionPoint = point1 + lineDirection * t;
+			return ALLOC_NEW(Vec3)(intersectionPoint);
 		}
 
 		return nullptr;
 	}
 
-	Vec3f* Line3D::findIntersectionOnRay(const Plane3D& plane) const
+	Vec3* Line3D::findIntersectionOnRay(const Plane3D& plane) const
 	{
-		Vec3f lineDirection = (point2 - point1).normalize();
+		Vec3 lineDirection = (point2 - point1).normalize();
 		float d = plane.getDcomponent();
 
 		// Ray = Point1 + t . lineDirection
@@ -168,73 +168,73 @@ namespace NAMESPACE_PHYSICS
 		// put the Ray on the Plane (X), Compute the t value for the directed line ab intersecting the plane.
 		float t = -(plane.normalVector.dot(point1) + d) / plane.normalVector.dot(lineDirection);
 	
-		Vec3f intersectionPoint = point1 + lineDirection * t;
-		return ALLOC_NEW(Vec3f)(intersectionPoint);
+		Vec3 intersectionPoint = point1 + lineDirection * t;
+		return ALLOC_NEW(Vec3)(intersectionPoint);
 	}
 
-	DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const Sphere& sphere) const
+	DetailedCollisionStatus Line3D::findIntersectionOnRay(const Sphere& sphere) const
 	{
-		Vec3f lineDirection = direction();
-		Vec3f point1ToSphere = point1 - sphere.center;
+		Vec3 lineDirection = direction();
+		Vec3 point1ToSphere = point1 - sphere.center;
 
-		float b = point1ToSphere.dot(lineDirection);
-		float c = point1ToSphere.dot(point1ToSphere) - (sphere.ray * sphere.ray);
+		sp_float b = point1ToSphere.dot(lineDirection);
+		sp_float c = point1ToSphere.dot(point1ToSphere) - (sphere.ray * sphere.ray);
 		
 		// Exit if r�s origin outside sphere (c > 0) and ray pointing away from sphere (b > 0) 
 		if (c > 0.0f && b > 0.0f)
-			return DetailedCollisionStatus<float>(CollisionStatus::OUTSIDE);
+			return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 		
-		float discriminant = b * b - c;    // d = b^2 - c
+		sp_float discriminant = b * b - c;    // d = b^2 - c
 		
 		// A negative discriminant corresponds to ray missing sphere 
 		if (discriminant < 0.0f) // the quadratic equation has not real root
-			return DetailedCollisionStatus<float>(CollisionStatus::OUTSIDE);
+			return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 
-		float sqrtDisctiminant = sqrtf(discriminant);
+		sp_float sqrtDisctiminant = sqrtf(discriminant);
 
 		// Ray now found to intersect sphere, compute smallest t value of intersection 
-		float t1 = -b - sqrtDisctiminant;   // -b - sqrt(b^2 - c)
+		sp_float t1 = -b - sqrtDisctiminant;   // -b - sqrt(b^2 - c)
 
 		// If t is negative, ray started inside sphere so clamp t to zero 	
 		if (t1 < ZERO_FLOAT)
 			t1 = ZERO_FLOAT;
 
-		Vec3f intersectionPoint1 = point1 + lineDirection * t1;
+		Vec3 intersectionPoint1 = point1 + lineDirection * t1;
 		
 		if (isCloseEnough(discriminant, ZERO_FLOAT))
-			return DetailedCollisionStatus<float>(CollisionStatus::INLINE, intersectionPoint1);
+			return DetailedCollisionStatus(CollisionStatus::INLINE, intersectionPoint1);
 
 		// discriminant > T(0)  =>  the quadratic equation has 2 real root, then the ray intersect in 2 points
 
 		// Ray now found to intersect sphere in 2 points, compute bigger t value of intersection 
-		float t2 = -b + sqrtDisctiminant;   // -b + sqrt(b^2 - c)
+		sp_float t2 = -b + sqrtDisctiminant;   // -b + sqrt(b^2 - c)
 		
-		Vec3f intersectionPoint2 = point1 + lineDirection * t2;
+		Vec3 intersectionPoint2 = point1 + lineDirection * t2;
 
-		return DetailedCollisionStatus<float>(CollisionStatus::INSIDE, intersectionPoint1, intersectionPoint2);
+		return DetailedCollisionStatus(CollisionStatus::INSIDE, intersectionPoint1, intersectionPoint2);
 	}
 
-	DetailedCollisionStatus<float> Line3D::findIntersectionOnSegment(const Sphere& sphere) const
+	DetailedCollisionStatus Line3D::findIntersectionOnSegment(const Sphere& sphere) const
 	{
-		DetailedCollisionStatus<float> collision = findIntersectionOnRay(sphere);
+		DetailedCollisionStatus collision = findIntersectionOnRay(sphere);
 
 		if (collision.status == CollisionStatus::OUTSIDE)
 			return collision;
 
 		if (!isOnSegment(collision.points[0]))
-			return DetailedCollisionStatus<float>(CollisionStatus::OUTSIDE);
+			return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 
 		if (!isOnSegment(collision.points[1]))
-			return DetailedCollisionStatus<float>(CollisionStatus::INSIDE, collision.points[0]);
+			return DetailedCollisionStatus(CollisionStatus::INSIDE, collision.points[0]);
 
 		return collision;
 	}
 
-	DetailedCollisionStatus<float> Line3D::findIntersectionOnRay(const AABB& aabb) const
+	DetailedCollisionStatus Line3D::findIntersectionOnRay(const AABB& aabb) const
 	{
-		float tmin = ZERO_FLOAT;
-		float tmax = std::numeric_limits<float>().max();
-		Vec3f lineDirection = direction();
+		sp_float tmin = ZERO_FLOAT;
+		sp_float tmax = SP_FLOAT_MAX;
+		Vec3 lineDirection = direction();
 
 		// For all three slabs (planes on AABB)
 		for (int i = 0; i < 3; i++) 
@@ -243,7 +243,7 @@ namespace NAMESPACE_PHYSICS
 			{ 
 				// Ray is parallel to slab! No hit if origin not within slab 
 				if (point1[i] < aabb.minPoint[i] || point1[i] > aabb.maxPoint[i])
-					return DetailedCollisionStatus<float>(CollisionStatus::OUTSIDE);
+					return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 			} 
 			else 
 			{ 
@@ -262,12 +262,12 @@ namespace NAMESPACE_PHYSICS
 				
 				// Exit with no collision as soon as slab intersection becomes empty 
 				if (tmin > tmax) 
-					return DetailedCollisionStatus<float>(CollisionStatus::OUTSIDE);
+					return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 			} 	
 		} 
 		
 		// Ray intersects all 3 slabs. Return point (q) and intersection t value (tmin) 
-		return DetailedCollisionStatus<float>(CollisionStatus::INSIDE, point1 + lineDirection * tmin, point1 + lineDirection * tmax);
+		return DetailedCollisionStatus(CollisionStatus::INSIDE, point1 + lineDirection * tmin, point1 + lineDirection * tmax);
 	}
 
 	CollisionStatus Line3D::hasIntersectionOnSegment(const AABB& aabb) const
@@ -275,16 +275,16 @@ namespace NAMESPACE_PHYSICS
 		float epsilon = std::numeric_limits<float>().epsilon();
 
 		/*
-		Vec3<T> c = (aabb.minPoint + aabb.maxPoint) * T(0.5);	// Box center-point
-		Vec3<T> e = aabb.maxPoint - c; 	// Box halflength extents 
-		Vec3<T> m = (point1 + point2) * T(0.5); 	// Segment midpoint 
-		Vec3<T> d = point2 - m;	// Segment halflength vector 
+		Vec3 c = (aabb.minPoint + aabb.maxPoint) * T(0.5);	// Box center-point
+		Vec3 e = aabb.maxPoint - c; 	// Box halflength extents 
+		Vec3 m = (point1 + point2) * T(0.5); 	// Segment midpoint 
+		Vec3 d = point2 - m;	// Segment halflength vector 
 		m = m - c; 
 		*/
 		
-		Vec3f halfLengthExtends = aabb.maxPoint - aabb.minPoint;
-		Vec3f halfLengthVector = point2 - point1;
-		Vec3f lineCenterPoint = point1 + point2 - aabb.minPoint - aabb.maxPoint;
+		Vec3 halfLengthExtends = aabb.maxPoint - aabb.minPoint;
+		Vec3 halfLengthVector = point2 - point1;
+		Vec3 lineCenterPoint = point1 + point2 - aabb.minPoint - aabb.maxPoint;
 
 
 		// Translate box and segment to origin 	
@@ -321,13 +321,13 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INSIDE;
 	}
 
-	float Line3D::squaredDistance(const Vec3f& target) const
+	float Line3D::squaredDistance(const Vec3& target) const
 	{
 		//Returns the squared distance between point and segment point1-point2
 
-		Vec3f ab = point2 - point1;
-		Vec3f ac = target - point1;
-		Vec3f bc = target - point2;
+		Vec3 ab = point2 - point1;
+		Vec3 ac = target - point1;
+		Vec3 bc = target - point2;
 		
 		float e = ac.dot(ab); // Handle cases where point projects outside the line segment
 		
@@ -342,7 +342,7 @@ namespace NAMESPACE_PHYSICS
 		return ac.dot(ac) - e * e / f;
 	}
 
-	float Line3D::distance(const Vec3f& target) const
+	float Line3D::distance(const Vec3& target) const
 	{
 		return sqrtf(squaredDistance(target));
 	}

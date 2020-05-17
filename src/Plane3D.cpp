@@ -3,23 +3,23 @@
 namespace NAMESPACE_PHYSICS
 {
 	Plane3D::Plane3D() {
-		this->point = Vec3f(0.0f);
+		this->point = Vec3(0.0f);
 	};
 
-	Plane3D::Plane3D(const Vec3f& point, const Vec3f& vector)
+	Plane3D::Plane3D(const Vec3& point, const Vec3& vector)
 	{
 		this->point = point;
 		this->normalVector = vector;
 	}
 
-	Plane3D::Plane3D(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3)
+	Plane3D::Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 	{
-		Vec3f ab = point1 - point2;
-		Vec3f ac = point1 - point3;
+		Vec3 ab = point1 - point2;
+		Vec3 ac = point1 - point3;
 
 		point = point2;
 
-		normalVector = Vec3f{
+		normalVector = Vec3{
 			ab[1] * ac[2] - (ab[2] * ac[1]),
 			ab[2] * ac[0] - (ab[0] * ac[2]),
 			ab[0] * ac[1] - (ab[1] * ac[0])
@@ -28,13 +28,13 @@ namespace NAMESPACE_PHYSICS
 
 	Plane3D::Plane3D(float a, float b, float c, float d)
 	{
-		point = Vec3f(
+		point = Vec3(
 			0.0f,
 			0.0f,
 			-d / c
 			);
 
-		normalVector = Vec3f(a, b, c).normalize();
+		normalVector = Vec3(a, b, c).normalize();
 	}
 
 	float Plane3D::getDcomponent() const
@@ -43,9 +43,9 @@ namespace NAMESPACE_PHYSICS
 		//return normalVector.dot(point);
 	}
 
-	Vec4f Plane3D::getEquation() const
+	Vec4 Plane3D::getEquation() const
 	{
-		return Vec4f(
+		return Vec4(
 			normalVector[0],
 			normalVector[1],
 			normalVector[2],
@@ -53,23 +53,23 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	Vec3f* Plane3D::findIntersection(const Line3D& line) const
+	Vec3* Plane3D::findIntersection(const Line3D& line) const
 	{
-		Vec3f lineAsVector = line.point2 - line.point1;
+		Vec3 lineAsVector = line.point2 - line.point1;
 
 		float angle = normalVector.dot(lineAsVector);
 
 		if (angle == 0.0f)
 			return nullptr;
 
-		Vec4f planeEquation = getEquation();
+		Vec4 planeEquation = getEquation();
 
 		float numerator = -(planeEquation[0] * line.point1[0] + planeEquation[1] * line.point1[1] + planeEquation[2] * line.point1[2] + planeEquation[3]);
 		float denominator = planeEquation[0] * lineAsVector[0] + planeEquation[1] * lineAsVector[1] + planeEquation[2] * lineAsVector[2];
 
 		float t = numerator / denominator;
 
-		Vec3f* intersection = ALLOC_NEW(Vec3f)(
+		Vec3* intersection = ALLOC_NEW(Vec3)(
 			line.point1[0] + lineAsVector[0] * t,
 			line.point1[1] + lineAsVector[1] * t,
 			line.point1[2] + lineAsVector[2] * t
@@ -83,26 +83,26 @@ namespace NAMESPACE_PHYSICS
 		if (isParallel(plane))
 			return nullptr;
 
-		Vec3f lineDirection = normalVector.cross(plane.normalVector);
+		Vec3 lineDirection = normalVector.cross(plane.normalVector);
 		
 		float d1 = getDcomponent();
 		float d2 = plane.getDcomponent();
 
 		// find a point on the line, which is also on both planes
 		float dot = lineDirection.dot(lineDirection);					// V dot V
-		Vec3f u1 = normalVector * d2;								// d2 * normalVector
-		Vec3f u2 = plane.normalVector * -d1;					    //-d1 * plane.normalVector
-		Vec3f point1 = (u1 + u2).cross(lineDirection) / dot;      // (d2*N1-d1*N2) X V / V dot V
+		Vec3 u1 = normalVector * d2;								// d2 * normalVector
+		Vec3 u2 = plane.normalVector * -d1;					    //-d1 * plane.normalVector
+		Vec3 point1 = (u1 + u2).cross(lineDirection) / dot;      // (d2*N1-d1*N2) X V / V dot V
 
 		// find another point on the line
-		Vec3f point2 = point1 + lineDirection;
+		Vec3 point2 = point1 + lineDirection;
 
 		return ALLOC_NEW(Line3D)(point1, point2);
 	}
 
-	float Plane3D::distance(const Vec3f& target) const
+	float Plane3D::distance(const Vec3& target) const
 	{
-		Vec3f rayToTarget = target - point;
+		Vec3 rayToTarget = target - point;
 
 		float numerator = normalVector.dot(rayToTarget);
 		float length = normalVector.length();
@@ -110,7 +110,7 @@ namespace NAMESPACE_PHYSICS
 		return numerator / length;
 	}
 
-	Vec3f Plane3D::closestPointOnThePlane(const Vec3f &target) const
+	Vec3 Plane3D::closestPointOnThePlane(const Vec3 &target) const
 	{
 		float d = getDcomponent();
 
@@ -127,7 +127,7 @@ namespace NAMESPACE_PHYSICS
 		return angle / length;
 	}
 
-	Orientation Plane3D::orientation(const Vec3f& point) const
+	Orientation Plane3D::orientation(const Vec3& point) const
 	{
 		float distanceToPoint =  distance(point);
 

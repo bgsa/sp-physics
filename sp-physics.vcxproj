@@ -94,6 +94,7 @@
       <PreprocessorDefinitions>DEBUG;OPENCL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -190,6 +191,7 @@
     <ClCompile Include="src\Circle2D.cpp" />
     <ClCompile Include="src\CollisionDetection.cpp" />
     <ClCompile Include="src\CollisionResponse.cpp" />
+    <ClCompile Include="src\DetailedCollisionStatus.cpp" />
     <ClCompile Include="src\DOP18.cpp" />
     <ClCompile Include="src\GpuCommand.cpp" />
     <ClCompile Include="src\GpuCommandManager.cpp" />
@@ -218,6 +220,7 @@
     <ClCompile Include="src\SpTransform.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
     <ClCompile Include="src\SweepAndPruneKdop.cpp" />
+    <ClCompile Include="src\SystemOfLinearEquations.cpp" />
     <ClCompile Include="src\Triangle2D.cpp" />
     <ClCompile Include="src\Triangle3D.cpp" />
     <ClCompile Include="src\Vec2.cpp" />
@@ -239,6 +242,7 @@
     <ClInclude Include="src\AlgorithmSecant.h" />
     <ClInclude Include="src\AlgorithmSorting.h" />
     <ClInclude Include="src\AlgorithmSteffensen.h" />
+    <ClInclude Include="src\AutoValueAutoVector.h" />
     <ClInclude Include="src\BinaryTree.h" />
     <ClInclude Include="src\BinaryTreeNode.h" />
     <ClInclude Include="src\BoundingVolume.h" />
@@ -246,7 +250,7 @@
     <ClInclude Include="src\Circle2D.h" />
     <ClInclude Include="src\CollisionDetection.h" />
     <ClInclude Include="src\CollisionResponse.h" />
-    <ClInclude Include="src\CollisionStatus.h" />
+    <ClInclude Include="src\DetailedCollisionStatus.h" />
     <ClInclude Include="src\DOP18.h" />
     <ClInclude Include="src\GpuCommand.h" />
     <ClInclude Include="src\GpuCommandManager.h" />

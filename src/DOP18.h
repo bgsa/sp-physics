@@ -5,6 +5,7 @@
 #include "Vec3.h"
 #include "BoundingVolume.h"
 #include "Plane3D.h"
+#include "DetailedCollisionStatus.h"
 
 #define DOP18_ORIENTATIONS 9
 #define DOP18_STRIDER 20
@@ -50,9 +51,14 @@ namespace NAMESPACE_PHYSICS
 		void fixFrontDegeneration(const Plane3D* planes);
 		void fixDepthDegeneration(const Plane3D* planes);
 
+		/// <summary>
+		/// This method is not applied to k-DOPs
+		/// </summary>
+		API_INTERFACE void rotate(const Vec3& angles) override;
+
 	public:
-		float min[DOP18_ORIENTATIONS];
-		float max[DOP18_ORIENTATIONS];
+		sp_float min[DOP18_ORIENTATIONS];
+		sp_float max[DOP18_ORIENTATIONS];
 
 		/// <summary>
 		/// Default constructur - build a unit k-DOP with the center in the origin
@@ -62,9 +68,9 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the normals of k-DOP planes
 		/// </summary>
-		API_INTERFACE const Vec3f* normals()
+		API_INTERFACE const Vec3* normals()
 		{
-			const static Vec3f normal[18] = {
+			const static Vec3 normal[18] = {
 				{ -1.0f,  0.0f,  0.0f },
 				{  1.0f,  0.0f,  0.0f },
 				{  0.0f,  1.0f,  0.0f },
@@ -97,7 +103,25 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the center of k-DOP bounding volumne
 		///</summary>
-		API_INTERFACE Vec3f centerOfBoundingVolume() const override;
+		API_INTERFACE Vec3 centerOfBoundingVolume() const override;
+
+		/// <summary>
+		/// Translate the bounding volume
+		/// </summary>
+		API_INTERFACE void translate(const Vec3& translation) override;
+
+		/// <summary>
+		/// Translate the bounding volume
+		/// </summary>
+		API_INTERFACE inline void translate(const sp_float x, const sp_float y, const sp_float z)
+		{
+			translate(Vec3(x, y, z));
+		}
+
+		/// <summary>
+		/// Scale the bounding volume (only in X, Y and Z)
+		/// </summary>
+		API_INTERFACE void scale(const Vec3& factor) override;
 
 		/// <summary>
 		/// Check collision with another k-DOP
@@ -130,4 +154,4 @@ namespace NAMESPACE_PHYSICS
 
 }
 
-#endif // !DOP18_HEADER
+#endif // DOP18_HEADER

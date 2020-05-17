@@ -30,13 +30,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_constructorWithThreePoints_Test)
 	{
-		Circle2Df circle = Circle2Df(
-			Vec2f(-3.0f, 4.0f),
-			Vec2f(4.0f, 5.0f),
-			Vec2f(1.0f, -4.0f)
+		Circle2D circle(
+			Vec2(-3.0f, 4.0f),
+			Vec2(4.0f, 5.0f),
+			Vec2(1.0f, -4.0f)
 		);
 
-		Vec2f center = circle.center;
+		Vec2 center = circle.center;
 		float ray = circle.ray;
 
 		Assert::AreEqual(1.0f, center.x, L"Wrong value.", LINE_INFO());
@@ -46,9 +46,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_area_Test)
 	{
-		Vec2f center = Vec2f(7.0f, 5.0f);
+		Vec2 center = Vec2(7.0f, 5.0f);
 		float ray = 3.0f;
-		Circle2Df circle = Circle2Df(center, ray);
+		Circle2D circle = Circle2D(center, ray);
 
 		float result = circle.area();
 		float expected = 28.27f;
@@ -58,9 +58,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_circumference_Test)
 	{
-		Vec2f center = Vec2f(7.0f, 5.0f);
+		Vec2 center = Vec2(7.0f, 5.0f);
 		float ray = 3.0f;
-		Circle2Df circle = Circle2Df(center, ray);
+		Circle2D circle = Circle2D(center, ray);
 
 		float result = circle.circumference();
 		float expected = 18.85f;
@@ -70,8 +70,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_hasIntersection1_Test)
 	{
-		Circle2Df circle1 = Circle2Df(Vec2f(-4.0f, 4.0f), 3.0f);
-		Circle2Df circle2 = Circle2Df(Vec2f(0.0f, 9.0f), 5.0f);
+		Circle2D circle1(Vec2(-4.0f, 4.0f), 3.0f);
+		Circle2D circle2(Vec2(0.0f, 9.0f), 5.0f);
 
 		bool result = circle1.hasIntersection(circle2);
 
@@ -80,8 +80,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_hasIntersection2_Test)
 	{
-		Circle2Df circle1 = Circle2Df(Vec2f(4.0f, -3.0f), 5.0f);
-		Circle2Df circle2 = Circle2Df(Vec2f(-4.0f, -3.0f), 3.0f);
+		Circle2D circle1(Vec2(4.0f, -3.0f), 5.0f);
+		Circle2D circle2(Vec2(-4.0f, -3.0f), 3.0f);
 
 		bool result = circle1.hasIntersection(circle2);
 
@@ -90,13 +90,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_findIntersection1_Test)
 	{
-		Circle2Df circle1 = Circle2Df(Vec2f(-4.0f, 4.0f), 3.0f);
-		Circle2Df circle2 = Circle2Df(Vec2f(0.0f, 9.0f), 5.0f);
+		Circle2D circle1(Vec2(-4.0f, 4.0f), 3.0f);
+		Circle2D circle2(Vec2(0.0f, 9.0f), 5.0f);
 
-		Vec2f* result = circle1.findIntersection(circle2);
+		Vec2* result = circle1.findIntersection(circle2);
 
-		Vec2f intersection1 = Vec2f(-1.0017f, 4.1013f);
-		Vec2f intersection2 = Vec2f(-4.5592f, 6.9474f);
+		Vec2 intersection1 = Vec2(-1.0017f, 4.1013f);
+		Vec2 intersection2 = Vec2(-4.5592f, 6.9474f);
 		
 		Assert::IsNotNull(result, L"Circles should intersect.", LINE_INFO());
 		
@@ -109,12 +109,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Circle2D_findIntersection2_Test)
 	{
-		Circle2Df circle1 = Circle2Df(Vec2f(4.0f, -3.0f), 5.0f);
-		Circle2Df circle2 = Circle2Df(Vec2f(-4.0f, -3.0f), 3.0f);
+		Circle2D circle1(Vec2(4.0f, -3.0f), 5.0f);
+		Circle2D circle2(Vec2(-4.0f, -3.0f), 3.0f);
 
-		Vec2f* result = circle1.findIntersection(circle2);
+		Vec2* result = circle1.findIntersection(circle2);
 
-		Vec2f intersection = Vec2f(-1.0f, -3.0f);
+		Vec2 intersection = Vec2(-1.0f, -3.0f);
 
 		Assert::IsNotNull(result, L"Circles should intersect.", LINE_INFO());
 

@@ -28,7 +28,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, ParticleSystem_addForce)
 	{
 		ParticleSystem particleSystem = ParticleSystem(1);
-		Vec3f force = { 1.0f, 2.0f, 3.0f };
+		Vec3 force = { 1.0f, 2.0f, 3.0f };
 
 		particleSystem.addForce(force);
 
@@ -44,7 +44,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		particleSystem.update(33);
 
-		Assert::AreEqual(Vec3f(1.6f, 3.2f, 4.8f), particleSystem.particles[0].acceleration, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3(1.6f, 3.2f, 4.8f), particleSystem.particles[0].acceleration, L"Wrong value.", LINE_INFO());
 	}
 
 }

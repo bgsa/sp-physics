@@ -2,32 +2,32 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Vec3List<T>::Vec3List()
+	
+	Vec3List::Vec3List()
 	{
 		points = NULL;
 		count = ZERO_UINT;
 	}
 
-	template <typename T>
-	Vec3List<T>::Vec3List(Vec3<T>* points, const sp_int count)
+	
+	Vec3List::Vec3List(Vec3* points, const sp_int count)
 	{
 		this->points = points;
 		this->count = count;
 	}
 
-	template <typename T>
-	sp_int* Vec3List<T>::findExtremePointsAlongDirection(const Vec3<T>& direction) const
+	
+	sp_int* Vec3List::findExtremePointsAlongDirection(const Vec3& direction) const
 	{
-		T minProjection = std::numeric_limits<T>().max();
-		T maxProjection = -minProjection;
+		sp_float minProjection = SP_FLOAT_MAX;
+		sp_float maxProjection = -minProjection;
 
 		sp_int* result = ALLOC_ARRAY(sp_int, 2);
 			
 		for (sp_uint i = ZERO_UINT; i < count; i++)
 		{ 
 			// Project vector from origin to point onto direction vector 
-			T projection = points[i].dot(direction);
+			sp_float projection = points[i].dot(direction);
 			
 			if (projection < minProjection)
 			{ 
@@ -45,49 +45,47 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	sp_int* Vec3List<T>::findExtremePointsAlongAxisX() const
+	
+	sp_int* Vec3List::findExtremePointsAlongAxisX() const
 	{
-		return findExtremePointsAlongDirection(Vec3<T>(T(1), T(0), T(0)));
+		return findExtremePointsAlongDirection(Vec3(ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT));
 	}
 
-	template <typename T>
-	sp_int* Vec3List<T>::findExtremePointsAlongAxisY() const
+	
+	sp_int* Vec3List::findExtremePointsAlongAxisY() const
 	{
-		return findExtremePointsAlongDirection(Vec3<T>(T(0), T(1), T(0)));
+		return findExtremePointsAlongDirection(Vec3(ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT));
 	}
 
-	template <typename T>
-	sp_int* Vec3List<T>::findExtremePointsAlongAxisZ() const
+	
+	sp_int* Vec3List::findExtremePointsAlongAxisZ() const
 	{
-		return findExtremePointsAlongDirection(Vec3<T>(T(0), T(0), T(1)));
+		return findExtremePointsAlongDirection(Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT));
 	}
 
-	template <typename T>
-	sp_int* Vec3List<T>::findExtremePointsAlongAxisXYZ() const
+	
+	sp_int* Vec3List::findExtremePointsAlongAxisXYZ() const
 	{
-		T maxValue = std::numeric_limits<T>().max();
+		sp_float minProjectionX = SP_FLOAT_MAX;
+		sp_float maxProjectionX = -SP_FLOAT_MAX;
 
-		T minProjectionX = maxValue;
-		T maxProjectionX = -maxValue;
+		sp_float minProjectionY = SP_FLOAT_MAX;
+		sp_float maxProjectionY = -SP_FLOAT_MAX;
 
-		T minProjectionY = maxValue;
-		T maxProjectionY = -maxValue;
+		sp_float minProjectionZ = SP_FLOAT_MAX;
+		sp_float maxProjectionZ = -SP_FLOAT_MAX;
 
-		T minProjectionZ = maxValue;
-		T maxProjectionZ = -maxValue;
-
-		Vec3<T> directionX = Vec3<T>(T(1), T(0), T(0));
-		Vec3<T> directionY = Vec3<T>(T(0), T(1), T(0));
-		Vec3<T> directionZ = Vec3<T>(T(0), T(0), T(1));
+		Vec3 directionX = Vec3(ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+		Vec3 directionY = Vec3(ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT);
+		Vec3 directionZ = Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
 
 		sp_int* result = ALLOC_ARRAY(sp_int, 6);
 
 		for (sp_uint i = ZERO_UINT; i < count; ++i)
 		{
-			T projectionX = points[i].dot(directionX);
-			T projectionY = points[i].dot(directionY);
-			T projectionZ = points[i].dot(directionZ);
+			sp_float projectionX = points[i].dot(directionX);
+			sp_float projectionY = points[i].dot(directionY);
+			sp_float projectionZ = points[i].dot(directionZ);
 
 			if (projectionX < minProjectionX)
 			{
@@ -126,16 +124,16 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	T Vec3List<T>::covarianceOnAxis(const sp_int axisIndex) const
+	
+	sp_float Vec3List::covarianceOnAxis(const sp_int axisIndex) const
 	{ 
-		T u = T(0);
+		sp_float u = 0.0f;
 		
 		for (sp_uint i = ZERO_UINT; i < count; ++i)
 			u += points[i][axisIndex];
 		u /= count; 
 
-		T s2 = T(0); 
+		sp_float s2 = 0.0f;
 		
 		for (sp_uint i = ZERO_UINT; i < count; ++i)
 			s2 += (points[i][axisIndex] - u) * (points[i][axisIndex] - u);
@@ -143,12 +141,12 @@ namespace NAMESPACE_PHYSICS
 		return s2 / count; 
 	}
 
-	template <typename T>
-	Mat3<T> Vec3List<T>::covariance() const
+	
+	Mat3 Vec3List::covariance() const
 	{
-		T oon = T(1) / count; 
-		Vec3<T> centerOfMass = Vec3<T>(T(0)); 
-		T e00 = T(0), e11 = T(0), e22 = T(0), e01 = T(0), e02 = T(0), e12 = T(0);
+		sp_float oon = 1.0f / count; 
+		Vec3 centerOfMass = Vec3(0.0f); 
+		sp_float e00 = 0.0f, e11 = 0.0f, e22 = 0.0f, e01 = 0.0f, e02 = 0.0f, e12 = 0.0f;
 		
 		// Compute the center of mass (centroid) of the points 
 		for (sp_uint i = ZERO_UINT; i < count; ++i)
@@ -159,7 +157,7 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint i = ZERO_UINT; i < count; ++i)
 		{ 
 			// Translate points so center of mass is at origin 
-			Vec3<T> p = points[i] - centerOfMass;
+			Vec3 p = points[i] - centerOfMass;
 			
 			// Compute covariance of translated points 
 			e00 += p.x * p.x;
@@ -171,24 +169,24 @@ namespace NAMESPACE_PHYSICS
 		} 
 		
 		// Fill in the covariance matrix elements 
-		return Mat3<T>(
+		return Mat3(
 			e00 * oon, e01 * oon, e02 * oon,
 			e01 * oon, e11 * oon, e12 * oon,
 			e02 * oon, e12 * oon, e22 * oon
 			);
 	}
 
-	template <typename T>
-	int* Vec3List<T>::closestPoint_UsingBruteForce() const
+	
+	sp_int* Vec3List::closestPoint_UsingBruteForce() const
 	{
-		T minimunDistance = std::numeric_limits<T>().max();
+		sp_float minimunDistance = SP_FLOAT_MAX;
 
 		sp_int* result = ALLOC_ARRAY(sp_int, 2);
 
 		for (sp_uint i = ZERO_UINT; i < count; ++i)
 			for (sp_uint j = i + ONE_UINT; j < count; j++)
 			{
-				T currentDistance = points[i].squaredDistance(points[j]);
+				sp_float currentDistance = points[i].squaredDistance(points[j]);
 
 				if (currentDistance < minimunDistance) 
 				{
@@ -202,8 +200,8 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec3List<T>::~Vec3List()
+	
+	Vec3List::~Vec3List()
 	{
 		if (points != nullptr)
 		{
@@ -213,7 +211,4 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	template class Vec3List<sp_int>;
-	template class Vec3List<sp_float>;
-	template class Vec3List<sp_double>;
 }

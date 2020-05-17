@@ -1,8 +1,9 @@
 #ifndef OBB_HEADER
 #define OBB_HEADER
 
-#include "Vec3.h"
+#include "SpectrumPhysics.h"
 #include "BoundingVolume.h"
+#include "DetailedCollisionStatus.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -10,22 +11,37 @@ namespace NAMESPACE_PHYSICS
 		: public BoundingVolume
 	{
 	public:
-		Vec3f center;
-		Vec3f halfWidth;
-		Mat3f orientation;
+		Vec3 center;
+		Vec3 halfWidth;
+		Mat3 orientation;
 
 		/// <summary>
 		/// Build a new unit OBB with width, height and depth 1.0 and orientation aligned to axis located on coordinates (0,0,0) 
 		/// </summary>
-		API_INTERFACE OBB(const Vec3f& center = Vec3f(0.0f));
+		API_INTERFACE OBB(const Vec3& center = Vec3(0.0f));
 
 		/// <summary>
 		/// Not Implemented !!
 		/// </summary>
-		API_INTERFACE Vec3f centerOfBoundingVolume() const override
+		API_INTERFACE Vec3 centerOfBoundingVolume() const override
 		{
-			return Vec3f(0.0f); // Not Implemented
+			return Vec3(0.0f); // Not Implemented
 		}
+
+		/// <summary>
+		/// Translate the bounding volume
+		/// </summary>
+		API_INTERFACE void translate(const Vec3& translation) override;
+
+		/// <summary>
+		/// Scale the bounding volume (only in X, Y and Z)
+		/// </summary>
+		API_INTERFACE void scale(const Vec3& factor) override;
+
+		/// <summary>
+		/// Rotate the bounding volume
+		/// </summary>
+		API_INTERFACE void rotate(const Vec3& angles) override;
 
 		///<summary>
 		/// Check whether the OBBs are in contact each other

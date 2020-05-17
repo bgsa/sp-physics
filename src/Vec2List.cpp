@@ -2,36 +2,31 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Vec2List<T>::Vec2List()
+	Vec2List::Vec2List()
 	{
 	}
 
-	template <typename T>
-	Vec2List<T>::Vec2List(const std::vector<Vec2<T>> &list)
+	Vec2List::Vec2List(const std::vector<Vec2> &list)
 	{
 		this->list = list;
 	}
 
-	template <typename T>
-	void Vec2List<T>::add(const Vec2<T>& value) 
+	void Vec2List::add(const Vec2& value) 
 	{
 		list.push_back(value);
 	}
 
-	template <typename T>
-	size_t Vec2List<T>::size() const
+	size_t Vec2List::size() const
 	{
 		return list.size();
 	}
 
-	template <typename T>
-	Vec2<T>* Vec2List<T>::findMinX()
+	Vec2* Vec2List::findMinX()
 	{
 		if (size() == 0)
 			return nullptr;
 
-		Vec2<T>* result = &list[0];
+		Vec2* result = &list[0];
 
 		for (size_t i = 0 ; i != list.size() ; i ++)
 		{
@@ -42,13 +37,12 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec2<T>* Vec2List<T>::findMinY()
+	Vec2* Vec2List::findMinY()
 	{
 		if (size() == 0)
 			return nullptr;
 
-		Vec2<T>* result = &list[0];
+		Vec2* result = &list[0];
 
 		for (size_t i = 0; i != list.size(); i++)
 		{
@@ -59,13 +53,13 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec2<T>* Vec2List<T>::findMaxX()
+	
+	Vec2* Vec2List::findMaxX()
 	{
 		if (size() == 0)
 			return nullptr;
 
-		Vec2<T>* result = &list[0];
+		Vec2* result = &list[0];
 
 		for (size_t i = 0; i != list.size(); i++)
 		{
@@ -76,13 +70,13 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec2<T>* Vec2List<T>::findMaxY()
+	
+	Vec2* Vec2List::findMaxY()
 	{
 		if (size() == 0)
 			return nullptr;
 
-		Vec2<T>* result = &list[0];
+		Vec2* result = &list[0];
 
 		for (size_t i = 0; i != list.size(); i++)
 		{
@@ -93,12 +87,12 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	void Vec2List<T>::sortByAxis(Vec2<T>* arr, sp_size left, sp_size right, sp_int axisIndex)
+	
+	void Vec2List::sortByAxis(Vec2* arr, sp_size left, sp_size right, sp_int axisIndex)
 	{
 		sp_size i = left, j = right;
-		Vec2<T> tmp;
-		Vec2<T> pivot = arr[ (sp_size) (left + right) / 2 ];
+		Vec2 tmp;
+		Vec2 pivot = arr[ (sp_size) (left + right) / 2 ];
 		sp_size nextAxis = axisIndex == 0 ? axisIndex + 1 : axisIndex - 1;
 
 		while (i <= j) 
@@ -123,10 +117,10 @@ namespace NAMESPACE_PHYSICS
 			sortByAxis(arr, i, right, axisIndex);
 	}
 
-	template <typename T>
-	void Vec2List<T>::sortByAxisXY()
+	
+	void Vec2List::sortByAxisXY()
 	{	
-		Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 0);
+		Vec2List::sortByAxis(&list[0], 0, list.size() - 1, 0);
 
 		for (size_t i = 0; i < list.size(); i++)
 		{
@@ -142,42 +136,42 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	template <typename T>
-	void Vec2List<T>::sortByX()
+	
+	void Vec2List::sortByX()
 	{
-		Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 0);
+		Vec2List::sortByAxis(&list[0], 0, list.size() - 1, 0);
 	}
 
-	template <typename T>
-	void Vec2List<T>::sortByY()
+	
+	void Vec2List::sortByY()
 	{
-		Vec2List<T>::sortByAxis(&list[0], 0, list.size() - 1, 1);
+		Vec2List::sortByAxis(&list[0], 0, list.size() - 1, 1);
 	}
 
-	template <typename T>
-	Vec2<T> nextToTop(std::stack<Vec2<T>> values) 
+	
+	Vec2 nextToTop(std::stack<Vec2> values) 
 	{
-		Vec2<T> topValue = values.top();
+		Vec2 topValue = values.top();
 
 		values.pop();
 
-		Vec2<T> nextToTopValue = values.top();
+		Vec2 nextToTopValue = values.top();
 
 		values.push(topValue);
 
 		return nextToTopValue;
 	}
 
-	template <typename T>
-	std::stack<Vec2<T>> Vec2List<T>::convexUpperHull() const
+	
+	std::stack<Vec2> Vec2List::convexUpperHull() const
 	{
-		Vec2<T> point1 = list[0];
-		Vec2<T> point2 = list[1];
-		Vec2<T> currentPoint = list[2];
-		T determinant = T(0);
+		Vec2 point1 = list[0];
+		Vec2 point2 = list[1];
+		Vec2 currentPoint = list[2];
+		sp_float determinant = ZERO_FLOAT;
 		bool isCounterClockwise = false;
 
-		std::stack<Vec2<T>> upperHull;
+		std::stack<Vec2> upperHull;
 		upperHull.push(point1);
 		upperHull.push(point2);
 		
@@ -187,15 +181,15 @@ namespace NAMESPACE_PHYSICS
 			point2 = upperHull.top();
 			currentPoint = list[i];
 
-			Mat3<T> lineMatrix = {
-				T(1), T(1), T(1),
+			Mat3 lineMatrix = {
+				ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
 				currentPoint[0], point1[0], point2[0],
 				currentPoint[1], point1[1], point2[1]
 			};
 
 			determinant = lineMatrix.determinant();
 
-			isCounterClockwise = determinant >= T(0);
+			isCounterClockwise = determinant >= ZERO_FLOAT;
 			
 			while (isCounterClockwise)
 			{
@@ -207,13 +201,13 @@ namespace NAMESPACE_PHYSICS
 				point1 = nextToTop(upperHull);
 				point2 = upperHull.top();
 
-				Mat3<T> lineMatrix = {
-					T(1), T(1), T(1),
+				Mat3 lineMatrix = {
+					ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
 					currentPoint.x, point1.x, point2.x,
 					currentPoint.y, point1.y, point2.y
 				};
 
-				isCounterClockwise = lineMatrix.determinant() >= T(0);
+				isCounterClockwise = lineMatrix.determinant() >= ZERO_FLOAT;
 			}
 
 			upperHull.push(list[i]);
@@ -222,16 +216,16 @@ namespace NAMESPACE_PHYSICS
 		return upperHull;
 	}
 
-	template <typename T>
-	std::stack<Vec2<T>> Vec2List<T>::convexLowerHull() const
+	
+	std::stack<Vec2> Vec2List::convexLowerHull() const
 	{
-		Vec2<T> point1 = list[list.size() - 1];
-		Vec2<T> point2 = list[list.size() - 2];
-		Vec2<T> currentPoint = list[list.size() - 3];
-		T determinant = T(0);
+		Vec2 point1 = list[list.size() - 1];
+		Vec2 point2 = list[list.size() - 2];
+		Vec2 currentPoint = list[list.size() - 3];
+		sp_float determinant = 0.0f;
 		sp_bool isCounterClockwise = false;
 
-		std::stack<Vec2<T>> lowerHull;
+		std::stack<Vec2> lowerHull;
 		lowerHull.push(point1);
 		lowerHull.push(point2);
 
@@ -241,15 +235,15 @@ namespace NAMESPACE_PHYSICS
 			point2 = lowerHull.top();
 			currentPoint = list[i];
 
-			Mat3<T> lineMatrix = {
-				T(1), T(1), T(1),
+			Mat3 lineMatrix = {
+				ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
 				currentPoint.x, point1.x, point2.x,
 				currentPoint.y, point1.y, point2.y
 			};
 
 			determinant = lineMatrix.determinant();
 
-			isCounterClockwise = determinant >= T(0);
+			isCounterClockwise = determinant >= ZERO_FLOAT;
 
 			while (isCounterClockwise)
 			{
@@ -261,13 +255,13 @@ namespace NAMESPACE_PHYSICS
 				point1 = nextToTop(lowerHull);
 				point2 = lowerHull.top();
 
-				Mat3<T> lineMatrix = {
-					T(1), T(1), T(1),
+				Mat3 lineMatrix = {
+					ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
 					currentPoint.x, point1.x, point2.x,
 					currentPoint.y, point1.y, point2.y
 				};
 
-				isCounterClockwise = lineMatrix.determinant() >= T(0);
+				isCounterClockwise = lineMatrix.determinant() >= ZERO_FLOAT;
 			}
 
 			lowerHull.push(list[i]);
@@ -276,13 +270,13 @@ namespace NAMESPACE_PHYSICS
 		return lowerHull;
 	}
 
-	template <typename T>
-	Vec2List<T> Vec2List<T>::convexHull() const
+	
+	Vec2List Vec2List::convexHull() const
 	{
-		std::stack<Vec2<T>> upperHull = convexUpperHull();
-		std::stack<Vec2<T>> lowerHull = convexLowerHull();
+		std::stack<Vec2> upperHull = convexUpperHull();
+		std::stack<Vec2> lowerHull = convexLowerHull();
 
-		Vec2List<T> result;
+		Vec2List result;
 
 		lowerHull.pop();
 
@@ -303,7 +297,4 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template class Vec2List<sp_int>;
-	template class Vec2List<sp_float>;
-	template class Vec2List<sp_double>;
 }

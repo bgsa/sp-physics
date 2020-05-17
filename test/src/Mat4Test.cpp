@@ -87,7 +87,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_constructorEmpty_Test)
 	{
-		Mat4f result;
+		Mat4 result;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(0.0f, result[i], L"Value shoud be 0", LINE_INFO());
@@ -102,7 +102,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Mat4f result = Mat4f(emptyMatrix);
+		Mat4 result = Mat4(emptyMatrix);
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(emptyMatrix[i], result[i], L"Value shoud be 0", LINE_INFO());
@@ -110,15 +110,15 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_constructor_4vec4_Test)
 	{
-		Vec4f vector1 = Vec4f(1.0f, 2.0f, 3.0f, 4.0f);
-		Vec4f vector2 = Vec4f(5.0f, 6.0f, 7.0f, 8.0f);
-		Vec4f vector3 = Vec4f(9.0f, 10.0f, 11.0f, 12.0f);
-		Vec4f vector4 = Vec4f(13.0f, 14.0f, 15.0f, 16.0f);
+		Vec4 vector1 = Vec4(1.0f, 2.0f, 3.0f, 4.0f);
+		Vec4 vector2 = Vec4(5.0f, 6.0f, 7.0f, 8.0f);
+		Vec4 vector3 = Vec4(9.0f, 10.0f, 11.0f, 12.0f);
+		Vec4 vector4 = Vec4(13.0f, 14.0f, 15.0f, 16.0f);
 
-		Mat4f matrix = Mat4f(vector1, vector2, vector3, vector4);
+		Mat4 matrix = Mat4(vector1, vector2, vector3, vector4);
 
 #if MAJOR_COLUMN_ORDER
-		Mat4f expected = Mat4f(
+		Mat4 expected = Mat4(
 			1.0f, 5.0f, 9.0f, 13.0f,
 			2.0f, 6.0f, 10.0f, 14.0f,
 			3.0f, 7.0f, 11.0f, 15.0f,
@@ -144,7 +144,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_getValues_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
@@ -159,7 +159,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_getValue_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
@@ -190,14 +190,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_xAxis_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f xAxis = matrix.xAxis();
+		Vec4 xAxis = matrix.xAxis();
 
 		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, xAxis[1], L"Wrong value", LINE_INFO());
@@ -209,14 +209,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_xAxis_MajorRowOrder_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f xAxis = matrix.xAxis();
+		Vec4 xAxis = matrix.xAxis();
 
 		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(2.0f, xAxis[1], L"Wrong value", LINE_INFO());
@@ -228,14 +228,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_yAxis_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f yAxis = matrix.yAxis();
+		Vec4 yAxis = matrix.yAxis();
 
 		Assert::AreEqual(2.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(6.0f, yAxis[1], L"Wrong value", LINE_INFO());
@@ -247,14 +247,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_yAxis_MajorRowOrder_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f yAxis = matrix.yAxis();
+		Vec4 yAxis = matrix.yAxis();
 
 		Assert::AreEqual(5.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(6.0f, yAxis[1], L"Wrong value", LINE_INFO());
@@ -266,14 +266,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_zAxis_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f zAxis = matrix.zAxis();
+		Vec4 zAxis = matrix.zAxis();
 
 		Assert::AreEqual(3.0f, zAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(7.0f, zAxis[1], L"Wrong value", LINE_INFO());
@@ -285,14 +285,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_zAxis_MajorRowOrder_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f zAxis = matrix.zAxis();
+		Vec4 zAxis = matrix.zAxis();
 
 		Assert::AreEqual(9.0f, zAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(10.0f, zAxis[1], L"Wrong value", LINE_INFO());
@@ -304,14 +304,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_wAxis_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f wAxis = matrix.wAxis();
+		Vec4 wAxis = matrix.wAxis();
 
 		Assert::AreEqual(4.0f, wAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(8.0f, wAxis[1], L"Wrong value", LINE_INFO());
@@ -323,14 +323,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_wAxis_MajorRowOrder_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f wAxis = matrix.wAxis();
+		Vec4 wAxis = matrix.wAxis();
 
 		Assert::AreEqual(13.0f, wAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(14.0f, wAxis[1], L"Wrong value", LINE_INFO());
@@ -341,14 +341,14 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_primaryDiagonal_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f primaryDiagonal = matrix.primaryDiagonal();
+		Vec4 primaryDiagonal = matrix.primaryDiagonal();
 
 		Assert::AreEqual(1.0f, primaryDiagonal[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(6.0f, primaryDiagonal[1], L"Wrong value", LINE_INFO());
@@ -358,14 +358,14 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_secondaryDiagonal_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Vec4f secondaryDiagonal = matrix.secondaryDiagonal();
+		Vec4 secondaryDiagonal = matrix.secondaryDiagonal();
 
 		Assert::AreEqual(4.0f, secondaryDiagonal[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(7.0f, secondaryDiagonal[1], L"Wrong value", LINE_INFO());
@@ -375,7 +375,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_identity_Test)
 	{
-		Mat4f result = Mat4f::identity();
+		Mat4 result = Mat4::identity();
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			if (i % (MAT4_ROW_LENGTH+1) == 0)
@@ -386,7 +386,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_determinant_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			2.0f,  1.0f,  6.0f,  0.0f,
 			5.0f,  0.0f,  1.0f,  3.0f,
 			-2.0f,  5.0f,  1.0f,  8.0f,
@@ -400,7 +400,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_determinantIJ_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			2.0f,  1.0f,  6.0f,  0.0f,
 			5.0f,  0.0f,  1.0f,  3.0f,
 			-2.0f,  5.0f,  1.0f,  8.0f,
@@ -414,7 +414,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		float expected2 = 462.0f;
 		Assert::AreEqual(expected2, result2, L"Wrong value", LINE_INFO());
 
-		Mat3f matrix3x3 = {
+		Mat3 matrix3x3 = {
 			0.0f,  1.0f,  3.0f,
 			5.0f,  1.0f,  8.0f,
 			4.0f, -2.0f, -7.0f
@@ -427,7 +427,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_cofactorIJ_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			2.0f,  1.0f,  6.0f,  0.0f,
 			5.0f,  0.0f,  1.0f,  3.0f,
 			-2.0f,  5.0f,  1.0f,  8.0f,
@@ -452,13 +452,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_transpose_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f,  2.0f,  3.0f,  4.0f,
 			5.0f,  6.0f,  7.0f,  8.0f,
 			9.0f, 10.0f, 11.0f, 12.0f,
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
-		Mat4f result = matrix.transpose();
+		Mat4 result = matrix.transpose();
 
 		float expected[MAT4_LENGTH] = {
 			1.0f,  5.0f,  9.0f,  13.0f,
@@ -474,26 +474,26 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_multiply_MajorColumnOrder1_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			2.0f, 5.0f, -2.0f, 4.0f,
 			1.0f, -3.0f, 8.0f, 8.0f,
 			0.0f, 7.0f, -4.0f, 7.0f,
 			4.0f, 4.0f, 5.0f, 2.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			-4.0f, 72.0f, 22.0f, 2.0f,
 			42.0f, -29.0f, -2.0f, 39.0f,
 			-19.0f, 104.0f, 24.0f, -26.0f,
 			25.0f, 27.0f, 29.0f, 43.0f
 		};
 
-		Mat4f result = matrixA * matrixB;
+		Mat4 result = matrixA * matrixB;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -501,26 +501,26 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_multiply_MajorColumnOrder2_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			2.0f, 5.0f, -2.0f, 4.0f,
 			1.0f, -3.0f, 8.0f, 8.0f,
 			0.0f, 7.0f, -4.0f, 7.0f,
 			4.0f, 4.0f, 5.0f, 2.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			-4.0f, 72.0f, 22.0f, 2.0f,
 			42.0f, -29.0f, -2.0f, 39.0f,
 			-19.0f, 104.0f, 24.0f, -26.0f,
 			25.0f, 27.0f, 29.0f, 43.0f
 		};
 
-		Mat4f result = matrixA.multiply(matrixB);
+		Mat4 result = matrixA.multiply(matrixB);
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -530,26 +530,26 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_multiply_MajorRowOrder1_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			2.0f, 5.0f, -2.0f, 4.0f,
 			1.0f, -3.0f, 8.0f, 8.0f,
 			0.0f, 7.0f, -4.0f, 7.0f,
 			4.0f, 4.0f, 5.0f, 2.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			47.0f, 61.0f, 53.0f, 72.0f,
 			-4.0f, -14.0f, 42.0f, 80.0f,
 			13.0f, 49.0f, -35.0f, -15.0f,
 			6.0f, -7.0f, 30.0f, 36.0f
 		};
 
-		Mat4f result = matrixA.multiply(matrixB);
+		Mat4 result = matrixA.multiply(matrixB);
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -557,28 +557,28 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_multiply_MajorRowOrder2_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			1.0f, 0.0f,  0.0f,  0.0f,
 			3.0f, -3.0f,  0.0f,  0.0f,
 			-1.0f, 0.0f,  2.0f,  0.0f,
 			-3.0f, 4.0f, -2.0f,  1.0f
 		};
 
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			1.0f, -2.0f, -2.0f, -3.0f,
 			0.0f, 1.0f,  6.0f,  0.0f,
 			0.0f,  0.0f,  1.0f,  4.0f,
 			0.0f,  0.0f,  0.0f,  1.0f
 		};
 
-		Mat4f expected = {
+		Mat4 expected = {
 			1.0f, -2.0f, -2.0f, -3.0f,
 			3.0f, -9.0f, -24.0f, -9.0f,
 			-1.0f, 2.0f, 4.0f, 11.0f,
 			-3.0f, 10.0f, 28.0f, 2.0f
 		};
 
-		Mat4f result = matrixA * matrixB;
+		Mat4 result = matrixA * matrixB;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -587,14 +587,14 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_createScaled_Test)
 	{
-		Mat4f expected = {
+		Mat4 expected = {
 			2.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 4.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, -3.0f, 0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
 
-		Mat4f result = Mat4f::createScale(2.0f, 4.0f, -3.0f);
+		Mat4 result = Mat4::createScale(2.0f, 4.0f, -3.0f);
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -602,13 +602,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_scale_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			2.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 4.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, -3.0f, 0.0f,
 			1.0f, -10.0f, 5.0f, 1.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			4.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 16.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 9.0f, 0.0f,
@@ -623,7 +623,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_createRotate_Test)
 	{
-		Mat4f expected = {
+		Mat4 expected = {
 			1.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 0.866025388f, 0.5f, 0.0f,
 			0.0f, -0.5f, 0.866025388f, 0.0f,
@@ -632,23 +632,23 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		float angle = (float)degreesToRadians(30);
 		
-		Mat4f result = Mat4f::createRotate(angle, 1.0f, 0.0f, 0.0f);
+		Mat4 result = Mat4::createRotate(angle, 1.0f, 0.0f, 0.0f);
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong number", LINE_INFO());
 	}
 
 #ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_createTranslate_Test)
 	{
-		Mat4f expected = {
+		Mat4 expected = {
 			1.0f, 0.0f, 0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 0.0f,
 			0.0f, 2.0f, -3.0f, 1.0f
 		};
 
-		Mat4f result = Mat4f::createTranslate(0.0f, 2.0f, -3.0f);
+		Mat4 result = Mat4::createTranslate(0.0f, 2.0f, -3.0f);
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -658,14 +658,14 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_createTranslate_MajorRowOrder_Test)
 	{
-		Mat4f expected = {
+		Mat4 expected = {
 			1.0f, 0.0f, 0.0f, 4.0f,
 			0.0f, 1.0f, 0.0f, 2.0f,
 			0.0f, 0.0f, 1.0f, -3.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
 
-		Mat4f result = Mat4f::createTranslate(4.0f, 2.0f, -3.0f);
+		Mat4 result = Mat4::createTranslate(4.0f, 2.0f, -3.0f);
 
 		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -674,7 +674,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_sizeInBytes_Test)
 	{
-		size_t result = Mat4f::identity().sizeInBytes();
+		size_t result = Mat4::identity().sizeInBytes();
 		size_t expected = 4*16;
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
@@ -682,14 +682,14 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_clone_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			2.0f, 5.0f, -2.0f, 4.0f,
 			1.0f, -3.0f, 8.0f, 8.0f,
 			0.0f, 7.0f, -4.0f, 7.0f,
 			4.0f, 4.0f, 5.0f, 2.0f
 		};
 
-		Mat4f result = matrix.clone();
+		Mat4 result = matrix.clone();
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Wrong number", LINE_INFO());
@@ -697,19 +697,19 @@ namespace NAMESPACE_PHYSICS_TEST
 	
 	SP_TEST_METHOD(CLASS_NAME, Mat4_toMat3_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			2.0f, 5.0f, -2.0f, 4.0f,
 			1.0f, -3.0f, 8.0f, 8.0f,
 			0.0f, 7.0f, -4.0f, 7.0f,
 			4.0f, 4.0f, 5.0f, 2.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			2.0f, 5.0f, -2.0f,
 			1.0f, -3.0f, 8.0f,
 			0.0f, 7.0f, -4.0f
 		};
 
-		Mat3f result = matrix.toMat3();
+		Mat3 result = matrix.toMat3();
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -718,20 +718,20 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_COLUMN_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorMultiplyValue_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			8.0f, 6.0f, 4.0f, 18.0f,
 			-4.0f, 16.0f, 8.0f, -4.0f,
 			6.0f, -10.0f, 2.0f, 6.0f,
 			2.0f, 8.0f, 0.0f, 0.0f
 		};
 
-		Mat4f result = matrixA * 2.0f;
+		Mat4 result = matrixA * 2.0f;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -740,20 +740,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorPlusValue_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			6.0f, 5.0f, 4.0f, 11.0f,
 			0.0f, 10.0f, 6.0f, 0.0f,
 			5.0f, -3.0f, 3.0f, 5.0f,
 			3.0f, 6.0f, 2.0f, 2.0f
 		};
 
-		Mat4f result = matrixA + 2.0f;
+		Mat4 result = matrixA + 2.0f;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -761,26 +761,26 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorPlusMatrix_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			2.0f, 5.0f, -2.0f, 4.0f,
 			1.0f, -3.0f, 8.0f, 8.0f,
 			0.0f, 7.0f, -4.0f, 7.0f,
 			4.0f, 4.0f, 5.0f, 2.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			6.0f, 8.0f, 0.0f, 13.0f,
 			-1.0f, 5.0f, 12.0f, 6.0f,
 			3.0f, 2.0f, -3.0f, 10.0f,
 			5.0f, 8.0f, 5.0f, 2.0f
 		};
 
-		Mat4f result = matrixA + matrixB;
+		Mat4 result = matrixA + matrixB;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -788,26 +788,26 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorMinusMatrix_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			2.0f, 5.0f, -2.0f, 4.0f,
 			1.0f, -3.0f, 8.0f, 8.0f,
 			0.0f, 7.0f, -4.0f, 7.0f,
 			4.0f, 4.0f, 5.0f, 2.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			2.0f, -2.0f, 4.0f, 5.0f,
 			-3.0f, 11.0f, -4.0f, -10.0f,
 			3.0f, -12.0f, 5.0f, -4.0f,
 			-3.0f, 0.0f, -5.0f, -2.0f
 		};
 
-		Mat4f result = matrixA - matrixB;
+		Mat4 result = matrixA - matrixB;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -815,20 +815,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorMinus_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			-2.0f, 1.0f, 3.0f, 10.0f,
 			0.0f, 4.0f, -2.0f, 5.0f,
 			7.0f, 1.0f, 0.0f, 3.0f,
 			-7.0f, -1.0f, -0.0f, -3.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			2.0f, -1.0f, -3.0f, -10.0f,
 			0.0f, -4.0f, +2.0f, -5.0f,
 			-7.0f, -1.0f, 0.0f, -3.0f,
 			7.0f, 1.0f, 0.0f, 3.0f
 		};
 
-		Mat4f result = -matrixA;
+		Mat4 result = -matrixA;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -836,20 +836,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorMinus_scalar_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			2.0f, 1.0f, 0.0f, 7.0f,
 			-4.0f, 6.0f, 2.0f, -4.0f,
 			1.0f, -7.0f, -1.0f, 1.0f,
 			-1.0f, 2.0f, -2.0f, -2.0f
 		};
 
-		Mat4f result = matrixA - 2.0f;
+		Mat4 result = matrixA - 2.0f;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -857,7 +857,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorEqualValue_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			1.0f,  1.0f,  1.0f, 1.0f,
 			1.0f,  1.0f,  1.0f, 1.0f,
 			1.0f,  1.0f,  1.0f, 1.0f,
@@ -876,13 +876,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorEqualMatrix_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
@@ -899,13 +899,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorNotEqualMatrix_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
 			1.0f, 4.0f,  0.0f, 0.0f
 		};
-		Mat4f matrixB = {
+		Mat4 matrixB = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
@@ -922,7 +922,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_operatorIndex_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			4.0f,  3.0f,  2.0f, 9.0f,
 			-2.0f,  8.0f, 4.0f, -2.0f,
 			3.0f,  -5.0f,  1.0f, 3.0f,
@@ -942,31 +942,31 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_decomposeLU_MajorRowOrder_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 			1.0f, -2.0f, -2.0f, -3.0f,
 			3.0f, -9.0f,  0.0f, -9.0f,
 			-1.0f,  2.0f,  4.0f,  7.0f,
 			-3.0f, -6.0f,  26.0f, 2.0f
 		};
 
-		Mat4f lowerMatrixExpected = {
+		Mat4 lowerMatrixExpected = {
 			1.0f, 0.0f,  0.0f,  0.0f,
 			3.0f, -3.0f,  0.0f,  0.0f,
 			-1.0f, 0.0f,  2.0f,  0.0f,
 			-3.0f, -12.0f, -4.0f,  1.0f
 		};
 
-		Mat4f upperMatrixExpected = {
+		Mat4 upperMatrixExpected = {
 			1.0f, -2.0f, -2.0f, -3.0f,
 			0.0f, 1.0f,  -2.0f,  0.0f,
 			0.0f,  0.0f,  1.0f,  2.0f,
 			0.0f,  0.0f,  0.0f,  1.0f
 		};
 
-		Mat4f* decomposeLU = matrix.decomposeLU();
-		Mat4f lowerMatrixResult = decomposeLU[0];
-		Mat4f upperMatrixResult = decomposeLU[1];
-		Mat4f result = lowerMatrixResult * upperMatrixResult;
+		Mat4* decomposeLU = matrix.decomposeLU();
+		Mat4 lowerMatrixResult = decomposeLU[0];
+		Mat4 upperMatrixResult = decomposeLU[1];
+		Mat4 result = lowerMatrixResult * upperMatrixResult;
 
 		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
@@ -982,39 +982,39 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat4_decomposeLDU_MajorRowOrder_Test)
 	{
-		Mat4f matrix = {
+		Mat4 matrix = {
 				1.0f, -2.0f, -2.0f, -3.0f,
 				3.0f, -9.0f,  0.0f, -9.0f,
 			-1.0f,  2.0f,  4.0f,  7.0f,
 			-3.0f, -6.0f,  26.0f, 2.0f
 		};
 
-		Mat4f lowerMatrixExpected = {
+		Mat4 lowerMatrixExpected = {
 				1.0f, 0.0f,  0.0f,  0.0f,
 				3.0f, -3.0f,  0.0f,  0.0f,
 			-1.0f, 0.0f,  2.0f,  0.0f,
 			-3.0f, -12.0f, -4.0f,  1.0f
 		};
 
-		Mat4f diagonalMatrixExpected = {
+		Mat4 diagonalMatrixExpected = {
 			1.0f, 0.0f,  0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f, 0.0f,
 			0.0f, 0.0f, 1.0f,  0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
 
-		Mat4f upperMatrixExpected = {
+		Mat4 upperMatrixExpected = {
 			1.0f, -2.0f, -2.0f, -3.0f,
 			0.0f, 1.0f, -2.0f, 0.0f,
 			0.0f, 0.0f, 1.0f, 2.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		};
 
-		Mat4f* decomposeLDU = matrix.decomposeLDU();
-		Mat4f lowerMatrixResult = decomposeLDU[0];
-		Mat4f diagonalMatrixResult = decomposeLDU[1];
-		Mat4f upperMatrixResult = decomposeLDU[2];
-		Mat4f result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
+		Mat4* decomposeLDU = matrix.decomposeLDU();
+		Mat4 lowerMatrixResult = decomposeLDU[0];
+		Mat4 diagonalMatrixResult = decomposeLDU[1];
+		Mat4 upperMatrixResult = decomposeLDU[2];
+		Mat4 result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
 
 		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
@@ -1032,20 +1032,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_divide_operator_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			2.0f, 1.0f, 3.0f, -6.0f,
 			0.0f, 4.0f, -2.0f, 4.0f,
 			7.0f, 1.0f, 0.0f, 4.0f,
 			7.0f, 1.0f, 0.0f, 4.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			1.0f, 0.5f, 1.5f, -3.0f,
 			0.0f, 2.0f, -1.0f, 2.0f,
 			3.5f, 0.5f, 0.0f, 2.0f,
 			3.5f, 0.5f, 0.0f, 2.0f
 		};
 
-		Mat4f result = matrixA / 2.0f;
+		Mat4 result = matrixA / 2.0f;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -1053,13 +1053,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_divide_equal_operator_Test)
 	{
-		Mat4f matrixA = {
+		Mat4 matrixA = {
 			2.0f, 1.0f, 3.0f, -6.0f,
 			0.0f, 4.0f, -2.0f, 4.0f,
 			7.0f, 1.0f, 0.0f, 4.0f,
 			7.0f, 1.0f, 0.0f, 4.0f
 		};
-		Mat4f expected = {
+		Mat4 expected = {
 			1.0f, 0.5f, 1.5f, -3.0f,
 			0.0f, 2.0f, -1.0f, 2.0f,
 			3.5f, 0.5f, 0.0f, 2.0f,

@@ -1,4 +1,7 @@
-#pragma once
+#ifndef ORIENTATION_HEADER
+#define ORIENTATION_HEADER
+
+#include "SpectrumPhysics.h"
 
 namespace NAMESPACE_PHYSICS 
 {
@@ -11,3 +14,5 @@ namespace NAMESPACE_PHYSICS
 	};
 	
 }
+
+#endif // ORIENTATION_HEADER

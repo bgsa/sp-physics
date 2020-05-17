@@ -81,7 +81,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_constructorEmpty_Test)
 	{
-		Mat3<float> result;
+		Mat3 result;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(0.0f, result[i], L"Value shoud be 0", LINE_INFO());
@@ -95,7 +95,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			7.0f, 8.0f, 9.0f
 		};
 
-		Mat3<float> result = Mat3<float>(emptyMatrix);
+		Mat3 result = Mat3(emptyMatrix);
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(emptyMatrix[i], result[i], L"Value shoud be 0", LINE_INFO());
@@ -103,7 +103,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_getValues_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, -9.0f
@@ -117,7 +117,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_getValue_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
@@ -138,13 +138,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_getAxisX_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f axis = matrix.getAxis(0);
+		Vec3 axis = matrix.getAxis(0);
 
 		Assert::AreEqual(1.0f, axis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(4.0f, axis[1], L"Wrong value", LINE_INFO());
@@ -153,13 +153,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_getAxisY_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f axis = matrix.getAxis(1);
+		Vec3 axis = matrix.getAxis(1);
 
 		Assert::AreEqual(2.0f, axis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, axis[1], L"Wrong value", LINE_INFO());
@@ -168,13 +168,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_getAxisZ_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f axis = matrix.getAxis(2);
+		Vec3 axis = matrix.getAxis(2);
 
 		Assert::AreEqual(3.0f, axis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(6.0f, axis[1], L"Wrong value", LINE_INFO());
@@ -183,13 +183,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_xAxis_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f xAxis = matrix.xAxis();
+		Vec3 xAxis = matrix.xAxis();
 
 		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(4.0f, xAxis[1], L"Wrong value", LINE_INFO());
@@ -198,13 +198,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_yAxis_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f yAxis = matrix.yAxis();
+		Vec3 yAxis = matrix.yAxis();
 
 		Assert::AreEqual(2.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, yAxis[1], L"Wrong value", LINE_INFO());
@@ -213,13 +213,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_zAxis_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f zAxis = matrix.zAxis();
+		Vec3 zAxis = matrix.zAxis();
 
 		Assert::AreEqual(3.0f, zAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(6.0f, zAxis[1], L"Wrong value", LINE_INFO());
@@ -228,23 +228,23 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_multiply_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			2.0f, 3.0f, 4.0f,
 			3.0f, 4.0f, 5.0f,
 			4.0f, 5.0f, 6.0f
 		};
-		Mat3f matrixB = {
+		Mat3 matrixB = {
 			0.0f, 1.0f, 2.0f,
 			-1.0f, 0.0f, 1.0f,
 			-2.0f, -1.0f, 0.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			11.0f, 14.0f, 17.0f,
 			2.0f, 2.0f, 2.0f,
 			-7.0f, -10.0f, -13.0f
 		};
 
-		Mat3f result = matrixA.multiply(matrixB);
+		Mat3 result = matrixA.multiply(matrixB);
 
 		for (int i = 0; i < 9; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -252,13 +252,13 @@ namespace NAMESPACE_PHYSICS_TEST
 	
 	SP_TEST_METHOD(CLASS_NAME, Mat3_createTranslate_Test)
 	{
-		Mat3f expected = {
+		Mat3 expected = {
 			1.0f, 0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f,
 			5.0f, 2.0f, -3.0f
 		};
 
-		Mat3f result = Mat3f::createTranslate(5.0f, 2.0f, -3.0f);
+		Mat3 result = Mat3::createTranslate(5.0f, 2.0f, -3.0f);
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -266,28 +266,28 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_decomposeLU_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			2.0f, -3.0f,  4.0f,
 			6.0f, -8.0f,  9.0f,
 			2.0f,  0.0f,  2.0f
 		};
 
-		Mat3f lowerMatrixExpected = {
+		Mat3 lowerMatrixExpected = {
 			2.0f,  -3.0f,  4.0f,
 			0.0f,  1.0f,  -3.0f,
 			0.0f, 0.0f,  7.0f
 		};
 
-		Mat3f upperMatrixExpected = {
+		Mat3 upperMatrixExpected = {
 			1.0f, 0.0f, 0.0f,
 			3.0f, 1.0f, 0.0f,
 			1.0f, 3.0f, 1.0f
 		};
 
-		Mat3f* decomposeLU = matrix.decomposeLU();
-		Mat3f lowerMatrixResult = decomposeLU[0];
-		Mat3f upperMatrixResult = decomposeLU[1];
-		Mat3f result = lowerMatrixResult * upperMatrixResult;
+		Mat3* decomposeLU = matrix.decomposeLU();
+		Mat3 lowerMatrixResult = decomposeLU[0];
+		Mat3 upperMatrixResult = decomposeLU[1];
+		Mat3 result = lowerMatrixResult * upperMatrixResult;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
@@ -301,35 +301,35 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_decomposeLDU_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			2.0f, -3.0f,  4.0f,
 			6.0f, -8.0f,  9.0f,
 			2.0f,  0.0f,  2.0f
 		};
 
-		Mat3f lowerMatrixExpected = {
+		Mat3 lowerMatrixExpected = {
 			2.0f,  -3.0f,  4.0f,
 			0.0f,  1.0f,  -3.0f,
 			0.0f, 0.0f,  7.0f
 		};
 
-		Mat3f diagonalMatrixExpected = {
+		Mat3 diagonalMatrixExpected = {
 			1.0f, 0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 1.0f
 		};
 
-		Mat3f upperMatrixExpected = {
+		Mat3 upperMatrixExpected = {
 			1.0f, 0.0f, 0.0f,
 			3.0f, 1.0f, 0.0f,
 			1.0f, 3.0f, 1.0f
 		};
 
-		Mat3f* decomposeLDU = matrix.decomposeLDU();
-		Mat3f lowerMatrixResult = decomposeLDU[0];
-		Mat3f diagonalMatrixResult = decomposeLDU[1];
-		Mat3f upperMatrixResult = decomposeLDU[2];
-		Mat3f result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
+		Mat3* decomposeLDU = matrix.decomposeLDU();
+		Mat3 lowerMatrixResult = decomposeLDU[0];
+		Mat3 diagonalMatrixResult = decomposeLDU[1];
+		Mat3 upperMatrixResult = decomposeLDU[2];
+		Mat3 result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
@@ -349,13 +349,13 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef MAJOR_ROW_ORDER
 	SP_TEST_METHOD(CLASS_NAME, Mat3_xAxis_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f xAxis = matrix.xAxis();
+		Vec3 xAxis = matrix.xAxis();
 
 		Assert::AreEqual(1.0f, xAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(2.0f, xAxis[1], L"Wrong value", LINE_INFO());
@@ -364,13 +364,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_yAxis_RowMajorRow_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f yAxis = matrix.yAxis();
+		Vec3 yAxis = matrix.yAxis();
 
 		Assert::AreEqual(4.0f, yAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, yAxis[1], L"Wrong value", LINE_INFO());
@@ -379,13 +379,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_zAxis_RowMajorRow_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f zAxis = matrix.zAxis();
+		Vec3 zAxis = matrix.zAxis();
 
 		Assert::AreEqual(7.0f, zAxis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(8.0f, zAxis[1], L"Wrong value", LINE_INFO());
@@ -394,23 +394,23 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_multiply_MajorRowOrder_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			2.0f, 3.0f, 4.0f,
 			3.0f, 4.0f, 5.0f,
 			4.0f, 5.0f, 6.0f
 		};
-		Mat3f matrixB = {
+		Mat3 matrixB = {
 			0.0f, 1.0f, 2.0f,
 			-1.0f, 0.0f, 1.0f,
 			-2.0f, -1.0f, 0.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			-11.0f, -2.0f, 7.0f,
 			-14.0f, -2.0f, 10.0f,
 			-17.0f, -2.0f, 13.0f
 		};
 
-		Mat3f result = matrixA.multiply(matrixB);
+		Mat3 result = matrixA.multiply(matrixB);
 
 		for (int i = 0; i < 9; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -418,13 +418,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_createTranslate_MajorRowOrder_Test)
 	{
-		Mat3f expected = {
+		Mat3 expected = {
 			1.0f, 0.0f, 5.0f,
 			0.0f, 1.0f, 2.0f,
 			0.0f, 0.0f, -3.0f
 		};
 
-		Mat3f result = Mat3f::createTranslate(5.0f, 2.0f, -3.0f);
+		Mat3 result = Mat3::createTranslate(5.0f, 2.0f, -3.0f);
 
 		for (size_t i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -432,27 +432,27 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_decomposeLU_MajorRowOrder_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			2.0f,  6.0f,  2.0f,
 			-3.0f, -8.0f,  0.0f,
 			4.0f,  9.0f,  2.0f
 		};
 
-		Mat3f lowerMatrixExpected = {
+		Mat3 lowerMatrixExpected = {
 			2.0f,  0.0f,  0.0f,
 			-3.0f,  1.0f,  0.0f,
 			4.0f, -3.0f,  7.0f
 		};
 
-		Mat3f upperMatrixExpected = {
+		Mat3 upperMatrixExpected = {
 			1.0f, 3.0f, 1.0f,
 			0.0f, 1.0f, 3.0f,
 			0.0f, 0.0f, 1.0f
 		};
 
-		Mat3f* decomposeLU = matrix.decomposeLU();
-		Mat3f lowerMatrixResult = decomposeLU[0];
-		Mat3f upperMatrixResult = decomposeLU[1];
+		Mat3* decomposeLU = matrix.decomposeLU();
+		Mat3 lowerMatrixResult = decomposeLU[0];
+		Mat3 upperMatrixResult = decomposeLU[1];
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
@@ -460,41 +460,41 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(upperMatrixResult[i], upperMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		Mat3f result = lowerMatrixResult * upperMatrixResult;
+		Mat3 result = lowerMatrixResult * upperMatrixResult;
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_decomposeLDU_MajorRowOrder_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			2.0f,  6.0f,  2.0f,
 			-3.0f, -8.0f,  0.0f,
 			4.0f,  9.0f,  2.0f
 		};
 
-		Mat3f lowerMatrixExpected = {
+		Mat3 lowerMatrixExpected = {
 			2.0f,  0.0f,  0.0f,
 			-3.0f,  1.0f,  0.0f,
 			4.0f, -3.0f,  7.0f
 		};
 
-		Mat3f diagonalMatrixExpected = {
+		Mat3 diagonalMatrixExpected = {
 			1.0f, 0.0f, 0.0f,
 			0.0f, 1.0f, 0.0f,
 			0.0f, 0.0f, 1.0f
 		};
 
-		Mat3f upperMatrixExpected = {
+		Mat3 upperMatrixExpected = {
 			1.0f, 3.0f, 1.0f,
 			0.0f, 1.0f, 3.0f,
 			0.0f, 0.0f, 1.0f
 		};
 
-		Mat3f* decomposeLDU = matrix.decomposeLDU();
-		Mat3f lowerMatrixResult = decomposeLDU[0];
-		Mat3f diagonalMatrixResult = decomposeLDU[1];
-		Mat3f upperMatrixResult = decomposeLDU[2];
+		Mat3* decomposeLDU = matrix.decomposeLDU();
+		Mat3 lowerMatrixResult = decomposeLDU[0];
+		Mat3 diagonalMatrixResult = decomposeLDU[1];
+		Mat3 upperMatrixResult = decomposeLDU[2];
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
@@ -505,7 +505,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(diagonalMatrixResult[i], diagonalMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		Mat3f result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
+		Mat3 result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
 	}
@@ -514,13 +514,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_primaryDiagonal_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f primaryDiagonal = matrix.primaryDiagonal();
+		Vec3 primaryDiagonal = matrix.primaryDiagonal();
 
 		Assert::AreEqual(1.0f, primaryDiagonal[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, primaryDiagonal[1], L"Wrong value", LINE_INFO());
@@ -529,13 +529,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_secondaryDiagonal_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3f secondaryDiagonal = matrix.secondaryDiagonal();
+		Vec3 secondaryDiagonal = matrix.secondaryDiagonal();
 
 		Assert::AreEqual(3.0f, secondaryDiagonal[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, secondaryDiagonal[1], L"Wrong value", LINE_INFO());
@@ -544,7 +544,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_identity_Test)
 	{
-		Mat3<float> result = Mat3<float>::identity();
+		Mat3 result = Mat3::identity();
 		
 		for (int i = 0; i < MAT3_SIZE; i++)
 			if (i % 4 == 0)
@@ -555,12 +555,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_transpose_Test)
 	{
-		Mat3<float> matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
-		Mat3<float> result = matrix.transpose();
+		Mat3 result = matrix.transpose();
 
 		float expected[MAT3_SIZE] = {
 			1.0f, 4.0f, 7.0f,
@@ -574,13 +574,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_createScaled_Test)
 	{
-		Mat3f expected = {
+		Mat3 expected = {
 			2.0f, 0.0f, 0.0f,
 			0.0f, 4.0f, 0.0f,
 			0.0f, 0.0f, -3.0f
 		};
 
-		Mat3f result = Mat3f::createScale(2.0f, 4.0f, -3.0f);
+		Mat3 result = Mat3::createScale(2.0f, 4.0f, -3.0f);
 
 		for (int i = 0; i < 9; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -588,12 +588,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_scale_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			2.0f, 0.0f, 0.0f,
 			0.0f, 4.0f, 0.0f,
 			1.0f, 10.0f, -3.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			4.0f, 0.0f, 0.0f,
 			0.0f, 16.0f, 0.0f,
 			1.0f, 10.0f, 9.0f
@@ -607,7 +607,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_createRotate_Test)
 	{
-		Mat3f expected = {
+		Mat3 expected = {
 			1.0f, 0.0f, 0.0f,
 			0.0f, 0.866025388f, 0.5f,
 			0.0f, -0.5f, 0.866025388f
@@ -615,15 +615,15 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		float angle = (float) degreesToRadians(30);
 
-		Mat3f result = Mat3f::createRotate(angle, 1.0f, 0.0f, 0.0f);
+		Mat3 result = Mat3::createRotate(angle, 1.0f, 0.0f, 0.0f);
 
 		for (int i = 0; i < MAT3_SIZE; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong number", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_determinant_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			2.0f, 5.0f, 6.0f,
 			1.0f, 6.0f, 7.0f,
 			-1.0f, 2.0f, 3.0f
@@ -636,7 +636,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_sizeInBytes_Test)
 	{
-		size_t result = Mat3<float>::identity().sizeInBytes();
+		size_t result = Mat3::identity().sizeInBytes();
 		size_t expected = 36;
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
@@ -644,13 +644,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_clone_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, -9.0f
 		};
 
-		Mat3f result = matrix.clone();
+		Mat3 result = matrix.clone();
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Wrong number", LINE_INFO());
@@ -658,36 +658,36 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_getAutovalueAndAutovector_Test)
 	{
-		Mat3f matrix = {
+		Mat3 matrix = {
 			528.2f, 547.6f, 156.4f,
 			273.8f, 312.8f, 98.0f,
 			78.2f, 98.0f, 39.0f
 		};
 
 		float expectedValue = 849.1f;
-		Vec3f expectedVector = Vec3f{ 1.0f, 0.54f , 0.1619f };
-		AutovalueAutovector3<float> result = matrix.getAutovalueAndAutovector();
+		Vec3 expectedVector = Vec3{ 1.0f, 0.54f , 0.1619f };
+		AutoValueAutoVector3 result = matrix.getAutovalueAndAutovector();
 
-		Assert::AreEqual(ceil(expectedValue), ceil(result.autovalue), L"Wrong number", LINE_INFO());
+		Assert::AreEqual(ceilf(expectedValue), ceilf(result.autoValue), L"Wrong number", LINE_INFO());
 
 		for (int i = 0; i < MAT3_ROWSIZE; i++)
-			Assert::AreEqual(ceil(expectedVector[i]), ceil(result.autovector[i]), L"Wrong number", LINE_INFO());
+			Assert::AreEqual(ceil(expectedVector[i]), ceil(result.autoVector[i]), L"Wrong number", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorMinus_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			-2.0f, 1.0f, 3.0f,
 			0.0f, 4.0f, -2.0f,
 			7.0f, 1.0f, 0.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			2.0f, -1.0f, -3.0f,
 			0.0f, -4.0f, +2.0f,
 			-7.0f, -1.0f, 0.0f
 		};
 
-		Mat3f result = -matrixA;
+		Mat3 result = -matrixA;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -695,23 +695,23 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorMinus_matrix3_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			-2.0f, 1.0f, -3.0f,
 			0.0f, 4.0f, -2.0f,
 			7.0f, 1.0f, 0.0f
 		};
-		Mat3f matrixB = {
+		Mat3 matrixB = {
 			-2.0f, 10.0f, 5.0f,
 			0.0f, 4.0f, -2.0f,
 			-7.0f, 1.0f, 0.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			0.0f, -9.0f, -8.0f,
 			0.0f, 0.0f, 0.0f,
 			14.0f, 0.0f, 0.0f
 		};
 
-		Mat3f result = matrixA - matrixB;
+		Mat3 result = matrixA - matrixB;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -719,23 +719,23 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorSum_matrix3_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			-2.0f, 1.0f, -3.0f,
 			0.0f, 4.0f, -2.0f,
 			7.0f, 1.0f, 0.0f
 		};
-		Mat3f matrixB = {
+		Mat3 matrixB = {
 			-2.0f, 10.0f, 5.0f,
 			0.0f, 4.0f, -2.0f,
 			-7.0f, 1.0f, 0.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			-4.0f, 11.0f, 2.0f,
 			0.0f, 8.0f, -4.0f,
 			0.0f, 2.0f, 0.0f
 		};
 
-		Mat3f result = matrixA + matrixB;
+		Mat3 result = matrixA + matrixB;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -743,18 +743,18 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorDivide_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			2.0f, 1.0f, 3.0f,
 			0.0f, 4.0f, -2.0f,
 			7.0f, 1.0f, 0.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			1.0f, 0.5f, 1.5f,
 			0.0f, 2.0f, -1.0f,
 			3.5f, 0.5f, 0.0f
 		};
 
-		Mat3f result = matrixA / 2.0f;
+		Mat3 result = matrixA / 2.0f;
 
 		for (int i = 0; i < MAT3_SIZE; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
@@ -762,12 +762,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorDivideEqual_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			2.0f, 1.0f, 3.0f,
 			0.0f, 4.0f, -2.0f,
 			7.0f, 1.0f, 0.0f
 		};
-		Mat3f expected = {
+		Mat3 expected = {
 			1.0f, 0.5f, 1.5f,
 			0.0f, 2.0f, -1.0f,
 			3.5f, 0.5f, 0.0f
@@ -781,12 +781,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorEqual_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, -9.0f
 		};
-		Mat3f matrixB = {
+		Mat3 matrixB = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, -9.0f
@@ -802,12 +802,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorNotEqual_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, -9.0f
 		};
-		Mat3f matrixB = {
+		Mat3 matrixB = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, -9.0f
@@ -823,7 +823,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorEqual_Value_Test)
 	{
-		Mat3f matrixA = {
+		Mat3 matrixA = {
 			3.0f, 3.0f, 3.0f,
 			3.0f, 3.0f, 3.0f,
 			3.0f, 3.0f, 3.0f
@@ -839,7 +839,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_isIdentity_Test)
 	{
-		Mat3f matrixA = Mat3f::identity();
+		Mat3 matrixA = Mat3::identity();
 
 		bool result = matrixA.isIdentity();
 		Assert::IsTrue(result, L"Wrong number", LINE_INFO());

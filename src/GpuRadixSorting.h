@@ -3,6 +3,7 @@
 #ifndef GPU_RADIX_DORTING
 #define GPU_RADIX_DORTING
 
+#include "SpectrumPhysics.h"
 #include "GpuIndexes.h"
 #include "GpuReverse.h"
 #include "GpuComposedCommand.h"

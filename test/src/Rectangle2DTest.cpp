@@ -1,5 +1,6 @@
 #include "SpectrumPhysicsTest.h"
 #include "Vec2List.h"
+#include "Rectangle2D.h"
 
 #define CLASS_NAME Rectangle2DTest 
 
@@ -43,7 +44,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_width_Test)
 	{
-		Rectangle2Df square = Rectangle2Df(
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 0.0f, 100.0f },
 			{ 20.0f, 100.0f },
@@ -57,7 +58,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_height_Test)
 	{
-		Rectangle2Df square = Rectangle2Df(
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 0.0f, 100.0f },
 			{ 20.0f, 100.0f },
@@ -71,7 +72,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_area_Test)
 	{
-		Rectangle2Df square = Rectangle2Df(
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 0.0f, 100.0f },
 			{ 20.0f, 100.0f },
@@ -85,7 +86,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_perimeter_Test)
 	{
-		Rectangle2Df square = Rectangle2Df(
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 0.0f, 100.0f },
 			{ 20.0f, 100.0f },
@@ -99,7 +100,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_diagonalLength_Test)
 	{
-		Rectangle2Df square = Rectangle2Df(
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 0.0f, 100.0f },
 			{ 20.0f, 100.0f },
@@ -113,8 +114,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_getCollisionStatus_Inside1_Test)
 	{
-		Vec2f point = Vec2f(10.0f, 10.0f);
-		Rectangle2Df square = Rectangle2Df(
+		Vec2 point = Vec2(10.0f, 10.0f);
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f }, 
 			{ 0.0f, 100.0f },
 			{ 100.0f, 100.0f },
@@ -129,8 +130,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_getCollisionStatus_Inside2_Test)
 	{
-		Vec2f point = Vec2f(100.0f, 60.0f);
-		Rectangle2Df square = Rectangle2Df(
+		Vec2 point = Vec2(100.0f, 60.0f);
+		Rectangle2D square = Rectangle2D(
 			{ 10.0f, 10.0f },
 			{ 210.0f, 10.0f },
 			{ 210.0f, 110.0f },
@@ -145,8 +146,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_getCollisionStatus_Outside_Test)
 	{
-		Vec2f point = Vec2f(200.0f, 200.0f);
-		Rectangle2Df rect = Rectangle2Df(
+		Vec2 point = Vec2(200.0f, 200.0f);
+		Rectangle2D rect = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 0.0f, 100.0f },
 			{ 100.0f, 100.0f },
@@ -161,8 +162,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Line_True_Test)
 	{
-		Line2Df line = Line2Df(Vec2f(50.0f, 0.0f), Vec2f(50.0f, 200.0f));
-		Rectangle2Df square = Rectangle2Df(
+		Line2D line = Line2D(Vec2(50.0f, 0.0f), Vec2(50.0f, 200.0f));
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 0.0f },
 			{ 100.0f, 100.0f },
@@ -176,8 +177,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Line_False_Test)
 	{
-		Line2Df line = Line2Df(Vec2f(110.0f, 0.0f), Vec2f(110.0f, 200.0f));
-		Rectangle2Df square = Rectangle2Df(
+		Line2D line = Line2D(Vec2(110.0f, 0.0f), Vec2(110.0f, 200.0f));
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 0.0f },
 			{ 100.0f, 100.0f },
@@ -191,8 +192,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Triangle_True_Test)
 	{
-		Triangle2Df triangle = Triangle2Df(Vec2f(50.0f, 10.0f), Vec2f(150.0f, 200.0f), Vec2f(200.0f, 200.0f));
-		Rectangle2Df square = Rectangle2Df(
+		Triangle2D triangle(Vec2(50.0f, 10.0f), Vec2(150.0f, 200.0f), Vec2(200.0f, 200.0f));
+		Rectangle2D square(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 0.0f },
 			{ 100.0f, 100.0f },
@@ -206,8 +207,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Triangle_False_Test)
 	{
-		Triangle2Df triangle = Triangle2Df(Vec2f(120.0f, 110.0f), Vec2f(150.0f, 200.0f), Vec2f(200.0f, 200.0f));
-		Rectangle2Df square = Rectangle2Df(
+		Triangle2D triangle(Vec2(120.0f, 110.0f), Vec2(150.0f, 200.0f), Vec2(200.0f, 200.0f));
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 0.0f },
 			{ 100.0f, 100.0f },
@@ -221,23 +222,23 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Circle_True_Test)
 	{
-		Circle2Df circle = Circle2Df(Vec2f(105.0f, 50.0f), 10.0f);
-		Rectangle2Df square = Rectangle2Df(
+		Circle2D circle(Vec2(105.0f, 50.0f), 10.0f);
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }
 		);
 
-		bool result = square.hasIntersection(circle);
+		sp_bool result = square.hasIntersection(circle);
 
 		Assert::IsTrue(result, L"Rectangle should intersect the circle.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Circle_False_Test)
 	{
-		Circle2Df circle = Circle2Df(Vec2f(111.0f, 50.0f), 10.0f);
-		Rectangle2Df square = Rectangle2Df(
+		Circle2D circle(Vec2(111.0f, 50.0f), 10.0f);
+		Rectangle2D square = Rectangle2D(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 0.0f },
 			{ 100.0f, 100.0f },
@@ -251,18 +252,18 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_getBoundingBox_Test)
 	{
-		Vec2fList points;
-		points.add(Vec2f(0.3f, 0.0f));
-		points.add(Vec2f(1.0f, 0.3f));
-		points.add(Vec2f(0.7f, 1.0f));
-		points.add(Vec2f(0.0f, 0.7f));
+		Vec2List points;
+		points.add(Vec2(0.3f, 0.0f));
+		points.add(Vec2(1.0f, 0.3f));
+		points.add(Vec2(0.7f, 1.0f));
+		points.add(Vec2(0.0f, 0.7f));
 
-		Rectangle2Df result = Rectangle2Df::getBoundingBox(points);
+		Rectangle2D result = Rectangle2D::getBoundingBox(points);
 
-		Vec2f point1Expected = { 0.0f, 0.0f };
-		Vec2f point2Expected = { 1.0f, 0.0f };
-		Vec2f point3Expected = { 1.0f, 1.0f };
-		Vec2f point4Expected = { 0.0f, 1.0f };
+		Vec2 point1Expected = { 0.0f, 0.0f };
+		Vec2 point2Expected = { 1.0f, 0.0f };
+		Vec2 point3Expected = { 1.0f, 1.0f };
+		Vec2 point4Expected = { 0.0f, 1.0f };
 
 		Assert::AreEqual(point1Expected, result.point1, L"Wring value.", LINE_INFO());
 		Assert::AreEqual(point2Expected, result.point2, L"Wring value.", LINE_INFO());

@@ -11,7 +11,7 @@ namespace NAMESPACE_PHYSICS
 		if (node->isLeaf())
 			result = node;
 
-		//Vec3<T> a = node->leftNode()->value.center();
+		//Vec3 a = node->leftNode()->value.center();
 	}
 
 	void BoundingVolumeHierarchy::insert(const BoundingVolume& boundingVolume)

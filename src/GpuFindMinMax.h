@@ -3,6 +3,7 @@
 #ifndef GPU_FIND_MIN_MAX_HEADER
 #define GPU_FIND_MIN_MAX_HEADER
 
+#include "SpectrumPhysics.h"
 #include "GpuDevice.h"
 #include "GpuIndexes.h"
 #include "GpuCommand.h"

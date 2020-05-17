@@ -6,7 +6,6 @@
 #include <cmath>
 #include <iostream>
 #include <sstream>
-#include <stdarg.h>
 #include <limits.h>
 
 #ifndef NAMESPACE_PHYSICS
@@ -17,25 +16,18 @@ using namespace NAMESPACE_FOUNDATION;
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
+	enum CollisionStatus { OUTSIDE, INLINE, INSIDE };
+
 	class Vec2;
-	template <typename T>
 	class Vec3;
-	template <typename T>
 	class Vec4;
 
-	template <typename T>
 	class Vec2List;
-	template <typename T>
 	class Vec3List;
 
-	template <typename T>
 	class Mat;
-	template <typename T>
 	class Mat2;
-	template <typename T>
 	class Mat3;
-	template <typename T>
 	class Mat4;
 
 	class Quat;
@@ -49,13 +41,10 @@ namespace NAMESPACE_PHYSICS
 	template <typename T>
 	class BinaryTreeNode;
 
-	template <typename T>
 	class Line2D;
 	class Line3D;
 	class Plane3D;
-	template <typename T>
 	class Triangle2D;
-	template <typename T>
 	class Circle2D;
 
 	class AABB;
@@ -63,11 +52,8 @@ namespace NAMESPACE_PHYSICS
 	class Sphere;
 	class DOP18;
 
-	template <typename T>
 	class Rectangle2D;
 }
-
-#include "CollisionStatus.h"
 
 #include "Vec2.h"
 #include "Vec3.h"
@@ -82,10 +68,5 @@ namespace NAMESPACE_PHYSICS
 #include "Mat4.h"
 
 #include "Quat.h"
-
-#include "Line2D.h"
-#include "Circle2D.h"
-
-#include "Rectangle2D.h"
 
 #endif // SPECTRUM_PHYSICS_HEADER

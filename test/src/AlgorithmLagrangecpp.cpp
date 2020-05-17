@@ -23,8 +23,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmLagrange_polynomialApproximation_Test1)
 	{
-		AlgorithmLagrange<float> algorithm;
-		Vec2<float> points[2] = { Vec2<float>(2.0, 4.0f) , Vec2<float>(5.0f, 1.0f) };
+		AlgorithmLagrange algorithm;
+		Vec2 points[2] = { Vec2(2.0, 4.0f) , Vec2(5.0f, 1.0f) };
 
 		float result = algorithm.polynomialApproximation(points, 2, 3.0f);
 
@@ -33,10 +33,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmLagrange_polynomialApproximation_Test2)
 	{
-		AlgorithmLagrange<float> algorithm;
-		Vec2<float> points[3] = { Vec2<float>(2.0, funcLagrange(2.0f)), 
-									Vec2<float>(2.75, funcLagrange(2.75f)), 
-									Vec2<float>(4.0, funcLagrange(4.0f))
+		AlgorithmLagrange algorithm;
+		Vec2 points[3] = { Vec2(2.0, funcLagrange(2.0f)), 
+									Vec2(2.75, funcLagrange(2.75f)), 
+									Vec2(4.0, funcLagrange(4.0f))
 								};
 
 		float result = algorithm.polynomialApproximation(points, 3, 3.0f);

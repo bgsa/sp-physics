@@ -1,5 +1,5 @@
-#ifndef PARTICLE_SYSTEM
-#define PARTICLE_SYSTEM
+#ifndef PARTICLE_SYSTEM_HEADER
+#define PARTICLE_SYSTEM_HEADER
 
 #include "SpectrumPhysics.h"
 #include "Particle.h"
@@ -11,20 +11,20 @@ namespace NAMESPACE_PHYSICS
 	class ParticleSystem
 	{
 	private:
-		std::vector<Vec3f> constantForces;
+		std::vector<Vec3> constantForces;
 
 	public:
 		Particle* particles;
 		size_t particlesCount;
-		Mat3f orientation;
-		Vec3f angularVelocity;
+		Mat3 orientation;
+		Vec3 angularVelocity;
 
 		API_INTERFACE ParticleSystem(size_t particlesCount);
 		API_INTERFACE ParticleSystem(Particle* particles, size_t particlesCount);
 
-		API_INTERFACE void addForce(const Vec3f& force);
+		API_INTERFACE void addForce(const Vec3& force);
 
-		API_INTERFACE size_t addConstantForce(const Vec3f& constantForce);
+		API_INTERFACE size_t addConstantForce(const Vec3& constantForce);
 
 		API_INTERFACE void update(long long elapsedTime);
 	};

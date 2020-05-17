@@ -1,5 +1,5 @@
-#ifndef PARTICLE
-#define PARTICLE
+#ifndef PARTICLE_HEADER
+#define PARTICLE_HEADER
 
 #include "SpectrumPhysics.h"
 
@@ -10,12 +10,12 @@ namespace NAMESPACE_PHYSICS
 	{
 	public:
 
-		Vec3f position;
-		Vec3f previousPosition;
-		Vec3f velocity;
-		Vec3f previousVelocity;
-		Vec3f acceleration;
-		Vec3f force;
+		Vec3 position;
+		Vec3 previousPosition;
+		Vec3 velocity;
+		Vec3 previousVelocity;
+		Vec3 acceleration;
+		Vec3 force;
 
 		/// <summary>
 		/// The inverse mass of the particle. Ex.: Mass=8.0, so IM=1/8.0f
@@ -40,13 +40,13 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Create a particle with optional arguments
 		/// </summary>
-		API_INTERFACE Particle(const Vec3f& position = Vec3f(0.0f), const Vec3f& velocity = Vec3f(0.0f), const float inverseMass = 0.8f, const float velocityDamping = 1.0f, const float coeficientOfRestitution = 0.9f);
+		API_INTERFACE Particle(const Vec3& position = Vec3(0.0f), const Vec3& velocity = Vec3(0.0f), const float inverseMass = 0.8f, const float velocityDamping = 1.0f, const float coeficientOfRestitution = 0.9f);
 
 		/// <summary>
 		/// Add a force/impulse to a particle
 		/// Constant force are not covered in this force. Use ConstantForce on ParticleSystem
 		/// </summary>
-		API_INTERFACE void addForce(const Vec3f& force);
+		API_INTERFACE void addForce(const Vec3& force);
 
 		/// <summary>
 		/// Update the status of particle (integration method)
@@ -56,12 +56,12 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Define the direction (normalized) where the particle is going to
 		/// </summary>
-		API_INTERFACE Vec3f direction();
+		API_INTERFACE Vec3 direction();
 
 		/// <summary>
 		/// Relative/differential velocity
 		/// </summary>
-		API_INTERFACE Vec3f relativeVelocity(const Particle& particle);
+		API_INTERFACE Vec3 relativeVelocity(const Particle& particle);
 
 		/// <summary>
 		/// Closing/approximation velocity
@@ -71,4 +71,4 @@ namespace NAMESPACE_PHYSICS
 
 }
 
-#endif // ! PARTICLE
+#endif // PARTICLE_HEADER

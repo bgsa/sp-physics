@@ -2,7 +2,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	Sphere WelzlSphere(Vec3f* points, int numPts, Vec3f suportPoints[], sp_int suportPointsCount)
+	Sphere WelzlSphere(Vec3* points, int numPts, Vec3 suportPoints[], sp_int suportPointsCount)
 	{
 		// if no input points, the recursion has bottomed out. Now compute an 
 		// exact sphere based on points in set of support (zero through four points) 
@@ -43,50 +43,50 @@ namespace NAMESPACE_PHYSICS
 
 	Sphere::Sphere()
 	{
-		this->center = Vec3f(0.0f);
+		this->center = Vec3(0.0f);
 		this->ray = 1.0f;
 	}
 
-	Sphere::Sphere(const Vec3f &center, sp_float ray)
+	Sphere::Sphere(const Vec3 &center, sp_float ray)
 	{
 		this->center = center;
 		this->ray = ray;
 	}
 
-	Sphere::Sphere(const Vec3f &point1)
+	Sphere::Sphere(const Vec3 &point1)
 	{
 		this->center = point1;
 		this->ray = 1.0f;
 	}
 
-	Sphere::Sphere(const Vec3f &point1, const Vec3f &point2)
+	Sphere::Sphere(const Vec3 &point1, const Vec3 &point2)
 	{
 		Line3D line = Line3D(point1, point2);
 		this->center = line.centerOfSegment();
 		this->ray = line.lengthOfSegment() / 2.0f;
 	}
 
-	Sphere::Sphere(const Vec3f &point1, const Vec3f &point2, const Vec3f &point3)
+	Sphere::Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3)
 	{
-		Vec3f ac = point3 - point1;
-		Vec3f ab = point2 - point1;
-		Vec3f abXac = ab.cross(ac);
+		Vec3 ac = point3 - point1;
+		Vec3 ab = point2 - point1;
+		Vec3 abXac = ab.cross(ac);
 
 		// this is the vector from a TO the circumsphere center
-		Vec3f toCircumsphereCenter = (abXac.cross(ab) * ac.squaredLength() + ac.cross(abXac) * ab.squaredLength()) / (2.0f*abXac.squaredLength());
+		Vec3 toCircumsphereCenter = (abXac.cross(ab) * ac.squaredLength() + ac.cross(abXac) * ab.squaredLength()) / (2.0f*abXac.squaredLength());
 		
 		// The 3 space coords of the circumsphere center then:
 		this->center = point1 + toCircumsphereCenter; // now this is the actual 3space location
 		this->ray = toCircumsphereCenter.length();
 	}
 
-	Sphere::Sphere(const Vec3f &point1, const Vec3f &point2, const Vec3f &point3, const Vec3f &point4)
+	Sphere::Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3, const Vec3 &point4)
 	{
-		Mat4f m = Mat4f(
-			Vec4f(point1, 1.0f),
-			Vec4f(point2, 1.0f),
-			Vec4f(point3, 1.0f),
-			Vec4f(point4, 1.0f)
+		Mat4 m = Mat4(
+			Vec4(point1, 1.0f),
+			Vec4(point2, 1.0f),
+			Vec4(point3, 1.0f),
+			Vec4(point4, 1.0f)
 			);
 
 		sp_float invertedDeterminant = 1.0f / m.determinant();
@@ -96,38 +96,38 @@ namespace NAMESPACE_PHYSICS
 		sp_float t3 = -(point3.dot(point3));
 		sp_float t4 = -(point4.dot(point4));
 
-		m = Mat4f(
-			Vec4f(t1, point1[1], point1[2], 1.0f),
-			Vec4f(t2, point2[1], point2[2], 1.0f),
-			Vec4f(t3, point3[1], point3[2], 1.0f),
-			Vec4f(t4, point4[1], point4[2], 1.0f)
+		m = Mat4(
+			Vec4(t1, point1[1], point1[2], 1.0f),
+			Vec4(t2, point2[1], point2[2], 1.0f),
+			Vec4(t3, point3[1], point3[2], 1.0f),
+			Vec4(t4, point4[1], point4[2], 1.0f)
 			);
 		sp_float a = m.determinant() * invertedDeterminant;
 		sp_float x = a * -0.5f;
 
-		m = Mat4f(
-			Vec4f(point1[0], t1, point1[2], 1.0f),
-			Vec4f(point2[0], t2, point2[2], 1.0f),
-			Vec4f(point3[0], t3, point3[2], 1.0f),
-			Vec4f(point4[0], t4, point4[2], 1.0f)
+		m = Mat4(
+			Vec4(point1[0], t1, point1[2], 1.0f),
+			Vec4(point2[0], t2, point2[2], 1.0f),
+			Vec4(point3[0], t3, point3[2], 1.0f),
+			Vec4(point4[0], t4, point4[2], 1.0f)
 			);
 		sp_float b = m.determinant() * invertedDeterminant;
 		sp_float y = b * -0.5f;
 
-		m = Mat4f(
-			Vec4f(point1[0], point1[1], t1, 1.0f),
-			Vec4f(point2[0], point2[1], t2, 1.0f),
-			Vec4f(point3[0], point3[1], t3, 1.0f),
-			Vec4f(point4[0], point4[1], t4, 1.0f)
+		m = Mat4(
+			Vec4(point1[0], point1[1], t1, 1.0f),
+			Vec4(point2[0], point2[1], t2, 1.0f),
+			Vec4(point3[0], point3[1], t3, 1.0f),
+			Vec4(point4[0], point4[1], t4, 1.0f)
 			);
 		sp_float c = m.determinant() * invertedDeterminant;
 		sp_float z = c * -0.5f;
 
-		m = Mat4f(
-			Vec4f(point1[0], point1[1], point1[2], t1),
-			Vec4f(point2[0], point2[1], point2[2], t2),
-			Vec4f(point3[0], point3[1], point3[2], t3),
-			Vec4f(point4[0], point4[1], point4[2], t4)
+		m = Mat4(
+			Vec4(point1[0], point1[1], point1[2], t1),
+			Vec4(point2[0], point2[1], point2[2], t2),
+			Vec4(point3[0], point3[1], point3[2], t3),
+			Vec4(point4[0], point4[1], point4[2], t4)
 			);
 		sp_float d = m.determinant() * invertedDeterminant;
 
@@ -135,7 +135,19 @@ namespace NAMESPACE_PHYSICS
 		ray = std::sqrt(a * a + b * b + c * c - 4 * d) / 2.0f;
 	}
 
-	CollisionStatus Sphere::collisionStatus(const Vec3f &point)  const
+	void Sphere::translate(const Vec3& translation)
+	{
+		center += translation;
+	}
+
+	void Sphere::scale(const Vec3& factor)
+	{
+		ray *= factor.x;
+	}
+
+	void Sphere::rotate(const Vec3& rotation) { }
+
+	CollisionStatus Sphere::collisionStatus(const Vec3 &point)  const
 	{
 		sp_float distanceToPoint = center.distance(point);
 		
@@ -150,7 +162,7 @@ namespace NAMESPACE_PHYSICS
 
 	CollisionStatus Sphere::collisionStatus(const Sphere& sphere)  const
 	{
-		Vec3f rayToSphere = center - sphere.center; 
+		Vec3 rayToSphere = center - sphere.center; 
 		sp_float squaredDistance = rayToSphere.dot(rayToSphere);
 
 		// Spheres intersect if squared distance is less than squared sum of radius 
@@ -209,9 +221,9 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	Sphere Sphere::buildFrom(const Vec3List<float>& pointList)
+	Sphere Sphere::buildFrom(const Vec3List& pointList)
 	{
-		Vec3f* suportPoints = ALLOC_ARRAY(Vec3f, pointList.count);
+		Vec3* suportPoints = ALLOC_ARRAY(Vec3, pointList.count);
 
 		Sphere result = WelzlSphere(pointList.points, pointList.count, suportPoints, 0);
 
@@ -223,7 +235,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Sphere result;
 
-		Vec3f d = sphere.center - center;
+		Vec3 d = sphere.center - center;
 		sp_float squaredDistance = d.dot(d);  	// Compute the squared distance between the sphere centers 
 
 		if (std::pow(double(sphere.ray - ray), 2) >= squaredDistance)

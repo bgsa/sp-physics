@@ -1,6 +1,7 @@
-#ifndef BOUNDING_VOLUME_HEADER
-#define BOUNDING_VOLUME_HEADER
+#ifndef BOUNDING_VOLUME_HIERARCHY_HEADER
+#define BOUNDING_VOLUME_HIERARCHY_HEADER
 
+#include "SpectrumPhysics.h"
 #include "BoundingVolume.h"
 #include "BinaryTree.h"
 
@@ -21,4 +22,4 @@ namespace NAMESPACE_PHYSICS
 
 }
 
-#endif // BOUNDING_VOLUME_HEADER
+#endif // BOUNDING_VOLUME_HIERARCHY_HEADER

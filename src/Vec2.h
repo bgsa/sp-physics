@@ -7,77 +7,76 @@ namespace NAMESPACE_PHYSICS
 {
 #define VEC2_SIZE 2
 
-	template <typename T>
 	class Vec2
 	{		
 	public:
-		T x, y;
+		sp_float x, y;
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		API_INTERFACE Vec2(const T value = T(0));
+		API_INTERFACE Vec2(const sp_float value = ZERO_FLOAT);
 
 		/// <summary>
 		/// Constructor with parameters
 		/// </summary>
-		API_INTERFACE Vec2(const T x, const T y);
+		API_INTERFACE Vec2(const sp_float x, const sp_float y);
 		
 		/// <summary>
 		/// Get the component values in the vector
 		/// </summary>
-		API_INTERFACE T* getValues();
+		API_INTERFACE sp_float* getValues();
 
 		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
-		API_INTERFACE T maximum() const;
+		API_INTERFACE sp_float maximum() const;
 
 		/// <summary>
 		/// Scale the current matrix
 		/// </summary>
-		API_INTERFACE T minimum() const;
+		API_INTERFACE sp_float minimum() const;
 
 		/// <summary>
 		/// Get the length / norma from the vector -> ||v||
 		/// </summary>
-		API_INTERFACE T length() const;
+		API_INTERFACE sp_float length() const;
 
 		/// <summary>
 		/// Get the squared of the vector. It means the Vector Pow2 -> x^2 + y^2
 		/// </summary>
-		API_INTERFACE T squared() const;
+		API_INTERFACE sp_float squared() const;
 
 		/// <summary>
 		/// Add a vector from current vector
 		/// </summary>
-		API_INTERFACE void add(const Vec2<T>& vector);
+		API_INTERFACE void add(const Vec2& vector);
 
 		/// <summary>
 		/// Subtract a vector from current vector
 		/// </summary>
-		API_INTERFACE void subtract(const Vec2<T>& vector);
+		API_INTERFACE void subtract(const Vec2& vector);
 
 		/// <summary>
 		/// Scale the vector from a scalar => v * scalar
 		/// </summary>
-		API_INTERFACE void scale(T scale);
+		API_INTERFACE void scale(sp_float scale);
 
 		/// <summary>
 		/// Dot Product / Scalar Product between two vectors
 		/// return u dot v
 		/// <summary>
-		API_INTERFACE T dot(const Vec2<T>& vector) const;
+		API_INTERFACE sp_float dot(const Vec2& vector) const;
 
 		/// <summary>
 		/// Get the angle in radians between two vectors: A . B
 		/// <summary>
-		API_INTERFACE T angle(const Vec2<T>& vectorB) const;
+		API_INTERFACE sp_float angle(const Vec2& vectorB) const;
 		
 		/// <summary>
 		/// Get a normalized vector
 		/// <summary>
-		API_INTERFACE Vec2<T> normalize() const;
+		API_INTERFACE Vec2 normalize() const;
 
 		/// <summary>
 		/// Normalize the current vector - change to unit vector
@@ -87,33 +86,33 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Calculate the distance (Euclidean) from this vector to another one
 		/// <summary>
-		API_INTERFACE T distance(const Vec2<T>& vector) const;
+		API_INTERFACE sp_float distance(const Vec2& vector) const;
 		
 		/// <summary>
 		/// Get the fractionals values from the vector (component-wise)
 		/// <summary>
-		API_INTERFACE Vec2<T> fractional() const;
+		API_INTERFACE Vec2 fractional() const;
 
 		/// <summary>
 		/// Find a orthogonal projection between two vectors
 		/// Return Two vectors
 		/// <summary>
-		API_INTERFACE Vec2<T>* orthogonalProjection(const Vec2<T>& vector) const;
+		API_INTERFACE Vec2* orthogonalProjection(const Vec2& vector) const;
 
 		/// <summary>
 		/// Clone the vector to a new instance
 		/// <summary>
-		API_INTERFACE Vec2<T> clone() const;
+		API_INTERFACE Vec2 clone() const;
 
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// <summary>
-		API_INTERFACE Vec2<T> operator*(const T value) const;
+		API_INTERFACE Vec2 operator*(const sp_float value) const;
 
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// </summary>
-		API_INTERFACE friend Vec2<T> operator*(const T value, const Vec2<T>& vector)
+		API_INTERFACE friend Vec2 operator*(const sp_float value, const Vec2& vector)
 		{
 			return vector * value;
 		}
@@ -121,86 +120,86 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Multiply the vector to a scalar
 		/// </summary>
-		API_INTERFACE Vec2<T> operator/(const T value) const;
+		API_INTERFACE Vec2 operator/(const sp_float value) const;
 
 		/// <summary>
 		/// Sum this vector to another one
 		/// <summary>
-		API_INTERFACE Vec2<T> operator+(const Vec2<T>& vector) const;
+		API_INTERFACE Vec2 operator+(const Vec2& vector) const;
 
 		/// <summary>
 		/// Sum a scalar to this vector
 		/// <summary>
-		API_INTERFACE Vec2<T> operator+(const T value) const;
+		API_INTERFACE Vec2 operator+(const sp_float value) const;
 
 		/// <summary>
 		/// Subtract this vector to another one
 		/// <summary>
-		API_INTERFACE Vec2<T> operator-(const Vec2<T>& vector) const;
+		API_INTERFACE Vec2 operator-(const Vec2& vector) const;
 
 		/// <summary>
 		/// Subtract a scalar from this vector
 		/// <summary>
-		API_INTERFACE Vec2<T> operator-(const T value) const;
+		API_INTERFACE Vec2 operator-(const sp_float value) const;
 
 		/// <summary>
 		/// Get negative vector
 		/// </summary>
-		API_INTERFACE Vec2<T> operator-() const;
+		API_INTERFACE Vec2 operator-() const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// <summary>
-		API_INTERFACE bool operator==(const Vec2<T>& vector) const;
+		API_INTERFACE sp_bool operator==(const Vec2& vector) const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// <summary>
-		API_INTERFACE bool operator==(const T value) const;
+		API_INTERFACE sp_bool operator==(const sp_float value) const;
 
 		/// <summary>
 		/// Compare this vector to another one. Compare each component.
 		/// <summary>
-		API_INTERFACE bool operator!=(const Vec2<T>& vector) const;
+		API_INTERFACE sp_bool operator!=(const Vec2& vector) const;
 
 		/// <summary>
 		/// Compare this vector to scalar (for each component)
 		/// </summary>
-		API_INTERFACE bool operator!=(const T value) const;
+		API_INTERFACE sp_bool operator!=(const sp_float value) const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T& operator[](const sp_int index);
+		API_INTERFACE sp_float& operator[](const sp_int index);
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T operator[](const sp_int index) const;
+		API_INTERFACE sp_float operator[](const sp_int index) const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T& operator[](const sp_uint index);
+		API_INTERFACE sp_float& operator[](const sp_uint index);
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T operator[](const sp_uint index) const;
+		API_INTERFACE sp_float operator[](const sp_uint index) const;
 
 #ifdef ENV_64BTIS
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T& operator[](const sp_size index);
+		API_INTERFACE sp_float& operator[](const sp_size index);
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T operator[](const sp_size index) const;
+		API_INTERFACE sp_float operator[](const sp_size index) const;
 #endif
 
 		/// <summary>
 		/// Auto convertion to void *
 		/// </summary>
-		API_INTERFACE operator T*() const;
+		API_INTERFACE operator sp_float*() const;
 
 		/// <summary>
 		/// Serialize current object
@@ -212,15 +211,6 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE std::istream& deserialize(std::istream& inputStream);
 	};
-
-
-	typedef Vec2<sp_int> Vec2i;
-	typedef Vec2<sp_uint> Vec2ui;
-	typedef Vec2<sp_float> Vec2f;
-	typedef Vec2<sp_double> Vec2d;
-#ifdef ENV_64BTIS
-	typedef Vec2<sp_size> Vec2sz;
-#endif
 
 }
 

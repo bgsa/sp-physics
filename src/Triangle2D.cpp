@@ -2,75 +2,68 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template<typename T>
-	Triangle2D<T>::Triangle2D() { };
 
-	template<typename T>
-	Triangle2D<T>::Triangle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3)
+	Triangle2D::Triangle2D() { };
+
+	Triangle2D::Triangle2D(const Vec2& point1, const Vec2& point2, const Vec2& point3)
 	{
 		this->point1 = point1;
 		this->point2 = point2;
 		this->point3 = point3;
 	}
 
-	template<typename T>
-	Triangle2D<T>::Triangle2D(T* point1, T* point2, T* point3)
+	Triangle2D::Triangle2D(sp_float* point1, sp_float* point2, sp_float* point3)
 	{
-		this->point1 = Vec2<T>(point1[0], point1[1]);
-		this->point2 = Vec2<T>(point2[0], point2[1]);
-		this->point3 = Vec2<T>(point3[0], point3[1]);
+		this->point1 = Vec2(point1[0], point1[1]);
+		this->point2 = Vec2(point2[0], point2[1]);
+		this->point3 = Vec2(point3[0], point3[1]);
 	}
 
-	template<typename T>
-	T Triangle2D<T>::area() const
+	sp_float Triangle2D::area() const
 	{
-		double numerator = abs(point1.x * point2.y + point2.x * point3.y + point3.x * point1.y - point1.y * point2.x - point2.y * point3.x - point3.y * point1.x);
-		T area = T(numerator / 2);
+		sp_float numerator = std::fabsf(point1.x * point2.y + point2.x * point3.y + point3.x * point1.y - point1.y * point2.x - point2.y * point3.x - point3.y * point1.x);
+		sp_float area = numerator / 2.0f;
 
 		return area;
 	}
 
-	template<typename T>
-	T Triangle2D<T>::perimeter() const
+	sp_float Triangle2D::perimeter() const
 	{
-		double term1 = sqrt((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
-		double term2 = sqrt((point2.x - point3.x) * (point2.x - point3.x) + (point2.y - point3.y) * (point2.y - point3.y));
-		double term3 = sqrt((point3.x - point1.x) * (point3.x - point1.x) + (point3.y - point1.y) * (point3.y - point1.y));
+		sp_float term1 = std::sqrtf((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
+		sp_float term2 = std::sqrtf((point2.x - point3.x) * (point2.x - point3.x) + (point2.y - point3.y) * (point2.y - point3.y));
+		sp_float term3 = std::sqrtf((point3.x - point1.x) * (point3.x - point1.x) + (point3.y - point1.y) * (point3.y - point1.y));
 
-		T perimeter = T(term1) + T(term2) + T(term3);
+		sp_float perimeter = term1 + term2 + term3;
 
 		return perimeter;
 	}
 
-	template<typename T>
-	T Triangle2D<T>::height() const
+	sp_float Triangle2D::height() const
 	{
-		T lengthVec2 = point2.distance(point3);
+		sp_float lengthVec2 = point2.distance(point3);
 
-		T angle = point1.angle(point2);
+		sp_float angle = point1.angle(point2);
 
-		T heigh = T(lengthVec2 * sin(angle));
+		sp_float heigh = lengthVec2 * std::sinf(angle);
 
 		return heigh;
 	}
 
-	template<typename T>
-	Line2D<T>* Triangle2D<T>::getLines() const
+	Line2D* Triangle2D::getLines() const
 	{
-		Line2D<T>* lines = ALLOC_ARRAY(Line2D<T>, 3);
-		lines[0] = Line2D<T>(point1, point2);
-		lines[1] = Line2D<T>(point2, point3);
-		lines[2] = Line2D<T>(point3, point1);
+		Line2D* lines = ALLOC_ARRAY(Line2D, 3);
+		lines[0] = Line2D(point1, point2);
+		lines[1] = Line2D(point2, point3);
+		lines[2] = Line2D(point3, point1);
 
 		return lines;
 	}
 
-	template<typename T>
-	CollisionStatus Triangle2D<T>::getCollisionStatus(const Vec2<T>& point) const
+	CollisionStatus Triangle2D::getCollisionStatus(const Vec2& point) const
 	{
-		Line2D<T> line1 = Line2D<T>(point1, point2);
-		Line2D<T> line2 = Line2D<T>(point2, point3);
-		Line2D<T> line3 = Line2D<T>(point3, point1);
+		Line2D line1(point1, point2);
+		Line2D line2(point2, point3);
+		Line2D line3(point3, point1);
 
 		Orientation orientation = line1.getOrientation(point);
 
@@ -99,14 +92,13 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INSIDE;
 	}
 
-	template<typename T>
-	bool Triangle2D<T>::hasIntersection(const Line2D<T>& line) const
+	sp_bool Triangle2D::hasIntersection(const Line2D& line) const
 	{
-		Line2D<T> line1 = Line2D<T>(point1, point2);
-		Line2D<T> line2 = Line2D<T>(point2, point3);
-		Line2D<T> line3 = Line2D<T>(point3, point1);
+		Line2D line1(point1, point2);
+		Line2D line2(point2, point3);
+		Line2D line3(point3, point1);
 
-		Vec2<T>* point = line1.findIntersection(line);
+		Vec2* point = line1.findIntersection(line);
 
 		if (point != nullptr)
 			return true;
@@ -124,14 +116,13 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	template<typename T>
-	bool Triangle2D<T>::hasIntersection(const Circle2D<T>& circle) const
+	sp_bool Triangle2D::hasIntersection(const Circle2D& circle) const
 	{
-		Line2D<T>* linesOfTriangle = getLines();
+		Line2D* linesOfTriangle = getLines();
 
-		for (size_t i = 0; i < 3; i++)
+		for (sp_uint i = 0; i < 3; i++)
 		{
-			Line2D<T> line = linesOfTriangle[i];
+			Line2D line = linesOfTriangle[i];
 
 			CollisionStatus status = line.hasIntersections(circle);
 
@@ -146,7 +137,4 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	template class Triangle2D<int>;
-	template class Triangle2D<float>;
-	template class Triangle2D<double>;
 }

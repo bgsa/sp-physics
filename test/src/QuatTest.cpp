@@ -70,7 +70,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Quat_ConstructorWithVector_Test)
 	{
-		Vec3f vector(1.0f, 2.0f, 3.0f);
+		Vec3 vector(1.0f, 2.0f, 3.0f);
 		Quat result(vector);
 		sp_float expected[QUAT_LENGTH] = { 0.0f, 1.0f, 2.0f, 3.0f };
 		
@@ -266,10 +266,10 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Quat_toVec3_Test)
 	{
 		Quat quat(2.0f, 5.0f, 1.0f, 6.0f);
-		Vec3f result1 = quat.toVec3();
-		Vec3f result2 = quat;
+		Vec3 result1 = quat.toVec3();
+		Vec3 result2 = quat;
 
-		Vec3f expected(5.0f, 1.0f, 6.0f);
+		Vec3 expected(5.0f, 1.0f, 6.0f);
 
 		for (sp_int i = 0; i < VEC3_SIZE; i++) {
 			Assert::AreEqual(expected[i], result1[i], L"Wrong value", LINE_INFO());
@@ -279,7 +279,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Quat_createRotate_Test)
 	{
-		Vec3f axis(2.0, 5.0f, 3.0f);
+		Vec3 axis(2.0, 5.0f, 3.0f);
 		sp_float angle = degreesToRadians(60.0f);
 
 		Quat result = Quat::createRotate(angle, axis);
@@ -291,11 +291,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, rotate)
 	{
-		Vec3f point(0.7f, 0.5f, 0.0f);
+		Vec3 point(0.7f, 0.5f, 0.0f);
 		Quat axis = Quat::createRotationAxisZ(degreesToRadians(30.0f));
 		
-		Vec3f result = axis.rotate(point);
-		Vec3f expected(0.3562f, 0.7830f, 0.0f);
+		Vec3 result = axis.rotate(point);
+		Vec3 expected(0.3562f, 0.7830f, 0.0f);
 
 		for (sp_int i = 0; i < VEC3_SIZE; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
@@ -305,8 +305,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Quat quat = Quat(1.0f, 3.0f, 6.0f, 2.0f);
 
-		Mat3f result = quat.toMat3();
-		Mat3f expected = {
+		Mat3 result = quat.toMat3();
+		Mat3 expected = {
 			 -0.6f, 0.64f, 0.48f,
 			 0.8f, 0.48f, 0.36f,
 			 0.0f, 0.6f, -0.8f
@@ -333,8 +333,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
 		Quat quat2 = quat.normalize();
 
-		Vec3f result = quat2.toEulerAngles();
-		Vec3f expected = Vec3f(2.677945f, 0.4755543f, -1.1071487f);
+		Vec3 result = quat2.toEulerAngles();
+		Vec3 expected = Vec3(2.677945f, 0.4755543f, -1.1071487f);
 
 		for (sp_int i = 0; i < VEC3_SIZE; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
@@ -353,8 +353,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f).normalize();
 
-		Vec3f result = quat.axis();
-		Vec3f expected = Vec3f(0.816496611f, 0.571547627f, 0.0816496611f);
+		Vec3 result = quat.axis();
+		Vec3 expected = Vec3(0.816496611f, 0.571547627f, 0.0816496611f);
 
 		for (sp_int i = 0; i < VEC3_SIZE; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
@@ -362,7 +362,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, fromEulerAngles)
 	{
-		Vec3f angles = Vec3f(0.4f, 1.7f, 3.0f);
+		Vec3 angles = Vec3(0.4f, 1.7f, 3.0f);
 
 		Quat result = Quat::fromEulerAngles(angles.x, angles.y, angles.z);
 		Quat expected = Quat(-0.1031277f, 0.7437353f, -0.0787058f, 0.6557651f);

@@ -6,7 +6,7 @@ namespace NAMESPACE_PHYSICS
 	{
 	}
 
-	Triangle3D::Triangle3D(const Vec3f& point1, const Vec3f& point2, const Vec3f& point3)
+	Triangle3D::Triangle3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 	{
 		this->point1 = point1;
 		this->point2 = point2;
@@ -15,9 +15,9 @@ namespace NAMESPACE_PHYSICS
 
 	Triangle3D::Triangle3D(float* point1, float* point2, float* point3)
 	{
-		this->point1 = Vec3f(point1[0], point1[1]);
-		this->point2 = Vec3f(point2[0], point2[1]);
-		this->point3 = Vec3f(point3[0], point3[1]);
+		this->point1 = Vec3(point1[0], point1[1]);
+		this->point2 = Vec3(point2[0], point2[1]);
+		this->point3 = Vec3(point3[0], point3[1]);
 	}
 
 	Line3D* Triangle3D::getLines() const
@@ -31,12 +31,12 @@ namespace NAMESPACE_PHYSICS
 		return lines;
 	}
 
-	Vec3f Triangle3D::barycentric(const Vec3f& point) const
+	Vec3 Triangle3D::barycentric(const Vec3& point) const
 	{
-		Vec3f result;
-		Vec3f v0 = point2 - point1;
-		Vec3f v1 = point3 - point1;
-		Vec3f v2 = point - point1;
+		Vec3 result;
+		Vec3 v0 = point2 - point1;
+		Vec3 v1 = point3 - point1;
+		Vec3 v2 = point - point1;
 		
 		float d00 = v0.dot(v0); 
 		float d01 = v0.dot(v1);

@@ -11233,37 +11233,37 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, HashGrid_findCell_Test)
 	{
 		HashGrid grid(10);
-		Vec3f point = {0.0f, 0.0f, 0.0f};
-		Vec3f expected = Vec3f(0.0f);
-		Vec3f result;
+		Vec3 point = {0.0f, 0.0f, 0.0f};
+		Vec3 expected = Vec3(0.0f);
+		Vec3 result;
 
 		for (float x = 0; x < 10; x++)
 			for (float y = 0; y < 10; y++)
 				for (float z = 0; z < 10; z++) 
 				{
-					point = Vec3f(x, y, z);
+					point = Vec3(x, y, z);
 
-					Vec3f result = grid.findCell(point);
+					Vec3 result = grid.findCell(point);
 
 					for (int i = 0; i < 3; i++)
 						Assert::AreEqual(result[i], expected[i], L"Wrong value.", LINE_INFO());
 				}
 
-		point = Vec3f(12.0f, 1.0f, 34.0f);
+		point = Vec3(12.0f, 1.0f, 34.0f);
 		result = grid.findCell(point);
-		expected = Vec3f(1.0f, 0.0f, 3.0f);
+		expected = Vec3(1.0f, 0.0f, 3.0f);
 		for (int i = 0; i < 3; i++)
 			Assert::AreEqual(result[i], expected[i], L"Wrong value.", LINE_INFO());
 
-		point = Vec3f(-2.0f, -2.0f, -2.0f);
+		point = Vec3(-2.0f, -2.0f, -2.0f);
 		result = grid.findCell(point);
-		expected = Vec3f(-1.0f, -1.0f, -1.0f);
+		expected = Vec3(-1.0f, -1.0f, -1.0f);
 		for (int i = 0; i < 3; i++)
 			Assert::AreEqual(result[i], expected[i], L"Wrong value.", LINE_INFO());
 
-		point = Vec3f(-11.0f, -11.0f, -11.0f);
+		point = Vec3(-11.0f, -11.0f, -11.0f);
 		result = grid.findCell(point);
-		expected = Vec3f(-2.0f, -2.0f, -2.0f);
+		expected = Vec3(-2.0f, -2.0f, -2.0f);
 		for (int i = 0; i < 3; i++)
 			Assert::AreEqual(result[i], expected[i], L"Wrong value.", LINE_INFO());
 	}
@@ -11271,7 +11271,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, HashGrid_findCellIndex_Test)
 	{
 		HashGrid grid(10);
-		Vec3f point = { 12.0f, 1.0f, 34.0f };
+		Vec3 point = { 12.0f, 1.0f, 34.0f };
 		int expected = -285815648;			
 		int result = grid.findCellIndex(point);
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
@@ -11298,17 +11298,17 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		AABB aabb = AABB({ 3.0f, 3.0f, 3.0f }, { 35.0f, 35.0f, 35.0f });
 
-		Vec3f expectedCells[64];
+		Vec3 expectedCells[64];
 		size_t index = 0;
 
 		for (float x = 0; x < 4; x++)
 			for (float y = 0; y < 4; y++)
 				for (float z = 0; z < 4; z++) {
-					expectedCells[index] = Vec3f(x, y, z);
+					expectedCells[index] = Vec3(x, y, z);
 					index++;
 				}
 
-		Vec3List<float>* result = grid.findRangeCell(aabb);
+		Vec3List* result = grid.findRangeCell(aabb);
 
 		for (size_t index = 0; index < 64; index++) 
 		{
@@ -11326,17 +11326,17 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		AABB aabb = AABB({ -13.0f, -13.0f, -13.0f }, { 4.0f, 4.0f, 4.0f });
 
-		Vec3f expectedCells[27];
+		Vec3 expectedCells[27];
 		size_t index = 0;
 
 		for (float x = -2; x < 1; x++)
 			for (float y = -2; y < 1; y++)
 				for (float z = -2; z < 1; z++) {
-					expectedCells[index] = Vec3f(x, y, z);
+					expectedCells[index] = Vec3(x, y, z);
 					index++;
 				}
 
-		Vec3List<float>* result = grid.findRangeCell(aabb);
+		Vec3List* result = grid.findRangeCell(aabb);
 
 		for (size_t index = 0; index < 27; index++)
 		{

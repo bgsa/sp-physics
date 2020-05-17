@@ -27,7 +27,7 @@ namespace NAMESPACE_PHYSICS
 		this->z = z;
 	}
 
-	Quat::Quat(const Vec3f& vector)
+	Quat::Quat(const Vec3& vector)
 	{
 		w = ZERO_FLOAT;
 		x = vector.x;
@@ -118,17 +118,17 @@ namespace NAMESPACE_PHYSICS
 		return acos(w) * TWO_FLOAT;
 	}
 
-	Vec3<sp_float> Quat::axis() const
+	Vec3 Quat::axis() const
 	{
 		// TODO: TESTS !!!!
 		const sp_float tmp1 = ONE_FLOAT - w * w;
 
 		if (tmp1 <= ZERO_FLOAT)
-			return Vec3f(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
+			return Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
 
 		const sp_float tmp2 = ONE_FLOAT / std::sqrtf(tmp1);
 
-		return Vec3f(x * tmp2, y * tmp2, z * tmp2);
+		return Vec3(x * tmp2, y * tmp2, z * tmp2);
 	}
 
 	sp_float Quat::dot(const Quat& quatB) const
@@ -150,13 +150,13 @@ namespace NAMESPACE_PHYSICS
 		return conjugate().scale(ONE_FLOAT / magnitude);
 	}
 
-	Quat Quat::createRotate(sp_float angle, const Vec3f& axis)
+	Quat Quat::createRotate(sp_float angle, const Vec3& axis)
 	{
 		sp_float halfAngle = (angle / TWO_FLOAT);
 		sp_float sinHalfAngle = sinf(halfAngle);
 		sp_float cosineHalfAngle = cosf(halfAngle);
 
-		Vec3f positionNomralized = axis.normalize();
+		Vec3 positionNomralized = axis.normalize();
 
 		return Quat(
 			cosineHalfAngle,
@@ -166,7 +166,7 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	Vec3f Quat::rotate(const Vec3<sp_float>& point) const
+	Vec3 Quat::rotate(const Vec3& point) const
 	{
 		return (conjugate() * (Quat(point) * (*this))).toVec3();
 	}
@@ -271,14 +271,14 @@ namespace NAMESPACE_PHYSICS
 		return Quat(w*temp, x  * temp, y*temp, z*temp);
 	}
 
-	Vec3<sp_float> Quat::toVec3() const
+	Vec3 Quat::toVec3() const
 	{
-		return Vec3<sp_float>(x, y, z);
+		return Vec3(x, y, z);
 	}
 
-	Mat3<sp_float> Quat::toMat3() const
+	Mat3 Quat::toMat3() const
 	{
-		Mat3f matrix;
+		Mat3 matrix;
 
 		sp_float sqw = w * w;
 		sp_float sqx = x * x;
@@ -310,7 +310,7 @@ namespace NAMESPACE_PHYSICS
 		return matrix;
 	}
 
-	Mat4<sp_float> Quat::toMat4(const Vec3<sp_float>& position) const
+	Mat4 Quat::toMat4(const Vec3& position) const
 	{
 		sp_float sqw = w*w;
 		sp_float sqx = x*x;
@@ -340,7 +340,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float m13 = position.y - position.x * m10 - position.y * m11 - position.z * m12;
 		sp_float m23 = position.z - position.x * m20 - position.y * m21 - position.z * m22;
 
-		return Mat4f(
+		return Mat4(
 			m00, m10, m20, ZERO_FLOAT,
 			m01, m11, m21, ZERO_FLOAT,
 			m02, m12, m22, ZERO_FLOAT,
@@ -348,7 +348,7 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	Mat4<sp_float> Quat::toMat4() const
+	Mat4 Quat::toMat4() const
 	{
 		sp_float sqw = w * w;
 		sp_float sqx = x * x;
@@ -374,7 +374,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float m12 = TWO_FLOAT * (tmp1 + tmp2);
 		sp_float m21 = TWO_FLOAT * (tmp1 - tmp2);
 
-		return Mat4f(
+		return Mat4(
 			m00, m10, m20, ZERO_FLOAT,
 			m01, m11, m21, ZERO_FLOAT,
 			m02, m12, m22, ZERO_FLOAT,
@@ -399,7 +399,7 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	Vec3<sp_float> Quat::toEulerAngles() const
+	Vec3 Quat::toEulerAngles() const
 	{
 		sp_float sqw = w*w;
 		sp_float sqx = x*x;
@@ -410,7 +410,7 @@ namespace NAMESPACE_PHYSICS
 
 		if (test > 0.499f * unit) 
 		{ // singularity at north pole
-			return Vec3f(
+			return Vec3(
 				TWO_FLOAT * std::atan2(x, w),
 				HALF_PI,
 				ZERO_FLOAT
@@ -419,14 +419,14 @@ namespace NAMESPACE_PHYSICS
 
 		if (test < -0.499f * unit) 
 		{ // singularity at south pole
-			return Vec3f(
+			return Vec3(
 				-TWO_FLOAT * std::atan2(x, w),
 				-HALF_PI,
 				ZERO_FLOAT
 			);
 		}
 
-		Vec3<sp_float> angles;
+		Vec3 angles;
 		angles.x = std::atan2f(TWO_FLOAT * (x*w - y*z), sqw - sqx - sqy + sqz);
 		angles.y = std::asinf(TWO_FLOAT * (x*z + w * y));
 		angles.z = std::atan2f(-TWO_FLOAT * (x * y - w * z), sqw + sqx - sqy - sqz);
@@ -502,9 +502,9 @@ namespace NAMESPACE_PHYSICS
 	}
 #endif
 
-	Quat::operator Vec3<sp_float>() const
+	Quat::operator Vec3() const
 	{
-		return Vec3<sp_float>(x, y, z);
+		return Vec3(x, y, z);
 	}
 
 	Quat::operator void*() const

@@ -3,12 +3,11 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template<typename T>
-	Rectangle2D<T>::Rectangle2D() {
+
+	Rectangle2D::Rectangle2D() {
 	};
 
-	template<typename T>
-	Rectangle2D<T>::Rectangle2D(Vec2<T>* points)
+	Rectangle2D::Rectangle2D(Vec2* points)
 	{
 		this->point1 = points[0];
 		this->point2 = points[1];
@@ -16,8 +15,7 @@ namespace NAMESPACE_PHYSICS
 		this->point4 = points[3];
 	}
 
-	template<typename T>
-	Rectangle2D<T>::Rectangle2D(const Vec2<T>& point1, const Vec2<T>& point2, const Vec2<T>& point3, const Vec2<T>& point4)
+	Rectangle2D::Rectangle2D(const Vec2& point1, const Vec2& point2, const Vec2& point3, const Vec2& point4)
 	{
 		this->point1 = point1;
 		this->point2 = point2;
@@ -25,102 +23,87 @@ namespace NAMESPACE_PHYSICS
 		this->point4 = point4;
 	}
 
-	template<typename T>
-	Rectangle2D<T>::Rectangle2D(T* point1, T* point2, T* point3, T* point4)
+	Rectangle2D::Rectangle2D(sp_float* point1, sp_float* point2, sp_float* point3, sp_float* point4)
 	{
-		this->point1 = Vec2<T>(point1[0], point1[1]);
-		this->point2 = Vec2<T>(point2[0], point2[1]);
-		this->point3 = Vec2<T>(point3[0], point3[1]);
-		this->point4 = Vec2<T>(point4[0], point4[1]);
+		this->point1 = Vec2(point1[0], point1[1]);
+		this->point2 = Vec2(point2[0], point2[1]);
+		this->point3 = Vec2(point3[0], point3[1]);
+		this->point4 = Vec2(point4[0], point4[1]);
 	}
 
-	template<typename T>
-	T Rectangle2D<T>::width() const
+	sp_float Rectangle2D::width() const
 	{
-		T width = point1.x - point2.x;
+		sp_float width = point1.x - point2.x;
 
-		if (width == 0)
+		if (width == 0.0f)
 			width = point1.x - point3.x;
 
-		return abs(width);
+		return std::fabsf(width);
 	}
 
-	template<typename T>
-	T Rectangle2D<T>::height() const
+	sp_float Rectangle2D::height() const
 	{
-		T height = point1.y - point2.y;
+		sp_float height = point1.y - point2.y;
 
-		if (height == 0)
+		if (height == 0.0f)
 			height = point1.y - point3.y;
 
-		return abs(height);
+		return std::fabsf(height);
 	}
 
-	template<typename T>
-	T Rectangle2D<T>::area() const
+	sp_float Rectangle2D::area() const
 	{
-		T area = width() * height();
-
-		return area;
+		return width() * height();
 	}
 
-	template<typename T>
-	T Rectangle2D<T>::perimeter() const
+	sp_float Rectangle2D::perimeter() const
 	{
-		T perimeter = 2 * width() + 2 * height();
-
-		return perimeter;
+		return 2.0f * width() + 2.0f * height();
 	}
 
-	template<typename T>
-	T Rectangle2D<T>::diagonalLength() const
+	sp_float Rectangle2D::diagonalLength() const
 	{
-		T w = width();
-		T h = height();
+		sp_float w = width();
+		sp_float h = height();
 
-		T diagonal = T(sqrt(w * w + h * h));
-
-		return diagonal;
+		return std::sqrtf(w * w + h * h);
 	}
 
-	template<typename T>
-	Line2D<T>* Rectangle2D<T>::getLines() const
+	Line2D* Rectangle2D::getLines() const
 	{
-		Line2D<T>* lines = ALLOC_ARRAY(Line2D<T>, 4);
-		lines[0] = Line2D<T>(point1, point2);
-		lines[1] = Line2D<T>(point2, point3);
-		lines[2] = Line2D<T>(point3, point4);
-		lines[3] = Line2D<T>(point4, point1);
+		Line2D* lines = ALLOC_ARRAY(Line2D, 4);
+		lines[0] = Line2D(point1, point2);
+		lines[1] = Line2D(point2, point3);
+		lines[2] = Line2D(point3, point4);
+		lines[3] = Line2D(point4, point1);
 
 		return lines;
 	}
 
-	template<typename T>
-	CollisionStatus Rectangle2D<T>::getSatusCollision(const Vec2<T>& point) const
+	CollisionStatus Rectangle2D::getSatusCollision(const Vec2& point) const
 	{
-		T area1 = Triangle2D<T>(point1, point2, point).area();
-		T area2 = Triangle2D<T>(point2, point3, point).area();
-		T area3 = Triangle2D<T>(point3, point4, point).area();
-		T area4 = Triangle2D<T>(point4, point1, point).area();
-		T areaTotal = area1 + area2 + area3 + area4;
+		sp_float area1 = Triangle2D(point1, point2, point).area();
+		sp_float area2 = Triangle2D(point2, point3, point).area();
+		sp_float area3 = Triangle2D(point3, point4, point).area();
+		sp_float area4 = Triangle2D(point4, point1, point).area();
+		sp_float areaTotal = area1 + area2 + area3 + area4;
 
-		T rectArea = area();
+		sp_float rectArea = area();
 
-		if (int(areaTotal) > int(rectArea))
+		if (areaTotal > rectArea)
 			return CollisionStatus::OUTSIDE;
 
 		return CollisionStatus::INSIDE;
 	}
 
-	template<typename T>
-	bool Rectangle2D<T>::hasIntersection(const Line2D<T>& line) const
+	sp_bool Rectangle2D::hasIntersection(const Line2D& line) const
 	{
-		Line2D<T> line1 = Line2D<T>(point1, point2);
-		Line2D<T> line2 = Line2D<T>(point2, point3);
-		Line2D<T> line3 = Line2D<T>(point3, point4);
-		Line2D<T> line4 = Line2D<T>(point4, point1);
+		Line2D line1(point1, point2);
+		Line2D line2(point2, point3);
+		Line2D line3(point3, point4);
+		Line2D line4(point4, point1);
 
-		Vec2<T>* point = line1.findIntersection(line);
+		Vec2* point = line1.findIntersection(line);
 		if (point != NULL) {
 			ALLOC_RELEASE(point);
 			return true;
@@ -147,19 +130,18 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	template<typename T>
-	bool Rectangle2D<T>::hasIntersection(const Triangle2D<T>& triangle) const
+	sp_bool Rectangle2D::hasIntersection(const Triangle2D& triangle) const
 	{
-		Line2D<T>* linesOfRectangle = getLines();
-		Line2D<T>* linesOfTriangle = triangle.getLines();
+		Line2D* linesOfRectangle = getLines();
+		Line2D* linesOfTriangle = triangle.getLines();
 
-		for (size_t i = 0; i < 4; i++)
-			for (size_t j = 0; j < 3; j++)
+		for (sp_uint i = 0; i < 4; i++)
+			for (sp_uint j = 0; j < 3; j++)
 			{
-				Line2D<T> line1 = linesOfRectangle[i];
-				Line2D<T> line2 = linesOfTriangle[j];
+				Line2D line1 = linesOfRectangle[i];
+				Line2D line2 = linesOfTriangle[j];
 
-				Vec2<T>* point = line1.findIntersection(line2);
+				Vec2* point = line1.findIntersection(line2);
 
 				if (point != nullptr) 
 				{
@@ -172,14 +154,13 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	template<typename T>
-	bool Rectangle2D<T>::hasIntersection(const Circle2D<T>& circle) const
+	sp_bool Rectangle2D::hasIntersection(const Circle2D& circle) const
 	{
-		Line2D<T>* linesOfRectangle = getLines();
+		Line2D* linesOfRectangle = getLines();
 
-		for (size_t i = 0; i < 4; i++)
+		for (sp_uint i = 0; i < 4; i++)
 		{
-			Line2D<T> line = linesOfRectangle[i];
+			Line2D line = linesOfRectangle[i];
 
 			CollisionStatus status = line.hasIntersections(circle);
 
@@ -194,23 +175,19 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	template<typename T>
-	Rectangle2D<T> Rectangle2D<T>::getBoundingBox(Vec2List<T> &points)
+	Rectangle2D Rectangle2D::getBoundingBox(Vec2List &points)
 	{
-		Vec2<T>* minX = points.findMinX();
-		Vec2<T>* minY = points.findMinY();
-		Vec2<T>* maxX = points.findMaxX();
-		Vec2<T>* maxY = points.findMaxY();
+		Vec2* minX = points.findMinX();
+		Vec2* minY = points.findMinY();
+		Vec2* maxX = points.findMaxX();
+		Vec2* maxY = points.findMaxY();
 		
-		return Rectangle2D<T>(
-			Vec2<T>(minX->x, minY->y),
-			Vec2<T>(maxX->x, minY->y),
-			Vec2<T>(maxX->x, maxY->y),
-			Vec2<T>(minX->x, maxY->y)
+		return Rectangle2D(
+			Vec2(minX->x, minY->y),
+			Vec2(maxX->x, minY->y),
+			Vec2(maxX->x, maxY->y),
+			Vec2(minX->x, maxY->y)
 		);
 	}
 
-	template class Rectangle2D<int>;
-	template class Rectangle2D<float>;
-	template class Rectangle2D<double>;
 }

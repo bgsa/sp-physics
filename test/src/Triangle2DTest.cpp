@@ -33,7 +33,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Triangle2D_area_Test)
 	{
-		Triangle2Df triangle = Triangle2Df(
+		Triangle2D triangle(
 			{ 2.0f, 5.0f }, 
 			{ 10.0f, 10.0f },
 			{ 3.0f, 6.0f }
@@ -46,7 +46,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Triangle2D_perimeter_Test)
 	{
-		Triangle2Df triangle = Triangle2Df(
+		Triangle2D triangle(
 			{ 2.0f, 5.0f },
 			{ 10.0f, 10.0f },
 			{ 3.0f, 6.0f }
@@ -59,21 +59,21 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Triangle2D_height_Test)
 	{
-		Triangle2Df triangle = Triangle2Df(
+		Triangle2D triangle(
 			{ 2.0f, 5.0f },
 			{ 10.0f, 10.0f },
 			{ 3.0f, 6.0f }
 		);
 
-		float result = triangle.height();
+		sp_float result = triangle.height();
 
 		Assert::AreEqual(6.41016722f, result, L"Wrong value.", LINE_INFO());
 	}
 	
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_getCollisionStatus_Point_Inline_Test)
 	{
-		Vec2f point = Vec2f(10.0f, 10.0f);
-		Triangle2Df triangle = Triangle2Df(
+		Vec2 point = Vec2(10.0f, 10.0f);
+		Triangle2D triangle(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }
@@ -87,8 +87,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_getCollisionStatus_Point_Inside_Test)
 	{
-		Vec2f point = Vec2f(10.0f, 20.0f);
-		Triangle2Df triangle = Triangle2Df(
+		Vec2 point = Vec2(10.0f, 20.0f);
+		Triangle2D triangle(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }
@@ -102,8 +102,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_getCollisionStatus_Point_Outside_Test)
 	{
-		Vec2f point = Vec2f(10.0f, 5.0f);
-		Triangle2Df triangle = Triangle2Df(
+		Vec2 point = Vec2(10.0f, 5.0f);
+		Triangle2D triangle(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }
@@ -117,8 +117,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Line_True_Test)
 	{
-		Line2Df line = Line2Df(Vec2f(10.0f, 0.0f), Vec2f(10.0f, 200.0f));
-		Triangle2Df triangle = Triangle2Df(
+		Line2D line = Line2D(Vec2(10.0f, 0.0f), Vec2(10.0f, 200.0f));
+		Triangle2D triangle(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }
@@ -131,8 +131,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Line_False_Test)
 	{
-		Line2Df line = Line2Df(Vec2f(110.0f, 0.0f), Vec2f(110.0f, 200.0f));
-		Triangle2Df triangle = Triangle2Df(
+		Line2D line = Line2D(Vec2(110.0f, 0.0f), Vec2(110.0f, 200.0f));
+		Triangle2D triangle(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }
@@ -145,8 +145,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Circle_True_Test)
 	{
-		Circle2Df circle = Circle2Df(Vec2f(50.0f, 105.0f), 10.0f);
-		Triangle2Df triangle = Triangle2Df(
+		Circle2D circle(Vec2(50.0f, 105.0f), 10.0f);
+		Triangle2D triangle(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }
@@ -159,8 +159,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Rectangle2D_hasIntersection_Circle_False_Test)
 	{
-		Circle2Df circle = Circle2Df(Vec2f(50.0f, 111.0f), 10.0f);
-		Triangle2Df triangle = Triangle2Df(
+		Circle2D circle(Vec2(50.0f, 111.0f), 10.0f);
+		Triangle2D triangle(
 			{ 0.0f, 0.0f },
 			{ 100.0f, 100.0f },
 			{ 0.0f, 100.0f }

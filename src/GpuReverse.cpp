@@ -16,6 +16,8 @@ namespace NAMESPACE_PHYSICS
 		file.open("Reverse.cl", std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
 
 		sp_uint programIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
 
@@ -91,6 +93,7 @@ namespace NAMESPACE_PHYSICS
 	cl_mem GpuReverse::execute()
 	{
 		commandReverse->execute(ONE_UINT, globalWorkSize, localWorkSize);
+		lastEvent = commandReverse->lastEvent;
 
 		if (indexesSwapped)
 			return inputGpu;

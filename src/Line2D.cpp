@@ -2,12 +2,11 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Line2D<T>::Line2D() {
+
+	Line2D::Line2D() {
 	};
 
-	template <typename T>
-	Line2D<T>::Line2D(const Vec2<T>& point1, const Vec2<T>& point2)
+	Line2D::Line2D(const Vec2& point1, const Vec2& point2)
 	{
 		sp_assert(point1 != point2);
 
@@ -15,66 +14,59 @@ namespace NAMESPACE_PHYSICS
 		this->point2 = point2;
 	}
 
-	template <typename T>
-	Line2D<T>::Line2D(T* point1, T* point2)
+	Line2D::Line2D(sp_float* point1, sp_float* point2)
 	{
 		sp_assert(point1 != point2);
 
-		this->point1 = Vec2<T>(point1[0], point1[1]);
-		this->point2 = Vec2<T>(point2[0], point2[1]);
+		this->point1 = Vec2(point1[0], point1[1]);
+		this->point2 = Vec2(point2[0], point2[1]);
 	}
 
-	template <typename T>
-	T Line2D<T>::angle() const
+	sp_float Line2D::angle() const
 	{
-		T deltaY = point2.y - point1.y;
-		T deltaX = point2.x - point1.x;
+		sp_float deltaY = point2.y - point1.y;
+		sp_float deltaX = point2.x - point1.x;
 
-		T angle = T(atan(deltaY / deltaX));
+		sp_float angle = atanf(deltaY / deltaX);
 
 		return angle;
 	}
 
-	template <typename T>
-	T Line2D<T>::slope() const
+	sp_float Line2D::slope() const
 	{
-		T deltaY = point2.y - point1.y;
-		T deltaX = point2.x - point1.x;
+		sp_float deltaY = point2.y - point1.y;
+		sp_float deltaX = point2.x - point1.x;
 
-		T slope = T(deltaY / deltaX);
+		sp_float slope = (sp_float)(deltaY / deltaX);
 
 		return slope;
 	}
 
-	template <typename T>
-	Vec2<T> Line2D<T>::getParametricEquation() const
+	Vec2 Line2D::getParametricEquation() const
 	{
-		T m = slope();
-		T b = -(m * point1.x) + point1.y;
+		sp_float m = slope();
+		sp_float b = -(m * point1.x) + point1.y;
 
-		return Vec2<T>(m, b);
+		return Vec2(m, b);
 	}
 
-	template <typename T>
-	Vec3<T> Line2D<T>::getEquation() const
+	Vec3 Line2D::getEquation() const
 	{
-		Vec3<T> values = SystemOfLinearEquations<T>::getLineEquation(point1, point2);
+		Vec3 values = SystemOfLinearEquations::getLineEquation(point1, point2);
 
 		return values;
 	}
 
-	template <typename T>
-	Vec2<T> Line2D<T>::toRay()
+	Vec2 Line2D::toRay()
 	{
-		Vec2<T> result = (point2 - point1);
+		Vec2 result = (point2 - point1);
 
 		result = result.normalize();
 
 		return result;
 	}
 
-	template <typename T>
-	bool Line2D<T>::isOnTheLine(const Vec2<T>& point) const
+	sp_bool Line2D::isOnTheLine(const Vec2& point) const
 	{
 		Orientation orientation = getOrientation(point);
 
@@ -82,11 +74,11 @@ namespace NAMESPACE_PHYSICS
 			return false;
 
 		// check the range of the line x point
-		T point1PosX = point1.x > point2.x ? point2.x : point1.x;
-		T point2PosX = point1PosX + deltaX();
+		sp_float point1PosX = point1.x > point2.x ? point2.x : point1.x;
+		sp_float point2PosX = point1PosX + deltaX();
 
-		T point1PosY = point1.y > point2.y ? point2.y : point1.y;
-		T point2PosY = point1PosY + deltaY();
+		sp_float point1PosY = point1.y > point2.y ? point2.y : point1.y;
+		sp_float point2PosY = point1PosY + deltaY();
 
 		if (point.x < point1PosX || point.x > point2PosX
 			|| point.y < point1PosY || point.y > point2PosY)
@@ -95,23 +87,20 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	template <typename T>
-	bool Line2D<T>::isOnTheLeft(const Vec2<T>& point) const {
+	sp_bool Line2D::isOnTheLeft(const Vec2& point) const {
 		Orientation orientation = getOrientation(point);
 		return orientation == Orientation::LEFT;
 	}
 
-	template <typename T>
-	bool Line2D<T>::isOnTheRight(const Vec2<T>& point) const {
+	sp_bool Line2D::isOnTheRight(const Vec2& point) const {
 		Orientation orientation = getOrientation(point);
 		return orientation == Orientation::RIGHT;
 	}
 
-	template <typename T>
-	Orientation Line2D<T>::getOrientation(const Vec2<T>& point) const
+	Orientation Line2D::getOrientation(const Vec2& point) const
 	{
-		Mat3<T> lineMatrix = {
-			T(1), T(1), T(1),
+		Mat3 lineMatrix = {
+			ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
 			point1.x, point2.x, point.x,
 			point1.y, point2.y, point.y
 		};
@@ -126,36 +115,32 @@ namespace NAMESPACE_PHYSICS
 			return Orientation::RIGHT;
 	}
 
-	template <typename T>
-	T Line2D<T>::getDistance(Vec2<T> point) const
+	sp_float Line2D::getDistance(Vec2 point) const
 	{
-		Vec3<T> values = getEquation();
+		Vec3 values = getEquation();
 
-		double numerador = fabs(values.x * point.x + values.y * point.y + values.z);
-		double denominador = sqrt(values.x * values.x + values.y * values.y);
+		sp_double numerador = std::fabs(values.x * point.x + values.y * point.y + values.z);
+		sp_double denominador = std::sqrt(values.x * values.x + values.y * values.y);
 
-		double distanceFromPointToLine = numerador / denominador;
-
-		return T(distanceFromPointToLine);
+		return (sp_float)(numerador / denominador);
 	}
 
-	template <typename T>
-	Vec2<T>* Line2D<T>::findIntersection(const Line2D<T>& otherLine) const
+	Vec2* Line2D::findIntersection(const Line2D& otherLine) const
 	{
-		Vec2<T> line2Point1 = otherLine.point1;
-		Vec2<T> line2Point2 = otherLine.point2;
+		Vec2 line2Point1 = otherLine.point1;
+		Vec2 line2Point2 = otherLine.point2;
 
-		T determinant = (line2Point2.x - line2Point1.x) * (point2.y - point1.y) - (line2Point2.y - line2Point1.y) * (point2.x - point1.x);
+		sp_float determinant = (line2Point2.x - line2Point1.x) * (point2.y - point1.y) - (line2Point2.y - line2Point1.y) * (point2.x - point1.x);
 
 		if (determinant == 0.0)
 			return nullptr; // intersection not found
 
-		double s = ((line2Point2.x - line2Point1.x) * (line2Point1.y - point1.y) - (line2Point2.y - line2Point1.y) * (line2Point1.x - point1.x)) / determinant;
+		sp_float s = ((line2Point2.x - line2Point1.x) * (line2Point1.y - point1.y) - (line2Point2.y - line2Point1.y) * (line2Point1.x - point1.x)) / determinant;
 		//double t = ((point2.x - point1.x) * (line2Point1.y - point1.y) - (point2.y - point1.y) * (line2Point1.x - point1.x)) / determinant;
 
-		Vec2<T>* intersection = ALLOC_NEW(Vec2<T>)(
-			point1.x + (point2.x - point1.x)* T(s),
-			point1.y + (point2.y - point1.y)* T(s)
+		Vec2* intersection = ALLOC_NEW(Vec2)(
+			point1.x + (point2.x - point1.x)* s,
+			point1.y + (point2.y - point1.y)* s
 			);
 
 		if (!isOnTheLine(*intersection))
@@ -173,11 +158,10 @@ namespace NAMESPACE_PHYSICS
 		return intersection;
 	}
 
-	template <typename T>
-	CollisionStatus Line2D<T>::hasIntersections(const Circle2D<T>& circle) const
+	CollisionStatus Line2D::hasIntersections(const Circle2D& circle) const
 	{
-		double distanceCenterToLine = ceil(getDistance(circle.center));
-		double ray = ceil(circle.ray);
+		sp_float distanceCenterToLine = std::ceilf(getDistance(circle.center));
+		sp_float ray = std::ceilf(circle.ray);
 
 		if (distanceCenterToLine > ray)
 			return CollisionStatus::OUTSIDE;
@@ -188,19 +172,14 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INLINE;
 	}
 
-	template <typename T>
-	T Line2D<T>::deltaX() const
+	sp_float Line2D::deltaX() const
 	{
-		return abs(point1.x - point2.x);
+		return std::fabsf(point1.x - point2.x);
 	}
 
-	template <typename T>
-	T Line2D<T>::deltaY() const
+	sp_float Line2D::deltaY() const
 	{
-		return abs(point1.y - point2.y);
+		return std::fabsf(point1.y - point2.y);
 	}
 
-	template class Line2D<int>;
-	template class Line2D<float>;
-	template class Line2D<double>;
 }

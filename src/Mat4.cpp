@@ -2,15 +2,15 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	Mat4<T>::Mat4(const T defaultValue)
+	
+	Mat4::Mat4(const sp_float defaultValue)
 	{
 		for (sp_ushort i = 0; i < MAT4_LENGTH; i++)
 			values[i] = defaultValue;
 	}
 
-	template <typename T>
-	Mat4<T>::Mat4(const Vec4<T>& vector1, const Vec4<T>& vector2, const Vec4<T>& vector3, const Vec4<T>& vector4)
+	
+	Mat4::Mat4(const Vec4& vector1, const Vec4& vector2, const Vec4& vector3, const Vec4& vector4)
 	{
 	#if MAJOR_COLUMN_ORDER
 		values[0] = vector1[0];
@@ -55,18 +55,18 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Mat4<T>::Mat4(T* values)
+	
+	Mat4::Mat4(sp_float* values)
 	{
 		std::memcpy(&this->values, values, sizeof(this->values));
 	}
 
-	template <typename T>
-	Mat4<T>::Mat4(
-		const T value11, const T value21, const T value31, const T value41,
-		const T value12, const T value22, const T value32, const T value42,
-		const T value13, const T value23, const T value33, const T value43,
-		const T value14, const T value24, const T value34, const T value44)
+	
+	Mat4::Mat4(
+		const sp_float value11, const sp_float value21, const sp_float value31, const sp_float value41,
+		const sp_float value12, const sp_float value22, const sp_float value32, const sp_float value42,
+		const sp_float value13, const sp_float value23, const sp_float value33, const sp_float value43,
+		const sp_float value14, const sp_float value24, const sp_float value34, const sp_float value44)
 	{
 		values[0] = value11;
 		values[1] = value21;
@@ -89,30 +89,30 @@ namespace NAMESPACE_PHYSICS
 		values[15] = value44;
 	}
 
-	template <typename T>
-	T* Mat4<T>::getValues()
+	
+	sp_float* Mat4::getValues()
 	{
 		return values;
 	}
 
-	template <typename T>
-	T Mat4<T>::getValue(const sp_int x, const sp_int y) const
+	
+	sp_float Mat4::getValue(const sp_int x, const sp_int y) const
 	{
 		return values[(y-1) * MAT4_ROW_LENGTH + (x-1)];
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::xAxis() const
+	
+	Vec4 Mat4::xAxis() const
 	{
 	#if MAJOR_COLUMN_ORDER
-		return Vec4<T> {
+		return Vec4 {
 			values[0 * MAT4_ROW_LENGTH + 0],
 				values[1 * MAT4_ROW_LENGTH + 0],
 				values[2 * MAT4_ROW_LENGTH + 0],
 				values[3 * MAT4_ROW_LENGTH + 0]
 		};
 	#else
-		return Vec4<T> {
+		return Vec4 {
 			values[0 * MAT4_ROW_LENGTH + 0],
 				values[0 * MAT4_ROW_LENGTH + 1],
 				values[0 * MAT4_ROW_LENGTH + 2],
@@ -121,18 +121,18 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::yAxis() const
+	
+	Vec4 Mat4::yAxis() const
 	{
 	#if MAJOR_COLUMN_ORDER
-		return Vec4<T> {
+		return Vec4 {
 			values[0 * MAT4_ROW_LENGTH + 1],
 				values[1 * MAT4_ROW_LENGTH + 1],
 				values[2 * MAT4_ROW_LENGTH + 1],
 				values[3 * MAT4_ROW_LENGTH + 1]
 		};
 	#else
-		return Vec4<T> {
+		return Vec4 {
 			values[1 * MAT4_ROW_LENGTH + 0],
 				values[1 * MAT4_ROW_LENGTH + 1],
 				values[1 * MAT4_ROW_LENGTH + 2],
@@ -141,18 +141,18 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::zAxis() const
+	
+	Vec4 Mat4::zAxis() const
 	{
 	#if MAJOR_COLUMN_ORDER
-		return Vec4<T> {
+		return Vec4 {
 			values[0 * MAT4_ROW_LENGTH + 2],
 				values[1 * MAT4_ROW_LENGTH + 2],
 				values[2 * MAT4_ROW_LENGTH + 2],
 				values[3 * MAT4_ROW_LENGTH + 2]
 		};
 	#else
-		return Vec4<T> {
+		return Vec4 {
 			values[2 * MAT4_ROW_LENGTH + 0],
 				values[2 * MAT4_ROW_LENGTH + 1],
 				values[2 * MAT4_ROW_LENGTH + 2],
@@ -161,18 +161,18 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::wAxis() const
+	
+	Vec4 Mat4::wAxis() const
 	{
 	#if MAJOR_COLUMN_ORDER
-		return Vec4<T> {
+		return Vec4 {
 			values[0 * MAT4_ROW_LENGTH + 3],
 				values[1 * MAT4_ROW_LENGTH + 3],
 				values[2 * MAT4_ROW_LENGTH + 3],
 				values[3 * MAT4_ROW_LENGTH + 3]
 		};
 	#else
-		return Vec4<T> {
+		return Vec4 {
 			values[3 * MAT4_ROW_LENGTH + 0],
 				values[3 * MAT4_ROW_LENGTH + 1],
 				values[3 * MAT4_ROW_LENGTH + 2],
@@ -181,10 +181,10 @@ namespace NAMESPACE_PHYSICS
 	#endif
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::primaryDiagonal() const
+	
+	Vec4 Mat4::primaryDiagonal() const
 	{
-		return Vec4<T> {
+		return Vec4 {
 			values[0],
 				values[5],
 				values[10],
@@ -192,10 +192,10 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::secondaryDiagonal() const
+	
+	Vec4 Mat4::secondaryDiagonal() const
 	{
-		return Vec4<T> {
+		return Vec4 {
 			values[3],
 				values[6],
 				values[9],
@@ -203,26 +203,26 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::identity()
+	
+	Mat4 Mat4::identity()
 	{
-		static T identityMatrix[MAT4_LENGTH] = {
-			T(1), T(0), T(0), T(0),
-			T(0), T(1), T(0), T(0),
-			T(0), T(0), T(1), T(0),
-			T(0), T(0), T(0), T(1)
+		static sp_float identityMatrix[MAT4_LENGTH] = {
+			ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
+			ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
+			ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT,
+			ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
 		};
 
-		Mat4<T> result;
+		Mat4 result;
 		std::memcpy(&result, identityMatrix, sizeof(values));
 
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::transpose() const
+	
+	Mat4 Mat4::transpose() const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 		//copy principal diagonal
 		result[0] = values[0];
@@ -231,7 +231,7 @@ namespace NAMESPACE_PHYSICS
 		result[15] = values[15];
 
 		//swap others numbers
-		T temp = values[1];
+		sp_float temp = values[1];
 		result[1] = values[4];
 		result[4] = temp;
 
@@ -258,11 +258,11 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	T Mat4<T>::determinantIJ(int i, int j) const
+	
+	sp_float Mat4::determinantIJ(sp_int i, sp_int j) const
 	{
 		sp_int x, y, ii, jj;
-		T ret, mat[3][3];
+		sp_float ret, mat[3][3];
 
 		x = 0;
 		for (ii = 0; ii < 4; ii++)
@@ -291,10 +291,10 @@ namespace NAMESPACE_PHYSICS
 		return ret;
 	}
 
-	template <typename T>
-	T Mat4<T>::cofactorIJ(const sp_int i, const sp_int j) const
+	
+	sp_float Mat4::cofactorIJ(const sp_int i, const sp_int j) const
 	{
-		T determinantIJValue = determinantIJ(i, j);
+		sp_float determinantIJValue = determinantIJ(i, j);
 
 		if (isOdd(i + j))
 			determinantIJValue *= -1;
@@ -302,10 +302,10 @@ namespace NAMESPACE_PHYSICS
 		return determinantIJValue;
 	}
 
-	template <typename T>
-	T Mat4<T>::determinant() const
+	
+	sp_float Mat4::determinant() const
 	{
-		T det = T(0);
+		sp_float det = ZERO_FLOAT;
 
 		for (sp_int i = 0; i < MAT4_ROW_LENGTH; i++)
 		{
@@ -317,20 +317,20 @@ namespace NAMESPACE_PHYSICS
 		return det;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::multiply(const Mat4<T> &matrixB) const
+	
+	Mat4 Mat4::multiply(const Mat4 &matrixB) const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 	#if MAJOR_COLUMN_ORDER
 		for (int line = 0; line < MAT4_ROW_LENGTH; line++)
 		{
-			const T ai0 = values[(0 * MAT4_ROW_LENGTH) + line];
-			const T ai1 = values[(1 * MAT4_ROW_LENGTH) + line];
-			const T ai2 = values[(2 * MAT4_ROW_LENGTH) + line];
-			const T ai3 = values[(3 * MAT4_ROW_LENGTH) + line];
+			const sp_float ai0 = values[(0 * MAT4_ROW_LENGTH) + line];
+			const sp_float ai1 = values[(1 * MAT4_ROW_LENGTH) + line];
+			const sp_float ai2 = values[(2 * MAT4_ROW_LENGTH) + line];
+			const sp_float ai3 = values[(3 * MAT4_ROW_LENGTH) + line];
 
-			T a = matrixB[0];
+			sp_float a = matrixB[0];
 
 			result[(0 * MAT4_ROW_LENGTH) + line] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(0 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(0 * MAT4_ROW_LENGTH) + 2] + ai3 * matrixB[(0 * MAT4_ROW_LENGTH) + 3];
 			result[(1 * MAT4_ROW_LENGTH) + line] = ai0 * matrixB[(1 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(1 * MAT4_ROW_LENGTH) + 2] + ai3 * matrixB[(1 * MAT4_ROW_LENGTH) + 3];
@@ -340,10 +340,10 @@ namespace NAMESPACE_PHYSICS
 	#else 
 		for (int column = 0; column < MAT4_ROW_LENGTH; column++)
 		{
-			T ai0 = values[(column * MAT4_ROW_LENGTH) + 0];
-			T ai1 = values[(column * MAT4_ROW_LENGTH) + 1];
-			T ai2 = values[(column * MAT4_ROW_LENGTH) + 2];
-			T ai3 = values[(column * MAT4_ROW_LENGTH) + 3];
+			sp_float ai0 = values[(column * MAT4_ROW_LENGTH) + 0];
+			sp_float ai1 = values[(column * MAT4_ROW_LENGTH) + 1];
+			sp_float ai2 = values[(column * MAT4_ROW_LENGTH) + 2];
+			sp_float ai3 = values[(column * MAT4_ROW_LENGTH) + 3];
 
 			result[(column * MAT4_ROW_LENGTH) + 0] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 0] + ai2 * matrixB[(2 * MAT4_ROW_LENGTH) + 0] + ai3 * matrixB[(3 * MAT4_ROW_LENGTH) + 0];
 			result[(column * MAT4_ROW_LENGTH) + 1] = ai0 * matrixB[(0 * MAT4_ROW_LENGTH) + 1] + ai1 * matrixB[(1 * MAT4_ROW_LENGTH) + 1] + ai2 * matrixB[(2 * MAT4_ROW_LENGTH) + 1] + ai3 * matrixB[(3 * MAT4_ROW_LENGTH) + 1];
@@ -355,10 +355,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::multiply(const Vec4<T> &vector) const
+	
+	Vec4 Mat4::multiply(const Vec4 &vector) const
 	{
-		Vec4<T> result;
+		Vec4 result;
 
 	#if MAJOR_COLUMN_ORDER
 		result[0]
@@ -415,21 +415,21 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::invert() const
+	
+	Mat4 Mat4::invert() const
 	{
-		Mat4<T> mInverse;
+		Mat4 mInverse;
 
 		sp_int i, j;
-		T det = T(0);
-		T detij;
+		sp_float det = 0.0f;
+		sp_float detij;
 
 		// calculate 4x4 determinant
 		for (i = 0; i < 4; i++)
 		{
 			det += (i & 0x1) ? (-values[i] * determinantIJ(0, i)) : (values[i] * determinantIJ(0, i));
 		}
-		det = T(1) / det;
+		det = ONE_FLOAT / det;
 
 		// calculate inverse
 		for (i = 0; i < 4; i++)
@@ -444,10 +444,10 @@ namespace NAMESPACE_PHYSICS
 		return mInverse;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::createScale(const T xScale, const T yScale, const T zScale)
+	
+	Mat4 Mat4::createScale(const sp_float xScale, const sp_float yScale, const sp_float zScale)
 	{
-		return Mat4<T>(
+		return Mat4(
 			xScale, 0.0f, 0.0f, 0.0f,
 			0.0f, yScale, 0.0f, 0.0f,
 			0.0f, 0.0f, zScale, 0.0f,
@@ -455,10 +455,10 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::createScale(const Vec3<T>& scale)
+	
+	Mat4 Mat4::createScale(const Vec3& scale)
 	{
-		return Mat4<T>(
+		return Mat4(
 			ONE_FLOAT + scale.x, 0.0f, 0.0f, 0.0f,
 			0.0f, ONE_FLOAT + scale.y, 0.0f, 0.0f,
 			0.0f, 0.0f, ONE_FLOAT + scale.z, 0.0f,
@@ -466,72 +466,72 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	template <typename T>
-	void Mat4<T>::scale(const T xScale, const T yScale, const T zScale)
+	
+	void Mat4::scale(const sp_float xScale, const sp_float yScale, const sp_float zScale)
 	{
 		values[0] *= xScale;
 		values[5] *= yScale;
 		values[10] *= zScale;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::createRotate(const T angleRadians, const T x, const T y, const T z)
+	
+	Mat4 Mat4::createRotate(const sp_float angleRadians, const sp_float x, const sp_float y, const sp_float z)
 	{
-		const T sineAngle = T(sin(angleRadians));
-		const T cosineAngle = T(cos(angleRadians));
+		const sp_float sineAngle = sinf(angleRadians);
+		const sp_float cosineAngle = cosf(angleRadians);
 
-		const T mag = T(sqrt(x*x + y * y + z * z));
+		const sp_float mag = sqrtf(x*x + y * y + z * z);
 
 		if (mag == 0.0f)
 			return Mat4::identity();
 
 		// Rotation matrix is normalized
-		const T x1 = x / mag;
-		const T y1 = y / mag;
-		const T z1 = z / mag;
+		const sp_float x1 = x / mag;
+		const sp_float y1 = y / mag;
+		const sp_float z1 = z / mag;
 
-		const T xx = x * x;
-		const T yy = y * y;
-		const T zz = z * z;
-		const T xy = x * y;
-		const T yz = y * z;
-		const T zx = z * x;
-		const T xs = x * sineAngle;
-		const T ys = y * sineAngle;
-		const T zs = z * sineAngle;
-		const T one_c = T(1) - cosineAngle;
+		const sp_float xx = x * x;
+		const sp_float yy = y * y;
+		const sp_float zz = z * z;
+		const sp_float xy = x * y;
+		const sp_float yz = y * z;
+		const sp_float zx = z * x;
+		const sp_float xs = x * sineAngle;
+		const sp_float ys = y * sineAngle;
+		const sp_float zs = z * sineAngle;
+		const sp_float one_c = 1.0f - cosineAngle;
 
-		Mat4<T> result;
+		Mat4 result;
 
 	#define M(row,col)  result[col * MAT4_ROW_LENGTH + row]
 		M(0, 0) = (one_c * xx) + cosineAngle;
 		M(0, 1) = (one_c * xy) - zs;
 		M(0, 2) = (one_c * zx) + ys;
-		M(0, 3) = T(0);
+		M(0, 3) = ZERO_FLOAT;
 
 		M(1, 0) = (one_c * xy) + zs;
 		M(1, 1) = (one_c * yy) + cosineAngle;
 		M(1, 2) = (one_c * yz) - xs;
-		M(1, 3) = T(0);
+		M(1, 3) = ZERO_FLOAT;
 
 		M(2, 0) = (one_c * zx) - ys;
 		M(2, 1) = (one_c * yz) + xs;
 		M(2, 2) = (one_c * zz) + cosineAngle;
-		M(2, 3) = T(0);
+		M(2, 3) = ZERO_FLOAT;
 
-		M(3, 0) = T(0);
-		M(3, 1) = T(0);
-		M(3, 2) = T(0);
-		M(3, 3) = T(1);
+		M(3, 0) = ZERO_FLOAT;
+		M(3, 1) = ZERO_FLOAT;
+		M(3, 2) = ZERO_FLOAT;
+		M(3, 3) = ONE_FLOAT;
 	#undef M
 
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::createTranslate(const T x, const T y, const T z)
+	
+	Mat4 Mat4::createTranslate(const sp_float x, const sp_float y, const sp_float z)
 	{
-		Mat4<T> result = Mat4<T>::identity();
+		Mat4 result = Mat4::identity();
 
 	#if MAJOR_COLUMN_ORDER
 		result[12] = x;
@@ -546,10 +546,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::createTranslate(const Vec3<T>& position)
+	
+	Mat4 Mat4::createTranslate(const Vec3& position)
 	{
-		Mat4<T> result = Mat4<T>::identity();
+		Mat4 result = Mat4::identity();
 
 #if MAJOR_COLUMN_ORDER
 		result[12] = position.x;
@@ -564,42 +564,42 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::createOrthographicMatrix(const T xMin, const T xMax, const T yMin, const T yMax, const T zMin, const T zMax)
+	
+	Mat4 Mat4::createOrthographicMatrix(const sp_float xMin, const sp_float xMax, const sp_float yMin, const sp_float yMax, const sp_float zMin, const sp_float zMax)
 	{
-		Mat4<T> projectionMatrix = Mat4<T>::identity();
+		Mat4 projectionMatrix = Mat4::identity();
 
-		projectionMatrix[0] = T(2) / (xMax - xMin);
-		projectionMatrix[5] = T(2) / (yMax - yMin);
-		projectionMatrix[10] = T(-2) / (zMax - zMin);
+		projectionMatrix[0] = TWO_FLOAT / (xMax - xMin);
+		projectionMatrix[5] = TWO_FLOAT / (yMax - yMin);
+		projectionMatrix[10] = -TWO_FLOAT / (zMax - zMin);
 		projectionMatrix[12] = -((xMax + xMin) / (xMax - xMin));
 		projectionMatrix[13] = -((yMax + yMin) / (yMax - yMin));
 		projectionMatrix[14] = -((zMax + zMin) / (zMax - zMin));
-		projectionMatrix[15] = T(1);
+		projectionMatrix[15] = ONE_FLOAT;
 
 		return projectionMatrix;
 	}
 
-	template <typename T>
-	sp_size Mat4<T>::sizeInBytes() const
+	
+	sp_size Mat4::sizeInBytes() const
 	{
-		return MAT4_LENGTH * sizeof(T);
+		return MAT4_LENGTH * sizeof(sp_float);
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::clone() const
+	
+	Mat4 Mat4::clone() const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
-		std::memcpy(&result, this, sizeof(Mat4<T>));
+		std::memcpy(&result, this, sizeof(Mat4));
 
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator*(const T value)  const
+	
+	Mat4 Mat4::operator*(const sp_float value)  const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] * value;
@@ -607,28 +607,28 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	void Mat4<T>::operator*=(const Mat4<T> &matrix)
+	
+	void Mat4::operator*=(const Mat4 &matrix)
 	{
 		std::memcpy(&this->values, multiply(matrix).values, sizeof(this->values));
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator*(const Mat4<T> &matrix) const
+	
+	Mat4 Mat4::operator*(const Mat4 &matrix) const
 	{
 		return multiply(matrix);
 	}
 
-	template <typename T>
-	Vec4<T> Mat4<T>::operator*(const Vec4<T> &vector) const
+	
+	Vec4 Mat4::operator*(const Vec4 &vector) const
 	{
 		return multiply(vector);
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator/(const T value) const
+	
+	Mat4 Mat4::operator/(const sp_float value) const
 	{
-		return Mat4<T> {
+		return Mat4 {
 			values[0] / value, values[1] / value, values[2] / value, values[3] / value,
 			values[4] / value, values[5] / value, values[6] / value, values[7] / value,
 			values[8] / value, values[9] / value, values[10] / value, values[11] / value,
@@ -636,17 +636,17 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	template <typename T>
-	void Mat4<T>::operator/=(const T value)
+	
+	void Mat4::operator/=(const sp_float value)
 	{
 		for (size_t i = 0; i < MAT4_LENGTH; i++)
 			values[i] /= value;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator-() const
+	
+	Mat4 Mat4::operator-() const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = -values[i];
@@ -654,10 +654,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator+(const Mat4<T>& matrix) const
+	
+	Mat4 Mat4::operator+(const Mat4& matrix) const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] + matrix[i];
@@ -665,10 +665,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator+(const T value) const
+	
+	Mat4 Mat4::operator+(const sp_float value) const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] + value;
@@ -676,10 +676,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator-(const Mat4<T>& matrix) const
+	
+	Mat4 Mat4::operator-(const Mat4& matrix) const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] - matrix[i];
@@ -687,10 +687,10 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T> Mat4<T>::operator-(const T value) const
+	
+	Mat4 Mat4::operator-(const sp_float value) const
 	{
-		Mat4<T> result;
+		Mat4 result;
 
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			result[i] = values[i] - value;
@@ -698,8 +698,8 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	sp_bool Mat4<T>::operator==(const Mat4<T>& matrix) const
+	
+	sp_bool Mat4::operator==(const Mat4& matrix) const
 	{
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			if (values[i] != matrix[i])
@@ -708,8 +708,8 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	template <typename T>
-	sp_bool Mat4<T>::operator==(const T value) const
+	
+	sp_bool Mat4::operator==(const sp_float value) const
 	{
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			if (values[i] != value)
@@ -718,8 +718,8 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	template <typename T>
-	sp_bool Mat4<T>::operator!=(const Mat4<T>& matrix) const
+	
+	sp_bool Mat4::operator!=(const Mat4& matrix) const
 	{
 		for (sp_int i = 0; i < MAT4_LENGTH; i++)
 			if (values[i] != matrix[i])
@@ -728,81 +728,81 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	template <typename T>
-	T& Mat4<T>::operator[](const sp_int index)
+	
+	sp_float& Mat4::operator[](const sp_int index)
 	{
 		sp_assert(index >= 0 && index < MAT4_LENGTH);
 
 		return values[index];
 	}
 
-	template <typename T>
-	T Mat4<T>::operator[](const sp_int index) const
+	
+	sp_float Mat4::operator[](const sp_int index) const
 	{
 		sp_assert(index >= 0 && index < MAT4_LENGTH);
 
 		return values[index];
 	}
 
-	template <typename T>
-	Mat4<T>::operator void*() const
+	
+	Mat4::operator void*() const
 	{
 		return (void*) values;
 	}
 
-	template <typename T>
-	Mat4<T>::operator T*()
+	
+	Mat4::operator sp_float*()
 	{
 		return values;
 	}
 
-	template <typename T>
-	Mat4<T>::operator T*() const
+	
+	Mat4::operator sp_float*() const
 	{
-		return(T*)values;
+		return(sp_float*)values;
 	}
 
-	template <typename T>
-	Mat3<T> Mat4<T>::toMat3() const
+	
+	Mat3 Mat4::toMat3() const
 	{
-		return Mat3<T> {
+		return Mat3 {
 			values[0], values[1], values[2],
 				values[4], values[5], values[6],
 				values[8], values[9], values[10]
 		};
 	}
 
-	template <typename T>
-	std::string Mat4<T>::toString() const
+	
+	std::string Mat4::toString() const
 	{
-		return Mat<T>::toString(values, MAT4_LENGTH);
+		return Mat::toString(values, MAT4_LENGTH);
 	}
 
-	template <typename T>
-	Mat4<T>* Mat4<T>::decomposeLU() const
+	
+	Mat4* Mat4::decomposeLU() const
 	{
-		Mat4<T> lowerMatrix = Mat4<T>::identity();
-		Mat4<T> upperMatrix = this->clone();
-		Mat4<T>* result = ALLOC_ARRAY(Mat4<T>, 2);
+		Mat4 lowerMatrix = Mat4::identity();
+		Mat4 upperMatrix = this->clone();
+		Mat4* result = ALLOC_ARRAY(Mat4, 2);
 
-		std::vector<Mat4<T>> elementarInverseMatrixes;
-		Mat4<T> elementarInverseMatrix;
+		std::vector<Mat4> elementarInverseMatrixes;
+		Mat4 elementarInverseMatrix;
 
-		int rowSize = MAT4_ROW_LENGTH;
-		int colSize = MAT4_ROW_LENGTH;
+		sp_int rowSize = MAT4_ROW_LENGTH;
+		sp_int colSize = MAT4_ROW_LENGTH;
 
 	#if MAJOR_COLUMN_ORDER
 		sp_int pivotRowIndex = 0;
 
 		for (sp_int column = 0; column < colSize; column++)
 		{
-			T pivot = upperMatrix[pivotRowIndex * rowSize + column];
-			T pivotOperator = 1 / pivot;
+			sp_float pivot = upperMatrix[pivotRowIndex * rowSize + column];
+			sp_float pivotOperator = 1 / pivot;
 
 			for (sp_int row = 0; row < rowSize; row++)
 				upperMatrix[row * rowSize + column] *= pivotOperator;
 
-			elementarInverseMatrix = Mat4<T>::identity();
+			elementarInverseMatrix = Mat4::identity();
 			elementarInverseMatrix[pivotRowIndex * rowSize + column] = pivot;
 			elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
@@ -814,7 +814,7 @@ namespace NAMESPACE_PHYSICS
 				for (int row = 0; row < rowSize; row++)
 					upperMatrix[row * rowSize + lowerColumns] += pivotOperator * upperMatrix[row * rowSize + column];
 
-				elementarInverseMatrix = Mat4<T>::identity();
+				elementarInverseMatrix = Mat4::identity();
 				elementarInverseMatrix[pivotRowIndex * rowSize + lowerColumns] = pivot;
 				elementarInverseMatrixes.push_back(elementarInverseMatrix);
 			}
@@ -829,13 +829,13 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_int line = 0; line < rowSize; line++)
 		{
-			T pivot = upperMatrix[line * rowSize + pivotColumnIndex];
-			T pivotOperator = 1 / pivot;
+			sp_float pivot = upperMatrix[line * rowSize + pivotColumnIndex];
+			sp_float pivotOperator = 1 / pivot;
 
 			for (sp_int column = 0; column < colSize; column++)
 				upperMatrix[line * rowSize + column] *= pivotOperator;
 
-			elementarInverseMatrix = Mat4<T>::identity();
+			elementarInverseMatrix = Mat4::identity();
 			elementarInverseMatrix[line * rowSize + pivotColumnIndex] = pivot;
 			elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
@@ -844,10 +844,10 @@ namespace NAMESPACE_PHYSICS
 				pivot = upperMatrix[lowerLines * rowSize + pivotColumnIndex];
 				pivotOperator = -pivot;
 
-				for (int column = 0; column < colSize; column++)
+				for (sp_int column = 0; column < colSize; column++)
 					upperMatrix[lowerLines * rowSize + column] += pivotOperator * upperMatrix[line * rowSize + column];
 
-				elementarInverseMatrix = Mat4<T>::identity();
+				elementarInverseMatrix = Mat4::identity();
 				elementarInverseMatrix[lowerLines * rowSize + pivotColumnIndex] = pivot;
 				elementarInverseMatrixes.push_back(elementarInverseMatrix);
 			}
@@ -865,21 +865,21 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	Mat4<T>* Mat4<T>::decomposeLDU() const
+	
+	Mat4* Mat4::decomposeLDU() const
 	{
-		Mat4<T> diagonalMatrix = Mat4<T>::identity();
-		Mat4<T>* result = ALLOC_ARRAY(Mat4<T>, 3);
+		Mat4 diagonalMatrix = Mat4::identity();
+		Mat4* result = ALLOC_ARRAY(Mat4, 3);
 
-		Mat4<T>* lowerAndUpperMatrixes = decomposeLU();
+		Mat4* lowerAndUpperMatrixes = decomposeLU();
 
-		Mat4<T> upperMatrix = lowerAndUpperMatrixes[1];
+		Mat4 upperMatrix = lowerAndUpperMatrixes[1];
 		unsigned short diagonalIndex = 0;
 
 	#if MAJOR_COLUMN_ORDER
 		for (sp_int column = 0; column < MAT4_ROW_LENGTH; column++)
 		{
-			T pivot = upperMatrix[diagonalIndex * MAT4_ROW_LENGTH + column];
+			sp_float pivot = upperMatrix[diagonalIndex * MAT4_ROW_LENGTH + column];
 
 			diagonalMatrix[column * MAT4_ROW_LENGTH + diagonalIndex] = pivot;
 
@@ -891,7 +891,7 @@ namespace NAMESPACE_PHYSICS
 	#else
 		for (sp_int row = 0; row < MAT4_ROW_LENGTH; row++)
 		{
-			T pivot = upperMatrix[row * MAT4_ROW_LENGTH + diagonalIndex];
+			sp_float pivot = upperMatrix[row * MAT4_ROW_LENGTH + diagonalIndex];
 
 			diagonalMatrix[row * MAT4_ROW_LENGTH + diagonalIndex] = pivot;
 
@@ -911,31 +911,28 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	template <typename T>
-	AutovalueAutovector4<T> Mat4<T>::getAutovalueAndAutovector(const sp_short maxIteration) const
+	
+	AutoValueAutoVector4 Mat4::getAutovalueAndAutovector(const sp_short maxIteration) const
 	{
-		Mat4<T> matrix = *this;
-		Vec4<T> autovector = { T(1), T(1), T(1), T(1) };
-		T autovalue;
+		Mat4 matrix = *this;
+		Vec4 autovector(ONE_FLOAT, ONE_FLOAT, ONE_FLOAT, ONE_FLOAT);
+		sp_float autovalue;
 
 		for (sp_short iterationIndex = 0; iterationIndex < maxIteration; iterationIndex++)
 		{
-			Vec4<T> ax = matrix * autovector;
+			Vec4 ax = matrix * autovector;
 			autovalue = ax.maximum();
 			autovector = ax / autovalue;
 		}
 
-		return AutovalueAutovector4<T>{ autovalue, autovector };
+		return AutoValueAutoVector4{ autovalue, { autovector.x, autovector.y, autovector.z, autovector.w} };
 	}
 
 	/*
-	template <typename T>
-	Mat3<T> Mat4<T>::toNormalMatrix()
+	Mat3 Mat4::toNormalMatrix()
 	{
 		return toMat3().transpose().invert();
 	}
 	*/
 
-	template class Mat4<sp_float>;
-	template class Mat4<sp_double>;
 }
