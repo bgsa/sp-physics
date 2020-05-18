@@ -5,10 +5,16 @@ namespace NAMESPACE_PHYSICS
 
 	DOP18::DOP18()
 	{
-		min[0] = min[1] = min[2] = -0.5f;
-		max[0] = max[1] = max[2] = 0.5f;
-		min[3] = min[4] = min[5] = min[6] = min[7] = min[8] = -0.375f;
-		max[3] = max[4] = max[5] = max[6] = max[7] = max[8] = 0.375f; // = (0.5f / 2) + (0.5f / 4)
+		min[DOP18_AXIS_X] = min[DOP18_AXIS_Y] = min[DOP18_AXIS_Z] = -0.5f;
+		max[DOP18_AXIS_X] = max[DOP18_AXIS_Y] = max[DOP18_AXIS_Z] = 0.5f;
+
+		min[DOP18_AXIS_UP_LEFT] = min[DOP18_AXIS_UP_RIGHT] = min[DOP18_AXIS_UP_FRONT] 
+			= min[DOP18_AXIS_UP_DEPTH] = min[DOP18_AXIS_LEFT_DEPTH] 
+			= min[DOP18_AXIS_RIGHT_DEPTH] = -0.75f;
+
+		max[DOP18_AXIS_UP_LEFT] = max[DOP18_AXIS_UP_RIGHT] = max[DOP18_AXIS_UP_FRONT]
+			= max[DOP18_AXIS_UP_DEPTH] = max[DOP18_AXIS_LEFT_DEPTH]
+			= max[DOP18_AXIS_RIGHT_DEPTH] = 0.75f;
 	}
 
 	Vec3 DOP18::centerOfBoundingVolume() const
@@ -31,20 +37,20 @@ namespace NAMESPACE_PHYSICS
 		min[DOP18_AXIS_Z] += translation.z;
 		max[DOP18_AXIS_Z] += translation.z;
 
-		min[DOP18_AXIS_UP_LEFT] += translation.x + translation.y;
-		max[DOP18_AXIS_UP_LEFT] += translation.x + translation.y;
+		min[DOP18_AXIS_UP_LEFT] += translation.x - translation.y;
+		max[DOP18_AXIS_UP_LEFT] += translation.x - translation.y;
 
 		min[DOP18_AXIS_UP_RIGHT] += translation.x + translation.y;
 		max[DOP18_AXIS_UP_RIGHT] += translation.x + translation.y;
 
-		min[DOP18_AXIS_UP_FRONT] += translation.y + translation.z;
-		max[DOP18_AXIS_UP_FRONT] += translation.y + translation.z;
+		min[DOP18_AXIS_UP_FRONT] += translation.y - translation.z;
+		max[DOP18_AXIS_UP_FRONT] += translation.y - translation.z;
 
 		min[DOP18_AXIS_UP_DEPTH] += translation.y + translation.z;
 		max[DOP18_AXIS_UP_DEPTH] += translation.y + translation.z;
 
-		min[DOP18_AXIS_LEFT_DEPTH] += translation.x + translation.z;
-		max[DOP18_AXIS_LEFT_DEPTH] += translation.x + translation.z;
+		min[DOP18_AXIS_LEFT_DEPTH] += translation.x - translation.z;
+		max[DOP18_AXIS_LEFT_DEPTH] += translation.x - translation.z;
 
 		min[DOP18_AXIS_RIGHT_DEPTH] += translation.x + translation.z;
 		max[DOP18_AXIS_RIGHT_DEPTH] += translation.x + translation.z;
@@ -52,14 +58,40 @@ namespace NAMESPACE_PHYSICS
 
 	void DOP18::scale(const Vec3& factor) 
 	{
-		min[DOP18_AXIS_X] *= factor.x;
-		max[DOP18_AXIS_X] *= factor.x;
+		sp_float diffMinX = (min[DOP18_AXIS_X] * factor.x - min[DOP18_AXIS_X]);
+		sp_float diffMinY = (min[DOP18_AXIS_Y] * factor.y - min[DOP18_AXIS_Y]);
+		sp_float diffMinZ = (min[DOP18_AXIS_Z] * factor.z - min[DOP18_AXIS_Z]);
 
-		min[DOP18_AXIS_Y] *= factor.y;
-		max[DOP18_AXIS_Y] *= factor.y;
+		sp_float diffMaxX = (max[DOP18_AXIS_X] * factor.x - max[DOP18_AXIS_X]);
+		sp_float diffMaxY = (max[DOP18_AXIS_Y] * factor.y - max[DOP18_AXIS_Y]);
+		sp_float diffMaxZ = (max[DOP18_AXIS_Z] * factor.z - max[DOP18_AXIS_Z]);
 
-		min[DOP18_AXIS_Z] *= factor.z;
-		max[DOP18_AXIS_Z] *= factor.z;
+		min[DOP18_AXIS_X] += diffMinX;
+		max[DOP18_AXIS_X] += diffMaxX;
+
+		min[DOP18_AXIS_Y] += diffMinY;
+		max[DOP18_AXIS_Y] += diffMaxY;
+
+		min[DOP18_AXIS_Z] += diffMinZ;
+		max[DOP18_AXIS_Z] += diffMaxZ;
+
+		min[DOP18_AXIS_UP_LEFT] += diffMinX + diffMinY;
+		max[DOP18_AXIS_UP_LEFT] += diffMaxX + diffMaxY;
+
+		min[DOP18_AXIS_UP_RIGHT] += diffMinX + diffMinY;
+		max[DOP18_AXIS_UP_RIGHT] += diffMaxX + diffMaxY;
+
+		min[DOP18_AXIS_UP_FRONT] += diffMinY + diffMinZ;
+		max[DOP18_AXIS_UP_FRONT] += diffMaxY + diffMaxZ;
+
+		min[DOP18_AXIS_UP_DEPTH] += diffMinY + diffMinZ;
+		max[DOP18_AXIS_UP_DEPTH] += diffMaxY + diffMaxZ;
+
+		min[DOP18_AXIS_LEFT_DEPTH] += diffMinX + diffMinZ;
+		max[DOP18_AXIS_LEFT_DEPTH] += diffMaxX + diffMaxZ;
+
+		min[DOP18_AXIS_RIGHT_DEPTH] += diffMinX + diffMinZ;
+		max[DOP18_AXIS_RIGHT_DEPTH] += diffMaxX + diffMaxZ;
 	}
 
 	void DOP18::rotate(const Vec3& angles) { }
@@ -118,35 +150,34 @@ namespace NAMESPACE_PHYSICS
 	Plane3D* DOP18::planes()
 	{
 		const Vec3* n = normals();
-		const Vec3 center = centerOfBoundingVolume();
 
 		Plane3D* result = sp_mem_new_array(Plane3D, 18) {
-			Plane3D(Vec3(min[DOP18_AXIS_X], center.y, center.z), n[0]), // left
-			Plane3D(Vec3(max[DOP18_AXIS_X], center.y, center.z), n[1]), // right
+			Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[0]), // left
+			Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[1]), // right
 
-			Plane3D(Vec3(center.x, max[DOP18_AXIS_Y], center.z), n[2]), // up
-			Plane3D(Vec3(center.x, min[DOP18_AXIS_Y], center.z), n[3]), // down
+			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), n[2]), // up
+			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), n[3]), // down
 
-			Plane3D(Vec3(center.x, center.y, min[DOP18_AXIS_Z]), n[4]), // front
-			Plane3D(Vec3(center.x, center.y, max[DOP18_AXIS_Z]), n[5]), // depth
+			Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), n[4]), // front
+			Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), n[5]), // depth
 
-			Plane3D(Vec3(center.x + min[DOP18_AXIS_UP_LEFT], center.y + max[DOP18_AXIS_UP_LEFT], center.z), n[6]), // up-left
-			Plane3D(Vec3(center.x + max[DOP18_AXIS_UP_LEFT], center.y + min[DOP18_AXIS_UP_LEFT], center.z), n[7]), // down-right
+			Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[6]), // up-left
+			Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[7]), // down-right
 
-			Plane3D(Vec3(center.x + max[DOP18_AXIS_UP_RIGHT], center.y + max[DOP18_AXIS_UP_RIGHT], center.z), n[8]), // up-right
-			Plane3D(Vec3(center.x + min[DOP18_AXIS_UP_RIGHT], center.y + min[DOP18_AXIS_UP_RIGHT], center.z), n[9]), // down-left
+			Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[8]), // up-right
+			Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[9]), // down-left
 
-			Plane3D(Vec3(center.x, center.y + max[DOP18_AXIS_UP_FRONT], center.z + min[DOP18_AXIS_UP_FRONT]), n[10]), // up-front
-			Plane3D(Vec3(center.x, center.y + min[DOP18_AXIS_UP_FRONT], center.z + max[DOP18_AXIS_UP_FRONT]), n[11]), // down-depth
+			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[10]), // up-front
+			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[11]), // down-depth
 
-			Plane3D(Vec3(center.x, center.y + max[DOP18_AXIS_UP_DEPTH], center.z + max[DOP18_AXIS_UP_DEPTH]), n[12]), // up-depth
-			Plane3D(Vec3(center.x, center.y + min[DOP18_AXIS_UP_DEPTH], center.z + min[DOP18_AXIS_UP_DEPTH]), n[13]), // down-front
+			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[12]), // up-depth
+			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[13]), // down-front
 
-			Plane3D(Vec3(center.x + min[DOP18_AXIS_LEFT_DEPTH], center.y, center.z + max[DOP18_AXIS_LEFT_DEPTH]), n[14]), // left-depth
-			Plane3D(Vec3(center.x + max[DOP18_AXIS_LEFT_DEPTH], center.y, center.z + min[DOP18_AXIS_LEFT_DEPTH]), n[15]), // right-front
+			Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[14]), // left-depth
+			Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[15]), // right-front
 
-			Plane3D(Vec3(center.x + max[DOP18_AXIS_RIGHT_DEPTH], center.y, center.z + max[DOP18_AXIS_RIGHT_DEPTH]), n[16]), // right-depth
-			Plane3D(Vec3(center.x + min[DOP18_AXIS_RIGHT_DEPTH], center.y, center.z + min[DOP18_AXIS_RIGHT_DEPTH]), n[17]), // left-front
+			Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[16]), // right-depth
+			Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[17]), // left-front
 		};
 
 		return result;
