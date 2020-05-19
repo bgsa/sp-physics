@@ -11,13 +11,15 @@ namespace NAMESPACE_PHYSICS
 
 	SpTransform* SpTransform::scale(const Vec3& scaleVector)
 	{
-		this->scaleVector += scaleVector;
+		this->scaleVector.x *= scaleVector.x;
+		this->scaleVector.y *= scaleVector.y;
+		this->scaleVector.z *= scaleVector.z;
 		return this;
 	}
 
 	SpTransform* SpTransform::scale(const sp_float factor)
 	{
-		scaleVector += factor;
+		scaleVector *= factor;
 		return this;
 	}
 

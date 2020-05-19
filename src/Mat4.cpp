@@ -459,9 +459,9 @@ namespace NAMESPACE_PHYSICS
 	Mat4 Mat4::createScale(const Vec3& scale)
 	{
 		return Mat4(
-			ONE_FLOAT + scale.x, 0.0f, 0.0f, 0.0f,
-			0.0f, ONE_FLOAT + scale.y, 0.0f, 0.0f,
-			0.0f, 0.0f, ONE_FLOAT + scale.z, 0.0f,
+			scale.x, 0.0f, 0.0f, 0.0f,
+			0.0f, scale.y, 0.0f, 0.0f,
+			0.0f, 0.0f, scale.z, 0.0f,
 			0.0f, 0.0f, 0.0f, 1.0f
 		);
 	}
@@ -775,7 +775,7 @@ namespace NAMESPACE_PHYSICS
 	
 	std::string Mat4::toString() const
 	{
-		return Mat::toString(values, MAT4_LENGTH);
+		return Mat::toString(values, MAT4_ROW_LENGTH);
 	}
 
 	
