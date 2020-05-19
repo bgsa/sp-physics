@@ -98,51 +98,32 @@ namespace NAMESPACE_PHYSICS
 
 	CollisionStatus DOP18::collisionStatus(const DOP18& kDop)
 	{
-		for (sp_int i = 0; i < DOP18_ORIENTATIONS; i++)
-			if (min[i] > kDop.max[i] || max[i] < kDop.min[i])
-				return CollisionStatus::OUTSIDE;
-
-		/*
-		for (sp_int i = 0; i < 3; i++)
-			if (min[i] > kDop.max[i] || max[i] < kDop.min[i])
-				return CollisionStatus::OUTSIDE;
-
-		Vec3 center = centerOfBoundingVolume();
-		Vec3 kDopCenter = kDop.centerOfBoundingVolume();
-
-		sp_float distanceFromOriginXY = std::sqrtf(center.x * center.x + center.y * center.y);
-		sp_float distanceFromOriginKDopXY = std::sqrtf(kDopCenter.x * kDopCenter.x + kDopCenter.y * kDopCenter.y);
-
-		sp_float distanceFromOriginXZ = std::sqrtf(center.x * center.x + center.z * center.z);
-		sp_float distanceFromOriginKDopXZ = std::sqrtf(kDopCenter.x * kDopCenter.x + kDopCenter.z * kDopCenter.z);
-
-		sp_float distanceFromOriginYZ = std::sqrtf(center.y * center.y + center.z * center.z);
-		sp_float distanceFromOriginKDopYZ = std::sqrtf(kDopCenter.y * kDopCenter.y + kDopCenter.z * kDopCenter.z);
-
-		if (min[3] + distanceFromOriginXY > kDop.max[3] + distanceFromOriginKDopXY
-			|| max[3] + distanceFromOriginXY < kDop.min[3] + distanceFromOriginKDopXY)  // up-left
+		if (min[0] > kDop.max[0] || max[0] < kDop.min[0])
 			return CollisionStatus::OUTSIDE;
 
-		if (min[4] + distanceFromOriginXY > kDop.max[4] + distanceFromOriginKDopXY
-			|| max[4] + distanceFromOriginXY < kDop.min[4] + distanceFromOriginKDopXY) // down-right
+		if (min[1] > kDop.max[1] || max[1] < kDop.min[1])
 			return CollisionStatus::OUTSIDE;
 
-		if (min[5] + distanceFromOriginXZ > kDop.max[5] + distanceFromOriginKDopXZ
-			|| max[5] + distanceFromOriginXZ < kDop.min[5] + distanceFromOriginKDopXZ) // up-front
+		if (min[2] > kDop.max[2] || max[2] < kDop.min[2])
 			return CollisionStatus::OUTSIDE;
 
-		if (min[6] + distanceFromOriginXZ > kDop.max[6] + distanceFromOriginXZ
-			|| max[6] + distanceFromOriginKDopXZ < kDop.min[6] + distanceFromOriginKDopXZ) // down-depth
+		if (min[3] > kDop.max[3] || max[3] < kDop.min[3])
 			return CollisionStatus::OUTSIDE;
 
-		if (min[7] + distanceFromOriginYZ > kDop.max[7] + distanceFromOriginKDopYZ
-			|| max[7] + distanceFromOriginYZ < kDop.min[7] + distanceFromOriginKDopYZ) // left-depth
+		if (min[4] > kDop.max[4] || max[4] < kDop.min[4])
 			return CollisionStatus::OUTSIDE;
 
-		if (min[8] + distanceFromOriginXZ > kDop.max[8] + distanceFromOriginKDopXZ
-			|| max[8] + distanceFromOriginXZ < kDop.min[8] + distanceFromOriginKDopXZ) // right-front
+		if (min[5] > kDop.max[5] || max[5] < kDop.min[5])
 			return CollisionStatus::OUTSIDE;
-		*/
+
+		if (min[6] > kDop.max[6] || max[6] < kDop.min[6])
+			return CollisionStatus::OUTSIDE;
+
+		if (min[7] > kDop.max[7] || max[7] < kDop.min[7])
+			return CollisionStatus::OUTSIDE;
+
+		if (min[8] > kDop.max[8] || max[8] < kDop.min[8])
+			return CollisionStatus::OUTSIDE;
 
 		return CollisionStatus::INSIDE;
 	}
@@ -151,7 +132,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		const Vec3* n = normals();
 
-		Plane3D* result = sp_mem_new_array(Plane3D, 18) {
+		return sp_mem_new_array(Plane3D, 18) {
 			Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[0]), // left
 			Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[1]), // right
 
@@ -179,8 +160,6 @@ namespace NAMESPACE_PHYSICS
 			Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[16]), // right-depth
 			Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[17]), // left-front
 		};
-
-		return result;
 	}
 
 	void DOP18::fixTopDegeneration(const Plane3D* planes)

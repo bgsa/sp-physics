@@ -30,12 +30,12 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Build a plane from equation
 		/// </summary>
-		API_INTERFACE Plane3D(float a, float b, float c, float d);
+		API_INTERFACE Plane3D(sp_float a, sp_float b, sp_float c, sp_float d);
 
 		/// <summary>
 		/// Get "D" components from plane equation: ax + by + cz + D = 0
 		/// </summary>
-		API_INTERFACE float getDcomponent() const;
+		API_INTERFACE sp_float getDcomponent() const;
 
 		/// <summary>
 		/// Get the equation of the plane
@@ -55,12 +55,12 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the angle of two planes
 		/// </summary>
-		API_INTERFACE float angle(const Plane3D& plane) const;
+		API_INTERFACE sp_float angle(const Plane3D& plane) const;
 
 		/// <summary>
 		/// Get the distance from the plane to the point
 		/// </summary>
-		API_INTERFACE float distance(const Vec3& point) const;
+		API_INTERFACE sp_float distance(const Vec3& point) const;
 
 		/// <summary>
 		/// Indicate whether the point is on the left, right fo the plane OR the point lies on the plane
@@ -70,12 +70,12 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Check if the planes are parallel each other
 		/// </summary>
-		API_INTERFACE bool isParallel(const Plane3D& plane) const;
+		API_INTERFACE sp_bool isParallel(const Plane3D& plane) const;
 
 		/// <summary>
 		/// Check if the planes are perpendicular each other
 		/// </summary>
-		API_INTERFACE bool isPerpendicular(const Plane3D& plane) const;
+		API_INTERFACE sp_bool isPerpendicular(const Plane3D& plane) const;
 
 		/// <summary>
 		/// Given an arbitrary point, find the closest point on the plane

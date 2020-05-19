@@ -26,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 		}.normalize();
 	}
 
-	Plane3D::Plane3D(float a, float b, float c, float d)
+	Plane3D::Plane3D(sp_float a, sp_float b, sp_float c, sp_float d)
 	{
 		point = Vec3(
 			0.0f,
@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 		normalVector = Vec3(a, b, c).normalize();
 	}
 
-	float Plane3D::getDcomponent() const
+	sp_float Plane3D::getDcomponent() const
 	{
 		return -normalVector.dot(point);
 		//return normalVector.dot(point);
@@ -57,17 +57,17 @@ namespace NAMESPACE_PHYSICS
 	{
 		Vec3 lineAsVector = line.point2 - line.point1;
 
-		float angle = normalVector.dot(lineAsVector);
+		sp_float angle = normalVector.dot(lineAsVector);
 
 		if (angle == 0.0f)
 			return nullptr;
 
 		Vec4 planeEquation = getEquation();
 
-		float numerator = -(planeEquation[0] * line.point1[0] + planeEquation[1] * line.point1[1] + planeEquation[2] * line.point1[2] + planeEquation[3]);
-		float denominator = planeEquation[0] * lineAsVector[0] + planeEquation[1] * lineAsVector[1] + planeEquation[2] * lineAsVector[2];
+		sp_float numerator = -(planeEquation[0] * line.point1[0] + planeEquation[1] * line.point1[1] + planeEquation[2] * line.point1[2] + planeEquation[3]);
+		sp_float denominator = planeEquation[0] * lineAsVector[0] + planeEquation[1] * lineAsVector[1] + planeEquation[2] * lineAsVector[2];
 
-		float t = numerator / denominator;
+		sp_float t = numerator / denominator;
 
 		Vec3* intersection = ALLOC_NEW(Vec3)(
 			line.point1[0] + lineAsVector[0] * t,
@@ -85,11 +85,11 @@ namespace NAMESPACE_PHYSICS
 
 		Vec3 lineDirection = normalVector.cross(plane.normalVector);
 		
-		float d1 = getDcomponent();
-		float d2 = plane.getDcomponent();
+		sp_float d1 = getDcomponent();
+		sp_float d2 = plane.getDcomponent();
 
 		// find a point on the line, which is also on both planes
-		float dot = lineDirection.dot(lineDirection);					// V dot V
+		sp_float dot = lineDirection.dot(lineDirection);					// V dot V
 		Vec3 u1 = normalVector * d2;								// d2 * normalVector
 		Vec3 u2 = plane.normalVector * -d1;					    //-d1 * plane.normalVector
 		Vec3 point1 = (u1 + u2).cross(lineDirection) / dot;      // (d2*N1-d1*N2) X V / V dot V
@@ -100,36 +100,36 @@ namespace NAMESPACE_PHYSICS
 		return ALLOC_NEW(Line3D)(point1, point2);
 	}
 
-	float Plane3D::distance(const Vec3& target) const
+	sp_float Plane3D::distance(const Vec3& target) const
 	{
 		Vec3 rayToTarget = target - point;
 
-		float numerator = normalVector.dot(rayToTarget);
-		float length = normalVector.length();
+		sp_float numerator = normalVector.dot(rayToTarget);
+		sp_float length = normalVector.length();
 
 		return numerator / length;
 	}
 
 	Vec3 Plane3D::closestPointOnThePlane(const Vec3 &target) const
 	{
-		float d = getDcomponent();
+		sp_float d = getDcomponent();
 
-		float t = (normalVector.dot(target) - d) / normalVector.dot(normalVector); //t = ((n . p) - d) / (n.n)
+		sp_float t = (normalVector.dot(target) - d) / normalVector.dot(normalVector); //t = ((n . p) - d) / (n.n)
 
 		return target - (normalVector * t); //result = point - tn
 	}
 
-	float Plane3D::angle(const Plane3D& plane) const
+	sp_float Plane3D::angle(const Plane3D& plane) const
 	{
-		float angle = normalVector.dot(plane.normalVector);
-		float length = normalVector.length() * plane.normalVector.length();
+		sp_float angle = normalVector.dot(plane.normalVector);
+		sp_float length = normalVector.length() * plane.normalVector.length();
 
 		return angle / length;
 	}
 
 	Orientation Plane3D::orientation(const Vec3& point) const
 	{
-		float distanceToPoint =  distance(point);
+		sp_float distanceToPoint =  distance(point);
 
 		if (distanceToPoint == 0.0f)
 			return Orientation::NONE;
@@ -139,12 +139,12 @@ namespace NAMESPACE_PHYSICS
 		return Orientation::RIGHT;
 	}
 
-	bool Plane3D::isParallel(const Plane3D& plane) const
+	sp_bool Plane3D::isParallel(const Plane3D& plane) const
 	{
 		return normalVector.cross(plane.normalVector) == 0.0f;
 	}
 
-	bool Plane3D::isPerpendicular(const Plane3D& plane) const
+	sp_bool Plane3D::isPerpendicular(const Plane3D& plane) const
 	{
 		return normalVector.dot(plane.normalVector) == 0.0f;
 	}
