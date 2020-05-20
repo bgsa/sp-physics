@@ -5,7 +5,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define VEC3_SIZE 3
+#define VEC3_LENGTH (3)
+#define VEC3_SIZE   (VEC3_LENGTH * SIZEOF_FLOAT)
 
 	class Vec3
 	{

@@ -164,7 +164,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			-10.2222f, 5.2222f, 29.5556f
 		);
 		
-		for (int i = 0; i < MAT3_SIZE; i++)
+		for (int i = 0; i < MAT3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value.", LINE_INFO());
 	}
 

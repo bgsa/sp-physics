@@ -5,7 +5,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define VEC2_SIZE 2
+#define VEC2_LENGTH (2)
+#define VEC2_SIZE   (VEC2_LENGTH * SIZEOF_FLOAT)
 
 	class Vec2
 	{		

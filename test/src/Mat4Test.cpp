@@ -711,7 +711,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = matrix.toMat3();
 
-		for (int i = 0; i < MAT3_SIZE; i++)
+		for (int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 	

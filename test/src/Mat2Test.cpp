@@ -61,20 +61,20 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Mat2 result;
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(0.0f, result[i], L"Value shoud be 0", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat2_constructorValues_Test)
 	{
-		float emptyMatrix[MAT2_SIZE] = {
+		float emptyMatrix[MAT2_LENGTH] = {
 			1.0f, 2.0f, 
 			4.0f, 5.0f
 		};
 
 		Mat2 result = Mat2(emptyMatrix);
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(emptyMatrix[i], result[i], L"Value shoud be 0", LINE_INFO());
 	}
 
@@ -87,7 +87,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		float* result = matrix.getValues();
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Value shoud be 0", LINE_INFO());
 	}
 
@@ -149,7 +149,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = matrixA.multiply(matrixB);
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -162,7 +162,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = Mat2::createTranslate(5.0f, 2.0f);
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -213,7 +213,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = matrixA.multiply(matrixB);
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -226,7 +226,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = Mat2::createTranslate(5.0f, 2.0f);
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -262,7 +262,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Mat2 result = Mat2::identity();
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			if (i % 3 == 0)
 				Assert::AreEqual(1.0f, result[i], L"Value shoud be 0", LINE_INFO());
 			else
@@ -277,12 +277,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		};
 		Mat2 result = matrix.transpose();
 
-		float expected[MAT2_SIZE] = {
+		float expected[MAT2_LENGTH] = {
 			1.0f, 4.0f,
 			2.0f, 5.0f
 		};
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value", LINE_INFO());
 	}
 
@@ -295,7 +295,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = Mat2::createScale(3.0f, 4.0f);
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -312,7 +312,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		matrixA.scale(2.0f, 4.0f);
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -346,7 +346,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = matrix.clone();
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -363,7 +363,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::AreEqual(ceilf(expectedValue), ceilf(result.autovalue), L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT2_ROWSIZE; i++)
+		for (int i = 0; i < MAT2_ROW_LENGTH; i++)
 			Assert::AreEqual(ceil(expectedVector[i]), ceil(result.autoVector[i]), L"Wrong number", LINE_INFO());
 	}
 
@@ -380,7 +380,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = -matrixA;
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -401,7 +401,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		Mat2 result = matrixA - matrixB;
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -422,7 +422,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = matrixA + matrixB;
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -439,7 +439,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat2 result = matrixA / 2.0f;
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -456,7 +456,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		matrixA /= 2.0f;
 
-		for (int i = 0; i < MAT2_SIZE; i++)
+		for (int i = 0; i < MAT2_LENGTH; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 

@@ -4,7 +4,7 @@ namespace NAMESPACE_PHYSICS
 {
 	Mat2::Mat2(const sp_float defaultValue)
 	{
-		static sp_float emptyMatrix[MAT2_SIZE] = {
+		static sp_float emptyMatrix[MAT2_LENGTH] = {
 			defaultValue, defaultValue,
 			defaultValue, defaultValue
 		};
@@ -27,7 +27,7 @@ namespace NAMESPACE_PHYSICS
 
 	Mat2 Mat2::identity()
 	{
-		static sp_float identityMatrix[MAT2_SIZE] = {
+		static sp_float identityMatrix[MAT2_LENGTH] = {
 			ONE_FLOAT, ZERO_FLOAT,
 			ZERO_FLOAT, ONE_FLOAT
 		};
@@ -45,7 +45,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Mat2::getValue(const sp_int x, const sp_int y)
 	{
-		return values[ (y-1) * MAT2_ROWSIZE + (x-1)];
+		return values[ (y-1) * MAT2_ROW_LENGTH + (x-1)];
 	}
 
 	Vec2 Mat2::xAxis() const
@@ -123,22 +123,22 @@ namespace NAMESPACE_PHYSICS
 		Mat2 result;
 
 	#ifdef MAJOR_COLUMN_ORDER
-		for (sp_int line = 0; line < MAT2_ROWSIZE; line++)
+		for (sp_int line = 0; line < MAT2_ROW_LENGTH; line++)
 		{
-			sp_float ai0 = values[(0 * MAT2_ROWSIZE) + line];
-			sp_float ai1 = values[(1 * MAT2_ROWSIZE) + line];
+			sp_float ai0 = values[(0 * MAT2_ROW_LENGTH) + line];
+			sp_float ai1 = values[(1 * MAT2_ROW_LENGTH) + line];
 
-			result[(0 * MAT2_ROWSIZE) + line] = ai0 * matrixB[(0 * MAT2_ROWSIZE) + 0] + ai1 * matrixB[(0 * MAT2_ROWSIZE) + 1];
-			result[(1 * MAT2_ROWSIZE) + line] = ai0 * matrixB[(1 * MAT2_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT2_ROWSIZE) + 1];
+			result[(0 * MAT2_ROW_LENGTH) + line] = ai0 * matrixB[(0 * MAT2_ROW_LENGTH) + 0] + ai1 * matrixB[(0 * MAT2_ROW_LENGTH) + 1];
+			result[(1 * MAT2_ROW_LENGTH) + line] = ai0 * matrixB[(1 * MAT2_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT2_ROW_LENGTH) + 1];
 		}
 	#else
-		for (sp_int column = 0; column < MAT2_ROWSIZE; column++)
+		for (sp_int column = 0; column < MAT2_ROW_LENGTH; column++)
 		{
-			sp_float ai0 = values[(column * MAT2_ROWSIZE) + 0];
-			sp_float ai1 = values[(column * MAT2_ROWSIZE) + 1];
+			sp_float ai0 = values[(column * MAT2_ROW_LENGTH) + 0];
+			sp_float ai1 = values[(column * MAT2_ROW_LENGTH) + 1];
 
-			result[(column * MAT2_ROWSIZE) + 0] = ai0 * matrixB[(0 * MAT2_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT2_ROWSIZE) + 0];
-			result[(column * MAT2_ROWSIZE) + 1] = ai0 * matrixB[(0 * MAT2_ROWSIZE) + 1] + ai1 * matrixB[(1 * MAT2_ROWSIZE) + 1];
+			result[(column * MAT2_ROW_LENGTH) + 0] = ai0 * matrixB[(0 * MAT2_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT2_ROW_LENGTH) + 0];
+			result[(column * MAT2_ROW_LENGTH) + 1] = ai0 * matrixB[(0 * MAT2_ROW_LENGTH) + 1] + ai1 * matrixB[(1 * MAT2_ROW_LENGTH) + 1];
 		}
 	#endif
 
@@ -149,8 +149,8 @@ namespace NAMESPACE_PHYSICS
 	{
 		Vec2 result;
 
-		result[0] = values[0 * MAT2_ROWSIZE + 0] * vector[0] + values[0 * MAT2_ROWSIZE + 1] * vector[1];
-		result[1] = values[1 * MAT2_ROWSIZE + 0] * vector[0] + values[1 * MAT2_ROWSIZE + 1] * vector[1];
+		result[0] = values[0 * MAT2_ROW_LENGTH + 0] * vector[0] + values[0 * MAT2_ROW_LENGTH + 1] * vector[1];
+		result[1] = values[1 * MAT2_ROW_LENGTH + 0] * vector[0] + values[1 * MAT2_ROW_LENGTH + 1] * vector[1];
 
 		return result;
 	}
@@ -208,7 +208,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_size Mat2::sizeInBytes() const
 	{
-		return MAT2_SIZE * SIZEOF_FLOAT;
+		return MAT2_LENGTH * SIZEOF_FLOAT;
 	}
 
 	Mat2 Mat2::clone() const
@@ -222,14 +222,14 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float& Mat2::operator[](sp_int index)
 	{
-		sp_assert(index >= 0 && index < MAT2_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT2_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 
 	sp_float Mat2::operator[](sp_int index) const
 	{
-		sp_assert(index >= 0 && index < MAT2_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT2_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
@@ -313,7 +313,7 @@ namespace NAMESPACE_PHYSICS
 
 	std::string Mat2::toString() const
 	{
-		return Mat::toString(values, MAT2_SIZE);
+		return Mat::toString(values, MAT2_LENGTH);
 	}
 
 }

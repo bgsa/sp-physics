@@ -5,7 +5,7 @@ namespace NAMESPACE_PHYSICS
 	
 	Mat3::Mat3(const sp_float defaultValue)
 	{
-		static sp_float emptyMatrix[MAT3_SIZE] = {
+		static sp_float emptyMatrix[MAT3_LENGTH] = {
 			defaultValue, defaultValue, defaultValue,
 			defaultValue, defaultValue, defaultValue,
 			defaultValue, defaultValue, defaultValue
@@ -46,7 +46,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float Mat3::getValue(const sp_int x, const sp_int y) const
 	{
-		return values[(y-1) * MAT3_ROWSIZE + (x-1)];
+		return values[(y-1) * MAT3_ROW_LENGTH + (x-1)];
 	}
 
 	
@@ -56,15 +56,15 @@ namespace NAMESPACE_PHYSICS
 
 		return Vec3(
 			values[index],
-			values[index + MAT3_ROWSIZE],
-			values[index + MAT3_ROWSIZE + MAT3_ROWSIZE]
+			values[index + MAT3_ROW_LENGTH],
+			values[index + MAT3_ROW_LENGTH + MAT3_ROW_LENGTH]
 		);
 	#else
 
 		return Vec3(
-			values[index * MAT3_ROWSIZE],
-			values[index * MAT3_ROWSIZE + 1],
-			values[index * MAT3_ROWSIZE + 2]
+			values[index * MAT3_ROW_LENGTH],
+			values[index * MAT3_ROW_LENGTH + 1],
+			values[index * MAT3_ROW_LENGTH + 2]
 		);
 	#endif
 	}
@@ -126,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 	
 	Mat3 Mat3::identity()
 	{
-		static sp_float identityMatrix[MAT3_SIZE] = {
+		static sp_float identityMatrix[MAT3_LENGTH] = {
 			ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
 			ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT,
 			ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
@@ -190,26 +190,26 @@ namespace NAMESPACE_PHYSICS
 		Mat3 result;
 
 	#if MAJOR_COLUMN_ORDER
-		for (int line = 0; line < MAT3_ROWSIZE; line++)
+		for (int line = 0; line < MAT3_ROW_LENGTH; line++)
 		{
 			sp_float ai0 = values[line];
-			sp_float ai1 = values[MAT3_ROWSIZE + line];
-			sp_float ai2 = values[TWO_MAT3_ROWSIZE + line];
+			sp_float ai1 = values[MAT3_ROW_LENGTH + line];
+			sp_float ai2 = values[MAT3_TWO_ROW_LENGTH + line];
 
 			result[line] = ai0 * matrixB[0] + ai1 * matrixB[1] + ai2 * matrixB[2];
-			result[MAT3_ROWSIZE + line] = ai0 * matrixB[MAT3_ROWSIZE] + ai1 * matrixB[MAT3_ROWSIZE + 1] + ai2 * matrixB[MAT3_ROWSIZE + 2];
-			result[TWO_MAT3_ROWSIZE + line] = ai0 * matrixB[TWO_MAT3_ROWSIZE] + ai1 * matrixB[TWO_MAT3_ROWSIZE + 1] + ai2 * matrixB[TWO_MAT3_ROWSIZE + 2];
+			result[MAT3_ROW_LENGTH + line] = ai0 * matrixB[MAT3_ROW_LENGTH] + ai1 * matrixB[MAT3_ROW_LENGTH + 1] + ai2 * matrixB[MAT3_ROW_LENGTH + 2];
+			result[MAT3_TWO_ROW_LENGTH + line] = ai0 * matrixB[MAT3_TWO_ROW_LENGTH] + ai1 * matrixB[MAT3_TWO_ROW_LENGTH + 1] + ai2 * matrixB[MAT3_TWO_ROW_LENGTH + 2];
 		}
 	#else
-		for (int column = 0; column < MAT3_ROWSIZE; column++)
+		for (int column = 0; column < MAT3_ROW_LENGTH; column++)
 		{
-			sp_float ai0 = values[(column * MAT3_ROWSIZE) + 0];
-			sp_float ai1 = values[(column * MAT3_ROWSIZE) + 1];
-			sp_float ai2 = values[(column * MAT3_ROWSIZE) + 2];
+			sp_float ai0 = values[(column * MAT3_ROW_LENGTH) + 0];
+			sp_float ai1 = values[(column * MAT3_ROW_LENGTH) + 1];
+			sp_float ai2 = values[(column * MAT3_ROW_LENGTH) + 2];
 
-			result[(column * MAT3_ROWSIZE) + 0] = ai0 * matrixB[(0 * MAT3_ROWSIZE) + 0] + ai1 * matrixB[(1 * MAT3_ROWSIZE) + 0] + ai2 * matrixB[(2 * MAT3_ROWSIZE) + 0];
-			result[(column * MAT3_ROWSIZE) + 1] = ai0 * matrixB[(0 * MAT3_ROWSIZE) + 1] + ai1 * matrixB[(1 * MAT3_ROWSIZE) + 1] + ai2 * matrixB[(2 * MAT3_ROWSIZE) + 1];
-			result[(column * MAT3_ROWSIZE) + 2] = ai0 * matrixB[(0 * MAT3_ROWSIZE) + 2] + ai1 * matrixB[(1 * MAT3_ROWSIZE) + 2] + ai2 * matrixB[(2 * MAT3_ROWSIZE) + 2];
+			result[(column * MAT3_ROW_LENGTH) + 0] = ai0 * matrixB[(0 * MAT3_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT3_ROW_LENGTH) + 0] + ai2 * matrixB[(2 * MAT3_ROW_LENGTH) + 0];
+			result[(column * MAT3_ROW_LENGTH) + 1] = ai0 * matrixB[(0 * MAT3_ROW_LENGTH) + 1] + ai1 * matrixB[(1 * MAT3_ROW_LENGTH) + 1] + ai2 * matrixB[(2 * MAT3_ROW_LENGTH) + 1];
+			result[(column * MAT3_ROW_LENGTH) + 2] = ai0 * matrixB[(0 * MAT3_ROW_LENGTH) + 2] + ai1 * matrixB[(1 * MAT3_ROW_LENGTH) + 2] + ai2 * matrixB[(2 * MAT3_ROW_LENGTH) + 2];
 		}
 	#endif
 
@@ -222,8 +222,8 @@ namespace NAMESPACE_PHYSICS
 		Vec3 result;
 
 		result[0] = values[0] * vector[0] + values[1] * vector[1] + values[2] * vector[2];
-		result[1] = values[MAT3_ROWSIZE] * vector[0] + values[MAT3_ROWSIZE + 1] * vector[1] + values[MAT3_ROWSIZE + 2] * vector[2];
-		result[2] = values[TWO_MAT3_ROWSIZE] * vector[0] + values[TWO_MAT3_ROWSIZE + 1] * vector[1] + values[TWO_MAT3_ROWSIZE + 2] * vector[2];
+		result[1] = values[MAT3_ROW_LENGTH] * vector[0] + values[MAT3_ROW_LENGTH + 1] * vector[1] + values[MAT3_ROW_LENGTH + 2] * vector[2];
+		result[2] = values[MAT3_TWO_ROW_LENGTH] * vector[0] + values[MAT3_TWO_ROW_LENGTH + 1] * vector[1] + values[MAT3_TWO_ROW_LENGTH + 2] * vector[2];
 
 		return result;
 	}
@@ -234,17 +234,17 @@ namespace NAMESPACE_PHYSICS
 		sp_float* matrixValues = ALLOC_ARRAY(sp_float, 4);
 		sp_size index = 0;
 
-		for (sp_size row = 0; row < MAT3_ROWSIZE; row++)
+		for (sp_size row = 0; row < MAT3_ROW_LENGTH; row++)
 		{
 			if (i == row)
 				continue;
 
-			for (sp_size column = 0; column < MAT3_ROWSIZE; column++)
+			for (sp_size column = 0; column < MAT3_ROW_LENGTH; column++)
 			{
 				if (j == column)
 					continue;
 
-				matrixValues[index] = values[row * MAT3_ROWSIZE + column];
+				matrixValues[index] = values[row * MAT3_ROW_LENGTH + column];
 				index++;
 			}
 		}
@@ -313,17 +313,17 @@ namespace NAMESPACE_PHYSICS
 
 		Mat3 result;
 
-		result[0 * MAT3_ROWSIZE + 0] = (one_c * xx) + cosine;
-		result[1 * MAT3_ROWSIZE + 0] = (one_c * xy) - zs;
-		result[2 * MAT3_ROWSIZE + 0] = (one_c * zx) + ys;
+		result[0 * MAT3_ROW_LENGTH + 0] = (one_c * xx) + cosine;
+		result[1 * MAT3_ROW_LENGTH + 0] = (one_c * xy) - zs;
+		result[2 * MAT3_ROW_LENGTH + 0] = (one_c * zx) + ys;
 
-		result[0 * MAT3_ROWSIZE + 1] = (one_c * xy) + zs;
-		result[1 * MAT3_ROWSIZE + 1] = (one_c * yy) + cosine;
-		result[2 * MAT3_ROWSIZE + 1] = (one_c * yz) - xs;
+		result[0 * MAT3_ROW_LENGTH + 1] = (one_c * xy) + zs;
+		result[1 * MAT3_ROW_LENGTH + 1] = (one_c * yy) + cosine;
+		result[2 * MAT3_ROW_LENGTH + 1] = (one_c * yz) - xs;
 
-		result[0 * MAT3_ROWSIZE + 2] = (one_c * zx) - ys;
-		result[1 * MAT3_ROWSIZE + 2] = (one_c * yz) + xs;
-		result[2 * MAT3_ROWSIZE + 2] = (one_c * zz) + cosine;
+		result[0 * MAT3_ROW_LENGTH + 2] = (one_c * zx) - ys;
+		result[1 * MAT3_ROW_LENGTH + 2] = (one_c * yz) + xs;
+		result[2 * MAT3_ROW_LENGTH + 2] = (one_c * zz) + cosine;
 
 		return result;
 	}
@@ -387,15 +387,15 @@ namespace NAMESPACE_PHYSICS
 
 		sp_float det = determinant();
 
-		for (int i = 0; i < MAT3_ROWSIZE; i++)
-			for (int j = 0; j < MAT3_ROWSIZE; j++)
+		for (int i = 0; i < MAT3_ROW_LENGTH; i++)
+			for (int j = 0; j < MAT3_ROW_LENGTH; j++)
 			{
 				detij = determinantIJ(j, i);
 
 				if ((i + j) & 0x1)
-					matrixInverse[i * MAT3_ROWSIZE + j] = -detij * det;
+					matrixInverse[i * MAT3_ROW_LENGTH + j] = -detij * det;
 				else
-					matrixInverse[i * MAT3_ROWSIZE + j] = detij * det;
+					matrixInverse[i * MAT3_ROW_LENGTH + j] = detij * det;
 			}
 
 		return matrixInverse;
@@ -406,7 +406,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat3 identityMatrix = Mat3::identity();
 
-		for (int i = 0; i < MAT3_SIZE; i++)
+		for (int i = 0; i < MAT3_LENGTH; i++)
 			if (values[i] != identityMatrix[i])
 				return false;
 
@@ -416,7 +416,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_size Mat3::sizeInBytes() const
 	{
-		return MAT3_SIZE * SIZEOF_FLOAT;
+		return MAT3_LENGTH * SIZEOF_FLOAT;
 	}
 
 	
@@ -432,14 +432,14 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Mat3::operator[](sp_int index)
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 	
 	sp_float Mat3::operator[](sp_int index) const
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
@@ -447,14 +447,14 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Mat3::operator[](sp_uint index)
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 	
 	sp_float Mat3::operator[](sp_uint index) const
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
@@ -463,14 +463,14 @@ namespace NAMESPACE_PHYSICS
 	
 	T& Mat3::operator[](sp_size index)
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
 	
 	T Mat3::operator[](sp_size index) const
 	{
-		sp_assert(index >= 0 && index < MAT3_SIZE, "IndexOutOfrangeException");
+		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
 
 		return values[index];
 	}
@@ -493,7 +493,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat3 result;
 
-		for (int i = 0; i < MAT3_SIZE; i++)
+		for (int i = 0; i < MAT3_LENGTH; i++)
 			result[i] = -values[i];
 
 		return result;
@@ -504,7 +504,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat3 result;
 
-		for (int i = 0; i < MAT3_SIZE; i++)
+		for (int i = 0; i < MAT3_LENGTH; i++)
 			result[i] = values[i] - matrix[i];
 
 		return result;
@@ -515,7 +515,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		Mat3 result;
 
-		for (int i = 0; i < MAT3_SIZE; i++)
+		for (int i = 0; i < MAT3_LENGTH; i++)
 			result[i] = values[i] + matrix[i];
 
 		return result;
@@ -568,7 +568,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_bool Mat3::operator==(const Mat3& matrix) const
 	{
-		for (sp_int i = 0; i < MAT3_SIZE; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			if (values[i] != matrix[i])
 				return false;
 
@@ -578,7 +578,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_bool Mat3::operator!=(const Mat3& matrix) const
 	{
-		for (sp_int i = 0; i < MAT3_SIZE; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			if (values[i] != matrix[i])
 				return true;
 
@@ -588,7 +588,7 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_bool Mat3::operator==(const sp_float value) const
 	{
-		for (sp_int i = 0; i < MAT3_SIZE; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			if (values[i] != value)
 				return false;
 
@@ -598,7 +598,7 @@ namespace NAMESPACE_PHYSICS
 	
 	std::string Mat3::toString() const
 	{
-		return Mat::toString(values, MAT3_SIZE);
+		return Mat::toString(values, MAT3_LENGTH);
 	}
 
 	
@@ -611,8 +611,8 @@ namespace NAMESPACE_PHYSICS
 		std::vector<Mat3> elementarInverseMatrixes;
 		Mat3 elementarInverseMatrix;
 
-		sp_int rowSize = MAT3_ROWSIZE;
-		sp_int colSize = MAT3_ROWSIZE;
+		sp_int rowSize = MAT3_ROW_LENGTH;
+		sp_int colSize = MAT3_ROW_LENGTH;
 
 	#if MAJOR_COLUMN_ORDER
 		sp_int pivotRowIndex = 0;
@@ -700,26 +700,26 @@ namespace NAMESPACE_PHYSICS
 		int diagonalIndex = 0;
 
 	#if MAJOR_COLUMN_ORDER
-		for (sp_int column = 0; column < MAT3_ROWSIZE; column++)
+		for (sp_int column = 0; column < MAT3_ROW_LENGTH; column++)
 		{
-			sp_float pivot = upperMatrix[diagonalIndex * MAT3_ROWSIZE + column];
+			sp_float pivot = upperMatrix[diagonalIndex * MAT3_ROW_LENGTH + column];
 
-			diagonalMatrix[column * MAT3_ROWSIZE + diagonalIndex] = pivot;
+			diagonalMatrix[column * MAT3_ROW_LENGTH + diagonalIndex] = pivot;
 
-			for (int row = column; row < MAT3_ROWSIZE; row++)
-				upperMatrix[column * MAT3_ROWSIZE + row] /= pivot;
+			for (int row = column; row < MAT3_ROW_LENGTH; row++)
+				upperMatrix[column * MAT3_ROW_LENGTH + row] /= pivot;
 
 			diagonalIndex++;
 		}
 	#else
-		for (sp_int row = 0; row < MAT3_ROWSIZE; row++)
+		for (sp_int row = 0; row < MAT3_ROW_LENGTH; row++)
 		{
-			T pivot = upperMatrix[row * MAT3_ROWSIZE + diagonalIndex];
+			T pivot = upperMatrix[row * MAT3_ROW_LENGTH + diagonalIndex];
 
-			diagonalMatrix[row * MAT3_ROWSIZE + diagonalIndex] = pivot;
+			diagonalMatrix[row * MAT3_ROW_LENGTH + diagonalIndex] = pivot;
 
-			for (int column = row; column < MAT3_ROWSIZE; column++)
-				upperMatrix[row * MAT3_ROWSIZE + column] /= pivot;
+			for (int column = row; column < MAT3_ROW_LENGTH; column++)
+				upperMatrix[row * MAT3_ROW_LENGTH + column] /= pivot;
 
 			diagonalIndex++;
 		}

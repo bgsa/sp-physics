@@ -28,9 +28,9 @@ namespace NAMESPACE_PHYSICS
 		Mat3 R, AbsR; 
 		
 		// Compute rotation matrix expressing b in a�s coordinate frame 
-		for (sp_int i = 0; i < MAT3_ROWSIZE; i++) 
-			for (sp_int j = 0; j < MAT3_ROWSIZE; j++)
-				R[i * MAT3_ROWSIZE + j] = orientation.getAxis(i).dot(obb.orientation.getAxis(j));
+		for (sp_int i = 0; i < MAT3_ROW_LENGTH; i++) 
+			for (sp_int j = 0; j < MAT3_ROW_LENGTH; j++)
+				R[i * MAT3_ROW_LENGTH + j] = orientation.getAxis(i).dot(obb.orientation.getAxis(j));
 
 		// Compute translation vector t 
 		Vec3 t = obb.center - center; 
@@ -41,38 +41,38 @@ namespace NAMESPACE_PHYSICS
 		// Compute common subexpressions. Add in an epsilon term to 
 		// counteract arithmetic errors when two edges are parallel and 
 		// their cross product is (near) null (see text for details) 
-		for (sp_int i = 0; i < MAT3_SIZE; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 				AbsR[i] = fabsf(R[i]) + DefaultErrorMargin;  // + EPSILON
 		
 		// Test axes L = A0, L = A1, L = A2 
-		for (sp_int i = 0; i < MAT3_ROWSIZE; i++)
+		for (sp_int i = 0; i < MAT3_ROW_LENGTH; i++)
 		{ 
 			ra = halfWidth[i]; 
-			rb = obb.halfWidth[0] * AbsR[i * MAT3_ROWSIZE] 
-				+ obb.halfWidth[1] * AbsR[i * MAT3_ROWSIZE + 1] 
-				+ obb.halfWidth[2] * AbsR[i * MAT3_ROWSIZE + 2];
+			rb = obb.halfWidth[0] * AbsR[i * MAT3_ROW_LENGTH] 
+				+ obb.halfWidth[1] * AbsR[i * MAT3_ROW_LENGTH + 1] 
+				+ obb.halfWidth[2] * AbsR[i * MAT3_ROW_LENGTH + 2];
 			
 			if (std::fabs(t[i]) > ra + rb) 
 				return CollisionStatus::OUTSIDE; 
 		} 
 		
 		// Test axes L = B0, L = B1, L = B2 
-		for (sp_int i = 0; i < MAT3_ROWSIZE; i++)
+		for (sp_int i = 0; i < MAT3_ROW_LENGTH; i++)
 		{ 
 			ra = halfWidth[0] * AbsR[i] 
-				+ halfWidth[1] * AbsR[MAT3_ROWSIZE + i] 
-				+ halfWidth[2] * AbsR[TWO_MAT3_ROWSIZE + i];
+				+ halfWidth[1] * AbsR[MAT3_ROW_LENGTH + i] 
+				+ halfWidth[2] * AbsR[MAT3_TWO_ROW_LENGTH + i];
 			rb = obb.halfWidth[i];
 			
-			if (std::fabsf(t[0] * R[i] + t[1] * R[MAT3_ROWSIZE + i] + t[2] * R[TWO_MAT3_ROWSIZE + i]) > ra + rb)
+			if (std::fabsf(t[0] * R[i] + t[1] * R[MAT3_ROW_LENGTH + i] + t[2] * R[MAT3_TWO_ROW_LENGTH + i]) > ra + rb)
 				return CollisionStatus::OUTSIDE;
 		} 
 		
 		// Test axis L = A0 x B0 
-		ra = halfWidth[1] * AbsR[TWO_MAT3_ROWSIZE] + halfWidth[2] * AbsR[MAT3_ROWSIZE];
+		ra = halfWidth[1] * AbsR[MAT3_TWO_ROW_LENGTH] + halfWidth[2] * AbsR[MAT3_ROW_LENGTH];
 		rb = obb.halfWidth[1] * AbsR[2] + obb.halfWidth[2] * AbsR[1];
 		
-		if (std::fabsf(t[2] * R[MAT3_ROWSIZE] - t[1] * R[TWO_MAT3_ROWSIZE]) > ra + rb)
+		if (std::fabsf(t[2] * R[MAT3_ROW_LENGTH] - t[1] * R[MAT3_TWO_ROW_LENGTH]) > ra + rb)
 			return CollisionStatus::OUTSIDE;
 		
 		// Test axis L = A0 x B1 
@@ -86,47 +86,47 @@ namespace NAMESPACE_PHYSICS
 		ra = halfWidth[1] * AbsR[8] + halfWidth[2] * AbsR[5];
 		rb = obb.halfWidth[0] * AbsR[1] + obb.halfWidth[1] * AbsR[0];
 		
-		if (std::fabsf(t[2] * R[MAT3_ROWSIZE + 2] - t[1] * R[8]) > ra + rb)
+		if (std::fabsf(t[2] * R[MAT3_ROW_LENGTH + 2] - t[1] * R[8]) > ra + rb)
 			return CollisionStatus::OUTSIDE;
 		
 		// Test axis L = A1 x B0 
-		ra = halfWidth[0] * AbsR[TWO_MAT3_ROWSIZE] + halfWidth[2] * AbsR[0];
+		ra = halfWidth[0] * AbsR[MAT3_TWO_ROW_LENGTH] + halfWidth[2] * AbsR[0];
 		rb = obb.halfWidth[1] * AbsR[5] + obb.halfWidth[2] * AbsR[4];
 
-		if (std::fabsf(t[0] * R[TWO_MAT3_ROWSIZE] - t[2] * R[0]) > ra + rb)
+		if (std::fabsf(t[0] * R[MAT3_TWO_ROW_LENGTH] - t[2] * R[0]) > ra + rb)
 			return CollisionStatus::OUTSIDE;
 		
 		// Test axis L = A1 x B1 
 		ra = halfWidth[0] * AbsR[7] + halfWidth[2] * AbsR[1];
-		rb = obb.halfWidth[0] * AbsR[5] + obb.halfWidth[2] * AbsR[MAT3_ROWSIZE];
+		rb = obb.halfWidth[0] * AbsR[5] + obb.halfWidth[2] * AbsR[MAT3_ROW_LENGTH];
 		
 		if (std::fabsf(t[0] * R[7] - t[2] * R[1]) > ra + rb)
 			return CollisionStatus::OUTSIDE;
 		
 		// Test axis L = A1 x B2 
 		ra = halfWidth[0] * AbsR[8] + halfWidth[2] * AbsR[2];
-		rb = obb.halfWidth[0] * AbsR[4] + obb.halfWidth[1] * AbsR[MAT3_ROWSIZE];
+		rb = obb.halfWidth[0] * AbsR[4] + obb.halfWidth[1] * AbsR[MAT3_ROW_LENGTH];
 		
 		if (std::fabsf(t[0] * R[8] - t[2] * R[2]) > ra + rb)
 			return CollisionStatus::OUTSIDE;
 		
 		// Test axis L = A2 x B0 
-		ra = halfWidth[0] * AbsR[MAT3_ROWSIZE] + halfWidth[1] * AbsR[0];
+		ra = halfWidth[0] * AbsR[MAT3_ROW_LENGTH] + halfWidth[1] * AbsR[0];
 		rb = obb.halfWidth[1] * AbsR[8] + obb.halfWidth[2] * AbsR[7];
 		
-		if (std::fabsf(t[1] * R[0] - t[0] * R[MAT3_ROWSIZE]) > ra + rb)
+		if (std::fabsf(t[1] * R[0] - t[0] * R[MAT3_ROW_LENGTH]) > ra + rb)
 			return CollisionStatus::OUTSIDE;
 		
 		// Test axis L = A2 x B1 
 		ra = halfWidth[0] * AbsR[4] + halfWidth[1] * AbsR[1];
-		rb = obb.halfWidth[0] * AbsR[8] + obb.halfWidth[2] * AbsR[TWO_MAT3_ROWSIZE];
+		rb = obb.halfWidth[0] * AbsR[8] + obb.halfWidth[2] * AbsR[MAT3_TWO_ROW_LENGTH];
 		
 		if (std::fabsf(t[1] * R[1] - t[0] * R[4]) > ra + rb)
 			return CollisionStatus::OUTSIDE;
 		
 		// Test axis L = A2 x B2 
 		ra = halfWidth[0] * AbsR[5] + halfWidth[1] * AbsR[2];
-		rb = obb.halfWidth[0] * AbsR[7] + obb.halfWidth[1] * AbsR[TWO_MAT3_ROWSIZE];
+		rb = obb.halfWidth[0] * AbsR[7] + obb.halfWidth[1] * AbsR[MAT3_TWO_ROW_LENGTH];
 		
 		if (std::fabsf(t[1] * R[2] - t[0] * R[5]) > ra + rb)
 			return CollisionStatus::OUTSIDE;

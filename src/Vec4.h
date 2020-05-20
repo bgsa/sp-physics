@@ -5,7 +5,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define VEC4_SIZE 4
+#define VEC4_LENGTH (4)
+#define VEC4_SIZE   (VEC4_LENGTH * SIZEOF_FLOAT)
 
 	class Vec4
 	{

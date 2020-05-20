@@ -8,14 +8,15 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define MAT3_SIZE 9
-#define MAT3_ROWSIZE 3
-#define TWO_MAT3_ROWSIZE 6
+#define MAT3_LENGTH         (9)
+#define MAT3_SIZE           (MAT3_LENGTH * SIZEOF_FLOAT)
+#define MAT3_ROW_LENGTH     (3)
+#define MAT3_TWO_ROW_LENGTH (6)
 
 	class Mat3
 	{
 	private:
-		sp_float values[MAT3_SIZE];
+		sp_float values[MAT3_LENGTH];
 
 	public:
 

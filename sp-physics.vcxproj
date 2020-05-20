@@ -279,6 +279,7 @@
     <ClInclude Include="src\Rectangle2D.h" />
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
+    <ClInclude Include="src\SpPhysicObjectList.h" />
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SweepAndPrune.h" />

@@ -6,13 +6,14 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define MAT2_SIZE 4
-#define MAT2_ROWSIZE 2
+#define MAT2_LENGTH     (4)
+#define MAT2_SIZE       (MAT_LENGTH * SIZEOF_FLOAT)
+#define MAT2_ROW_LENGTH (2)
 
 	class Mat2
 	{
 	private:
-		sp_float values[MAT2_SIZE];
+		sp_float values[MAT2_LENGTH];
 
 	public:
 

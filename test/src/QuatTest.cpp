@@ -271,7 +271,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec3 expected(5.0f, 1.0f, 6.0f);
 
-		for (sp_int i = 0; i < VEC3_SIZE; i++) {
+		for (sp_int i = 0; i < VEC3_LENGTH; i++) {
 			Assert::AreEqual(expected[i], result1[i], L"Wrong value", LINE_INFO());
 			Assert::AreEqual(expected[i], result2[i], L"Wrong value", LINE_INFO());
 		}			
@@ -297,7 +297,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 result = axis.rotate(point);
 		Vec3 expected(0.3562f, 0.7830f, 0.0f);
 
-		for (sp_int i = 0; i < VEC3_SIZE; i++)
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
@@ -312,7 +312,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			 0.0f, 0.6f, -0.8f
 		 };
 
-		for (sp_int i = 0; i < MAT3_SIZE; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 
 		quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
@@ -324,7 +324,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			-0.2168675f,  0.5662650f, -0.7951807f
 		};
 
-		for (sp_int i = 0; i < MAT3_SIZE; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
@@ -336,7 +336,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 result = quat2.toEulerAngles();
 		Vec3 expected = Vec3(2.677945f, 0.4755543f, -1.1071487f);
 
-		for (sp_int i = 0; i < VEC3_SIZE; i++)
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
@@ -356,7 +356,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 result = quat.axis();
 		Vec3 expected = Vec3(0.816496611f, 0.571547627f, 0.0816496611f);
 
-		for (sp_int i = 0; i < VEC3_SIZE; i++)
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 

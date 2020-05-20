@@ -6,10 +6,9 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define MAT4_LENGTH 16
-#define MAT4_ROW_LENGTH 4
-#define MAT4_FLOAT_SIZE (MAT4_LENGTH * SIZEOF_FLOAT)
-#define MAT4_DOUBLE_SIZE (MAT4_LENGTH * SIZEOF_DOUBLE)
+#define MAT4_LENGTH     (16)
+#define MAT4_SIZE       (MAT4_LENGTH * SIZEOF_FLOAT)
+#define MAT4_ROW_LENGTH (4)
 
 	class Mat4
 	{
@@ -263,14 +262,12 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE operator void*() const;
 
 		/// <summary>
-		/// Auto convertion to T *
-		/// It is the same of convertion to float* or int* or double*, whatever T is.
+		/// Auto convertion to sp_float*
 		/// </summary>
 		API_INTERFACE operator sp_float*();
 
 		/// <summary>
-		/// Auto convertion to T *
-		/// It is the same of convertion to float* or int* or double*, whatever T is.
+		/// Auto convertion to const sp_float*
 		/// </summary>
 		API_INTERFACE operator sp_float*() const;
 
