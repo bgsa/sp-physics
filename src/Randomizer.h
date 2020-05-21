@@ -8,23 +8,21 @@ namespace NAMESPACE_PHYSICS
 {
 	static std::default_random_engine randomGenerator{ std::random_device{}() };
 
-	template<typename T>
 	class Randomizer
 	{
 	private:
-		std::uniform_int_distribution<T> distribution;
+		std::uniform_int_distribution<sp_int> distribution;
 
 	public:
 
-		Randomizer(T from, T to)
+		Randomizer(sp_int from, sp_int to)
 		{
-			distribution = std::uniform_int_distribution<T>(from, to);
+			distribution = std::uniform_int_distribution<sp_int>(from, to);
 		}
 
-		API_INTERFACE inline T rand()
+		API_INTERFACE inline sp_int rand()
 		{
-			T randomValue = distribution(randomGenerator);
-			return randomValue;
+			return distribution(randomGenerator);
 		}
 	};
 }

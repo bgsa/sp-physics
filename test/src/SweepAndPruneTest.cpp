@@ -20,8 +20,8 @@ sp_int comparatorXAxisForQuickSort1(const void* a, const void* b)
 
 AABB* getRandomAABBs(sp_uint count, sp_uint spaceSize = 1000u)
 {
-	Randomizer<sp_int> randomizerSize(0, 30);
-	Randomizer<sp_int> randomizerLocation(0, spaceSize);
+	Randomizer randomizerSize(0, 30);
+	Randomizer randomizerLocation(0, spaceSize);
 
 	AABB* aabbs = ALLOC_NEW_ARRAY(AABB, count);
 

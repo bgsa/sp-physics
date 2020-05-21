@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_float* getRandom(sp_uint count, sp_uint spaceSize = 10000)
 		{
-			Randomizer<sp_int> randomizer(0, spaceSize);
+			Randomizer randomizer(0, spaceSize);
 
 			sp_float* result = ALLOC_ARRAY(sp_float, count);
 
@@ -34,8 +34,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		AABB* getRandomAABBs(sp_uint count, sp_uint spaceSize = 1000)
 		{
-			Randomizer<int> randomizerSize(0, 30);
-			Randomizer<int> randomizerLocation(0, spaceSize);
+			Randomizer randomizerSize(0, 30);
+			Randomizer randomizerLocation(0, spaceSize);
 
 			AABB* aabbs = ALLOC_ARRAY(AABB, count);
 

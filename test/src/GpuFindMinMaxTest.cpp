@@ -21,8 +21,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
 	{
-		Randomizer<int> randomizerSize(0, 30);
-		Randomizer<int> randomizerLocation(0, spaceSize);
+		Randomizer randomizerSize(0, 30);
+		Randomizer randomizerLocation(0, spaceSize);
 
 		AABB* aabbs = ALLOC_NEW_ARRAY(AABB, count);
 

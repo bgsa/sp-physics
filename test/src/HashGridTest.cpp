@@ -30,8 +30,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	AABB* getRandom(size_t count)
 	{
-		Randomizer<int> randomizerSize(0, 30);
-		Randomizer<int> randomizerLocation(0, 1000);
+		Randomizer randomizerSize(0, 30);
+		Randomizer randomizerLocation(0, 1000);
 
 		AABB* aabbs = ALLOC_ARRAY(AABB, count);
 
