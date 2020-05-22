@@ -29,8 +29,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		for (int i = 3; i < DOP18_ORIENTATIONS; i++)
 		{
-			Assert::AreEqual(-0.375f, kdop.min[i], L"Wrong value.", LINE_INFO());
-			Assert::AreEqual(0.375f, kdop.max[i], L"Wrong value.", LINE_INFO());
+			Assert::AreEqual(-0.75f, kdop.min[i], L"Wrong value.", LINE_INFO());
+			Assert::AreEqual(0.75f, kdop.max[i], L"Wrong value.", LINE_INFO());
 		}
 	}
 

@@ -19,18 +19,18 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, GPUContext_instance_Test)
 	{
-		std::vector<cl_platform_id> platforms = GpuContext::getPlatforms();
+		SpArray<cl_platform_id>* platforms = GpuContext::platforms();
 
-		GpuContext* gpu = GpuContext::init(platforms[0]);
+		GpuContext* gpu = GpuContext::init(platforms->data()[0]);
 
 		Assert::IsTrue(gpu != NULL, L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, GPUContext_getPlatforms_Test)
 	{
-		std::vector<cl_platform_id> platforms = GpuContext::getPlatforms();
+		SpArray<cl_platform_id>* platforms = GpuContext::platforms();
 
-		Assert::IsTrue(platforms.size() > 0, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(platforms->length() > 0, L"Wrong value.", LINE_INFO());
 	}
 
 }

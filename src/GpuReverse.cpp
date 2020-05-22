@@ -101,21 +101,21 @@ namespace NAMESPACE_PHYSICS
 			return outputGpu;
 	}
 
-	GpuReverse::~GpuReverse()
+	void GpuReverse::dispose()
 	{
 		if (releaseBuffers)
 		{
 			gpu->releaseBuffer(inputGpu);
-			inputGpu = NULL;
+			inputGpu = nullptr;
 
 			gpu->releaseBuffer(inputLengthGpu);
-			inputLengthGpu = NULL;
+			inputLengthGpu = nullptr;
 		}
 
-		if (commandReverse != NULL)
+		if (commandReverse != nullptr)
 		{
-			commandReverse->~GpuCommand();
-			commandReverse = NULL;
+			sp_mem_delete(commandReverse, GpuCommand);
+			commandReverse = nullptr;
 		}
 	}
 

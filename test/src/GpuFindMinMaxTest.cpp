@@ -82,7 +82,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxIndexesGPU_withOffsets)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint offsetCpu = AABB_OFFSET;
 
@@ -146,7 +146,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxIndexesGPU_withOffsets_andSomeData)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint offsetMultiplier = 8;
 		const sp_uint offsetSum = 2;
@@ -202,7 +202,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxIndexesGPU_withOffsets_andOdd)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint offsetMultiplier = 8;
 		const sp_uint offsetSum = 2;
@@ -256,7 +256,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, GpuCommands_findMinMaxIndexesGPU_withOffsets_andFewData)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint offsetMultiplier = 8;
 		const sp_uint offsetSum = 2;

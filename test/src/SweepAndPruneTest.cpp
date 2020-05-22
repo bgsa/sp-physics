@@ -1,6 +1,7 @@
 #include "SpectrumPhysicsTest.h"
 #include <SweepAndPrune.h>
 #include "Randomizer.h"
+#include "DOP18.h"
 
 #define CLASS_NAME SweepAndPruneTest
 
@@ -62,6 +63,25 @@ AABB* getRandomAABBs(sp_uint count, sp_uint spaceSize = 1000u)
 	}
 
 	return aabbs;
+}
+
+DOP18* getRandomKDOPs(sp_uint length, sp_uint spaceSize = 1000u)
+{
+	Randomizer randomizer(0, spaceSize);
+
+	DOP18* kdops = ALLOC_NEW_ARRAY(DOP18, length);
+
+	for (sp_uint i = 0; i < length; i++)
+	{
+		sp_float x = randomizer.rand() / 100.0f;
+		sp_float y = randomizer.rand() / 100.0f;
+		sp_float z = randomizer.rand() / 100.0f;
+
+		kdops[i].scale(Vec3(3.0f));
+		kdops[i].translate({ x, 0.5f, z });
+	}
+
+	return kdops;
 }
 
 AABB* get1000AABBs()
@@ -1073,19 +1093,35 @@ AABB* get1000AABBs()
 
 namespace NAMESPACE_PHYSICS_TEST
 {
+	sp_int comparatorXAxisForQuickSortKDOP(const void* a, const void* b)
+	{
+		DOP18* obj1 = (DOP18*)a;
+		DOP18* obj2 = (DOP18*)b;
+
+		if (obj1->min[0] < obj2->min[0])
+			return -1;
+		else
+			if (obj1->min[0] > obj2->min[0])
+				return 1;
+
+		return 0;
+	}
+
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(SweepAndPrune_findCollisions_Test);
+		SP_TEST_METHOD_DEF(findCollisions);
+		SP_TEST_METHOD_DEF(findCollisions_WithKDOPs);
 
 #ifdef OPENCL_ENABLED
-		SP_TEST_METHOD_DEF(SweepAndPrune_findCollisionsGPU_Test);
+		SP_TEST_METHOD_DEF(findCollisionsGPU);
+		SP_TEST_METHOD_DEF(findCollisionsGPU_WithKDOPs);
 #endif
 
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, SweepAndPrune_findCollisions_Test)
+	SP_TEST_METHOD(CLASS_NAME, findCollisions)
 	{
 		size_t count = 1000;
 		AABB* aabbs = get1000AABBs();
@@ -1102,12 +1138,49 @@ namespace NAMESPACE_PHYSICS_TEST
 		ALLOC_RELEASE(aabbs);
 	}
 
+	SP_TEST_METHOD(CLASS_NAME, findCollisions_WithKDOPs)
+	{
+		for (sp_uint iterations = 0; iterations < 10; iterations++)
+		{
+			sp_uint length = 10;
+			DOP18* kdops = getRandomKDOPs(length);
+
+			AlgorithmSorting::quickSortNative(kdops, length, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
+
+			std::vector<std::pair<sp_uint, sp_uint>> pairs;
+			sp_uint expectedLength = ZERO_UINT;
+			for (sp_uint i = 0; i < length; i++)
+			{
+				DOP18 currentKDOP = kdops[i];
+
+				for (sp_uint j = i + 1; j < length; j++)
+					if (currentKDOP.collisionStatus(kdops[j]) == CollisionStatus::INSIDE)
+					{
+						expectedLength++;
+						std::pair<sp_uint, sp_uint> p(i, j);
+						pairs.push_back(p);
+					}
+			}
+
+			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+
+			SweepAndPruneResultCpu result = SweepAndPrune::findCollisions(kdops, length);
+
+			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
+			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
+
+			Assert::AreEqual(expectedLength, result.count, L"wrong value", LINE_INFO());
+
+			ALLOC_RELEASE(kdops);
+		}
+	}
+
 #ifdef OPENCL_ENABLED
 
-	SP_TEST_METHOD(CLASS_NAME, SweepAndPrune_findCollisionsGPU_Test)
+	SP_TEST_METHOD(CLASS_NAME, findCollisionsGPU)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		//const size_t count = 1000;
 		const size_t count = (size_t)std::pow(2.0, 17.0);
@@ -1141,6 +1214,49 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(result1.count, collisionsLength, L"wrong value", LINE_INFO());
 
 		ALLOC_DELETE(sap, SweepAndPrune);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, findCollisionsGPU_WithKDOPs)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+		SweepAndPrune sap;
+
+		const sp_uint minXAxis = DOP18_AXIS_X;
+		const sp_uint maxXAxis = minXAxis + DOP18_ORIENTATIONS;
+
+		const sp_uint length = 1024;
+		//const sp_uint length = (size_t)std::pow(2.0, 17.0);
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << length;
+		buildOptions << " -DINPUT_STRIDE=" << DOP18_STRIDER;
+		buildOptions << " -DINPUT_OFFSET=" << DOP18_OFFSET;
+
+		sap.init(gpu, buildOptions.str().c_str());
+
+		DOP18* kdops1 = getRandomKDOPs(length, 10000);
+		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
+		sap.setParameters((sp_float*)kdops2, length, DOP18_STRIDER, DOP18_OFFSET, minXAxis, maxXAxis);
+
+		std::chrono::high_resolution_clock::time_point currentTime1 = std::chrono::high_resolution_clock::now();
+
+		SweepAndPruneResultCpu result1 = SweepAndPrune::findCollisions(kdops1, length);
+
+		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
+		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
+		currentTime1 = std::chrono::high_resolution_clock::now();
+
+		cl_mem output = sap.execute();
+
+		currentTime2 = std::chrono::high_resolution_clock::now();
+		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
+
+		sp_uint collisionsLength = sap.fetchCollisionLength();
+
+		Assert::AreEqual(result1.count, collisionsLength, L"wrong value", LINE_INFO());
+
+		sap.dispose();
+		ALLOC_RELEASE(kdops1);
 	}
 #endif // OPENCL_ENABLED
 

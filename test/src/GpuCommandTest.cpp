@@ -32,7 +32,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_size localWorkSize = 64;
 		
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		SP_FILE file;
 		file.open("sumVector.cl", std::ios::in);

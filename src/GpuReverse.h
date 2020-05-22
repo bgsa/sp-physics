@@ -43,7 +43,14 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE cl_mem execute() override;
 
-		API_INTERFACE ~GpuReverse();
+		API_INTERFACE const sp_char* toString() override
+		{
+			return "GPU Reverse Command";
+		}
+
+		API_INTERFACE void dispose() override;
+
+		API_INTERFACE ~GpuReverse() { dispose(); }
 
 	};
 }

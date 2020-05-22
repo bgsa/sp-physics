@@ -16,6 +16,20 @@ namespace NAMESPACE_PHYSICS
 		return 0;
 	}
 
+	sp_int comparatorXAxisForQuickSortKDOP(const void* a, const void* b)
+	{
+		DOP18* obj1 = (DOP18*)a;
+		DOP18* obj2 = (DOP18*)b;
+
+		if (obj1->min[0] < obj2->min[0])
+			return -1;
+		else
+			if (obj1->min[0] > obj2->min[0])
+				return 1;
+
+		return 0;
+	}
+
 	template<typename T>
 	void erase_element(std::vector<T>& vector, sp_uint index)
 	{
@@ -28,9 +42,9 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	template<typename T>
-	void erase_element(T* array, sp_uint count, sp_uint index)
+	void erase_element(T* arrayOfT, sp_uint count, sp_uint index)
 	{
-		std::memmove(array + index, array + index + 1, (count - index - 1) * sizeof(T));
+		std::memcpy(arrayOfT + index, arrayOfT + index + 1, (count - index - 1) * sizeof(T));
 	}
 
 	SweepAndPruneResultCpu SweepAndPrune::findCollisions(AABB* aabbs, sp_uint count)
@@ -75,6 +89,54 @@ namespace NAMESPACE_PHYSICS
 		return SweepAndPruneResultCpu(indexes, aabbIndex >> 1);
 	}
 
+	SweepAndPruneResultCpu SweepAndPrune::findCollisions(DOP18* kdops, sp_uint length)
+	{
+		sp_uint* indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
+		sp_uint kdopsIndex = 0;
+
+		sp_uint* activeListIndex = ALLOC_ARRAY(sp_uint, length);
+		sp_uint activeListIndexCount = 0;
+		sp_uint activeListKDOPIndex = 0;
+
+		AlgorithmSorting::quickSortNative(kdops, length, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
+
+		for (sp_uint i = 0; i < length; ++i)
+		{
+			for (sp_uint j = activeListIndexCount; j > 0; --j)
+			{
+				activeListKDOPIndex = activeListIndex[j - 1];
+
+				if (kdops[activeListKDOPIndex].max[0] < kdops[i].min[0])
+				{
+					erase_element(activeListIndex, activeListIndexCount, j - 1); //remove from active list
+					--activeListIndexCount;
+				}
+				else
+				{
+					if ((kdops[i].max[0] > kdops[activeListKDOPIndex].min[0])
+						&& (kdops[i].max[1] > kdops[activeListKDOPIndex].min[1] && kdops[i].min[1] < kdops[activeListKDOPIndex].max[1])
+						&& (kdops[i].max[2] > kdops[activeListKDOPIndex].min[2] && kdops[i].min[2] < kdops[activeListKDOPIndex].max[2])
+						&& (kdops[i].max[3] > kdops[activeListKDOPIndex].min[3] && kdops[i].min[3] < kdops[activeListKDOPIndex].max[3])
+						&& (kdops[i].max[4] > kdops[activeListKDOPIndex].min[4] && kdops[i].min[4] < kdops[activeListKDOPIndex].max[4])
+						&& (kdops[i].max[5] > kdops[activeListKDOPIndex].min[5] && kdops[i].min[5] < kdops[activeListKDOPIndex].max[5])
+						&& (kdops[i].max[6] > kdops[activeListKDOPIndex].min[6] && kdops[i].min[6] < kdops[activeListKDOPIndex].max[6])
+						&& (kdops[i].max[7] > kdops[activeListKDOPIndex].min[7] && kdops[i].min[7] < kdops[activeListKDOPIndex].max[7])
+						&& (kdops[i].max[8] > kdops[activeListKDOPIndex].min[8] && kdops[i].min[8] < kdops[activeListKDOPIndex].max[8])
+						)
+					{
+						indexes[kdopsIndex++] = i;
+						indexes[kdopsIndex++] = activeListKDOPIndex;
+					}
+				}
+			}
+
+			activeListIndex[activeListIndexCount++] = i;
+		}
+
+		ALLOC_RELEASE(activeListIndex);
+		return SweepAndPruneResultCpu(indexes, divideBy2(kdopsIndex));
+	}
+
 #ifdef OPENCL_ENABLED
 	static cl_program sapProgram = NULL;
 
@@ -85,7 +147,7 @@ namespace NAMESPACE_PHYSICS
 
 		this->gpu = gpu;
 
-		radixSorting = ALLOC_NEW(GpuRadixSorting)();
+		radixSorting = sp_mem_new(GpuRadixSorting)();
 		radixSorting->init(gpu, buildOptions);
 
 
@@ -146,11 +208,4 @@ namespace NAMESPACE_PHYSICS
 	}
 #endif // OPENCL_ENALBED
 
-	SweepAndPrune::~SweepAndPrune()
-	{
-	#if OPENCL_ENABLED
-		ALLOC_DELETE(commandSaP, GpuCommand);
-		ALLOC_DELETE(radixSorting, GpuRadixSorting);
-	#endif
-	}
 }

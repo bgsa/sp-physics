@@ -26,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 
 	GpuCommand* GpuCommandManager::createCommand()
 	{
-		return ALLOC_NEW(GpuCommand)(deviceId, deviceContext, commandQueue);
+		return sp_mem_new(GpuCommand)(deviceId, deviceContext, commandQueue);
 	}
 
 	sp_uint GpuCommandManager::cacheProgram(const char* source, size_t sourceSize, const char* buildOptions)

@@ -63,7 +63,14 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE cl_mem executeNegatives(sp_bool indexChanged, sp_bool offsetChanged);
 
-		API_INTERFACE ~GpuRadixSorting();
+		API_INTERFACE void dispose() override;
+
+		API_INTERFACE const sp_char* toString() override
+		{
+			return "GPU Radix Sorting";
+		}
+
+		API_INTERFACE ~GpuRadixSorting() { dispose(); }
 
 	};
 }

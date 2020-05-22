@@ -253,4 +253,14 @@ namespace NAMESPACE_PHYSICS
 		return BoundingVolumeType::DOP18;
 	}
 
+	DOP18::operator void*() const
+	{
+		return (void*)this;
+	}
+
+	DOP18::operator sp_float*() const
+	{
+		return (sp_float*)this;
+	}
+
 }

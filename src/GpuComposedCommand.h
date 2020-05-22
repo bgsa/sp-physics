@@ -9,11 +9,9 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	class GpuComposedCommand
+	class GpuComposedCommand : 
+		public Object
 	{
-
-	private:
-		
 	protected:
 		GpuDevice* gpu = NULL;
 

@@ -7,9 +7,10 @@
 #include "Plane3D.h"
 #include "DetailedCollisionStatus.h"
 
-#define DOP18_ORIENTATIONS 9
-#define DOP18_STRIDER 20
-#define DOP18_OFFSET 2
+#define DOP18_ORIENTATIONS (9)
+#define DOP18_STRIDER      (20)
+#define DOP18_OFFSET       (2)
+#define DOP18_SIZE         (80) /* DOP18_ORIENTATIONS * 2 (min,max) * SIZEOF_FLOAT + 8 (2 x heritage) */
 
 #define DOP18_AXIS_X           0
 #define DOP18_AXIS_Y           1
@@ -166,6 +167,16 @@ namespace NAMESPACE_PHYSICS
 		/// Returns the type og bounding volume
 		/// </summary>
 		API_INTERFACE BoundingVolumeType DOP18::type() const;
+
+		/// <summary>
+		/// Auto convertion to void *
+		/// </summary>
+		API_INTERFACE operator void*() const;
+
+		/// <summary>
+		/// Auto convertion to sp_float*
+		/// </summary>
+		API_INTERFACE operator sp_float*() const;
 
 		/// <summary>
 		/// Releases all allocated resouces

@@ -13,10 +13,10 @@ namespace NAMESPACE_PHYSICS
 
 		this->gpu = gpu;
 
-		commandCreateIndexes = ALLOC_NEW(GpuIndexes)();
+		commandCreateIndexes = sp_mem_new(GpuIndexes)();
 		commandCreateIndexes->init(gpu, buildOptions);
 
-		commandReverse = ALLOC_NEW(GpuReverse)();
+		commandReverse = sp_mem_new(GpuReverse)();
 		commandReverse->init(gpu, buildOptions);
 
 		SP_FILE file;
@@ -283,7 +283,7 @@ namespace NAMESPACE_PHYSICS
 		return output;
 	}
 
-	GpuRadixSorting::~GpuRadixSorting()
+	void GpuRadixSorting::dispose()
 	{
 		gpu->releaseBuffer(negativeCounterLocation1);
 		gpu->releaseBuffer(negativeCounterLocation2);
@@ -295,14 +295,14 @@ namespace NAMESPACE_PHYSICS
 		gpu->releaseBuffer(offsetTable1);
 		gpu->releaseBuffer(offsetTable2);
 
-		ALLOC_DELETE(commandCreateIndexes, GpuIndexes);
-		ALLOC_DELETE(commandCount, GpuCommand);
-		ALLOC_DELETE(commandCountSwapped, GpuCommand);
-		ALLOC_DELETE(commandPrefixScan, GpuCommand);
-		ALLOC_DELETE(commandPrefixScanSwaped, GpuCommand);
-		ALLOC_DELETE(commandReorder, GpuCommand);
-		ALLOC_DELETE(commandReorderSwapped, GpuCommand);
-		ALLOC_DELETE(commandReverse, GpuReverse);
+		sp_mem_delete(commandCreateIndexes, GpuIndexes);
+		sp_mem_delete(commandCount, GpuCommand);
+		sp_mem_delete(commandCountSwapped, GpuCommand);
+		sp_mem_delete(commandPrefixScan, GpuCommand);
+		sp_mem_delete(commandPrefixScanSwaped, GpuCommand);
+		sp_mem_delete(commandReorder, GpuCommand);
+		sp_mem_delete(commandReorderSwapped, GpuCommand);
+		sp_mem_delete(commandReverse, GpuReverse);
 	}
 }
 

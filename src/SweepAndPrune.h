@@ -3,6 +3,7 @@
 
 #include "SpectrumPhysics.h"
 #include "AABB.h"
+#include "DOP18.h"
 #include "AlgorithmSorting.h"
 
 #if OPENCL_ENABLED
@@ -69,7 +70,13 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE static SweepAndPruneResultCpu findCollisions(AABB* aabbs, sp_uint count);
+		API_INTERFACE static SweepAndPruneResultCpu findCollisions(AABB* aabbs, sp_uint length);
+
+		///<summary>
+		/// Find the collisions using Sweep and Prune method
+		/// Returns the pair indexes
+		///</summary>
+		API_INTERFACE static SweepAndPruneResultCpu findCollisions(DOP18* aabbs, sp_uint length);
 
 #ifdef OPENCL_ENABLED
 
@@ -94,9 +101,37 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE sp_uint fetchCollisionLength();
 
+		/// <summary>
+		/// Release allocated resources from this object
+		/// </summary>
+		API_INTERFACE void dispose() override
+		{
+#if OPENCL_ENABLED
+			if (radixSorting != nullptr)
+			{
+				sp_mem_delete(radixSorting, GpuRadixSorting);
+				radixSorting = nullptr;
+			}
+
+			if (commandSaP != nullptr)
+			{
+				sp_mem_delete(commandSaP, GpuCommand);
+				commandSaP = nullptr;
+			}
+#endif // OPENCL_ENABLED
+		}
+
+		/// <summary>
+		/// Description of the object
+		/// </summary>
+		API_INTERFACE const sp_char* toString() override
+		{
+			return "Sweep And Prune";
+		}
+
 #endif
 
-		API_INTERFACE ~SweepAndPrune();
+		API_INTERFACE ~SweepAndPrune() { dispose(); }
 
 	};
 

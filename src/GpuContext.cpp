@@ -4,8 +4,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	static GpuContext* gpu = nullptr;
-	static std::vector<cl_platform_id> platforms;
+	static SpArray<cl_platform_id>* _platforms;
+	static GpuContext* _gpuContext;
 
 	GpuContext::GpuContext(cl_platform_id platformId)
 	{
@@ -14,63 +14,79 @@ namespace NAMESPACE_PHYSICS
 		cl_uint devicesCount;
 		clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, 0, NULL, &devicesCount);
 
-		cl_device_id* devicesAsArray = new cl_device_id[devicesCount];
+		_devices = sp_mem_new(SpArray<GpuDevice*>)(devicesCount);
+
+		cl_device_id* devicesAsArray = ALLOC_ARRAY(cl_device_id, devicesCount);
 		clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, devicesCount, devicesAsArray, NULL);		
 
-		for (size_t i = 0; i < devicesCount; i++) 
+		for (sp_uint i = 0; i < devicesCount; i++) 
 		{
-			GpuDevice* device = new GpuDevice(devicesAsArray[i]);
-			devices.emplace_back(device);
+			GpuDevice* device = sp_mem_new(GpuDevice)(devicesAsArray[i]);
 
 			if (device->type & CL_DEVICE_TYPE_DEFAULT)
-				defaultDevice = device;
+				_defaultDevice = device;
+
+			_devices->add(device);
 		}
 
-		if (defaultDevice == nullptr && devicesCount > 0)
-			defaultDevice = devices[0];
+		if (_defaultDevice == nullptr && devicesCount > 0)
+			_defaultDevice = _devices->data()[0];
+
+		ALLOC_RELEASE(devicesAsArray);
 	}
 
 	GpuContext* GpuContext::init(cl_platform_id platformId)
 	{
-		if (gpu == nullptr)
-			gpu = new GpuContext(platformId);
+		_gpuContext = sp_mem_new(GpuContext)(platformId);
+		return _gpuContext;
+	}
 
-		return gpu;
+	GpuContext* GpuContext::instance()
+	{
+		return _gpuContext;
 	}
 
 	GpuContext* GpuContext::init()
 	{
-		return init(getDefaultPlatforms());
+		return init(defaultPlatforms());
 	}
 
-	std::vector<cl_platform_id> GpuContext::getPlatforms()
+	SpArray<GpuDevice*>* GpuContext::devices() const
 	{
-		if (platforms.size() > 0)
-			return platforms;
+		return _devices;
+	}
+
+	GpuDevice* GpuContext::defaultDevice() const
+	{
+		return _defaultDevice;
+	}
+
+	SpArray<cl_platform_id>* GpuContext::platforms()
+	{
+		if (_platforms != nullptr)
+			return _platforms;
 		
 		cl_uint platformCount;
 		HANDLE_OPENCL_ERROR(clGetPlatformIDs(ZERO_UINT, NULL, &platformCount));
 
-		cl_platform_id* platformsAsArray = new cl_platform_id[platformCount];
-		platforms.resize(platformCount);
+		_platforms = sp_mem_new(SpArray< cl_platform_id>)(platformCount);
 
-		HANDLE_OPENCL_ERROR(clGetPlatformIDs(platformCount, platformsAsArray, NULL));
-
-		platforms.assign(platformsAsArray, platformsAsArray + platformCount);
-
-		delete[] platformsAsArray;
-		return platforms;
+		HANDLE_OPENCL_ERROR(clGetPlatformIDs(platformCount, _platforms->data(), NULL));
+		
+		return _platforms;
 	}
 
-	cl_platform_id GpuContext::getDefaultPlatforms()
+	cl_platform_id GpuContext::defaultPlatforms()
 	{
-		return getPlatforms()[0];
+		return platforms()->data()[0];
 	}
 
 	GpuContext::~GpuContext()
 	{
-		for (size_t i = 0; i < devices.size(); i++)
-			delete devices[i];
+		for (sp_uint i = ZERO_UINT; i < _devices->length(); i++)
+		{
+			sp_mem_delete(_devices->data()[i], GpuDevice);
+		}
 	}
 }
 

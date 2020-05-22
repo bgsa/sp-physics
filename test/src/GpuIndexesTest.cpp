@@ -30,7 +30,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, GpuIndexes_createIndexes)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
 
@@ -60,7 +60,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, GpuIndexes_createIndexes_Many)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
 
@@ -90,7 +90,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, GpuIndexes_createIndexes_Some)
 	{
 		GpuContext* context = GpuContext::init();
-		GpuDevice* gpu = context->defaultDevice;
+		GpuDevice* gpu = context->defaultDevice();
 
 		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
 
