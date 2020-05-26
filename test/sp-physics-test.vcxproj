@@ -62,7 +62,6 @@
     <ClCompile Include="src\QuatTest.cpp" />
     <ClCompile Include="src\Rectangle2DTest.cpp" />
     <ClCompile Include="src\SphereTest.cpp" />
-    <ClCompile Include="src\SweepAndPruneKdopTest.cpp" />
     <ClCompile Include="src\SweepAndPruneTest.cpp" />
     <ClCompile Include="src\SystemOfLinearEquationsTest.cpp" />
     <ClCompile Include="src\Triangle2DTest.cpp" />

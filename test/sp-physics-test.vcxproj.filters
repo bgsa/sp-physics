@@ -128,9 +128,6 @@
     <ClCompile Include="src\SphereTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SweepAndPruneKdopTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SweepAndPruneTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

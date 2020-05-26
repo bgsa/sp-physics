@@ -28,6 +28,12 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void executeReadBuffer(cl_mem gpuBuffer, size_t bufferSize, void* cpuBuffer, bool waitToFinish);
 
+		API_INTERFACE cl_event updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr);
+
+		API_INTERFACE cl_event copyBuffer(cl_mem source, cl_mem destiny, const sp_size sizeToCopy
+			, const sp_size sourceOffset = 0, const sp_size destinyOffset = 0
+			, sp_uint eventsLength = 0, cl_event* eventsToWait = nullptr);
+
 		API_INTERFACE void flush();
 
 		API_INTERFACE ~GpuCommandManager();

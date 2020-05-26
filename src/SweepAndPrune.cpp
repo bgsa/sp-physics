@@ -30,6 +30,21 @@ namespace NAMESPACE_PHYSICS
 		return 0;
 	}
 
+	sp_uint axisToSweep;
+	static sp_int comparatorForQuickSortKDOP(const void* a, const void* b)
+	{
+		DOP18* obj1 = (DOP18*)a;
+		DOP18* obj2 = (DOP18*)b;
+
+		if (obj1->min[axisToSweep] < obj2->min[axisToSweep])
+			return -1;
+		else
+			if (obj1->min[axisToSweep] > obj2->min[axisToSweep])
+				return 1;
+
+		return 0;
+	}
+
 	template<typename T>
 	void erase_element(std::vector<T>& vector, sp_uint index)
 	{
@@ -113,15 +128,15 @@ namespace NAMESPACE_PHYSICS
 				}
 				else
 				{
-					if ((kdops[i].max[0] > kdops[activeListKDOPIndex].min[0])
-						&& (kdops[i].max[1] > kdops[activeListKDOPIndex].min[1] && kdops[i].min[1] < kdops[activeListKDOPIndex].max[1])
-						&& (kdops[i].max[2] > kdops[activeListKDOPIndex].min[2] && kdops[i].min[2] < kdops[activeListKDOPIndex].max[2])
-						&& (kdops[i].max[3] > kdops[activeListKDOPIndex].min[3] && kdops[i].min[3] < kdops[activeListKDOPIndex].max[3])
-						&& (kdops[i].max[4] > kdops[activeListKDOPIndex].min[4] && kdops[i].min[4] < kdops[activeListKDOPIndex].max[4])
-						&& (kdops[i].max[5] > kdops[activeListKDOPIndex].min[5] && kdops[i].min[5] < kdops[activeListKDOPIndex].max[5])
-						&& (kdops[i].max[6] > kdops[activeListKDOPIndex].min[6] && kdops[i].min[6] < kdops[activeListKDOPIndex].max[6])
-						&& (kdops[i].max[7] > kdops[activeListKDOPIndex].min[7] && kdops[i].min[7] < kdops[activeListKDOPIndex].max[7])
-						&& (kdops[i].max[8] > kdops[activeListKDOPIndex].min[8] && kdops[i].min[8] < kdops[activeListKDOPIndex].max[8])
+					if (   (kdops[i].max[0] >= kdops[activeListKDOPIndex].min[0] && kdops[i].min[0] <= kdops[activeListKDOPIndex].max[0])
+						&& (kdops[i].max[1] >= kdops[activeListKDOPIndex].min[1] && kdops[i].min[1] <= kdops[activeListKDOPIndex].max[1])
+						&& (kdops[i].max[2] >= kdops[activeListKDOPIndex].min[2] && kdops[i].min[2] <= kdops[activeListKDOPIndex].max[2])
+						&& (kdops[i].max[3] >= kdops[activeListKDOPIndex].min[3] && kdops[i].min[3] <= kdops[activeListKDOPIndex].max[3])
+						&& (kdops[i].max[4] >= kdops[activeListKDOPIndex].min[4] && kdops[i].min[4] <= kdops[activeListKDOPIndex].max[4])
+						&& (kdops[i].max[5] >= kdops[activeListKDOPIndex].min[5] && kdops[i].min[5] <= kdops[activeListKDOPIndex].max[5])
+						&& (kdops[i].max[6] >= kdops[activeListKDOPIndex].min[6] && kdops[i].min[6] <= kdops[activeListKDOPIndex].max[6])
+						&& (kdops[i].max[7] >= kdops[activeListKDOPIndex].min[7] && kdops[i].min[7] <= kdops[activeListKDOPIndex].max[7])
+						&& (kdops[i].max[8] >= kdops[activeListKDOPIndex].min[8] && kdops[i].min[8] <= kdops[activeListKDOPIndex].max[8])
 						)
 					{
 						indexes[kdopsIndex++] = i;
@@ -149,8 +164,7 @@ namespace NAMESPACE_PHYSICS
 
 		radixSorting = sp_mem_new(GpuRadixSorting)();
 		radixSorting->init(gpu, buildOptions);
-
-
+		
 		SP_FILE file;
 		file.open("SweepAndPrune.cl", std::ios::in);
 		const sp_size fileSize = file.length();
@@ -165,47 +179,199 @@ namespace NAMESPACE_PHYSICS
 		sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
 		return this;
 	}
-
-	sp_float* values;
-
-	void SweepAndPrune::setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_uint minPointIndex, sp_uint maxPointIndex)
+	
+	void SweepAndPrune::initIndexes(sp_uint inputLength)
 	{
-		values = input;
-		globalWorkSize[0] = gpu->maxWorkGroupSize;
-		localWorkSize[0] = nextPowOf2(inputLength) / gpu->maxWorkGroupSize;
+		indexesLengthGPU = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
 
-		radixSorting->setParameters(input, inputLength, strider, offset);
+		GpuIndexes* createIndexes = sp_mem_new(GpuIndexes)();
+		createIndexes->init(gpu, nullptr);
+		createIndexes->setParametersCreateIndexes(inputLength);
+		indexesGPU = createIndexes->execute();
+		sp_mem_delete(createIndexes, GpuIndexes);
+	}
 
-		sp_uint globalIndex = 0;
+	void SweepAndPrune::setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength)
+	{
+		globalWorkSize[0] = inputLength;
+		localWorkSize[0] = 1u;
+		
+		const sp_uint collisionsSize = inputLength * 20u * SIZEOF_UINT;
+		collisionsLength = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE);
+		collisions = gpu->createBuffer(collisionsSize, CL_MEM_READ_WRITE);
+		
+		initIndexes(inputLength);
 
-		sp_uint outputSize = inputLength * 2 * SIZEOF_UINT;
-		output = gpu->createBuffer(outputSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		radixSorting->setParameters(input, inputLength, indexesGPU, indexesLengthGPU, strider, offset);
 
-		commandSaP = gpu->commandManager->createCommand()
+		commandSaPCollisions = gpu->commandManager->createCommand()
 			->setInputParameter(radixSorting->inputGpu, inputLength * strider * SIZEOF_FLOAT)
-			->setInputParameter(radixSorting->indexesLengthGpu, SIZEOF_UINT)
+			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(radixSorting->output, inputLength * SIZEOF_UINT)
-			->setInputParameter(&globalIndex, SIZEOF_UINT, CL_MEM_READ_WRITE)
-			->setInputParameter(output, outputSize)
-			->buildFromProgram(sapProgram, "sweepAndPrune");
+			->setInputParameter(collisionsLength, SIZEOF_UINT)
+			->setInputParameter(collisions, collisionsSize)
+			->buildFromProgram(sapProgram, "sweepAndPruneSingleAxis");
 	}
 
 	cl_mem SweepAndPrune::execute()
 	{
+		const sp_uint zeroValue = ZERO_UINT;
+
 		radixSorting->execute();
 
-		commandSaP
+		commandSaPCollisions
+			->updateInputParameterValue(3, &zeroValue)
 			->updateInputParameter(2, radixSorting->output)
-			->execute(1, globalWorkSize, localWorkSize, 0, &radixSorting->lastEvent, 1u);
-		lastEvent = commandSaP->lastEvent;
+			->execute(1, globalWorkSize, localWorkSize, 0, &radixSorting->lastEvent, ONE_UINT);
 
-		return output;
+		lastEvent = commandSaPCollisions->lastEvent;
+
+		return collisions;
 	}
+
+	/*
+	cl_mem SweepAndPrune::execute()
+	{
+		DOP18* kdops = (DOP18*)values;
+		sp_uint zeroValue = ZERO_UINT;
+
+		std::vector<sp_uint> keptIndexes;
+		for (sp_uint i = 0; i < inputLength; i++)
+			keptIndexes.push_back(i);
+
+		std::stringstream out;
+
+		sp_size axis = 0;
+		for (; axis < axisLength - 1; axis++)
+		{	
+			sp_uint length;
+			gpu->commandManager->executeReadBuffer(indexesLengthGPU, SIZEOF_UINT, &length, true);
+			sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
+			gpu->commandManager->executeReadBuffer(indexesGPU, length * SIZEOF_UINT, indexes, true);
+
+			radixSorting->updateIndexes(indexesGPU, indexesLengthGPU);
+			radixSorting->execute();
+
+			sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, length);
+			gpu->commandManager->executeReadBuffer(radixSorting->output, length * SIZEOF_UINT, sortedIndexes, true);
+
+			// TODO: REMOVE - CHECK if the sorting is OK
+			for (sp_uint i = 1; i < length; i++)
+			{
+				sp_uint previousIndex = sortedIndexes[i - 1];
+				sp_uint currentIndex = sortedIndexes[i];
+
+				sp_float previous = ((sp_float*)&kdops[previousIndex])[DOP18_OFFSET + axis];
+				sp_float current = ((sp_float*)&kdops[currentIndex])[DOP18_OFFSET + axis];
+
+				if (previous > current)
+					break; // error
+			}
+
+			lastEvent = gpu->commandManager->updateBuffer(newIndexesLengthGPU, SIZEOF_UINT, &zeroValue, ONE_UINT, &radixSorting->lastEvent);
+			sp_uint temp;
+			gpu->commandManager->executeReadBuffer(newIndexesLengthGPU, SIZEOF_UINT, &temp, true);
+			gpu->commandManager->executeReadBuffer(indexesLengthGPU, SIZEOF_UINT, &length, true);
+
+			commandSaPStep
+				->updateInputParameter(1, indexesLengthGPU)
+				->updateInputParameter(2, radixSorting->output)
+				->updateInputParameterValue(3, &zeroValue)
+				->execute(1, globalWorkSize, localWorkSize, &axis, &lastEvent, ONE_UINT);
+
+			sp_float* p1 = commandSaPStep->fetchInOutParameter<sp_float>(0);
+			sp_uint* p2 = commandSaPStep->fetchInOutParameter<sp_uint>(1);
+			sp_uint* p3 = commandSaPStep->fetchInOutParameter<sp_uint>(2);
+			sp_uint* p4 = commandSaPStep->fetchInOutParameter<sp_uint>(3);
+			sp_uint* p5 = commandSaPStep->fetchInOutParameter<sp_uint>(4);
+
+			sp_uint newLengthCpu;
+			gpu->commandManager->executeReadBuffer(newIndexesLengthGPU, SIZEOF_UINT, &newLengthCpu, true);
+			sp_uint* newIndexesCpu = ALLOC_ARRAY(sp_uint, length);
+			gpu->commandManager->executeReadBuffer(newIndexesGPU, length * SIZEOF_UINT, newIndexesCpu, true);
+			
+
+			// TODO: REMOVE - CHECK sap step is OK
+			for (sp_uint i = 0; i < length; i++)
+			{
+				sp_bool foundCollision = false;
+				sp_uint index = sortedIndexes[i];
+
+				auto item = std::find(keptIndexes.begin(), keptIndexes.end(), index);
+				if (item == keptIndexes.end()) // se index not kept,  ignore
+					continue;
+
+				for (sp_uint j = i+1; j < length; j++)
+				{
+					sp_uint nextIndex = sortedIndexes[j];
+
+					auto itemJ = std::find(keptIndexes.begin(), keptIndexes.end(), nextIndex);
+					if (itemJ == keptIndexes.end()) // se index not kept, ignore
+						continue;
+
+					if (kdops[index].max[axis] >= kdops[nextIndex].min[axis] && kdops[index].min[axis] <= kdops[nextIndex].max[axis])
+					{
+						foundCollision = true;
+						break;
+					}
+				}
+
+				if (!foundCollision) // if not found collision, remove index
+					keptIndexes.erase(item);
+			}
+
+			out.clear();
+			std::vector<sp_uint> itensFound;
+			for (sp_uint i = 0; i < keptIndexes.size(); i++)
+			{
+				sp_bool foundInList = false;
+
+				for (sp_uint j = 0; j < newLengthCpu; j++)
+				{
+					if (newIndexesCpu[j] == values[keptIndexes.at(i)])
+					{
+						itensFound.push_back(j);
+						foundInList = true;
+						break;
+					}
+				}
+
+				if (! foundInList)
+					out << keptIndexes.at(i) << ',' << END_OF_LINE;
+			}
+
+			std::string str = out.str();
+
+			sp_assert(keptIndexes.size() == newLengthCpu, "error");
+
+			radixSorting->lastEvent = lastEvent = commandSaPStep->lastEvent;
+
+			gpu->commandManager->copyBuffer(newIndexesLengthGPU, indexesLengthGPU, SIZEOF_UINT, 0, 0, 1u, &lastEvent);
+			lastEvent = gpu->commandManager->copyBuffer(newIndexesGPU, indexesGPU, inputLength * SIZEOF_UINT, 0, 0, 1u, &lastEvent);
+			
+			ALLOC_RELEASE(indexes);
+		}
+
+
+		sp_uint length;
+		gpu->commandManager->executeReadBuffer(indexesLengthGPU, SIZEOF_UINT, &length, true);
+		sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
+		gpu->commandManager->executeReadBuffer(indexesGPU, length * SIZEOF_UINT, indexes, true);
+
+
+		commandSaPCollisions  // last axis and get collisions pair!
+			->execute(1, globalWorkSize, localWorkSize, &axis, &lastEvent , ONE_UINT);
+		lastEvent = commandSaPCollisions->lastEvent;
+
+		return collisions;
+	}
+	*/
 
 	sp_uint SweepAndPrune::fetchCollisionLength()
 	{
-		return divideBy2(*commandSaP->fetchInOutParameter<sp_uint>(3));
+		return divideBy2((*commandSaPCollisions->fetchInOutParameter<sp_uint>(3)));
 	}
+
 #endif // OPENCL_ENALBED
 
 }

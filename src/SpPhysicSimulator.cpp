@@ -41,11 +41,14 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::run()
 	{
+		/*
 		sp_uint length = _objectsList.begin()->value()->length();
 		DOP18* kdops = (DOP18*) _objectsList.begin()->value()->boundingVolumes();
 
 		SweepAndPruneResultCpu result = sap.findCollisions(kdops, length);
-		std::cout << result.count << END_OF_LINE;
+		std::cout << result.length << END_OF_LINE;
+		ALLOC_RELEASE(result.indexes);
+		*/
 
 		/*
 		const sp_uint indexesLength = _objectsList.length() * 2;

@@ -20,17 +20,21 @@ namespace NAMESPACE_PHYSICS
 	{
 	public:
 		sp_uint* indexes;
-		sp_uint count;
+		sp_uint length;
 
 		SweepAndPruneResultCpu(sp_uint* indexes, sp_uint count)
 		{
 			this->indexes = indexes;
-			this->count = count;
+			this->length = count;
 		}
 
 		~SweepAndPruneResultCpu()
 		{
-			ALLOC_RELEASE(indexes);
+			if (indexes != nullptr)
+			{
+				sp_mem_release(indexes);
+				indexes = nullptr;
+			}
 		}
 	};
 	
@@ -55,13 +59,21 @@ namespace NAMESPACE_PHYSICS
 	private:
 
 #if OPENCL_ENABLED
-		GpuDevice* gpu = NULL;
-		GpuRadixSorting* radixSorting = NULL;
-		GpuCommand* commandSaP = NULL;
-		cl_mem output = NULL;
+		GpuDevice* gpu = nullptr;
+
+		GpuRadixSorting* radixSorting = nullptr;
+		GpuCommand* commandSaPCollisions = nullptr;
+
+		cl_mem indexesLengthGPU = nullptr;
+		cl_mem indexesGPU = nullptr;
+
+		cl_mem collisions = nullptr;
+		cl_mem collisionsLength = nullptr;
 
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
+
+		void initIndexes(sp_uint inputLength);
 #endif
 
 	public:
@@ -88,7 +100,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_uint minPointIndex, sp_uint maxPointIndex);
+		API_INTERFACE void setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength);
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method in GPU
@@ -113,10 +125,22 @@ namespace NAMESPACE_PHYSICS
 				radixSorting = nullptr;
 			}
 
-			if (commandSaP != nullptr)
+			if (commandSaPCollisions != nullptr)
 			{
-				sp_mem_delete(commandSaP, GpuCommand);
-				commandSaP = nullptr;
+				sp_mem_delete(commandSaPCollisions, GpuCommand);
+				commandSaPCollisions = nullptr;
+			}
+
+			if (indexesGPU != nullptr)
+			{
+				gpu->releaseBuffer(indexesGPU);
+				indexesGPU = nullptr;
+			}
+			
+			if (indexesLengthGPU != nullptr)
+			{
+				gpu->releaseBuffer(indexesLengthGPU);
+				indexesLengthGPU = nullptr;
 			}
 #endif // OPENCL_ENABLED
 		}

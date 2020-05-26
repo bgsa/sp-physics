@@ -25,7 +25,6 @@ namespace NAMESPACE_PHYSICS
 
 		cl_program program;
 
-		GpuIndexes* commandCreateIndexes;
 		GpuCommand* commandCount;
 		GpuCommand* commandCountSwapped;
 		GpuCommand* commandPrefixScan;
@@ -47,17 +46,17 @@ namespace NAMESPACE_PHYSICS
 		cl_mem negativeCounterLocation1;
 		cl_mem negativeCounterLocation2;
 
-		cl_mem inputIndexesGpu;
 		cl_mem outputIndexesGpu;
 
 	public:
 		cl_mem inputGpu;
-		cl_mem indexesLengthGpu;
 		cl_mem output = NULL;
 
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;
 
-		API_INTERFACE GpuRadixSorting* setParameters(sp_float* input, sp_uint indexesLengthCpu, sp_uint striderCpu, sp_uint offsetCpu);
+		API_INTERFACE GpuRadixSorting* setParameters(sp_float* input, sp_uint indexesLengthCpu, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint striderCpu, sp_uint offsetCpu);
+
+		API_INTERFACE void updateIndexes(cl_mem newIndexes, cl_mem newIndexesLength);
 
 		API_INTERFACE cl_mem execute() override;
 

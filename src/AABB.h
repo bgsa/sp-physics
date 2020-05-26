@@ -10,8 +10,9 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define AABB_STRIDER 8
-#define AABB_OFFSET 2
+#define AABB_STRIDER     (8)
+#define AABB_OFFSET      (2)
+#define AABB_ORIENTATION (3)
 
 	class AABB
 		: public BoundingVolume

@@ -63,6 +63,36 @@ namespace NAMESPACE_PHYSICS
 		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, gpuBuffer, waitToFinish, 0, bufferSize, cpuBuffer, 0, NULL, NULL));
 	}
 
+	cl_event GpuCommandManager::updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength, cl_event* eventsToWait)
+	{
+		cl_event evt;
+
+		HANDLE_OPENCL_ERROR(clEnqueueWriteBuffer(commandQueue,
+			gpuBuffer,
+			CL_TRUE,
+			0,
+			gpuSizeBuffer,
+			value,
+			eventsLength, eventsToWait,
+			&evt));
+
+		return evt;
+	}
+
+	cl_event GpuCommandManager::copyBuffer(cl_mem source, cl_mem destiny, const sp_size sizeToCopy, const sp_size sourceOffset, const sp_size destinyOffset, sp_uint eventsLength, cl_event* eventsToWait)
+	{
+		cl_event evt;
+
+		HANDLE_OPENCL_ERROR(clEnqueueCopyBuffer(commandQueue, 
+			source, destiny,
+			sourceOffset, destinyOffset,
+			sizeToCopy,
+			eventsLength, eventsToWait,
+			&evt));
+
+		return evt;
+	}
+
 	void GpuCommandManager::flush()
 	{
 		HANDLE_OPENCL_ERROR(clFlush(commandQueue));

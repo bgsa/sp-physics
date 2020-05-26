@@ -74,7 +74,8 @@ namespace NAMESPACE_PHYSICS
 			0, 
 			inputParametersSize[index],
 			value, 
-			0, NULL, NULL));
+			0, NULL, 
+			&lastEvent));
 
 		return this;
 	}
@@ -194,6 +195,7 @@ namespace NAMESPACE_PHYSICS
 
 	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset, cl_event* eventstoWait, const sp_uint eventLength)
 	{
+		sp_assert(localWorkSize[0] != ZERO_SIZE, "InvalidArgumentException");
 		sp_assert(globalWorkSize[0] % localWorkSize[0] == 0, "InvalidArgumentException");
 		
 		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, threadOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, &lastEvent));
@@ -203,7 +205,7 @@ namespace NAMESPACE_PHYSICS
 
 	void GpuCommand::fetch(void* buffer)
 	{
-		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, buffer, 0, NULL, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, buffer, 0, NULL, &lastEvent));
 	}
 
 	template <typename T>
@@ -213,7 +215,7 @@ namespace NAMESPACE_PHYSICS
 
 		void* result = ALLOC_SIZE(size);
 
-		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, &lastEvent));
 
 		return (T*)result;
 	}
