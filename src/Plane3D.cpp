@@ -6,10 +6,10 @@ namespace NAMESPACE_PHYSICS
 		this->point = Vec3(0.0f);
 	};
 
-	Plane3D::Plane3D(const Vec3& point, const Vec3& vector)
+	Plane3D::Plane3D(const Vec3& point, const Vec3& normal)
 	{
 		this->point = point;
-		this->normalVector = vector;
+		this->normalVector = normal;
 	}
 
 	Plane3D::Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)

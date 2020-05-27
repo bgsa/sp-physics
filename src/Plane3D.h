@@ -20,7 +20,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Build a plane from a point and normal vector (NORMALIZED!)
 		/// </summary>
-		API_INTERFACE Plane3D(const Vec3& point, const Vec3& vector);
+		API_INTERFACE Plane3D(const Vec3& point, const Vec3& normal);
 
 		/// <summary>
 		/// Build a plane from 3 points, making a face

@@ -8,14 +8,12 @@ namespace NAMESPACE_PHYSICS
 		y = defaultValue;
 		z = defaultValue;
 	}
-
 	
 	Vec3::Vec3(const sp_float x, const sp_float y, const sp_float z) {
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
-
 	
 	Vec3::Vec3(const Vec3& value)
 	{
@@ -24,20 +22,17 @@ namespace NAMESPACE_PHYSICS
 		z = value.z;
 	}
 
-	
 	Vec3::Vec3(Vec2 vector2D, sp_float z) {
 		x = vector2D[0];
 		y = vector2D[1];
 		z = z;
 	}
-
 	
 	sp_float* Vec3::getValues()
 	{
 		return (sp_float*)(this);
 	}
 
-	
 	Vec3 Vec3::abs() const
 	{
 		return Vec3(
@@ -51,13 +46,11 @@ namespace NAMESPACE_PHYSICS
 	{
 		return (x * x) + (y * y) + (z * z);
 	}
-
 	
 	sp_float Vec3::length() const
 	{
-		return sqrtf(squaredLength());
+		return std::sqrtf(squaredLength());
 	}
-
 	
 	sp_float Vec3::maximum() const
 	{
@@ -72,7 +65,6 @@ namespace NAMESPACE_PHYSICS
 		return value;
 	}
 
-	
 	sp_float Vec3::minimum() const
 	{
 		sp_float value = x;
@@ -86,12 +78,10 @@ namespace NAMESPACE_PHYSICS
 		return value;
 	}
 
-	
 	sp_float Vec3::tripleProduct(const Vec3 &v, const Vec3 &u) const
 	{
-		return this->cross(v).dot(u);
+		return cross(v).dot(u);
 	}
-
 	
 	void Vec3::add(const Vec3& vector)
 	{
@@ -99,7 +89,6 @@ namespace NAMESPACE_PHYSICS
 		y += vector.y;
 		z += vector.z;
 	}
-
 	
 	Vec3 Vec3::subtract(const Vec3& vector)
 	{
@@ -110,7 +99,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3 Vec3::multiply(const Vec3& vector) const
 	{
 		return Vec3(
@@ -119,7 +107,6 @@ namespace NAMESPACE_PHYSICS
 			z * vector.z
 			);
 	}
-
 	
 	void Vec3::scale(sp_float scale)
 	{
@@ -128,7 +115,6 @@ namespace NAMESPACE_PHYSICS
 		z *= scale;
 	}
 
-	
 	Vec3 Vec3::rotate(sp_float angle, const Vec3& axis)
 	{
 		sp_float cosAngle = cosf(angle);
@@ -148,7 +134,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3 Vec3::rotateY(sp_float angle)
 	{
 		return Vec3(
@@ -158,7 +143,6 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	
 	Vec3 Vec3::rotateY(sp_float angle, const Vec3& referencePoint)
 	{
 		Vec3 direction = this->subtract(referencePoint);
@@ -171,7 +155,6 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	
 	Vec3 Vec3::rotateZ(sp_float angle)
 	{
 		return Vec3(
@@ -181,7 +164,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3 Vec3::rotateZ(sp_float angle, const Vec3& referencePoint)
 	{
 		Vec3 direction = this->subtract(referencePoint);
@@ -193,13 +175,12 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3 Vec3::cross(const Vec3& vector) const
 	{
 		Vec3 result = Vec3(
-			y * vector[2] - vector[1] * z,
-			-x * vector[2] + vector[0] * z,
-			x * vector[1] - vector[0] * y
+			y * vector.z - vector.y * z,
+			-x * vector.z + vector.x * z,
+			x * vector.y - vector.x * y
 		);
 
 		return result;
@@ -210,13 +191,11 @@ namespace NAMESPACE_PHYSICS
 		return x * vector.x + y * vector.y + z * vector.z;
 	}
 
-	
 	sp_float Vec3::angle(const Vec3& vectorB) const
 	{
 		return dot(vectorB) / (length() * vectorB.length());
 	}
 
-	
 	Vec3 Vec3::normalize() const
 	{
 		//sp_assert(length() != T(0));   // avoid division by zero
@@ -234,44 +213,33 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	
 	void Vec3::transformToUnit()
 	{
 		scale(1.0f / length());
 	}
 
-	
 	sp_float Vec3::squaredDistance(const Vec3& vector) const
 	{
-		sp_float xTemp = x - vector.x;
-		xTemp = xTemp * xTemp;
-
-		sp_float yTemp = y - vector.y;
-		yTemp = yTemp * yTemp;
-
-		sp_float zTemp = z - vector.z;
-		zTemp = zTemp * zTemp;
-
-		return xTemp + yTemp + zTemp;
+		return
+			((x - vector.x) * (x - vector.x)) +
+			((y - vector.y) * (y - vector.y)) +
+			((z - vector.z) * (z - vector.z));
 	}
-
 	
 	sp_float Vec3::distance(const Vec3& vector) const
 	{
-		sp_float xTemp = x - vector.x;
-		sp_float yTemp = y - vector.y;
-		sp_float zTemp = z - vector.z;
-
-		return std::sqrtf(xTemp *xTemp + yTemp * yTemp + zTemp * zTemp);
+		return std::sqrtf(
+			((x - vector.x) * (x - vector.x)) +
+			((y - vector.y) * (y - vector.y)) +
+			((z - vector.z) * (z - vector.z))
+		);
 	}
-
 	
 	sp_float Vec3::signedDistance(const Vec3& point) const
 	{
 		return (*this - point).dot(point);
 	}
 
-	
 	Vec3 Vec3::fractional()
 	{
 		return Vec3 {
@@ -280,24 +248,23 @@ namespace NAMESPACE_PHYSICS
 			z - floorf(z)
 		};
 	}
-
 	
 	Vec3 Vec3::clone()
 	{
 		return Vec3(x, y, z);
 	}
 
-	
 	Vec3 Vec3::operator/(const sp_float value) const
 	{
+		sp_float intertedValue = 1.0f / value;
+
 		return Vec3(
-			x / value,
-			y / value,
-			z / value
+			x * intertedValue,
+			y * intertedValue,
+			z * intertedValue
 			);
 	}
 
-	
 	Vec3 Vec3::operator/(const Vec3& vector) const
 	{
 		return Vec3(
@@ -307,7 +274,6 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	
 	Vec3 Vec3::operator*(const sp_float value) const
 	{
 		return Vec3(
@@ -316,7 +282,6 @@ namespace NAMESPACE_PHYSICS
 			z * value
 			);
 	}
-
 	
 	void Vec3::operator*=(const sp_float value)
 	{
@@ -325,12 +290,10 @@ namespace NAMESPACE_PHYSICS
 		z *= value;
 	}
 
-	
 	Vec3 Vec3::operator*(const Vec3& vector) const
 	{
 		return multiply(vector);
 	}
-
 	
 	Vec3 Vec3::operator+(const Vec3& vector) const
 	{
@@ -341,7 +304,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	void Vec3::operator+=(const Vec3& vector)
 	{
 		x += vector.x;
@@ -359,7 +321,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3 Vec3::operator-(const Vec3& vector) const
 	{
 		return Vec3(
@@ -369,7 +330,6 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	
 	void Vec3::operator-=(const Vec3& vector)
 	{
 		x -= vector.x;
@@ -377,7 +337,6 @@ namespace NAMESPACE_PHYSICS
 		z -= vector.z;
 	}
 
-	
 	Vec3 Vec3::operator-(const sp_float value) const
 	{
 		return Vec3(
@@ -387,7 +346,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3 Vec3::operator-() const
 	{
 		return Vec3(
@@ -404,14 +362,12 @@ namespace NAMESPACE_PHYSICS
 			&& z == vector.z;
 	}
 
-	
 	sp_bool Vec3::operator==(const sp_float value) const
 	{
 		return x == value
 			&& y == value
 			&& z == value;
 	}
-
 	
 	sp_bool Vec3::operator!=(const Vec3& vector) const
 	{
@@ -419,7 +375,6 @@ namespace NAMESPACE_PHYSICS
 			|| y != vector.y
 			|| z != vector.z;
 	}
-
 	
 	sp_bool Vec3::operator!=(const sp_float value) const
 	{
@@ -428,17 +383,16 @@ namespace NAMESPACE_PHYSICS
 			|| z != value;
 	}
 
-	
 	sp_float& Vec3::operator[](sp_int index)
 	{
-		sp_assert(index >= 0 && index < VEC3_LENGTH, "IndexOutOfrangeException");
+		sp_assert(index >= ZERO_INT && index < VEC3_LENGTH, "IndexOutOfrangeException");
 
 		return ((sp_float*)this)[index];
 	}
 	
 	sp_float Vec3::operator[](sp_int index) const
 	{
-		sp_assert(index >= 0 && index < VEC3_LENGTH, "IndexOutOfrangeException");
+		sp_assert(index >= ZERO_INT && index < VEC3_LENGTH, "IndexOutOfrangeException");
 
 		return reinterpret_cast<const sp_float*>(this)[index];
 	}
@@ -446,14 +400,14 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Vec3::operator[](sp_uint index)
 	{
-		sp_assert(index >= 0 && index < VEC3_LENGTH, "IndexOutOfrangeException");
+		sp_assert(index >= ZERO_UINT && index < VEC3_LENGTH, "IndexOutOfrangeException");
 
 		return ((sp_float*)this)[index];
 	}
 	
 	sp_float Vec3::operator[](sp_uint index) const
 	{
-		sp_assert(index >= 0 && index < VEC3_LENGTH, "IndexOutOfrangeException");
+		sp_assert(index >= ZERO_UINT && index < VEC3_LENGTH, "IndexOutOfrangeException");
 
 		return reinterpret_cast<const sp_float*>(this)[index];
 	}
@@ -462,14 +416,14 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_float& Vec3::operator[](sp_size index)
 	{
-		sp_assert(index >= 0 && index < VEC3_LENGTH);
+		sp_assert(index >= ZERO_SIZE && index < VEC3_LENGTH);
 
 		return ((sp_float*)this)[index];
 	}
 	
 	sp_float Vec3::operator[](sp_size index) const
 	{
-		sp_assert(index >= 0 && index < VEC3_LENGTH);
+		sp_assert(index >= ZERO_SIZE && index < VEC3_LENGTH);
 
 		return reinterpret_cast<const sp_float*>(this)[index];
 	}
@@ -481,12 +435,10 @@ namespace NAMESPACE_PHYSICS
 		return (void*) this;
 	}
 
-	
 	Vec3::operator sp_float*() const
 	{
 		return (sp_float*) this;
 	}
-
 	
 	Vec3 Vec3::operator+=(const sp_float value)
 	{
@@ -497,7 +449,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3 Vec3::operator-=(const sp_float value)
 	{
 		return Vec3(
@@ -507,7 +458,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	
 	Vec3& Vec3::operator=(const Vec3& vector)
 	{
 		x = vector.x;

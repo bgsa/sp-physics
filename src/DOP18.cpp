@@ -96,7 +96,7 @@ namespace NAMESPACE_PHYSICS
 
 	void DOP18::rotate(const Vec3& angles) { }
 
-	CollisionStatus DOP18::collisionStatus(const DOP18& kDop)
+	CollisionStatus DOP18::collisionStatus(const DOP18& kDop) const
 	{
 		if (min[0] > kDop.max[0] || max[0] < kDop.min[0])
 			return CollisionStatus::OUTSIDE;
@@ -128,7 +128,122 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INSIDE;
 	}
 
-	Plane3D* DOP18::planes()
+	CollisionStatus DOP18::collisionStatus(const Plane3D& plane) const
+	{	
+		Vec3 pointOnThePlane = plane.closestPointOnThePlane(centerOfBoundingVolume());
+
+		return collisionStatus(pointOnThePlane);
+	}
+
+	CollisionStatus DOP18::collisionStatus(const Vec3& point) const
+	{
+		if (point.x < min[DOP18_AXIS_X] || point.x > max[DOP18_AXIS_X] )
+			return CollisionStatus::OUTSIDE;
+
+		if (point.y < min[DOP18_AXIS_Y] || point.y > max[DOP18_AXIS_Y])
+			return CollisionStatus::OUTSIDE;
+
+		if (point.z < min[DOP18_AXIS_Z] || point.y > max[DOP18_AXIS_Z])
+			return CollisionStatus::OUTSIDE;
+
+		const Vec3* n = normals();
+		
+		Plane3D p1(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[6]); // up-left
+		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[7]); // down-right
+		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[9]); // down-left
+		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[8]); // up-right
+		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[11]); // down-depth
+		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[10]); // up-front
+		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[13]); // down-front
+		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
+			return CollisionStatus::OUTSIDE;
+		
+		p1 = Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[12]); // up-depth
+		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[14]); // left-depth
+		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[15]); // right-front
+		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
+			return CollisionStatus::OUTSIDE;
+		
+		p1 = Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[17]); // left-front
+		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
+			return CollisionStatus::OUTSIDE;
+
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[16]); // right-depth
+		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
+			return CollisionStatus::OUTSIDE;
+
+		return CollisionStatus::INSIDE;
+	}
+
+	CollisionStatus DOP18::collisionStatus(const Vec3& point, sp_bool* minPlane, sp_uint* planeIndex, sp_float* distanceFromPlane) const
+	{
+		if (point.x < min[DOP18_AXIS_X] || point.x > max[DOP18_AXIS_X])
+			return CollisionStatus::OUTSIDE;
+
+		if (point.y < min[DOP18_AXIS_Y] || point.y > max[DOP18_AXIS_Y])
+			return CollisionStatus::OUTSIDE;
+
+		if (point.z < min[DOP18_AXIS_Z] || point.y > max[DOP18_AXIS_Z])
+			return CollisionStatus::OUTSIDE;
+
+		const Plane3D* _planes = planes();
+		*minPlane = false;
+		*planeIndex = SP_UINT_MAX;
+		*distanceFromPlane = SP_FLOAT_MAX;
+
+		for (sp_uint axis = 0; axis < DOP18_ORIENTATIONS; axis++)
+		{
+			const sp_float distanceMin = _planes[axis * TWO_UINT].distance(point);
+			if (distanceMin > 0.0f) // if left side of the (min) plane
+				return CollisionStatus::OUTSIDE;
+
+			if (distanceMin < *distanceFromPlane) // it this plane has the smallest distance, keep track
+			{
+				*distanceFromPlane = distanceMin;
+				*planeIndex = axis;
+				*minPlane = true;
+			}
+
+			const sp_float distanceMax = _planes[axis * TWO_UINT + ONE_UINT].distance(point);
+			if (distanceMax > 0.0f) // if left side of the (min) plane
+				return CollisionStatus::OUTSIDE;
+
+			if (distanceMax < *distanceFromPlane) // it this plane has the smallest distance, keep track
+			{
+				*distanceFromPlane = distanceMax;
+				*planeIndex = axis;
+				*minPlane = false;
+			}
+		}
+
+		return CollisionStatus::INSIDE;
+	}
+
+	Plane3D* DOP18::planes() const
 	{
 		const Vec3* n = normals();
 

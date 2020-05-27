@@ -98,7 +98,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the normals of k-DOP planes
 		/// </summary>
-		API_INTERFACE const Vec3* normals()
+		API_INTERFACE const Vec3* normals() const
 		{
 			const static Vec3 normal[18] = {
 				{ -1.0f,  0.0f,  0.0f },
@@ -128,7 +128,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the k-DOP planes
 		/// </summary>
-		API_INTERFACE Plane3D* planes();
+		API_INTERFACE Plane3D* planes() const;
 
 		///<summary>
 		/// Get the center of k-DOP bounding volumne
@@ -156,7 +156,22 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Check collision with another k-DOP
 		/// </summary>
-		API_INTERFACE CollisionStatus collisionStatus(const DOP18& kDop);
+		API_INTERFACE CollisionStatus collisionStatus(const DOP18& kDop) const;
+
+		/// <summary>
+		/// Check collision with a plane
+		/// </summary>
+		API_INTERFACE CollisionStatus collisionStatus(const Plane3D& plane) const;
+
+		/// <summary>
+		/// Check collision with a point
+		/// </summary>
+		API_INTERFACE CollisionStatus collisionStatus(const Vec3& point) const;
+
+		/// <summary>
+		/// Check collision with a point and return details, just in case of collisions
+		/// </summary>
+		CollisionStatus collisionStatus(const Vec3& point, sp_bool* minPlane, sp_uint* planeIndex, sp_float* depth) const;
 
 		/// <summary>
 		/// Fix degenerated 18-DOP pulling their planes on the right position
