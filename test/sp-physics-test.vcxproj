@@ -186,11 +186,14 @@
       <AdditionalLibraryDirectories>C:\Users\Bruno\Projects\VisualStudio\spectrum-engine\vendor\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86_64\$(Configuration)\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-foundation\test\lib\x86_64\$(Configuration)\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86_64\$(Configuration)\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(TargetDir)"
-xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
+      <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\$(Configuration)\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration)\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\$(Configuration)\*" "$(TargetDir)"
+mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -214,8 +217,12 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\$(Configuration)\*" "$(TargetDir)"
 xcopy /Y /S "$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration)\*" "$(TargetDir)"
 xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\$(Configuration)\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(TargetDir)"
-xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
+mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

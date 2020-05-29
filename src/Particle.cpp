@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS
 		this->force.add(force);
 	}
 
-	void Particle::update(long long elapsedTime) 
+	void Particle::update(sp_float elapsedTime)
 	{
 		sp_assert(elapsedTime > 0, "InvalidArgumentException");
 

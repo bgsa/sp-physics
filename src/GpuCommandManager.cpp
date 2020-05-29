@@ -29,7 +29,7 @@ namespace NAMESPACE_PHYSICS
 		return sp_mem_new(GpuCommand)(deviceId, deviceContext, commandQueue);
 	}
 
-	sp_uint GpuCommandManager::cacheProgram(const char* source, size_t sourceSize, const char* buildOptions)
+	sp_uint GpuCommandManager::cacheProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions)
 	{
 		cl_int errorCode;
 		cl_program program = clCreateProgramWithSource(deviceContext, 1, &source, &sourceSize, &errorCode);
@@ -58,9 +58,11 @@ namespace NAMESPACE_PHYSICS
 		return (sp_uint) cachedPrograms.size() - 1;
 	}
 
-	void GpuCommandManager::executeReadBuffer(cl_mem gpuBuffer, size_t bufferSize, void* cpuBuffer, bool waitToFinish)
+	cl_event GpuCommandManager::executeReadBuffer(cl_mem gpuBuffer, sp_size bufferSize, void* cpuBuffer, sp_uint eventsLength, cl_event* eventsToWait)
 	{
-		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, gpuBuffer, waitToFinish, 0, bufferSize, cpuBuffer, 0, NULL, NULL));
+		cl_event evt;
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, gpuBuffer, true, 0, bufferSize, cpuBuffer, eventsLength, eventsToWait, &evt));
+		return evt;
 	}
 
 	cl_event GpuCommandManager::updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength, cl_event* eventsToWait)

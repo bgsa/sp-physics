@@ -41,7 +41,11 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void swapIndexes();
 
-		API_INTERFACE cl_mem execute() override;
+		API_INTERFACE void reset();
+
+		API_INTERFACE void updateInput(cl_mem newInput, cl_mem newOutput);
+
+		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) override;
 
 		API_INTERFACE const sp_char* toString() override
 		{

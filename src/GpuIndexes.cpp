@@ -5,15 +5,20 @@
 namespace NAMESPACE_PHYSICS
 {
 	
-	void GpuIndexes::init(GpuDevice* gpu, const sp_char* buildOptions)
+	GpuIndexes* GpuIndexes::init(GpuDevice* gpu, const sp_char* buildOptions)
 	{
 		if (createIndexesProgramIndex != UINT_MAX)
-			return;
+			return this;
 
 		this->gpu = gpu;
 
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("Indexes.cl");
+
 		SP_FILE file;
-		file.open("Indexes.cl", std::ios::in);
+		file.open(filename->name()->data(), std::ios::in);
+		sp_mem_delete(filename, SpDirectory);
 		const sp_size fileSize = file.length();
 		sp_char* sourceBasic = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(sourceBasic, fileSize);
@@ -24,6 +29,7 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(sourceBasic);
 
 		program = gpu->commandManager->cachedPrograms[createIndexesProgramIndex];
+		return this;
 	}
 
 	void GpuIndexes::setParametersCreateIndexes(sp_uint length)
@@ -46,9 +52,10 @@ namespace NAMESPACE_PHYSICS
 			->buildFromProgram(program, "create_Odd");
 	}
 
-	cl_mem GpuIndexes::execute()
+	cl_mem GpuIndexes::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
-		commandInitIndexes->execute(1, createIndexesGlobalWorkSize, createIndexesLocalWorkSize);		
+		commandInitIndexes->execute(1, createIndexesGlobalWorkSize, createIndexesLocalWorkSize, 0, previousEvents, previousEventsLength);
+		lastEvent = commandInitIndexes->lastEvent;
 
 		if (isInputOdd)
 		{
@@ -56,19 +63,29 @@ namespace NAMESPACE_PHYSICS
 			const sp_size localWorkSizeOdd[3] = { 1, 0, 0 };
 
 			commandInitIndexes_Odd->execute(1, globalWorkSizeOdd, localWorkSizeOdd);
+			lastEvent = commandInitIndexes_Odd->lastEvent;
 		}
 
 		return output;
 	}
 
-	GpuIndexes::~GpuIndexes()
+	void GpuIndexes::dispose()
 	{
-		if (commandInitIndexes != NULL)
-			commandInitIndexes->~GpuCommand();
+		if (commandInitIndexes != nullptr)
+		{
+			sp_mem_delete(commandInitIndexes, GpuCommand);
+			commandInitIndexes = nullptr;
+		}
 
-		if (commandInitIndexes_Odd != NULL)
-			commandInitIndexes_Odd->~GpuCommand();
+		if (commandInitIndexes_Odd != nullptr)
+		{
+			sp_mem_delete(commandInitIndexes_Odd, GpuCommand);
+			commandInitIndexes_Odd = nullptr;
+		}
 	}
+
+
+	GpuIndexes::~GpuIndexes() { dispose();	}
 
 }
 

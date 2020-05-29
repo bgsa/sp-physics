@@ -12,8 +12,13 @@ namespace NAMESPACE_PHYSICS
 
 		this->gpu = gpu;
 
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("Reverse.cl");
+
 		SP_FILE file;
-		file.open("Reverse.cl", std::ios::in);
+		file.open(filename->name()->data(), std::ios::in);
+		sp_mem_delete(filename, SpDirectory);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
@@ -55,6 +60,23 @@ namespace NAMESPACE_PHYSICS
 		return this;
 	}
 
+	void GpuReverse::reset()
+	{
+		commandReverse
+			->updateInputParameter(ZERO_UINT, inputGpu)
+			->updateInputParameter(ONE_UINT, outputGpu);
+	}
+
+	void GpuReverse::updateInput(cl_mem newInput, cl_mem newOutput)
+	{
+		this->inputGpu = newInput;
+		this->outputGpu = newOutput;
+
+		commandReverse
+			->updateInputParameter(ZERO_UINT, newInput)
+			->updateInputParameter(ONE_UINT, newOutput);
+	}
+
 	GpuReverse* GpuReverse::setParameters(cl_mem inputGpu, cl_mem outputGpu, cl_mem inputLengthGpu)
 	{
 		this->inputGpu = inputGpu;
@@ -90,9 +112,9 @@ namespace NAMESPACE_PHYSICS
 		indexesSwapped = !indexesSwapped;
 	}
 
-	cl_mem GpuReverse::execute()
+	cl_mem GpuReverse::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
-		commandReverse->execute(ONE_UINT, globalWorkSize, localWorkSize);
+		commandReverse->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, previousEvents, previousEventsLength);
 		lastEvent = commandReverse->lastEvent;
 
 		if (indexesSwapped)

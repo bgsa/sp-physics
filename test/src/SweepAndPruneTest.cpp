@@ -2365,6 +2365,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		const sp_uint count = (sp_uint)std::pow(2.0, 17.0);
 		AABB* aabbs1 = getRandomAABBs(count, 10000);
 		AABB* aabbs2 = ALLOC_COPY(aabbs1, AABB, count);
+		cl_mem inputGpu = gpu->createBuffer(aabbs2, sizeof(AABB) * count, CL_MEM_READ_ONLY, true);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count
@@ -2374,7 +2375,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters((sp_float*)aabbs2, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION);
+		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION);
 
 		std::chrono::high_resolution_clock::time_point currentTime1 = std::chrono::high_resolution_clock::now();
 
@@ -2393,6 +2394,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::AreEqual(result1.length, collisionsLength, L"wrong value", LINE_INFO());
 
+		gpu->releaseBuffer(inputGpu);
 		ALLOC_DELETE(sap, SweepAndPrune);
 	}
 
@@ -2413,6 +2415,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops1 = get64KDOPs();
 
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
+		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY, true);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << length
@@ -2421,7 +2424,7 @@ namespace NAMESPACE_PHYSICS_TEST
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters((sp_float*)kdops2, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);
 
 		performanceCounter.start();
 		SweepAndPruneResultCpu expected = SweepAndPrune::findCollisions(kdops1, length);
@@ -2435,6 +2438,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::AreEqual(expected.length, collisionsLength, L"wrong value", LINE_INFO());
 
+		gpu->releaseBuffer(inputGpu);
 		sap.dispose();
 		ALLOC_RELEASE(kdops1);
 	}

@@ -16,8 +16,13 @@ namespace NAMESPACE_PHYSICS
 		commandReverse = sp_mem_new(GpuReverse)();
 		commandReverse->init(gpu, buildOptions);
 
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
 		SP_FILE file;
-		file.open("RadixSorting.cl", std::ios::in);
+		file.open(filename->name()->data(), std::ios::in);
+		sp_mem_delete(filename, SpDirectory);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
@@ -59,13 +64,10 @@ namespace NAMESPACE_PHYSICS
 		commandReverse->updateInputLength(newIndexesLength);
 	}
 
-	GpuRadixSorting* GpuRadixSorting::setParameters(sp_float* input, sp_uint inputLength, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint strider, sp_uint offset)
+	GpuRadixSorting* GpuRadixSorting::setParameters(cl_mem inputGpu, sp_uint inputLength, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint strider, sp_uint offset)
 	{
-		sp_bool useExpoent = false;
-		sp_uint digitIndex = 0;
+		inputIndexesGpu = indexesGpu;
 		const sp_uint inputSize = inputLength * strider * SIZEOF_FLOAT;
-
-		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
 
 		outputIndexesGpu = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
 
@@ -80,7 +82,7 @@ namespace NAMESPACE_PHYSICS
 
 		commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
@@ -106,7 +108,7 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1, offsetTableSize)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder");
 
@@ -115,7 +117,7 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder");
 
 
@@ -125,7 +127,7 @@ namespace NAMESPACE_PHYSICS
 
 		commandCountNegative = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1Negatives, offsetTableSizeNegatives)
 			->buildFromProgram(program, "countNegatives");
@@ -139,7 +141,7 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1Negatives, offsetTableSizeNegatives)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorderNegatives");
 
@@ -148,121 +150,111 @@ namespace NAMESPACE_PHYSICS
 		negativeCounterLocation2 = gpu->createSubBuffer(offsetTable2Negatives, &region, CL_MEM_READ_ONLY);
 		commandReverse
 			->updateInputLength(inputLength)
-			->setParameters(indexesGpu, outputIndexesGpu, negativeCounterLocation1);
+			->setParameters(inputIndexesGpu, outputIndexesGpu, negativeCounterLocation1);
 
 		return this;
 	}
 
-	//std::chrono::nanoseconds timeCount[8];
-	//std::chrono::nanoseconds timeScan[8];
-	//std::chrono::nanoseconds timeReorder[8];
-	//sp_int in = 0;
-
-	cl_mem GpuRadixSorting::execute()
+	cl_mem GpuRadixSorting::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
 		sp_bool indexesChanged = false;
 		sp_bool offsetChanged = false;
-		cl_event previousEvent = NULL;
 		
 		globalWorkSize[0] = threadsLength;
 		localWorkSize[0] = defaultLocalWorkSize;
 		
 		for (sp_uint digitIndex = ZERO_UINT; digitIndex < 7u; digitIndex++)  // for each digit in the number ...
 		{
-			//std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+			if (offsetChanged)
+				commandCountSwapped->updateInputParameter(THREE_UINT, offsetTable2);
 
-			if (previousEvent == NULL)
-			{
-				commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
-				previousEvent = commandCount->lastEvent;
+			if (indexesChanged)
+			{	
+				commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, previousEventsLength);
+				previousEvents[0] = commandCountSwapped->lastEvent;
+				previousEventsLength = ONE_UINT;
 			}
 			else
 			{
-				if (offsetChanged)
-					commandCountSwapped->updateInputParameter(THREE_UINT, offsetTable2);
-
-				if (indexesChanged)
-				{	
-					commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, ONE_UINT);
-					previousEvent = commandCountSwapped->lastEvent;
-				}
-				else
-				{
-					commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, ONE_UINT);
-					previousEvent = commandCount->lastEvent;
-				}
+				commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, previousEventsLength);
+				previousEvents[0] = commandCount->lastEvent;
+				previousEventsLength = ONE_UINT;
 			}
-
-			//std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
-			//timeCount[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-			//currentTime = std::chrono::high_resolution_clock::now();
 
 			sp_uint offsetPrefixScanCpu = BUCKET_LENGTH;
 			for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
 			{
 				if (offsetChanged)
 				{
-					commandPrefixScanSwaped->execute(1, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, &previousEvent, ONE_UINT);
-					previousEvent = commandPrefixScanSwaped->lastEvent;
+					commandPrefixScanSwaped->execute(1, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, ONE_UINT);
+					previousEvents[0] = commandPrefixScanSwaped->lastEvent;
 				}
 				else
 				{
-					commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, &previousEvent, ONE_UINT);
-					previousEvent = commandPrefixScan->lastEvent;
+					commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, ONE_UINT);
+					previousEvents[0] = commandPrefixScan->lastEvent;
 				}
 
 				offsetChanged = !offsetChanged;
 				offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
 			}
 
-			//currentTime2 = std::chrono::high_resolution_clock::now();
-			//timeScan[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-			//currentTime = std::chrono::high_resolution_clock::now();
-
 			if (offsetChanged)
 				commandReorder->updateInputParameter(TWO_UINT, offsetTable2);
 
 			if (indexesChanged)
 			{	
-				commandReorderSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, ONE_UINT);
-				previousEvent = commandReorderSwapped->lastEvent;
+				commandReorderSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, ONE_UINT);
+				previousEvents[0] = commandReorderSwapped->lastEvent;
 			}
 			else
 			{
-				commandReorder->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, &previousEvent, ONE_UINT);
-				previousEvent = commandReorder->lastEvent;
+				commandReorder->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, ONE_UINT);
+				previousEvents[0] = commandReorder->lastEvent;
 			}
-			indexesChanged = !indexesChanged;
 
-			//currentTime2 = std::chrono::high_resolution_clock::now();
-			//timeReorder[in] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-			//in++;
+			indexesChanged = !indexesChanged;
 		}
 
-		lastEvent = commandReorder->lastEvent;
+		lastEvent = previousEvents[0];
 
-		return executeNegatives(indexesChanged, offsetChanged);
+		return executeNegatives(indexesChanged);
 	}
 
-	cl_mem GpuRadixSorting::executeNegatives(sp_bool indexChanged, sp_bool offsetChanged)
+	cl_mem GpuRadixSorting::executeNegatives(sp_bool indexChanged)
 	{
+		sp_bool offsetChanged = false;
 		sp_uint offsetPrefixScanCpu = TWO_UINT;
 		cl_event previousEvent = this->lastEvent;
-		
-		if (indexChanged)
-			commandCountNegative->updateInputParameter(ONE_UINT, outputIndexesGpu);
-
-		if (offsetChanged)
-			commandCountNegative->updateInputParameter(THREE_UINT, offsetTable2Negatives);
 
 		commandCountNegative
-			->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
+			->updateInputParameter(THREE_UINT, offsetTable1Negatives);
+
+		commandPrefixScanNegative
+			->updateInputParameter(0u, offsetTable2Negatives)
+			->updateInputParameter(1u, offsetTable1Negatives);
+
+		commandReorderNegative
+			->updateInputParameter(2u, offsetTable1Negatives)
+			->updateInputParameter(3u, inputIndexesGpu)
+			->updateInputParameter(4u, outputIndexesGpu);
+
+		commandReverse
+			->updateInput(inputIndexesGpu, outputIndexesGpu);
+
+		if (indexChanged)
+		{
+			commandCountNegative->updateInputParameter(ONE_UINT, outputIndexesGpu);
+			commandReorderNegative->swapInputParameter(THREE_UINT, FOUR_UINT);
+		}
+		else
+			commandReverse->swapIndexes();
+
+
+		commandCountNegative->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
 		previousEvent = commandCountNegative->lastEvent;
 
-		if (offsetChanged)
-			commandPrefixScanNegative->swapInputParameter(ZERO_UINT, ONE_UINT);
-
-		offsetPrefixScanCpu = TWO_UINT;
+		offsetPrefixScanCpu = TWO_UINT; // prepare prefix scan
 		while(offsetPrefixScanCpu - 1 < threadsLength)
 		{
 			commandPrefixScanNegative
@@ -275,20 +267,22 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		if (offsetChanged) 
-		{
 			commandReorderNegative->updateInputParameter(TWO_UINT, offsetTable2Negatives);
-			commandReverse->updateInputLength(negativeCounterLocation2);
-		}
 
-		if (indexChanged)
-			commandReorderNegative->swapInputParameter(THREE_UINT, FOUR_UINT);
-		else
-			commandReverse->swapIndexes();
-		
 		commandReorderNegative->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
 		this->lastEvent = commandReorderNegative->lastEvent;
 
-		output = commandReverse->execute();
+
+		sp_uint* buffer = ALLOC_ARRAY(sp_uint, 2);
+		gpu->commandManager->executeReadBuffer(negativeCounterLocation1, 4 * 1, buffer);
+		gpu->commandManager->executeReadBuffer(negativeCounterLocation2, 4 * 1, &buffer[1]);
+		std::stringstream ss;
+		ss << "NEGATIVE COUNTER: " << buffer[0] << " , " << buffer[1] << END_OF_LINE;
+		OutputDebugStringA(ss.str().c_str());
+		ALLOC_RELEASE(buffer);
+
+
+		output = commandReverse->execute(ONE_UINT, &this->lastEvent);
 		this->lastEvent = commandReverse->lastEvent;
 		
 		return output;
@@ -299,7 +293,6 @@ namespace NAMESPACE_PHYSICS
 		gpu->releaseBuffer(negativeCounterLocation1);
 		gpu->releaseBuffer(negativeCounterLocation2);
 
-		gpu->releaseBuffer(inputGpu);
 		gpu->releaseBuffer(outputIndexesGpu);
 		gpu->releaseBuffer(offsetTable1);
 		gpu->releaseBuffer(offsetTable2);

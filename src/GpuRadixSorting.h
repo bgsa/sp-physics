@@ -18,7 +18,7 @@ namespace NAMESPACE_PHYSICS
 	private:
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
-		sp_uint maxDigits = MAX_DIGITS_MANTISSA - 1;
+		const sp_uint maxDigits = MAX_DIGITS_MANTISSA - 1;
 		sp_uint threadsLength;
 		sp_uint defaultLocalWorkSize;
 		sp_uint maxIteration;
@@ -46,21 +46,21 @@ namespace NAMESPACE_PHYSICS
 		cl_mem negativeCounterLocation1;
 		cl_mem negativeCounterLocation2;
 
+		cl_mem inputIndexesGpu;
 		cl_mem outputIndexesGpu;
 
 	public:
-		cl_mem inputGpu;
 		cl_mem output = NULL;
 
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;
 
-		API_INTERFACE GpuRadixSorting* setParameters(sp_float* input, sp_uint indexesLengthCpu, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint striderCpu, sp_uint offsetCpu);
+		API_INTERFACE GpuRadixSorting* setParameters(cl_mem inputGpu, sp_uint indexesLengthCpu, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint striderCpu, sp_uint offsetCpu);
 
 		API_INTERFACE void updateIndexes(cl_mem newIndexes, cl_mem newIndexesLength);
 
-		API_INTERFACE cl_mem execute() override;
+		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) override;
 
-		API_INTERFACE cl_mem executeNegatives(sp_bool indexChanged, sp_bool offsetChanged);
+		API_INTERFACE cl_mem executeNegatives(sp_bool indexChanged);
 
 		API_INTERFACE void dispose() override;
 

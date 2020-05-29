@@ -5,7 +5,6 @@
 
 #include "SpectrumPhysics.h"
 #include "GpuDevice.h"
-#include "GpuCommand.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -13,11 +12,11 @@ namespace NAMESPACE_PHYSICS
 		public Object
 	{
 	protected:
-		GpuDevice* gpu = NULL;
+		GpuDevice* gpu = nullptr;
 
 	public:
 
-		cl_event lastEvent = NULL;
+		cl_event lastEvent = nullptr;
 
 		/// <summary>
 		/// Init the command
@@ -27,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Execute the command
 		/// </summary>
-		API_INTERFACE virtual cl_mem execute() = 0;
+		API_INTERFACE virtual cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) = 0;
 
 	};
 

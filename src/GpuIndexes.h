@@ -6,13 +6,13 @@
 #include "SpectrumPhysics.h"
 #include <algorithm>
 #include "GpuDevice.h"
-#include "GpuCommand.h"
+#include "GpuComposedCommand.h"
 #include "FileSystem.h"
 
 namespace NAMESPACE_PHYSICS
 {
-
-	class GpuIndexes
+	class GpuIndexes :
+		public GpuComposedCommand
 	{
 	private:
 		GpuDevice* gpu;
@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Init algorithms for GPU
 		/// </summary>
-		API_INTERFACE void init(GpuDevice* gpu, const sp_char* buildOptions);
+		API_INTERFACE GpuIndexes* init(GpuDevice* gpu, const sp_char* buildOptions) override;
 
 		/// <summary>
 		/// Set parameters for create indexes command
@@ -44,9 +44,22 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Create Indexes buffer ( 0, 1, 2, ... , length ) on GPU
 		/// </summary>
-		API_INTERFACE cl_mem execute();
+		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr);
 
-		API_INTERFACE ~GpuIndexes();
+		/// <summary>
+		/// Release all alocated resources
+		/// </summary>
+		API_INTERFACE void dispose() override;
+
+		/// <summary>
+		/// Description of the this object
+		/// </summary>
+		API_INTERFACE const sp_char* toString() override
+		{
+			return "GPU Indexes";
+		}
+
+		~GpuIndexes();
 
 	};
 }

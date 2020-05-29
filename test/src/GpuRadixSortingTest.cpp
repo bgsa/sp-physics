@@ -147,6 +147,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(radixGPU_2);
 		SP_TEST_METHOD_DEF(radixGPU_WithNegatives);
 		SP_TEST_METHOD_DEF(radixGPU_WithKDOPs);
+		SP_TEST_METHOD_DEF(radixGPU_manyTimes);
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count)
@@ -419,6 +420,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_float* input1 = getRandom(inputLength);
 			input1[2] = -0.01f;
 			sp_float* input2 = ALLOC_COPY(input1, sp_float, inputLength);
+			cl_mem inputGpu = gpu->createBuffer(input2, SIZEOF_FLOAT * inputLength, CL_MEM_READ_ONLY, true);
 
 			cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
 			createIndexes->setParametersCreateIndexes(inputLength);
@@ -440,7 +442,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_uint offset = 0u;
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 			radixGpu->init(gpu, buildOptions.str().c_str())
-				->setParameters(input2, inputLength, newIndexes, newIndexesLength, strider, offset);
+				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider, offset);
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
@@ -456,6 +458,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			for (sp_uint i = 0; i < inputLength; i++)
 				Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
 
+			gpu->releaseBuffer(inputGpu);
 			ALLOC_DELETE(radixGpu, GpuRadixSorting);
 			ALLOC_RELEASE(input1);
 		}
@@ -479,6 +482,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_size length = (sp_size)std::pow(2.0, 17.0);
 			AABB* input1 = getRandomAABBs(length);
 			AABB* input2 = ALLOC_COPY(input1, AABB, length);
+			cl_mem inputGpu = gpu->createBuffer(input2, sizeof(AABB) * length, CL_MEM_READ_ONLY, true);
 
 			cl_mem newIndexesLength = gpu->createBuffer(&length, SIZEOF_UINT, CL_MEM_READ_WRITE);
 			createIndexes->setParametersCreateIndexes(length);
@@ -491,7 +495,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			GpuRadixSorting* radixSorting = ALLOC_NEW(GpuRadixSorting)();
 			radixSorting->init(gpu, buildOptions.str().c_str())
-				->setParameters((sp_float*)input2, length, newIndexes, newIndexesLength, AABB_STRIDER, AABB_OFFSET);
+				->setParameters(inputGpu, length, newIndexes, newIndexesLength, AABB_STRIDER, AABB_OFFSET);
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
@@ -514,6 +518,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			for (sp_uint i = 0; i < length; i++)
 				Assert::AreEqual(input1[i].minPoint.x, input2[result[i]].minPoint.x, L"Wrong value.", LINE_INFO());
 
+			gpu->releaseBuffer(inputGpu);
 			ALLOC_RELEASE(input1);
 			ALLOC_DELETE(radixSorting, GpuRadixSorting);
 		}
@@ -539,6 +544,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_float input1[8] = { 50.0f, 2.0f, -5.0f, 4.0f, 12.0f, -10.0f, -1.0f, 30.0f };
 		sp_float input2[8] = { 50.0f, 2.0f, -5.0f, 4.0f, 12.0f, -10.0f, -1.0f, 30.0f };
+		cl_mem inputGpu = gpu->createBuffer(input2, SIZEOF_FLOAT * inputLength, CL_MEM_READ_ONLY, true);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << inputLength
@@ -547,7 +553,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 		radixGpu->init(gpu, buildOptions.str().c_str())
-			->setParameters(input2, inputLength, newIndexes, newIndexesLength, strider, offset);
+			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider, offset);
 
 		AlgorithmSorting::native(input1, inputLength);
 
@@ -559,6 +565,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
 
+		gpu->releaseBuffer(inputGpu);
 		ALLOC_DELETE(radixGpu, GpuRadixSorting);
 		ALLOC_RELEASE(radixGpu);
 		ALLOC_DELETE(createIndexes, GpuIndexes);
@@ -583,6 +590,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			DOP18* input1 = getRandomKDOPs(inputLength);
 			input1[2].min[0] = -0.01f;
 			DOP18* input2 = ALLOC_COPY(input1, DOP18, inputLength);
+			cl_mem inputGpu = gpu->createBuffer(input2, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY, true);
 
 			cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
 			createIndexes->setParametersCreateIndexes(inputLength);
@@ -598,12 +606,13 @@ namespace NAMESPACE_PHYSICS_TEST
 			std::ostringstream buildOptions;
 			buildOptions << " -DINPUT_LENGTH=" << inputLength
 				<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-				<< " -DINPUT_OFFSET=" << DOP18_OFFSET;
+				<< " -DINPUT_OFFSET=" << DOP18_OFFSET
+				<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 			radixGpu
 				->init(gpu, buildOptions.str().c_str())
-				->setParameters((sp_float*)input2, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER, DOP18_OFFSET);
+				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER, DOP18_OFFSET);
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
@@ -623,10 +632,81 @@ namespace NAMESPACE_PHYSICS_TEST
 					Assert::AreEqual(input1[i].max[j], input2[orderedIndexes[i]].max[j], L"Wrong value.", LINE_INFO());
 				}
 
+			gpu->releaseBuffer(inputGpu);
 			ALLOC_DELETE(radixGpu, GpuRadixSorting);
 			ALLOC_RELEASE(input1);
 		}
 
+		ALLOC_DELETE(createIndexes, GpuIndexes);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_manyTimes)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		const sp_uint maxIterations = 3;
+		//sp_uint inputLength = (sp_uint)std::pow(2.0, 17.0);
+		sp_uint inputLength = 64;
+
+		DOP18* input1 = getRandomKDOPs(inputLength);
+		input1[2].min[0] = -0.01f;
+		DOP18* input2 = ALLOC_COPY(input1, DOP18, inputLength);
+
+		cl_mem inputGpu = gpu->createBuffer(input2, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY, true);
+		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
+
+		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
+		createIndexes->init(gpu, nullptr);
+		createIndexes->setParametersCreateIndexes(inputLength);
+		cl_mem newIndexes = createIndexes->execute();
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength
+			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
+			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
+			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
+
+		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
+		radixGpu
+			->init(gpu, buildOptions.str().c_str())
+			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER, DOP18_OFFSET);
+
+		AlgorithmSorting::quickSortNative(input1, inputLength, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
+
+		cl_event lastEvent = createIndexes->lastEvent;
+		sp_uint eventsLength = ONE_UINT;
+		 
+		for (sp_uint i = 0; i < maxIterations; i++)
+		{
+			cl_mem output = radixGpu->execute(eventsLength, &lastEvent);
+
+			sp_uint* buffer = ALLOC_ARRAY(sp_uint, inputLength);
+			lastEvent = gpu->commandManager->executeReadBuffer(output, 4 * inputLength, buffer, ONE_UINT, &lastEvent);
+			std::stringstream ss;
+			ss << "BEGIN SORT" << END_OF_LINE;
+			for (size_t i = 0; i < 64; i++)
+				ss << buffer[i] << " , ";
+			ss << "END SORT" << END_OF_LINE;
+			OutputDebugStringA(ss.str().c_str());
+			ALLOC_RELEASE(buffer);
+
+			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
+			lastEvent = gpu->commandManager->executeReadBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+
+			for (sp_uint i = 0; i < inputLength; i++)
+				for (sp_uint j = 0; i < DOP18_ORIENTATIONS; i++)
+				{
+					Assert::AreEqual(input1[i].min[j], input2[orderedIndexes[i]].min[j], L"Wrong value.", LINE_INFO());
+					Assert::AreEqual(input1[i].max[j], input2[orderedIndexes[i]].max[j], L"Wrong value.", LINE_INFO());
+				}
+
+			gpu->commandManager->flush();
+		}
+
+		gpu->releaseBuffer(inputGpu);
+		ALLOC_DELETE(radixGpu, GpuRadixSorting);
+		ALLOC_RELEASE(input1);
 		ALLOC_DELETE(createIndexes, GpuIndexes);
 	}
 

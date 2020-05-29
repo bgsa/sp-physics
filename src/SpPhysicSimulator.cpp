@@ -4,66 +4,97 @@ namespace NAMESPACE_PHYSICS
 {
 	static SpPhysicSimulator* _instance;
 	
-	void SpPhysicSimulator::init()
-	{
-		_instance = sp_mem_new(SpPhysicSimulator)();
-		_instance->gpu = GpuContext::instance()->defaultDevice();
-	}
-
 	SpPhysicSimulator* SpPhysicSimulator::instance()
 	{
 		return _instance;
 	}
 
-	void SpPhysicSimulator::add(SpPhysicObject* object)
+	void SpPhysicSimulator::init(sp_uint objectsLength)
 	{
-		_objects.add(object);
-	}
+		_instance = sp_mem_new(SpPhysicSimulator)();
+		_instance->gpu = GpuContext::instance()->defaultDevice();
 
-	void SpPhysicSimulator::add(SpPhysicObjectList* objectsList)
-	{
-		/*
-		DOP18* boundingVolumes = (DOP18*)objectsList->boundingVolumes();
-		sp_uint boundingVolumesLength = objectsList->length();
+		_instance->boundingVolumesLength = ZERO_UINT;
+		_instance->boundingVolumesLengthAllocated = objectsLength;
+		_instance->boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
+		_instance->boundingVolumeBuffer = _instance->gpu->createBuffer(DOP18_SIZE*objectsLength, CL_MEM_READ_WRITE);
 
 		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << boundingVolumesLength
-					<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-					<< " -DINPUT_OFFSET=" << DOP18_OFFSET;
+		buildOptions << " -DINPUT_LENGTH=" << _instance->boundingVolumesLengthAllocated
+			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
+			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
+			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
-		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
-		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters((sp_float*)boundingVolumes, boundingVolumesLength, DOP18_STRIDER, DOP18_OFFSET, 0, 1);
-		*/
+		_instance->sap = ALLOC_NEW(SweepAndPrune)();
+		_instance->sap->init(_instance->gpu, buildOptions.str().c_str());
 
-		 _objectsList.add(objectsList);
+		_instance->sap->setParameters(_instance->boundingVolumeBuffer, objectsLength,
+			DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);
+
+		//cl_mem glMem = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glBufId, null);
+
+		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);
+		//error = CL10GL.clEnqueueReleaseGLObjects(queue, glMem, null, null);
+
+		// dispose: CL10.clReleaseMemObject(glMem);
+	}
+
+	BoundingVolume* SpPhysicSimulator::alloc(sp_uint length)
+	{
+		BoundingVolume* bvAllocated = &boundingVolumes[boundingVolumesLength];
+
+		boundingVolumesLength += length;
+
+		return bvAllocated;
 	}
 
 	void SpPhysicSimulator::run()
 	{
-		/*
-		sp_uint length = _objectsList.begin()->value()->length();
-		DOP18* kdops = (DOP18*) _objectsList.begin()->value()->boundingVolumes();
-
-		SweepAndPruneResultCpu result = sap.findCollisions(kdops, length);
-		std::cout << result.length << END_OF_LINE;
-		ALLOC_RELEASE(result.indexes);
-		*/
-
-		/*
-		const sp_uint indexesLength = _objectsList.length() * 2;
-		const sp_uint indexesSize = indexesLength * SIZEOF_UINT;
-
-		cl_mem result = sap.execute();
-
-		sp_uint* indexes = ALLOC_NEW_ARRAY(sp_uint, indexesLength);
-
-		gpu->commandManager->executeReadBuffer(result, indexesSize, indexes, true);
+		SweepAndPruneResultCpu resultCpu = sap->findCollisions(boundingVolumes, boundingVolumesLength);
+		std::cout << "EXPECTED: " << resultCpu.length << END_OF_LINE;
+		ALLOC_RELEASE(resultCpu.indexes);
 		
-		//SpEventDispatcher::instance()->push( collisionEvent );
+		for (size_t i = 0; i < 10; i++)
+		{
+			gpu->commandManager->updateBuffer(boundingVolumeBuffer, DOP18_SIZE * boundingVolumesLengthAllocated, boundingVolumes);
 
-		ALLOC_RELEASE(indexes);
-		*/
+			cl_mem result = sap->execute();
+
+			const sp_uint collisionsLength = sap->fetchCollisionLength();
+			const sp_uint indexesLength = collisionsLength * 2u;
+			const sp_uint indexesSize = indexesLength * SIZEOF_UINT;
+
+			SpString* str = SpString::convert(collisionsLength);
+			Log::error(str->data());
+			sp_mem_delete(str, SpString);
+
+			sp_uint* indexes = ALLOC_NEW_ARRAY(sp_uint, indexesLength);
+			gpu->commandManager->executeReadBuffer(result, indexesSize, indexes, true);
+
+			//SpEventDispatcher::instance()->push( collisionEvent );
+
+			ALLOC_RELEASE(indexes);
+		}
+	}
+
+	void SpPhysicSimulator::dispose()
+	{
+		if (boundingVolumes != nullptr)
+		{
+			sp_mem_release(boundingVolumes);
+			boundingVolumes = nullptr;
+		}
+
+		if (boundingVolumeBuffer != nullptr)
+		{
+			gpu->releaseBuffer(boundingVolumeBuffer);
+			boundingVolumeBuffer = nullptr;
+		}
+	}
+
+	SpPhysicSimulator::~SpPhysicSimulator()
+	{
+		dispose();
 	}
 
 }

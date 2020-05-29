@@ -24,9 +24,9 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE GpuCommand* createCommand();
 
-		API_INTERFACE sp_uint cacheProgram(const char* source, size_t sourceSize, const char* buildOptions);
+		API_INTERFACE sp_uint cacheProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions);
 
-		API_INTERFACE void executeReadBuffer(cl_mem gpuBuffer, size_t bufferSize, void* cpuBuffer, bool waitToFinish);
+		API_INTERFACE cl_event executeReadBuffer(cl_mem gpuBuffer, sp_size bufferSize, void* cpuBuffer, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr);
 
 		API_INTERFACE cl_event updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr);
 

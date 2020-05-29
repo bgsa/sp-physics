@@ -15,7 +15,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-
 	class SweepAndPruneResultCpu
 	{
 	public:
@@ -74,7 +73,7 @@ namespace NAMESPACE_PHYSICS
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 
 		void initIndexes(sp_uint inputLength);
-#endif
+#endif // OPENCL_ENABLED
 
 	public:
 
@@ -100,18 +99,20 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength);
+		API_INTERFACE void setParameters(cl_mem input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength);
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method in GPU
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE cl_mem execute() override;
+		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) override;
 
 		///<summary>
 		/// Get the length of collisions pairs detected
 		///</summary>
 		API_INTERFACE sp_uint fetchCollisionLength();
+
+#endif // OPENCL_ENABLED
 
 		/// <summary>
 		/// Release allocated resources from this object
@@ -153,9 +154,7 @@ namespace NAMESPACE_PHYSICS
 			return "Sweep And Prune";
 		}
 
-#endif
-
-		API_INTERFACE ~SweepAndPrune() { dispose(); }
+		~SweepAndPrune() { dispose(); }
 
 	};
 

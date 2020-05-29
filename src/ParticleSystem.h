@@ -26,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE size_t addConstantForce(const Vec3& constantForce);
 
-		API_INTERFACE void update(long long elapsedTime);
+		API_INTERFACE void update(sp_float elapsedTime);
 	};
 
 }

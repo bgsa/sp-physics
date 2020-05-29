@@ -165,8 +165,13 @@ namespace NAMESPACE_PHYSICS
 		radixSorting = sp_mem_new(GpuRadixSorting)();
 		radixSorting->init(gpu, buildOptions);
 		
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SweepAndPrune.cl");
+
 		SP_FILE file;
-		file.open("SweepAndPrune.cl", std::ios::in);
+		file.open(filename->name()->data(), std::ios::in);
+		sp_mem_delete(filename, SpDirectory);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
@@ -191,21 +196,21 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
-	void SweepAndPrune::setParameters(sp_float* input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength)
+	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength)
 	{
 		globalWorkSize[0] = inputLength;
 		localWorkSize[0] = 1u;
-		
+
 		const sp_uint collisionsSize = inputLength * 20u * SIZEOF_UINT;
 		collisionsLength = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE);
 		collisions = gpu->createBuffer(collisionsSize, CL_MEM_READ_WRITE);
-		
+
 		initIndexes(inputLength);
 
-		radixSorting->setParameters(input, inputLength, indexesGPU, indexesLengthGPU, strider, offset);
+		radixSorting->setParameters(inputGpu, inputLength, indexesGPU, indexesLengthGPU, strider, offset);
 
 		commandSaPCollisions = gpu->commandManager->createCommand()
-			->setInputParameter(radixSorting->inputGpu, inputLength * strider * SIZEOF_FLOAT)
+			->setInputParameter(inputGpu, inputLength * strider * SIZEOF_FLOAT)
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(radixSorting->output, inputLength * SIZEOF_UINT)
 			->setInputParameter(collisionsLength, SIZEOF_UINT)
@@ -213,16 +218,26 @@ namespace NAMESPACE_PHYSICS
 			->buildFromProgram(sapProgram, "sweepAndPruneSingleAxis");
 	}
 
-	cl_mem SweepAndPrune::execute()
+	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
 		const sp_uint zeroValue = ZERO_UINT;
+		cl_event lastEvent = nullptr;
 
-		radixSorting->execute();
+		radixSorting->execute(previousEventsLength, previousEvents);
+		lastEvent = radixSorting->lastEvent;
+
+		sp_uint* buffer = ALLOC_ARRAY(sp_uint, 64);
+		lastEvent = gpu->commandManager->executeReadBuffer(radixSorting->output, 4 * 64, buffer, ONE_UINT, &lastEvent);
+		std::cout << "BEGIN SORT" << END_OF_LINE;
+		for (size_t i = 0; i < 64; i++)
+			std::cout << i << END_OF_LINE;
+		std::cout << "END SORT" << END_OF_LINE;
+		ALLOC_RELEASE(buffer);
 
 		commandSaPCollisions
-			->updateInputParameterValue(3, &zeroValue)
 			->updateInputParameter(2, radixSorting->output)
-			->execute(1, globalWorkSize, localWorkSize, 0, &radixSorting->lastEvent, ONE_UINT);
+			->updateInputParameterValue(3, &zeroValue)
+			->execute(1, globalWorkSize, localWorkSize, 0, &lastEvent, ONE_UINT);
 
 		lastEvent = commandSaPCollisions->lastEvent;
 
