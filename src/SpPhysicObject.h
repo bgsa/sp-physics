@@ -6,7 +6,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpPhysicData
+	class SpPhysicProperties
 	{
 	public:
 		Vec3 force;
@@ -21,7 +21,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 velocity;
 		Vec3 acceleration;
 
-		API_INTERFACE SpPhysicData()
+		API_INTERFACE SpPhysicProperties()
 		{
 			force = Vec3(ZERO_FLOAT);
 			inverseMass = ZERO_FLOAT;
@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 		public Object
 	{
 	private:
-		SpPhysicData physicData;
+		SpPhysicProperties physicData;
 
 	public:
 

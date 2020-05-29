@@ -11,9 +11,10 @@ namespace NAMESPACE_PHYSICS
 		public Object
 	{
 	private:
-		SpPhysicData* physicData;
 		sp_uint listLength;
+		sp_uint physicIndex;
 		DOP18* _boundingVolumes;
+		SpPhysicProperties* _physicProperties;
 
 	public:
 
@@ -23,8 +24,17 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE SpPhysicObjectList(const sp_uint length)
 		{
 			listLength = length;
-			_boundingVolumes = (DOP18*) SpPhysicSimulator::instance()->alloc(length);
-			physicData = sp_mem_new_array(SpPhysicData, length);
+			physicIndex = SpPhysicSimulator::instance()->alloc(length);
+			_boundingVolumes = (DOP18*)SpPhysicSimulator::instance()->boundingVolumes(physicIndex);
+			_physicProperties = SpPhysicSimulator::instance()->physicProperties(physicIndex);
+		}
+
+		/// <summary>
+		/// Get physic properties data from list
+		/// </summary>
+		API_INTERFACE SpPhysicProperties* physicProperties(const sp_uint index)
+		{
+			return &_physicProperties[index];
 		}
 
 		/// <summary>
@@ -33,7 +43,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void addForce(const Vec3& force)
 		{
 			for (sp_uint i = ZERO_UINT; i < listLength; i++)
-				physicData[i].force.add(force);
+				_physicProperties[i].force.add(force);
 		}
 
 		/// <summary>
@@ -41,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_float massInverse(const sp_uint index) const
 		{
-			return physicData[index].inverseMass;
+			return _physicProperties[index].inverseMass;
 		}
 		/// <summary>
 		/// Set the mass of the object. Ex.: Mass=8.0, so IM=1/8.0f
@@ -51,7 +61,7 @@ namespace NAMESPACE_PHYSICS
 			sp_float newMass = 1.0f / mass;
 
 			for (sp_uint i = ZERO_UINT; i < listLength; i++)
-				physicData[i].inverseMass = newMass;
+				_physicProperties[i].inverseMass = newMass;
 		}
 
 		/// <summary>
@@ -59,7 +69,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Vec3 velocity(const sp_uint index) const
 		{
-			return physicData[index].velocity;
+			return _physicProperties[index].velocity;
 		}
 
 		/// <summary>
@@ -67,7 +77,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Vec3 acceleration(const sp_uint index) const
 		{
-			return physicData[index].acceleration;
+			return _physicProperties[index].acceleration;
 		}
 
 		/// <summary>
@@ -75,7 +85,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE sp_float damping(const sp_uint index) const
 		{
-			return physicData[index].damping;
+			return _physicProperties[index].damping;
 		}
 
 		/// <summary>
@@ -83,7 +93,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE sp_float coeficientOfRestitution(const sp_uint index) const
 		{
-			return physicData[index].coeficientOfRestitution;
+			return _physicProperties[index].coeficientOfRestitution;
 		}
 
 		/// <summary>
@@ -95,19 +105,19 @@ namespace NAMESPACE_PHYSICS
 
 			for (sp_uint i = ZERO_UINT; i < listLength; i++)
 			{
-				SpPhysicData element = physicData[i];
+				SpPhysicProperties* element = &_physicProperties[i];
 
-				Vec3 newAcceleration = element.force * element.inverseMass;
+				Vec3 newAcceleration = element->force * element->inverseMass;
 
-				Vec3 newVelocity = (element.velocity * element.damping) + ((newAcceleration - element.acceleration) / elapsedTime);
+				Vec3 newVelocity = (element->velocity * element->damping) + ((newAcceleration - element->acceleration) / elapsedTime);
 
-				Vec3 newPosition = element.position + (newVelocity / elapsedTime);
+				Vec3 newPosition = element->position + (newVelocity / elapsedTime);
 
-				element.acceleration = newAcceleration;
-				element.velocity = newVelocity;
-				element.previousPosition = element.position;
-				element.position = newPosition;
-				element.force = 0.0f;
+				element->acceleration = newAcceleration;
+				element->velocity = newVelocity;
+				element->previousPosition = element->position;
+				element->position = newPosition;
+				element->force = 0.0f;
 			}
 		}
 

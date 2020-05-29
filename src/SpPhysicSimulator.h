@@ -6,6 +6,7 @@
 #include "DOP18.h"
 #include "SweepAndPrune.h"
 #include "SpEventDispatcher.h"
+#include "SpPhysicObject.h"
 #include "CL/cl.h"
 
 namespace NAMESPACE_PHYSICS
@@ -16,10 +17,12 @@ namespace NAMESPACE_PHYSICS
 		GpuDevice* gpu;
 		SweepAndPrune* sap;
 
+		sp_uint objectsLengthAllocated;
+		sp_uint objectsLength;
+
 		cl_mem boundingVolumeBuffer = nullptr;
-		DOP18* boundingVolumes;
-		sp_uint boundingVolumesLengthAllocated;
-		sp_uint boundingVolumesLength;
+		DOP18* _boundingVolumes;
+		SpPhysicProperties* _physicProperties;
 
 		SpPhysicSimulator() { }
 
@@ -29,7 +32,17 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE static void init(sp_uint objectsLength);
 
-		API_INTERFACE BoundingVolume* alloc(sp_uint length);
+		API_INTERFACE sp_uint alloc(sp_uint length);
+
+		API_INTERFACE inline BoundingVolume* boundingVolumes(const sp_uint index) const
+		{
+			return &_boundingVolumes[index];
+		}
+
+		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) const
+		{
+			return &_physicProperties[index];
+		}
 
 		API_INTERFACE void run();
 
