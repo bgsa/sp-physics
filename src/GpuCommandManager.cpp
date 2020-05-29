@@ -58,7 +58,7 @@ namespace NAMESPACE_PHYSICS
 		return (sp_uint) cachedPrograms.size() - 1;
 	}
 
-	cl_event GpuCommandManager::executeReadBuffer(cl_mem gpuBuffer, sp_size bufferSize, void* cpuBuffer, sp_uint eventsLength, cl_event* eventsToWait)
+	cl_event GpuCommandManager::readBuffer(cl_mem gpuBuffer, sp_size bufferSize, void* cpuBuffer, sp_uint eventsLength, cl_event* eventsToWait)
 	{
 		cl_event evt;
 		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, gpuBuffer, true, 0, bufferSize, cpuBuffer, eventsLength, eventsToWait, &evt));

@@ -221,11 +221,11 @@ namespace NAMESPACE_PHYSICS
 	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
 		const sp_uint zeroValue = ZERO_UINT;
-		cl_event lastEvent = nullptr;
 
 		radixSorting->execute(previousEventsLength, previousEvents);
-		lastEvent = radixSorting->lastEvent;
+		cl_event lastEvent = radixSorting->lastEvent;
 
+		/*
 		sp_uint* buffer = ALLOC_ARRAY(sp_uint, 64);
 		lastEvent = gpu->commandManager->executeReadBuffer(radixSorting->output, 4 * 64, buffer, ONE_UINT, &lastEvent);
 		std::cout << "BEGIN SORT" << END_OF_LINE;
@@ -233,6 +233,7 @@ namespace NAMESPACE_PHYSICS
 			std::cout << i << END_OF_LINE;
 		std::cout << "END SORT" << END_OF_LINE;
 		ALLOC_RELEASE(buffer);
+		*/
 
 		commandSaPCollisions
 			->updateInputParameter(2, radixSorting->output)

@@ -213,7 +213,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->executeReadBuffer(offsetTable1, offsetTableSize, orderedIndexes, true);
+		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, orderedIndexes, true);
 
 		for (sp_uint shift = 0; shift < threadsLength * 10; shift+=10)
 		{
@@ -313,7 +313,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->buildFromProgram(program, "prefixScanDown");
 
 		sp_uint* temp = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->executeReadBuffer(offsetTable1, offsetTableSize, temp, true);
+		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, temp, true);
 
 		for (sp_uint shift = 0; shift < threadsLength * 10; shift += 10)
 		{
@@ -343,7 +343,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset);
 			
 			// test scan up
-			gpu->commandManager->executeReadBuffer(offsetTable1, offsetTableSize, result, true);
+			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, true);
 			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
 			{
 				sp_uint sum = 0;
@@ -371,7 +371,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset);
 
 			// test scan down
-			gpu->commandManager->executeReadBuffer(offsetTable1, offsetTableSize, result, true);
+			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, true);
 			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
 			{
 				sp_uint sum = 0;
@@ -453,7 +453,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			minTime = std::min(times[i], minTime);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			gpu->commandManager->executeReadBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
+			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
@@ -513,7 +513,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			times[i] = ms2;
 
 			sp_size* result = ALLOC_ARRAY(sp_size, length * SIZEOF_UINT);
-			gpu->commandManager->executeReadBuffer(output, length * SIZEOF_UINT, result, true);
+			gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, result, true);
 
 			for (sp_uint i = 0; i < length; i++)
 				Assert::AreEqual(input1[i].minPoint.x, input2[result[i]].minPoint.x, L"Wrong value.", LINE_INFO());
@@ -560,7 +560,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem output = radixGpu->execute();
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->executeReadBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
+		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
@@ -623,7 +623,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			minTime = std::min(times[i], minTime);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			gpu->commandManager->executeReadBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
+			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				for (sp_uint j = 0; i < DOP18_ORIENTATIONS; i++)
@@ -682,7 +682,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			cl_mem output = radixGpu->execute(eventsLength, &lastEvent);
 
 			sp_uint* buffer = ALLOC_ARRAY(sp_uint, inputLength);
-			lastEvent = gpu->commandManager->executeReadBuffer(output, 4 * inputLength, buffer, ONE_UINT, &lastEvent);
+			lastEvent = gpu->commandManager->readBuffer(output, 4 * inputLength, buffer, ONE_UINT, &lastEvent);
 			std::stringstream ss;
 			ss << "BEGIN SORT" << END_OF_LINE;
 			for (size_t i = 0; i < 64; i++)
@@ -692,7 +692,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			ALLOC_RELEASE(buffer);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			lastEvent = gpu->commandManager->executeReadBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+			lastEvent = gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				for (sp_uint j = 0; i < DOP18_ORIENTATIONS; i++)

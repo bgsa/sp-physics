@@ -270,19 +270,8 @@ namespace NAMESPACE_PHYSICS
 			commandReorderNegative->updateInputParameter(TWO_UINT, offsetTable2Negatives);
 
 		commandReorderNegative->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
-		this->lastEvent = commandReorderNegative->lastEvent;
 
-
-		sp_uint* buffer = ALLOC_ARRAY(sp_uint, 2);
-		gpu->commandManager->executeReadBuffer(negativeCounterLocation1, 4 * 1, buffer);
-		gpu->commandManager->executeReadBuffer(negativeCounterLocation2, 4 * 1, &buffer[1]);
-		std::stringstream ss;
-		ss << "NEGATIVE COUNTER: " << buffer[0] << " , " << buffer[1] << END_OF_LINE;
-		OutputDebugStringA(ss.str().c_str());
-		ALLOC_RELEASE(buffer);
-
-
-		output = commandReverse->execute(ONE_UINT, &this->lastEvent);
+		output = commandReverse->execute(ONE_UINT, &commandReorderNegative->lastEvent);
 		this->lastEvent = commandReverse->lastEvent;
 		
 		return output;
