@@ -2343,12 +2343,14 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
-			SweepAndPruneResultCpu result = SweepAndPrune::findCollisions(kdops, length);
+			SweepAndPruneResultCpu resultCpu;
+			resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
+			SweepAndPrune::findCollisions(kdops, length, &resultCpu);
 
 			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
 
-			Assert::AreEqual(expectedLength, result.length, L"wrong value", LINE_INFO());
+			Assert::AreEqual(expectedLength, resultCpu.length, L"wrong value", LINE_INFO());
 
 			ALLOC_RELEASE(kdops);
 		}
@@ -2427,7 +2429,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		sap.setParameters(inputGpu, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);
 
 		performanceCounter.start();
-		SweepAndPruneResultCpu expected = SweepAndPrune::findCollisions(kdops1, length);
+
+		SweepAndPruneResultCpu expected;
+		expected.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
+		SweepAndPrune::findCollisions(kdops1, length, &expected);
+
 		sp_longlong cpuPerformance = performanceCounter.diff();
 
 		performanceCounter.start();

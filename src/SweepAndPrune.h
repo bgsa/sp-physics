@@ -21,6 +21,12 @@ namespace NAMESPACE_PHYSICS
 		sp_uint* indexes;
 		sp_uint length;
 
+		SweepAndPruneResultCpu()
+		{
+			this->indexes = nullptr;
+			this->length = ZERO_UINT;
+		}
+
 		SweepAndPruneResultCpu(sp_uint* indexes, sp_uint count)
 		{
 			this->indexes = indexes;
@@ -85,9 +91,9 @@ namespace NAMESPACE_PHYSICS
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method
-		/// Returns the pair indexes
+		/// Returns the pair indexes and length in the last parameter
 		///</summary>
-		API_INTERFACE static SweepAndPruneResultCpu findCollisions(DOP18* aabbs, sp_uint length);
+		API_INTERFACE static void findCollisions(DOP18* kdops, sp_uint length, SweepAndPruneResultCpu* resultCpu);
 
 #ifdef OPENCL_ENABLED
 

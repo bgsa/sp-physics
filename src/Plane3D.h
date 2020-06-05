@@ -45,7 +45,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Test if the line cross the plane
 		/// </summary>
-		API_INTERFACE Vec3* findIntersection(const Line3D& line) const;
+		API_INTERFACE void findIntersection(const Line3D& line, Vec3* contactPoint) const;
 
 		/// <summary>
 		/// Get the line intersection between the planes

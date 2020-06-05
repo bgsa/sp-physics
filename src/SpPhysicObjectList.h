@@ -4,6 +4,7 @@
 #include "SpectrumPhysics.h"
 #include "BoundingVolume.h"
 #include "SpPhysicSimulator.h"
+#include "SpPhysicSettings.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -32,99 +33,68 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get physic properties data from list
 		/// </summary>
-		API_INTERFACE SpPhysicProperties* physicProperties(const sp_uint index)
+		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index)
 		{
 			return &_physicProperties[index];
 		}
 
 		/// <summary>
-		/// Add force to this object
-		/// </summary>
-		API_INTERFACE void addForce(const Vec3& force)
-		{
-			for (sp_uint i = ZERO_UINT; i < listLength; i++)
-				_physicProperties[i].force.add(force);
-		}
-
-		/// <summary>
-		/// Get the inverse mass of the object
-		/// </summary>
-		API_INTERFACE inline sp_float massInverse(const sp_uint index) const
-		{
-			return _physicProperties[index].inverseMass;
-		}
-		/// <summary>
-		/// Set the mass of the object. Ex.: Mass=8.0, so IM=1/8.0f
-		/// </summary>
-		API_INTERFACE inline void mass(sp_float mass)
-		{
-			sp_float newMass = 1.0f / mass;
-
-			for (sp_uint i = ZERO_UINT; i < listLength; i++)
-				_physicProperties[i].inverseMass = newMass;
-		}
-
-		/// <summary>
-		/// Get the velocity of the object
-		/// </summary>
-		API_INTERFACE inline Vec3 velocity(const sp_uint index) const
-		{
-			return _physicProperties[index].velocity;
-		}
-
-		/// <summary>
-		/// Get the acceleration of the object
-		/// </summary>
-		API_INTERFACE inline Vec3 acceleration(const sp_uint index) const
-		{
-			return _physicProperties[index].acceleration;
-		}
-
-		/// <summary>
-		/// Get the change the velocity over the time
-		/// </summary>
-		API_INTERFACE sp_float damping(const sp_uint index) const
-		{
-			return _physicProperties[index].damping;
-		}
-
-		/// <summary>
-		/// Define the material when it collides
-		/// </summary>
-		API_INTERFACE sp_float coeficientOfRestitution(const sp_uint index) const
-		{
-			return _physicProperties[index].coeficientOfRestitution;
-		}
-
-		/// <summary>
 		/// Update the linear and angular velocity and others parameters
 		/// </summary>
-		API_INTERFACE void update(sp_float elapsedTime)
+		API_INTERFACE void update(const sp_uint index, sp_float elapsedTime)
 		{
 			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
+			sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
+			sp_assert(index < listLength, "IndexOutOfRangeException");
+			
+			SpPhysicProperties* element = &_physicProperties[index];
 
-			for (sp_uint i = ZERO_UINT; i < listLength; i++)
-			{
-				SpPhysicProperties* element = &_physicProperties[i];
+			/*  EULER INTEGRATION
+			const Vec3 newAcceleration = element->force() * element->massInverse();
+			const Vec3 newVelocity = 
+				(   element->linearVelocity()
+				  + (element->acceleration() / elapsedTime)
+				) * element->damping();
 
-				Vec3 newAcceleration = element->force * element->inverseMass;
+			const Vec3 newPosition = element->position() + newVelocity / elapsedTime;
+			*/
 
-				Vec3 newVelocity = (element->velocity * element->damping) + ((newAcceleration - element->acceleration) / elapsedTime);
+			/* Verlet Integration
+			const Vec3 deltaPosition = element->position() - element->previousPosition();
+			const Vec3 newPosition = element->position() 
+				+ deltaPosition + newAcceleration * elapsedTime*elapsedTime;
+			*/
 
-				Vec3 newPosition = element->position + (newVelocity / elapsedTime);
 
-				element->acceleration = newAcceleration;
-				element->velocity = newVelocity;
-				element->previousPosition = element->position;
-				element->position = newPosition;
-				element->force = 0.0f;
-			}
+			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
+			elapsedTime = elapsedTime * SpPhysicSettings::instance()->physicVelocity();
+
+			// Velocity Verlet Integration because regards the velocity
+			const Vec3 newPosition = element->position()
+				+ element->linearVelocity() * elapsedTime
+				+ element->acceleration()  * (elapsedTime * elapsedTime * 0.5f);
+
+			const Vec3 dragForce = (element->linearVelocity() * element->linearVelocity().abs()) * 0.5f * drag;
+			const Vec3 newAcceleration = (element->force() - dragForce) * element->massInverse();
+
+			Vec3 newVelocity = element->linearVelocity()
+				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
+			
+			_boundingVolumes[index].translate(newPosition - element->_position);
+
+			std::cout << newVelocity.y << END_OF_LINE;
+
+			element->_acceleration = newAcceleration;
+			element->_linearVelocity = newVelocity;
+			element->_previousPosition = element->position();
+			element->_position = newPosition;
+			element->_force = 0.0f;
 		}
 
 		/// <summary>
 		/// Get the bounding volume of these object for collision detection
 		/// </summary>
-		API_INTERFACE inline DOP18* boundingVolumes() { return _boundingVolumes; }
+		API_INTERFACE inline DOP18* boundingVolumes(const sp_uint index) { return &_boundingVolumes[index]; }
 
 		/// <summary>
 		/// Define how many objects the list contains

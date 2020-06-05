@@ -104,11 +104,8 @@ namespace NAMESPACE_PHYSICS
 		return SweepAndPruneResultCpu(indexes, aabbIndex >> 1);
 	}
 
-	SweepAndPruneResultCpu SweepAndPrune::findCollisions(DOP18* kdops, sp_uint length)
+	void SweepAndPrune::findCollisions(DOP18* kdops, sp_uint length, SweepAndPruneResultCpu* resultCpu)
 	{
-		sp_uint* indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
-		sp_uint kdopsIndex = 0;
-
 		sp_uint* activeListIndex = ALLOC_ARRAY(sp_uint, length);
 		sp_uint activeListIndexCount = 0;
 		sp_uint activeListKDOPIndex = 0;
@@ -139,8 +136,8 @@ namespace NAMESPACE_PHYSICS
 						&& (kdops[i].max[8] >= kdops[activeListKDOPIndex].min[8] && kdops[i].min[8] <= kdops[activeListKDOPIndex].max[8])
 						)
 					{
-						indexes[kdopsIndex++] = i;
-						indexes[kdopsIndex++] = activeListKDOPIndex;
+						resultCpu->indexes[resultCpu->length++] = i;
+						resultCpu->indexes[resultCpu->length++] = activeListKDOPIndex;
 					}
 				}
 			}
@@ -149,7 +146,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		ALLOC_RELEASE(activeListIndex);
-		return SweepAndPruneResultCpu(indexes, divideBy2(kdopsIndex));
+		resultCpu->length = divideBy2(resultCpu->length);
 	}
 
 #ifdef OPENCL_ENABLED
@@ -177,11 +174,10 @@ namespace NAMESPACE_PHYSICS
 		file.read(source, fileSize);
 		file.close();
 
-		sp_uint sapIndex = gpu->commandManager->cacheProgram(source, sizeof(char) * fileSize, buildOptions);
+		sp_uint sapIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
+		sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
 
 		ALLOC_RELEASE(source);
-
-		sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
 		return this;
 	}
 	

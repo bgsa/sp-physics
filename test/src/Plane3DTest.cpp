@@ -129,13 +129,14 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec3  expected = Vec3(-13.8571415f, -6.57142735f, 4.23809528f);
 
-		Vec3* intersection = plane.findIntersection(line);
+		Vec3 intersection;
+		plane.findIntersection(line, &intersection);
 
-		Assert::IsNotNull(intersection, L"There should be an intersection", LINE_INFO());
+		Assert::IsTrue(intersection != 0.0f, L"There should be an intersection", LINE_INFO());
 
-		Asserts::isCloseEnough(expected.x, intersection->x, 0.0009f, L"Wrong value", LINE_INFO());
-		Asserts::isCloseEnough(expected.y, intersection->y, 0.0009f, L"Wrong value", LINE_INFO());
-		Asserts::isCloseEnough(expected.z, intersection->z, 0.0009f, L"Wrong value", LINE_INFO());
+		Asserts::isCloseEnough(expected.x, intersection.x, 0.0009f, L"Wrong value", LINE_INFO());
+		Asserts::isCloseEnough(expected.y, intersection.y, 0.0009f, L"Wrong value", LINE_INFO());
+		Asserts::isCloseEnough(expected.z, intersection.z, 0.0009f, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Plane3D_angle_Test1)

@@ -76,8 +76,8 @@ __kernel void sweepAndPruneSingleAxis(
         )
         {
             const sp_uint temp = atomic_add(outputLength, 2);
-            output[temp] = index;
-            output[temp + 1] = j;
+            output[temp    ] = indexes[index];
+            output[temp + 1] = indexes[j];
         }
     }
 }

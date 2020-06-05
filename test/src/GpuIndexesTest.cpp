@@ -34,22 +34,22 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
 
-		const sp_uint count = 10;
+		const sp_uint length = 10;
 
 		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count;
+		buildOptions << " -DINPUT_LENGTH=" << length;
 		buildOptions << " -DINPUT_STRIDE=1";
 		buildOptions << " -DINPUT_OFFSET=0";
 
 		commandIndexes->init(gpu, buildOptions.str().c_str());
-		commandIndexes->setParametersCreateIndexes(count);
+		commandIndexes->setParametersCreateIndexes(length);
 
 		cl_mem output = commandIndexes->execute();
 
-		sp_uint* values = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, true);
+		sp_uint* values = ALLOC_ARRAY(sp_uint, length);
+		gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, values, true);
 
-		for (sp_uint i = 0; i < count; i++)
+		for (sp_uint i = 0; i < length; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
 
 		gpu->releaseBuffer(output);

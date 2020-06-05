@@ -48,33 +48,42 @@ namespace NAMESPACE_PHYSICS
 		return allocated;
 	}
 
-	void SpPhysicSimulator::run()
+	void SpPhysicSimulator::run(const Timer& timer)
 	{
-		/*
-		SweepAndPruneResultCpu resultCpu = sap->findCollisions(boundingVolumes, boundingVolumesLength);
-		std::cout << "EXPECTED: " << resultCpu.length << END_OF_LINE;
-		ALLOC_RELEASE(resultCpu.indexes);
-		*/
+		SweepAndPruneResultCpu resultCpu;
+		resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(objectsLength));
+
+		sap->findCollisions(_boundingVolumes, objectsLength, &resultCpu);
+
+		sp_uint indexesLength = resultCpu.length;
+		sp_uint* indexes = resultCpu.indexes;
 		
+		/*
 		cl_event lastEvent = gpu->commandManager->updateBuffer(boundingVolumeBuffer, DOP18_SIZE * objectsLengthAllocated, _boundingVolumes);
 
 		cl_mem result = sap->execute(ONE_UINT, &lastEvent);
 
-		const sp_uint collisionsLength = sap->fetchCollisionLength();
+		const sp_uint indexesLength = multiplyBy2(sap->fetchCollisionLength());
 
-		sp_uint* indexes = ALLOC_NEW_ARRAY(sp_uint, collisionsLength * 2u);
-		gpu->commandManager->readBuffer(result, collisionsLength * 2u * SIZEOF_UINT, indexes);
+		sp_uint* indexes = ALLOC_NEW_ARRAY(sp_uint, indexesLength);
+		gpu->commandManager->readBuffer(result, indexesLength * SIZEOF_UINT, indexes);
+		*/
 
-		for (sp_uint i = 0; i < collisionsLength; i++)
+		const sp_float elapsedTime = timer.elapsedTime();
+
+		for (sp_uint i = 0; i < indexesLength; i+=2u)
 		{
 			SpCollisionEvent* evt = sp_mem_new(SpCollisionEvent)();
 			evt->indexBody1 = indexes[i];
 			evt->indexBody2 = indexes[i+1];
 
 			SpEventDispatcher::instance()->push(evt);
+
+			handleCollision(evt->indexBody1, evt->indexBody2, elapsedTime);
 		}
 
-		ALLOC_RELEASE(indexes);
+		//ALLOC_RELEASE(indexes);
+		ALLOC_RELEASE(resultCpu.indexes);
 	}
 
 	void SpPhysicSimulator::dispose()

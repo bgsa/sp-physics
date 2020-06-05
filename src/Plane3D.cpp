@@ -53,14 +53,14 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	Vec3* Plane3D::findIntersection(const Line3D& line) const
+	void Plane3D::findIntersection(const Line3D& line, Vec3* contactPoint) const
 	{
 		Vec3 lineAsVector = line.point2 - line.point1;
 
 		sp_float angle = normalVector.dot(lineAsVector);
 
-		if (angle == 0.0f)
-			return nullptr;
+		if (isCloseEnough(angle, 0.0f))
+			return;
 
 		Vec4 planeEquation = getEquation();
 
@@ -69,13 +69,9 @@ namespace NAMESPACE_PHYSICS
 
 		sp_float t = numerator / denominator;
 
-		Vec3* intersection = ALLOC_NEW(Vec3)(
-			line.point1[0] + lineAsVector[0] * t,
-			line.point1[1] + lineAsVector[1] * t,
-			line.point1[2] + lineAsVector[2] * t
-			);
-
-		return intersection;
+		contactPoint->x = line.point1[0] + lineAsVector[0] * t;
+		contactPoint->y = line.point1[1] + lineAsVector[1] * t;
+		contactPoint->z = line.point1[2] + lineAsVector[2] * t;
 	}
 
 	Line3D* Plane3D::findIntersection(const Plane3D& plane) const

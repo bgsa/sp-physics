@@ -62,7 +62,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_size globalWorkSizeOdd[3] = { 1, 0, 0 };
 			const sp_size localWorkSizeOdd[3] = { 1, 0, 0 };
 
-			commandInitIndexes_Odd->execute(1, globalWorkSizeOdd, localWorkSizeOdd);
+			commandInitIndexes_Odd->execute(1, globalWorkSizeOdd, localWorkSizeOdd, 0, &lastEvent, ONE_UINT);
 			lastEvent = commandInitIndexes_Odd->lastEvent;
 		}
 

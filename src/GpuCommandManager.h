@@ -5,6 +5,7 @@
 
 #include "SpectrumPhysics.h"
 #include "GpuCommand.h"
+#include "SpDirectory.h"
 
 namespace NAMESPACE_PHYSICS
 {
