@@ -12,10 +12,12 @@ namespace NAMESPACE_PHYSICS
 	private:
 		sp_float _physicVelocity;
 		sp_bool _simulationEnabled;
+		Vec3 _gravityForce;
 
 		SpPhysicSettings()
 		{
 			_physicVelocity = 0.01f;
+			_gravityForce = Vec3(0.0f, -9.8f, 0.0f);
 			enableSimulation();
 		}
 		
@@ -35,6 +37,16 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void physicVelocity(sp_float newVelocity)
 		{
 			_physicVelocity = newVelocity;
+		}
+
+		API_INTERFACE inline Vec3 gravityForce()
+		{
+			return _gravityForce;
+		}
+
+		API_INTERFACE inline void gravityForce(const Vec3& newGravityForce)
+		{
+			_gravityForce = newGravityForce;
 		}
 
 		API_INTERFACE inline sp_bool isSimulationEnabled()

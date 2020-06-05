@@ -13,17 +13,24 @@ namespace NAMESPACE_PHYSICS
 		friend class SpPhysicSimulator;
 
 	private:
-		Vec3 _force;
-		sp_float _inverseMass;
-
 		Vec3 _position;
-		sp_float _damping;
-
 		Vec3 _previousPosition;
-		sp_float _coeficientOfRestitution;
 
-		Vec3 _linearVelocity;
+		Vec3 _velocity;
+		Vec3 _previousVelocity;
+
 		Vec3 _acceleration;
+		Vec3 _previousAcceleration;
+
+		Vec3 _angularVelocity;
+		Vec3 _previousAngularVelocity;
+
+		Vec3 _force;
+		Vec3 _previousForce;
+
+		sp_float _inverseMass;
+		sp_float _damping;
+		sp_float _coeficientOfRestitution;
 
 		Quat _orientation;
 
@@ -35,12 +42,20 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE SpPhysicProperties()
 		{
 			_force = Vec3(ZERO_FLOAT);
-			_inverseMass = ZERO_FLOAT;
-			_previousPosition = Vec3(ZERO_FLOAT);
+			_previousForce = _force;
+			
 			_position = Vec3(ZERO_FLOAT);
+			_previousPosition = _position;
+
+			_velocity = Vec3(ZERO_FLOAT);
+			_previousVelocity = _velocity;
+
 			_acceleration = Vec3(ZERO_FLOAT);
+			_previousAcceleration = _acceleration;
+
 			_damping = 0.95f;
 			_coeficientOfRestitution = 0.99f;
+			_inverseMass = ZERO_FLOAT;
 			_orientation = Quat();
 		}
 
@@ -58,6 +73,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline Vec3 force() const
 		{
 			return _force;
+		}
+
+		/// <summary>
+		/// Get the force previous the timestep
+		/// </summary>
+		API_INTERFACE inline Vec3 previousForce() const
+		{
+			return _previousForce;
 		}
 
 		/// <summary>
@@ -90,9 +113,9 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isResting() const
 		{
-			return isCloseEnough(_linearVelocity.x, 0.0f) 
-				&& isCloseEnough(_linearVelocity.y, 0.0f) 
-				&& isCloseEnough(_linearVelocity.z, 0.0f);
+			return isCloseEnough(_velocity.x, 0.0f) 
+				&& isCloseEnough(_velocity.y, 0.0f)
+				&& isCloseEnough(_velocity.z, 0.0f);
 		}
 
 		/// <summary>
@@ -130,9 +153,33 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the velocity of the object
 		/// </summary>
-		API_INTERFACE inline Vec3 linearVelocity() const
+		API_INTERFACE inline Vec3 velocity() const
 		{
-			return _linearVelocity;
+			return _velocity;
+		}
+
+		/// <summary>
+		/// Get the previous velocity of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 previousVelocity() const
+		{
+			return _previousVelocity;
+		}
+
+		/// <summary>
+		/// Get the angular velocity of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 angularVelocity() const
+		{
+			return _angularVelocity;
+		}
+
+		/// <summary>
+		/// Get the previous angular velocity of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 previousAngularVelocity() const
+		{
+			return _previousAngularVelocity;
 		}
 
 		/// <summary>
@@ -141,6 +188,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline Vec3 acceleration() const
 		{
 			return _acceleration;
+		}
+
+		/// <summary>
+		/// Get the acceleration previous the timestep
+		/// </summary>
+		API_INTERFACE inline Vec3 previousAcceleration() const
+		{
+			return _previousAcceleration;
 		}
 
 		/// <summary>
@@ -157,6 +212,18 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float coeficientOfRestitution() const
 		{
 			return _coeficientOfRestitution;
+		}
+
+		/// <summary>
+		/// Redifine the properties with the previous state
+		/// </summary>
+		API_INTERFACE inline void rollbackState()
+		{
+			_force = _previousForce;
+			_acceleration = _previousAcceleration;
+			_velocity = _previousVelocity;
+			_position = _previousPosition;
+			_angularVelocity = _previousAngularVelocity;
 		}
 
 	};
@@ -183,22 +250,24 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 
+			/*
 			SpPhysicProperties* element = &physicData;
 
 			const Vec3 newAcceleration = element->acceleration() + // accumulate new acceleration with the previous one
 				element->force() * element->massInverse();
 
-			const Vec3 newVelocity = (element->linearVelocity() * element->damping()) + ((element->acceleration()) / elapsedTime);
+			const Vec3 newVelocity = (element->velocity() * element->damping()) + ((element->acceleration()) / elapsedTime);
 
-			const Vec3 newPosition = element->position() + ((newVelocity + element->_linearVelocity) / (elapsedTime * 2.0f));
+			const Vec3 newPosition = element->position() + ((newVelocity + element->velocity) / (elapsedTime * 2.0f));
 
 			//_boundingVolumes->translate(newPosition - element->_position);
 
 			physicData._acceleration     = newAcceleration;
-			physicData._linearVelocity   = newVelocity;
+			physicData.velocity   = newVelocity;
 			physicData._previousPosition = physicData.position();
 			physicData._position         = newPosition;
 			physicData._force            = ZERO_FLOAT;
+			*/
 		}
 
 		/// <summary>

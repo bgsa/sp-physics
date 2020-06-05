@@ -9,6 +9,7 @@
 #include "SpPhysicObject.h"
 #include "CL/cl.h"
 #include "Timer.h"
+#include "SpPhysicSettings.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -85,9 +86,42 @@ namespace NAMESPACE_PHYSICS
 			sp_mem_release(dopPlanes);
 		}
 
+		sp_float timeOfCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime)
+		{
+			SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
+			SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
+
+			sp_float previousElapsedTime = elapsedTime;
+			sp_float factor = 0.25f;
+			elapsedTime *= 0.5f;
+			CollisionStatus status;
+			do
+			{
+				backToTime(objIndex1);
+				backToTime(objIndex2);
+
+				integrate(objIndex1, elapsedTime);
+				integrate(objIndex2, elapsedTime);
+
+				status = _boundingVolumes[objIndex1].collisionStatus(_boundingVolumes[objIndex2]);
+
+				previousElapsedTime = elapsedTime;
+				if (status == CollisionStatus::OUTSIDE)
+					elapsedTime += elapsedTime * factor;
+				else
+					elapsedTime -= elapsedTime * factor;
+				factor *= 0.65f;
+			}
+			while (std::abs(elapsedTime - previousElapsedTime) > 0.9f);
+
+			return elapsedTime;
+		}
+
 		void handleCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime)
 		{
 			sp_assert(objIndex1 != objIndex2, "InvalidArgumentException");
+
+			sp_float timeOfImpact = timeOfCollision(objIndex1, objIndex2, elapsedTime);
 
 			SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
 			SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
@@ -234,7 +268,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			const sp_float sumMass = obj1Properties->massInverse() + obj2Properties->massInverse();
-			const Vec3 relativeVelocity = obj2Properties->linearVelocity() - obj1Properties->linearVelocity();
+			const Vec3 relativeVelocity = obj2Properties->velocity() - obj1Properties->velocity();
 			const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
 
 			if (obj1Properties->isMovable())
@@ -248,11 +282,11 @@ namespace NAMESPACE_PHYSICS
 					/ sumMass;
 
 				const Vec3 newForceObj1
-					= (obj1Properties->linearVelocity() * factor1)
-					+ (obj2Properties->linearVelocity() * factor2);
+					= (obj1Properties->velocity() * factor1)
+					+ (obj2Properties->velocity() * factor2);
 
 				obj1Properties->_acceleration = 0.0f;
-				obj1Properties->_linearVelocity = direction * newForceObj1;
+				obj1Properties->_velocity = direction * newForceObj1;
 			}
 
 			if (obj2Properties->isMovable())
@@ -266,11 +300,11 @@ namespace NAMESPACE_PHYSICS
 					/ sumMass;
 
 				const Vec3 newForceObj2
-					= (obj1Properties->linearVelocity() * factor1)
-					+ (obj2Properties->linearVelocity() * factor2);
+					= (obj1Properties->velocity() * factor1)
+					+ (obj2Properties->velocity() * factor2);
 
 				obj2Properties->_acceleration = 0.0f;
-				obj2Properties->_linearVelocity = direction * newForceObj2;
+				obj2Properties->_velocity = direction * newForceObj2;
 			}
 		}
 
@@ -290,6 +324,61 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) const
 		{
 			return &_physicProperties[index];
+		}
+
+		API_INTERFACE inline void integrate(const sp_uint index, sp_float elapsedTime)
+		{
+			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
+			sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
+			sp_assert(index < objectsLength, "IndexOutOfRangeException");
+
+			SpPhysicSettings* settings = SpPhysicSettings::instance();
+
+			SpPhysicProperties* element = &_physicProperties[index];
+
+			element->addForce(settings->gravityForce());
+
+			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
+			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * 0.5f * drag;
+
+			// Velocity Verlet Integration
+			elapsedTime = elapsedTime * settings->physicVelocity();
+
+			// Velocity Verlet Integration because regards the velocity
+			const Vec3 newPosition = element->position()
+				+ element->velocity() * elapsedTime
+				+ element->acceleration()  * (elapsedTime * elapsedTime * 0.5f);
+
+			const Vec3 newAcceleration = (element->force() - dragForce) * element->massInverse();
+
+			Vec3 newVelocity = element->velocity()
+				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
+
+			_boundingVolumes[index].translate(newPosition - element->position()); // Sync with the bounding Volume
+
+			element->_previousAcceleration = element->acceleration();
+			element->_acceleration = newAcceleration;
+
+			element->_previousVelocity = element->velocity();
+			element->_velocity = newVelocity;
+
+			element->_previousPosition = element->position();
+			element->_position = newPosition;
+
+			element->_previousForce = element->force();
+			element->_force = 0.0f;
+		}
+
+		/// <summary>
+		/// Back the object to the state before timestep
+		/// </summary>
+		API_INTERFACE inline void backToTime(const sp_uint index)
+		{
+			SpPhysicProperties* element = &_physicProperties[index];
+			DOP18* dop = &_boundingVolumes[index];
+
+			dop->translate(element->previousPosition() - element->position());
+			element->rollbackState();
 		}
 
 		API_INTERFACE void run(const Timer& timer);
