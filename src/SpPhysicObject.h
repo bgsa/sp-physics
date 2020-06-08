@@ -2,6 +2,7 @@
 #define SP_PHYSIC_OBJECT_HEADER
 
 #include "SpectrumPhysics.h"
+#include "SpPhysicSettings.h"
 #include "BoundingVolume.h"
 
 namespace NAMESPACE_PHYSICS
@@ -113,9 +114,12 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isResting() const
 		{
-			return isCloseEnough(_velocity.x, 0.0f) 
-				&& isCloseEnough(_velocity.y, 0.0f)
-				&& isCloseEnough(_velocity.z, 0.0f);
+			const sp_float restingEpsilon = SpPhysicSettings::instance()->restingVelocityEpsilon();
+
+			return
+				isCloseEnough(_position.x, _previousPosition.x, restingEpsilon) &&
+				isCloseEnough(_position.y, _previousPosition.y, restingEpsilon) &&
+				isCloseEnough(_position.z, _previousPosition.z, restingEpsilon);
 		}
 
 		/// <summary>
@@ -135,9 +139,17 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Check if this object is movable (mass != 0)
+		/// Check if this object is not movable (mass == 0)
 		/// </summary>
-		API_INTERFACE inline sp_bool isMovable() const
+		API_INTERFACE inline sp_bool isStatic() const
+		{
+			return _inverseMass == ZERO_FLOAT;
+		}
+
+		/// <summary>
+		/// Check if this object is dynamic (movable) (mass != 0)
+		/// </summary>
+		API_INTERFACE inline sp_bool isDynamic() const
 		{
 			return _inverseMass != ZERO_FLOAT;
 		}

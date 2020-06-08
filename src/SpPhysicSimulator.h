@@ -125,9 +125,6 @@ namespace NAMESPACE_PHYSICS
 			SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
 			SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
 
-			if (!obj1Properties->isMovable() && !obj2Properties->isMovable())
-				return;
-
 			DOP18 bv1 = _boundingVolumes[objIndex1];
 			DOP18 bv2 = _boundingVolumes[objIndex2];
 
@@ -623,13 +620,13 @@ namespace NAMESPACE_PHYSICS
 			const Vec3 relativeVelocity = obj2Properties->velocity() - obj1Properties->velocity();
 			const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
 
-			if (obj1Properties->isMovable())
+			if (obj1Properties->isDynamic())
 			{
 				obj1Properties->_acceleration = ZERO_FLOAT;
 
 				const Line3D lineOfAction(obj1Properties->position(), details.contactPoint);
 
-				if (obj2Properties->isMovable())
+				if (obj2Properties->isDynamic())
 				{
 					sp_float factor1
 						= (obj1Properties->massInverse() - cor * obj2Properties->massInverse())
@@ -649,13 +646,13 @@ namespace NAMESPACE_PHYSICS
 					obj1Properties->_velocity = (lineOfAction.direction()  * obj1Properties->velocity()) * cor;
 			}
 
-			if (obj2Properties->isMovable())
+			if (obj2Properties->isDynamic())
 			{
 				obj2Properties->_acceleration = ZERO_FLOAT;
 
 				const Line3D lineOfAction(obj2Properties->position(), details.contactPoint);
 
-				if (obj1Properties->isMovable())
+				if (obj1Properties->isDynamic())
 				{
 					sp_float factor1 =
 						((1.0f + cor) * obj1Properties->massInverse())
@@ -683,8 +680,37 @@ namespace NAMESPACE_PHYSICS
 			SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
 			SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
 
-			if (!obj1Properties->isMovable() && !obj2Properties->isMovable())
+			const sp_bool isObj1Static = obj1Properties->isStatic();
+			const sp_bool isObj2Static = obj2Properties->isStatic();
+
+			if (isObj1Static && isObj1Static)
 				return;
+
+			const sp_bool isObj1Resting = obj1Properties->isResting();
+			const sp_bool isObj2Resting = obj2Properties->isResting();
+
+			if (isObj1Resting && isObj2Resting)
+			{
+				obj1Properties->_acceleration = Vec3(ZERO_FLOAT);
+				obj1Properties->_velocity = Vec3(ZERO_FLOAT);
+				obj2Properties->_acceleration = Vec3(ZERO_FLOAT);
+				obj2Properties->_velocity = Vec3(ZERO_FLOAT);
+				return;
+			}
+
+			if (isObj1Static && isObj2Resting)
+			{
+				obj2Properties->_acceleration = Vec3(ZERO_FLOAT);
+				obj2Properties->_velocity = Vec3(ZERO_FLOAT);
+				return;
+			}
+			
+			if (isObj2Static && isObj1Resting)
+			{
+				obj1Properties->_acceleration = Vec3(ZERO_FLOAT);
+				obj1Properties->_velocity = Vec3(ZERO_FLOAT);
+				return;
+			}
 
 			SpCollisionDetails details;
 			collisionDetails(objIndex1, objIndex2, elapsedTime, &details);
