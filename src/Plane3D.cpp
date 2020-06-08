@@ -2,15 +2,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	Plane3D::Plane3D() {
-		this->point = Vec3(0.0f);
-	};
-
-	Plane3D::Plane3D(const Vec3& point, const Vec3& normal)
-	{
-		this->point = point;
-		this->normalVector = normal;
-	}
 
 	Plane3D::Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 	{
@@ -37,23 +28,7 @@ namespace NAMESPACE_PHYSICS
 		normalVector = Vec3(a, b, c).normalize();
 	}
 
-	sp_float Plane3D::getDcomponent() const
-	{
-		return -normalVector.dot(point);
-		//return normalVector.dot(point);
-	}
-
-	Vec4 Plane3D::getEquation() const
-	{
-		return Vec4(
-			normalVector[0],
-			normalVector[1],
-			normalVector[2],
-			getDcomponent()
-			);
-	}
-
-	void Plane3D::findIntersection(const Line3D& line, Vec3* contactPoint) const
+	void Plane3D::intersection(const Line3D& line, Vec3* contactPoint) const
 	{
 		Vec3 lineAsVector = line.point2 - line.point1;
 
@@ -62,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 		if (isCloseEnough(angle, 0.0f))
 			return;
 
-		Vec4 planeEquation = getEquation();
+		Vec4 planeEquation = equation();
 
 		sp_float numerator = -(planeEquation[0] * line.point1[0] + planeEquation[1] * line.point1[1] + planeEquation[2] * line.point1[2] + planeEquation[3]);
 		sp_float denominator = planeEquation[0] * lineAsVector[0] + planeEquation[1] * lineAsVector[1] + planeEquation[2] * lineAsVector[2];
@@ -74,26 +49,21 @@ namespace NAMESPACE_PHYSICS
 		contactPoint->z = line.point1[2] + lineAsVector[2] * t;
 	}
 
-	Line3D* Plane3D::findIntersection(const Plane3D& plane) const
+	void Plane3D::intersection(const Plane3D& plane, Line3D* line) const
 	{
 		if (isParallel(plane))
-			return nullptr;
+			return;
 
 		Vec3 lineDirection = normalVector.cross(plane.normalVector);
 		
-		sp_float d1 = getDcomponent();
-		sp_float d2 = plane.getDcomponent();
-
 		// find a point on the line, which is also on both planes
 		sp_float dot = lineDirection.dot(lineDirection);					// V dot V
-		Vec3 u1 = normalVector * d2;								// d2 * normalVector
-		Vec3 u2 = plane.normalVector * -d1;					    //-d1 * plane.normalVector
-		Vec3 point1 = (u1 + u2).cross(lineDirection) / dot;      // (d2*N1-d1*N2) X V / V dot V
-
-		// find another point on the line
-		Vec3 point2 = point1 + lineDirection;
-
-		return ALLOC_NEW(Line3D)(point1, point2);
+		Vec3 u1 = normalVector * plane.getDcomponent();		    // d2 * normalVector
+		Vec3 u2 = plane.normalVector * -getDcomponent();	    //-d1 * plane.normalVector
+		Vec3 point1 = (u1 + u2).cross(lineDirection) / dot;     // (d2*N1-d1*N2) X V / V dot V
+		
+		line->point1 = point1;
+		line->point2 = point1 + lineDirection; // find another point on the line
 	}
 
 	sp_float Plane3D::distance(const Vec3& target) const
@@ -106,11 +76,18 @@ namespace NAMESPACE_PHYSICS
 		return numerator / length;
 	}
 
+	sp_float Plane3D::distance(const Plane3D& plane) const
+	{
+		Vec4 eq = equation();
+
+		return std::fabsf(eq.w - plane.getDcomponent())
+				/ std::sqrtf(eq.x * eq.x + eq.y * eq.y + eq.z * eq.z);
+	}
+
 	Vec3 Plane3D::closestPointOnThePlane(const Vec3 &target) const
 	{
-		sp_float d = getDcomponent();
-
-		sp_float t = (normalVector.dot(target) - d) / normalVector.dot(normalVector); //t = ((n . p) - d) / (n.n)
+		// t = ((n . p) - d) / (n.n)
+		sp_float t = (normalVector.dot(target) - getDcomponent()) / normalVector.dot(normalVector); 
 
 		return target - (normalVector * t); //result = point - tn
 	}
@@ -135,13 +112,4 @@ namespace NAMESPACE_PHYSICS
 		return Orientation::RIGHT;
 	}
 
-	sp_bool Plane3D::isParallel(const Plane3D& plane) const
-	{
-		return normalVector.cross(plane.normalVector) == 0.0f;
-	}
-
-	sp_bool Plane3D::isPerpendicular(const Plane3D& plane) const
-	{
-		return normalVector.dot(plane.normalVector) == 0.0f;
-	}
 }

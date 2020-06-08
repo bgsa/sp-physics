@@ -84,7 +84,21 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// This method is not applied to k-DOPs
 		/// </summary>
-		API_INTERFACE void rotate(const Vec3& angles) override;
+		void rotate(const Vec3& angles) override { }
+
+		/// <summary>
+		/// Get the points from planes
+		/// </summary>
+		void pointsFromPlanes(Vec3* points, sp_size pointOffset,
+			const Plane3D& plane1, const Plane3D& plane2,
+			const Plane3D& plane3, const Plane3D& plane4)
+		{
+			Line3D line;
+			plane1.intersection(plane2, &line);
+
+			line.intersectionOnRay(plane3, &points[pointOffset]);
+			line.intersectionOnRay(plane4, &points[pointOffset + 1]);
+		}
 
 	public:
 		sp_float min[DOP18_ORIENTATIONS];
@@ -181,7 +195,502 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Returns the type og bounding volume
 		/// </summary>
-		API_INTERFACE BoundingVolumeType DOP18::type() const;
+		API_INTERFACE BoundingVolumeType type() const
+		{
+			return BoundingVolumeType::DOP18;
+		}
+
+		/// <summary>
+		/// Get the points of front plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneFront(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeFront = planeFront();
+			Plane3D _planeUpFront = planeUpFront();
+			Plane3D _planeDownFront = planeDownFront();
+
+			*length = 4u;
+			pointsFromPlanes(points, 0, _planeFront, planeLeftFront(), _planeUpFront, _planeDownFront);
+			pointsFromPlanes(points, 2, _planeFront, planeRightFront(), _planeUpFront, _planeDownFront);
+		}
+
+		/// <summary>
+		/// Get the points of depth plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneDepth(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeDepth = planeDepth();
+			Plane3D _planeUpDepth = planeUpDepth();
+			Plane3D _planeDownDepth = planeDownDepth();
+
+			*length = 4u;
+			pointsFromPlanes(points, 0, _planeDepth, planeLeftDepth(), _planeUpDepth, _planeDownDepth);  // left-depth line and vertexes
+			pointsFromPlanes(points, 2, _planeDepth, planeRightDepth(), _planeUpDepth, _planeDownDepth); // right-depth line and vertexes
+		}
+
+		/// <summary>
+		/// Get the points of up plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneUp(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeUp = planeUp();
+			Plane3D _planeUpFront = planeUpFront();
+			Plane3D _planeUpDepth = planeUpDepth();
+
+			*length = 4u;
+			pointsFromPlanes(points, 0, _planeUp, planeUpLeft(), _planeUpFront, _planeUpDepth); // left-top line and vertexes
+			pointsFromPlanes(points, 2, _planeUp, planeUpRight(), _planeUpFront, _planeUpDepth); // right-top line and vertexes
+		}
+
+		/// <summary>
+		/// Get the points of down plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneDown(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeDown = planeDown();
+			Plane3D _planeDownFront = planeDownFront();
+			Plane3D _planeDownDepth = planeDownDepth();
+
+			*length = 4u;
+			pointsFromPlanes(points, 0, _planeDown, planeDownLeft(), _planeDownFront, _planeDownDepth);
+			pointsFromPlanes(points, 2, _planeDown, planeDownRight(), _planeDownDepth, _planeDownFront);
+		}
+
+		/// <summary>
+		/// Get the points of left plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneLeft(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeLeft = planeLeft();
+			Plane3D _planeUpLeft = planeUpLeft();
+			Plane3D _planeDownLeft = planeDownLeft();
+
+			*length = 4u;
+			pointsFromPlanes(points, 0, _planeLeft, planeLeftFront(), _planeUpLeft, _planeDownLeft);
+			pointsFromPlanes(points, 2, _planeLeft, planeLeftDepth(), _planeUpLeft, _planeDownLeft);
+		}
+
+		/// <summary>
+		/// Get the points of right plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneRight(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeRight = planeRight();
+			Plane3D _planeUpRight = planeUpRight();
+			Plane3D _planeDownRight = planeDownRight();
+
+			*length = 4u;
+			pointsFromPlanes(points, 0, _planeRight, planeRightFront(), _planeUpRight, _planeDownRight);
+			pointsFromPlanes(points, 2, _planeRight, planeRightDepth(), _planeUpRight, _planeDownRight);
+		}
+
+		/// <summary>
+		/// Get the points of up-left plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneUpLeft(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeUpLeft = planeUpLeft();
+			Plane3D _planeLeftDepth = planeLeftDepth();
+			Plane3D _planeLeftFront = planeLeftFront();
+
+			Line3D lineUp;
+			_planeUpLeft.intersection(planeUp(), &lineUp);
+			lineUp.intersectionOnRay(_planeLeftFront, &points[1]);
+			lineUp.intersectionOnRay(_planeLeftDepth, points);
+
+			Line3D lineLeft;
+			_planeUpLeft.intersection(planeLeft(), &lineLeft);
+			lineLeft.intersectionOnRay(_planeLeftDepth, &points[2]);
+			lineLeft.intersectionOnRay(_planeLeftFront, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of up-right plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneUpRight(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeUpRight = planeUpRight();
+			Plane3D _planeRightDepth = planeRightDepth();
+			Plane3D _planeRightFront = planeRightFront();
+
+			Line3D lineUp;
+			_planeUpRight.intersection(planeUp(), &lineUp);
+			lineUp.intersectionOnRay(_planeRightFront, &points[1]);
+			lineUp.intersectionOnRay(_planeRightDepth, points);
+
+			Line3D lineRight;
+			_planeUpRight.intersection(planeRight(), &lineRight);
+			lineRight.intersectionOnRay(_planeRightDepth, &points[2]);
+			lineRight.intersectionOnRay(_planeRightFront, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of down-left plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneDownLeft(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeDownLeft = planeDownLeft();
+			Plane3D _planeLeftDepth = planeLeftDepth();
+			Plane3D _planeLeftFront = planeLeftFront();
+
+			Line3D lineDown;
+			_planeDownLeft.intersection(planeDown(), &lineDown);
+			lineDown.intersectionOnRay(_planeLeftDepth, points);
+			lineDown.intersectionOnRay(_planeLeftFront, &points[1]);
+
+			Line3D lineLeft;
+			_planeDownLeft.intersection(planeLeft(), &lineLeft);
+			lineLeft.intersectionOnRay(_planeLeftDepth, &points[2]);
+			lineLeft.intersectionOnRay(_planeLeftFront, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of down-right plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneDownRight(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeDownRight = planeDownRight();
+			Plane3D _planeRightDepth = planeRightDepth();
+			Plane3D _planeRightFront = planeRightFront();
+
+			Line3D lineDown;
+			_planeDownRight.intersection(planeDown(), &lineDown);
+			lineDown.intersectionOnRay(_planeRightDepth, points);
+			lineDown.intersectionOnRay(_planeRightFront, &points[1]);
+
+			Line3D lineRight;
+			_planeDownRight.intersection(planeRight(), &lineRight);
+			lineRight.intersectionOnRay(_planeRightFront, &points[2]);
+			lineRight.intersectionOnRay(_planeRightDepth, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of up-front plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneUpFront(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeUpFront = planeUpFront();
+			Plane3D _planeLeftFront = planeLeftFront();
+			Plane3D _planeRightFront = planeRightFront();
+			
+			Line3D lineUp;
+			_planeUpFront.intersection(planeUp(), &lineUp);
+			lineUp.intersectionOnRay(_planeRightFront, points);
+			lineUp.intersectionOnRay(_planeLeftFront, &points[1]);
+
+			Line3D lineFront;
+			_planeUpFront.intersection(planeFront(), &lineFront);
+			lineFront.intersectionOnRay(_planeLeftFront, &points[2]);
+			lineFront.intersectionOnRay(_planeRightFront, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of down-front plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneDownFront(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeDownFront = planeDownFront();
+			Plane3D _planeLeftFront = planeLeftFront();
+			Plane3D _planeRightFront = planeRightFront();
+
+			Line3D lineUp;
+			_planeDownFront.intersection(planeDown(), &lineUp);
+			lineUp.intersectionOnRay(_planeRightFront, points);
+			lineUp.intersectionOnRay(_planeLeftFront, &points[1]);
+
+			Line3D lineFront;
+			_planeDownFront.intersection(planeFront(), &lineFront);
+			lineFront.intersectionOnRay(_planeLeftFront, &points[2]);
+			lineFront.intersectionOnRay(_planeRightFront, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of up-depth plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneUpDepth(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeUpDepth = planeUpDepth();
+			Plane3D _planeLeftDepth = planeLeftDepth();
+			Plane3D _planeRightDepth = planeRightDepth();
+
+			Line3D lineUp;
+			_planeUpDepth.intersection(planeUp(), &lineUp);
+			lineUp.intersectionOnRay(_planeLeftDepth, points);
+			lineUp.intersectionOnRay(_planeRightDepth, &points[1]);
+
+			Line3D lineFront;
+			_planeUpDepth.intersection(planeDepth(), &lineFront);
+			lineFront.intersectionOnRay(_planeRightDepth, &points[2]);
+			lineFront.intersectionOnRay(_planeLeftDepth, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of down-depth plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneDownDepth(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeDownDepth = planeDownDepth();
+			Plane3D _planeLeftDepth = planeLeftDepth();
+			Plane3D _planeRightDepth = planeRightDepth();
+
+			Line3D lineDown;
+			_planeDownDepth.intersection(planeDown(), &lineDown);
+			lineDown.intersectionOnRay(_planeLeftDepth, points);
+			lineDown.intersectionOnRay(_planeRightDepth, &points[1]);
+
+			Line3D lineDepth;
+			_planeDownDepth.intersection(planeDepth(), &lineDepth);
+			lineDepth.intersectionOnRay(_planeRightDepth, &points[2]);
+			lineDepth.intersectionOnRay(_planeLeftDepth, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of left-depth plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneLeftDepth(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeLeftDepth = planeLeftDepth();
+			Plane3D _planeUpLeft = planeUpLeft();
+			Plane3D _planeDownLeft = planeDownLeft();
+
+			Line3D lineDepth;
+			_planeLeftDepth.intersection(planeDepth(), &lineDepth);
+			lineDepth.intersectionOnRay(_planeDownLeft, points);
+			lineDepth.intersectionOnRay(_planeUpLeft, &points[1]);
+
+			Line3D lineLeft;
+			_planeLeftDepth.intersection(planeLeft(), &lineLeft);
+			lineLeft.intersectionOnRay(_planeUpLeft, &points[2]);
+			lineLeft.intersectionOnRay(_planeDownLeft, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of left-front plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneLeftFront(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeLeftFront = planeLeftFront();
+			Plane3D _planeUpLeft = planeUpLeft();
+			Plane3D _planeDownLeft = planeDownLeft();
+
+			Line3D lineDepth;
+			_planeLeftFront.intersection(planeFront(), &lineDepth);
+			lineDepth.intersectionOnRay(_planeDownLeft, points);
+			lineDepth.intersectionOnRay(_planeUpLeft, &points[1]);
+
+			Line3D lineLeft;
+			_planeLeftFront.intersection(planeLeft(), &lineLeft);
+			lineLeft.intersectionOnRay(_planeUpLeft, &points[2]);
+			lineLeft.intersectionOnRay(_planeDownLeft, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of right-front plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneRightFront(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeRightFront = planeRightFront();
+			Plane3D _planeUpRight = planeUpRight();
+			Plane3D _planeDownRight = planeDownRight();
+
+			Line3D lineFront;
+			_planeRightFront.intersection(planeFront(), &lineFront);
+			lineFront.intersectionOnRay(_planeUpRight, points);
+			lineFront.intersectionOnRay(_planeDownRight, &points[1]);
+
+			Line3D lineRight;
+			_planeRightFront.intersection(planeRight(), &lineRight);
+			lineRight.intersectionOnRay(_planeDownRight, &points[2]);
+			lineRight.intersectionOnRay(_planeUpRight, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the points of right-depth plane
+		/// </summary>
+		API_INTERFACE inline void pointsFromPlaneRightDepth(Vec3* points, sp_uint* length)
+		{
+			Plane3D _planeRightDepth = planeRightDepth();
+			Plane3D _planeUpRight = planeUpRight();
+			Plane3D _planeDownRight = planeDownRight();
+
+			Line3D lineDepth;
+			_planeRightDepth.intersection(planeDepth(), &lineDepth);
+			lineDepth.intersectionOnRay(_planeUpRight, points);
+			lineDepth.intersectionOnRay(_planeDownRight, &points[1]);
+
+			Line3D lineRight;
+			_planeRightDepth.intersection(planeRight(), &lineRight);
+			lineRight.intersectionOnRay(_planeDownRight, &points[2]);
+			lineRight.intersectionOnRay(_planeUpRight, &points[3]);
+
+			*length = 4u;
+		}
+
+		/// <summary>
+		/// Get the left plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeLeft()
+		{
+			return Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), normals()[0]);
+		}
+
+		/// <summary>
+		/// Get the right plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeRight()
+		{
+			return Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), normals()[1]);
+		}
+
+		/// <summary>
+		/// Get the up plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeUp()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), normals()[2]);
+		}
+
+		/// <summary>
+		/// Get the down plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeDown()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), normals()[3]);
+		}
+
+		/// <summary>
+		/// Get the front plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeFront()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), normals()[4]);
+		}
+
+		/// <summary>
+		/// Get the depth plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeDepth()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), normals()[5]);
+		}
+
+		/// <summary>
+		/// Get the up-left plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeUpLeft()
+		{
+			return Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), normals()[6]);
+		}
+
+		/// <summary>
+		/// Get the down-right plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeDownRight()
+		{
+			return Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), normals()[7]);
+		}
+
+		/// <summary>
+		/// Get the up-right plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeUpRight()
+		{
+			return Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), normals()[8]);
+		}
+
+		/// <summary>
+		/// Get the down-left plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeDownLeft()
+		{
+			return Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), normals()[9]);
+		}
+
+		/// <summary>
+		/// Get the up-front plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeUpFront()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), normals()[10]);
+		}
+
+		/// <summary>
+		/// Get the down-depth plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeDownDepth()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), normals()[11]);
+		}
+
+		/// <summary>
+		/// Get the up-depth plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeUpDepth()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), normals()[12]);
+		}
+
+		/// <summary>
+		/// Get the down-front plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeDownFront()
+		{
+			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), normals()[13]);
+		}
+		
+		/// <summary>
+		/// Get the left-depth plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeLeftDepth()
+		{
+			return Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[14]);
+		}
+
+		/// <summary>
+		/// Get the right-front plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeRightFront()
+		{
+			return Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[15]);
+		}
+		
+		/// <summary>
+		/// Get the right-depth plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeRightDepth()
+		{
+			return Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[16]);
+		}
+
+		/// <summary>
+		/// Get the left-front plane of the bounding volume
+		/// </summary>
+		API_INTERFACE inline Plane3D planeLeftFront()
+		{
+			return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[17]);
+		}		
 
 		/// <summary>
 		/// Auto convertion to void *

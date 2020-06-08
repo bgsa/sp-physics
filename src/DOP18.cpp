@@ -94,8 +94,6 @@ namespace NAMESPACE_PHYSICS
 		max[DOP18_AXIS_RIGHT_DEPTH] += diffMaxX + diffMaxZ;
 	}
 
-	void DOP18::rotate(const Vec3& angles) { }
-
 	CollisionStatus DOP18::collisionStatus(const DOP18& kDop) const
 	{
 		if (min[0] > kDop.max[0] || max[0] < kDop.min[0])
@@ -279,74 +277,92 @@ namespace NAMESPACE_PHYSICS
 
 	void DOP18::fixTopDegeneration(const Plane3D* planes)
 	{
-		Line3D* line1 = planes[DOP18_PLANES_UP_FRONT_INDEX].findIntersection(planes[DOP18_PLANES_UP_LEFT_INDEX]);
-		Line3D* line2 = planes[DOP18_PLANES_UP_DEPTH_INDEX].findIntersection(planes[DOP18_PLANES_UP_LEFT_INDEX]);
-		Vec3* point = line1->findIntersection(*line2);
+		Line3D line1;
+		planes[DOP18_PLANES_UP_FRONT_INDEX].intersection(planes[DOP18_PLANES_UP_LEFT_INDEX], &line1);
 
-		if (point != NULL) // fix top max
-			max[1] = point->y;
+		Line3D line2;
+		planes[DOP18_PLANES_UP_DEPTH_INDEX].intersection(planes[DOP18_PLANES_UP_LEFT_INDEX], &line2);
 
-		ALLOC_RELEASE(line1);
+		Vec3 point;
+		line1.intersection(line2, &point);
+
+		if (point != ZERO_FLOAT) // fix top max
+			max[1] = point.y;
 	}
 
 	void DOP18::fixBottomDegeneration(const Plane3D* planes)
 	{
-		Line3D* line1 = planes[DOP18_PLANES_DOWN_FRONT_INDEX].findIntersection(planes[DOP18_PLANES_DOWN_LEFT_INDEX]);
-		Line3D* line2 = planes[DOP18_PLANES_DOWN_DEPTH_INDEX].findIntersection(planes[DOP18_PLANES_DOWN_LEFT_INDEX]);
-		Vec3* point = line1->findIntersection(*line2);
+		Line3D line1;
+		planes[DOP18_PLANES_DOWN_FRONT_INDEX].intersection(planes[DOP18_PLANES_DOWN_LEFT_INDEX], &line1);
+		
+		Line3D line2;
+		planes[DOP18_PLANES_DOWN_DEPTH_INDEX].intersection(planes[DOP18_PLANES_DOWN_LEFT_INDEX], &line2);
+		
+		Vec3 point;
+		line1.intersection(line2, &point);
 
-		if (point != NULL) // fix bottom min
-			min[1] = point->y;
-
-		ALLOC_RELEASE(line1);
+		if (point != ZERO_FLOAT) // fix bottom min
+			min[1] = point.y;
 	}
 
 	void DOP18::fixLeftDegeneration(const Plane3D* planes)
 	{
-		Line3D* line1 = planes[DOP18_PLANES_LEFT_FRONT_INDEX].findIntersection(planes[DOP18_PLANES_UP_LEFT_INDEX]);
-		Line3D* line2 = planes[DOP18_PLANES_LEFT_DEPTH_INDEX].findIntersection(planes[DOP18_PLANES_UP_LEFT_INDEX]);
-		Vec3* point = line1->findIntersection(*line2);
+		Line3D line1;
+		planes[DOP18_PLANES_LEFT_FRONT_INDEX].intersection(planes[DOP18_PLANES_UP_LEFT_INDEX], &line1);
+		
+		Line3D line2;
+		planes[DOP18_PLANES_LEFT_DEPTH_INDEX].intersection(planes[DOP18_PLANES_UP_LEFT_INDEX], &line2);
 
-		if (point != NULL) // fix left min
-			min[0] = point->x;
+		Vec3 point;
+		line1.intersection(line2, &point);
 
-		ALLOC_RELEASE(line1);
+		if (point != ZERO_FLOAT) // fix left min
+			min[0] = point.x;
 	}
 
 	void DOP18::fixRightDegeneration(const Plane3D* planes)
 	{
-		Line3D* line1 = planes[DOP18_PLANES_RIGHT_FRONT_INDEX].findIntersection(planes[DOP18_PLANES_UP_RIGHT_INDEX]);
-		Line3D* line2 = planes[DOP18_PLANES_RIGHT_DEPTH_INDEX].findIntersection(planes[DOP18_PLANES_UP_RIGHT_INDEX]);
-		Vec3* point = line1->findIntersection(*line2);
+		Line3D line1;
+		planes[DOP18_PLANES_RIGHT_FRONT_INDEX].intersection(planes[DOP18_PLANES_UP_RIGHT_INDEX], &line1);
+		
+		Line3D line2;
+		planes[DOP18_PLANES_RIGHT_DEPTH_INDEX].intersection(planes[DOP18_PLANES_UP_RIGHT_INDEX], &line2);
+		
+		Vec3 point;
+		line1.intersection(line2, &point);
 
-		if (point != NULL) // fix right max
-			max[0] = point->x;
-
-		ALLOC_RELEASE(line1);
+		if (point != ZERO_FLOAT) // fix right max
+			max[0] = point.x;
 	}
 
 	void DOP18::fixFrontDegeneration(const Plane3D* planes)
 	{
-		Line3D* line1 = planes[DOP18_PLANES_DOWN_FRONT_INDEX].findIntersection(planes[DOP18_PLANES_LEFT_FRONT_INDEX]);
-		Line3D* line2 = planes[DOP18_PLANES_DOWN_FRONT_INDEX].findIntersection(planes[DOP18_PLANES_RIGHT_FRONT_INDEX]);
-		Vec3* point = line1->findIntersection(*line2);
+		Line3D line1;
+		planes[DOP18_PLANES_DOWN_FRONT_INDEX].intersection(planes[DOP18_PLANES_LEFT_FRONT_INDEX], &line1);
+		
+		Line3D line2;
+		planes[DOP18_PLANES_DOWN_FRONT_INDEX].intersection(planes[DOP18_PLANES_RIGHT_FRONT_INDEX], &line2);
+		
+		Vec3 point;
+		line1.intersection(line2, &point);
 
-		if (point != NULL) // fix front min
-			min[2] = point->z;
-
-		ALLOC_RELEASE(line1);
+		if (point != ZERO_FLOAT) // fix front min
+			min[2] = point.z;
 	}
 
 	void DOP18::fixDepthDegeneration(const Plane3D* planes)
 	{
-		Line3D* line1 = planes[DOP18_PLANES_DOWN_DEPTH_INDEX].findIntersection(planes[DOP18_PLANES_LEFT_DEPTH_INDEX]);
-		Line3D* line2 = planes[DOP18_PLANES_DOWN_DEPTH_INDEX].findIntersection(planes[DOP18_PLANES_RIGHT_DEPTH_INDEX]);
-		Vec3* point = line1->findIntersection(*line2);
+		Line3D line1;
+		planes[DOP18_PLANES_DOWN_DEPTH_INDEX].intersection(planes[DOP18_PLANES_LEFT_DEPTH_INDEX], &line1);
+		
+		Line3D line2;
+		planes[DOP18_PLANES_DOWN_DEPTH_INDEX].intersection(planes[DOP18_PLANES_RIGHT_DEPTH_INDEX], &line2);
+		
+		Vec3 point;
+		line1.intersection(line2, &point);
 
-		if (point != NULL) // fix depth max
-			max[2] = point->z;
-
-		ALLOC_RELEASE(line1);
+		if (point != ZERO_FLOAT) // fix depth max
+			max[2] = point.z;
 	}
 
 	void DOP18::fixDegenerations()
@@ -361,11 +377,6 @@ namespace NAMESPACE_PHYSICS
 		fixDepthDegeneration(p);
 
 		sp_mem_delete(p, Plane3D);
-	}
-
-	BoundingVolumeType DOP18::type() const
-	{
-		return BoundingVolumeType::DOP18;
 	}
 
 	DOP18::operator void*() const

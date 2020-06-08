@@ -10,6 +10,7 @@
 #include "CL/cl.h"
 #include "Timer.h"
 #include "SpPhysicSettings.h"
+#include "SpCollisionDetails.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -33,12 +34,12 @@ namespace NAMESPACE_PHYSICS
 			Vec3 point;
 			Plane3D* dopPlanes = dop.planes();
 
-			dopPlanes[planeIndexes[0]].findIntersection(direction, &point);
+			dopPlanes[planeIndexes[0]].intersection(direction, &point);
 			sp_float distance = point.squaredDistance(center);
 			*planeIndex = 0;
 			*contactPoint = point;
 
-			dopPlanes[planeIndexes[1]].findIntersection(direction, &point);
+			dopPlanes[planeIndexes[1]].intersection(direction, &point);
 			sp_float newDistance = point.squaredDistance(center);
 			if (newDistance < distance)
 			{
@@ -47,7 +48,7 @@ namespace NAMESPACE_PHYSICS
 				*contactPoint = point;
 			}
 
-			dopPlanes[planeIndexes[2]].findIntersection(direction, &point);
+			dopPlanes[planeIndexes[2]].intersection(direction, &point);
 			newDistance = point.squaredDistance(center);
 			if (newDistance < distance)
 			{
@@ -56,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 				*contactPoint = point;
 			}
 
-			dopPlanes[planeIndexes[3]].findIntersection(direction, &point);
+			dopPlanes[planeIndexes[3]].intersection(direction, &point);
 			newDistance = point.squaredDistance(center);
 			if (newDistance < distance)
 			{
@@ -65,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 				*contactPoint = point;
 			}
 
-			dopPlanes[planeIndexes[4]].findIntersection(direction, &point);
+			dopPlanes[planeIndexes[4]].intersection(direction, &point);
 			newDistance = point.squaredDistance(center);
 			if (newDistance < distance)
 			{
@@ -74,7 +75,7 @@ namespace NAMESPACE_PHYSICS
 				*contactPoint = point;
 			}
 
-			dopPlanes[planeIndexes[5]].findIntersection(direction, &point);
+			dopPlanes[planeIndexes[5]].intersection(direction, &point);
 			newDistance = point.squaredDistance(center);
 			if (newDistance < distance)
 			{
@@ -117,91 +118,221 @@ namespace NAMESPACE_PHYSICS
 			return elapsedTime;
 		}
 
-		void handleCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime)
+		void collisionDetails(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime, SpCollisionDetails* details)
 		{
-			sp_assert(objIndex1 != objIndex2, "InvalidArgumentException");
-
-			sp_float timeOfImpact = timeOfCollision(objIndex1, objIndex2, elapsedTime);
+			details->timeOfCollision = timeOfCollision(objIndex1, objIndex2, elapsedTime);
 
 			SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
 			SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
-			DOP18 bv1 = _boundingVolumes[objIndex1];
 
 			if (!obj1Properties->isMovable() && !obj2Properties->isMovable())
 				return;
 
-			Vec3 centerObj1 = obj1Properties->previousPosition();
-			Vec3 centerObj2 = obj2Properties->previousPosition();
+			DOP18 bv1 = _boundingVolumes[objIndex1];
+			DOP18 bv2 = _boundingVolumes[objIndex2];
 
-			Line3D line(centerObj2, centerObj1);
-			Vec3 direction = (centerObj2 - centerObj1).normalize();
+			Vec3 centerObj1 = obj1Properties->position();
+			Vec3 centerObj2 = obj2Properties->position();
+
+			Line3D lineOfAction(centerObj2, centerObj1);
+			Vec3 direction = lineOfAction.direction().normalize();
 
 			sp_float angleRight = direction.dot({ 1.0f, 0.0f, 0.0f });
 			sp_float angleUp = direction.dot({ 0.0f, 1.0f, 0.0f });
 			sp_float angleDepth = direction.dot({ 0.0f, 0.0f, 1.0f });
 
-			sp_uint planeIndex;
 			Vec3 contactPoint;
-			
+
 			if (angleUp >= HALF_PI && angleUp <= HALF_PI) // it the collision happend up ...
-			{	
+			{
 				if (angleRight >= HALF_PI && angleRight <= HALF_PI) // it the collision happend right ...
 				{
 					if (angleDepth >= HALF_PI && angleDepth <= HALF_PI) // it the collision happend depth ...
 					{
-						// direction points to up, right and depth
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_RIGHT_INDEX,
-							DOP18_PLANES_DEPTH_INDEX,
-							DOP18_PLANES_UP_INDEX,
-							DOP18_PLANES_UP_RIGHT_INDEX,
-							DOP18_PLANES_RIGHT_DEPTH_INDEX,
-							DOP18_PLANES_UP_DEPTH_INDEX
-						};
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
+						sp_float smallestDistace = bv1.planeRight().distance(bv2.planeLeft());
 
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						sp_float newDistace = bv1.planeDepth().distance(bv2.planeFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUp().distance(bv2.planeDown());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUpRight().distance(bv2.planeDownLeft());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_RIGHT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_LEFT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUpDepth().distance(bv2.planeDownFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 					else
 					{
-						// direction points to up, right and front
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_RIGHT_INDEX,
-							DOP18_PLANES_FRONT_INDEX,
-							DOP18_PLANES_UP_INDEX,
-							DOP18_PLANES_UP_RIGHT_INDEX,
-							DOP18_PLANES_RIGHT_FRONT_INDEX,
-							DOP18_PLANES_UP_FRONT_INDEX
-						};
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
+						sp_float smallestDistace = bv1.planeRight().distance(bv2.planeLeft());
+
+						sp_float newDistace = bv1.planeFront().distance(bv2.planeDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUp().distance(bv2.planeDown());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUpRight().distance(bv2.planeDownLeft());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_RIGHT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_LEFT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeRightFront().distance(bv2.planeLeftDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_LEFT_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUpFront().distance(bv2.planeDownDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 				}
 				else
 				{
 					if (angleDepth >= HALF_PI && angleDepth <= HALF_PI) // it the collision happend depth ...
 					{
-						// direction points to up, left and depth
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_LEFT_INDEX,
-							DOP18_PLANES_DEPTH_INDEX,
-							DOP18_PLANES_UP_INDEX,
-							DOP18_PLANES_UP_LEFT_INDEX,
-							DOP18_PLANES_LEFT_DEPTH_INDEX,
-							DOP18_PLANES_UP_DEPTH_INDEX
-						};
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_INDEX;
+						sp_float smallestDistace = bv1.planeLeft().distance(bv2.planeRight());
+
+						sp_float newDistace = bv1.planeDepth().distance(bv2.planeFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUp().distance(bv2.planeDown());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUpLeft().distance(bv2.planeDownRight());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_LEFT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeLeftDepth().distance(bv2.planeRightFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_LEFT_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeLeftDepth().distance(bv2.planeRightFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 					else
 					{
-						// direction points to up, left and front
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_LEFT_INDEX,
-							DOP18_PLANES_FRONT_INDEX,
-							DOP18_PLANES_UP_INDEX,
-							DOP18_PLANES_UP_LEFT_INDEX,
-							DOP18_PLANES_LEFT_FRONT_INDEX,
-							DOP18_PLANES_UP_FRONT_INDEX
-						};
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+						sp_float smallestDistace = bv1.planeLeft().distance(bv2.planeRight());
+
+						sp_float newDistace = bv1.planeFront().distance(bv2.planeDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUp().distance(bv2.planeDown());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUpLeft().distance(bv2.planeDownRight());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_LEFT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeLeftFront().distance(bv2.planeRightDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_LEFT_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeUpFront().distance(bv2.planeDownDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 				}
 			}
@@ -211,61 +342,282 @@ namespace NAMESPACE_PHYSICS
 				{
 					if (angleDepth >= HALF_PI && angleDepth <= HALF_PI) // it the collision happend depth ...
 					{
-						// direction points to down, right and depth
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_RIGHT_INDEX,
-							DOP18_PLANES_DEPTH_INDEX,
-							DOP18_PLANES_DOWN_INDEX,
-							DOP18_PLANES_DOWN_RIGHT_INDEX,
-							DOP18_PLANES_RIGHT_DEPTH_INDEX,
-							DOP18_PLANES_DOWN_DEPTH_INDEX
-						};
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
+						sp_float smallestDistace = bv1.planeRight().distance(bv2.planeLeft());
+
+						sp_float newDistace = bv1.planeDepth().distance(bv2.planeFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDown().distance(bv2.planeUp());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDownRight().distance(bv2.planeUpLeft());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDownDepth().distance(bv2.planeUpFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 					else
 					{
-						// direction points to down, right and front
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_RIGHT_INDEX,
-							DOP18_PLANES_FRONT_INDEX,
-							DOP18_PLANES_DOWN_INDEX,
-							DOP18_PLANES_DOWN_RIGHT_INDEX,
-							DOP18_PLANES_RIGHT_FRONT_INDEX,
-							DOP18_PLANES_DOWN_FRONT_INDEX
-						};
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
+						sp_float smallestDistace = bv1.planeRight().distance(bv2.planeLeft());
+
+						sp_float newDistace = bv1.planeFront().distance(bv2.planeDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDown().distance(bv2.planeUp());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDownRight().distance(bv2.planeUpLeft());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeRightFront().distance(bv2.planeLeftDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_LEFT_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeRightFront().distance(bv2.planeLeftDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 				}
 				else
 				{
 					if (angleDepth >= HALF_PI && angleDepth <= HALF_PI)
 					{
-						// direction points to down, left and depth
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_LEFT_INDEX,
-							DOP18_PLANES_DEPTH_INDEX,
-							DOP18_PLANES_DOWN_INDEX,
-							DOP18_PLANES_DOWN_LEFT_INDEX,
-							DOP18_PLANES_LEFT_DEPTH_INDEX,
-							DOP18_PLANES_DOWN_DEPTH_INDEX
-						};
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_INDEX;
+						sp_float smallestDistace = bv1.planeLeft().distance(bv2.planeRight());
+
+						sp_float newDistace = bv1.planeDepth().distance(bv2.planeFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDown().distance(bv2.planeUp());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDownLeft().distance(bv2.planeUpRight());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_LEFT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_RIGHT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeLeftDepth().distance(bv2.planeRightFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_LEFT_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDownDepth().distance(bv2.planeUpFront());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_FRONT_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 					else
 					{
-						// direction points to down, left and front
-						sp_uint planeIndexes[6] = {
-							DOP18_PLANES_LEFT_INDEX,
-							DOP18_PLANES_FRONT_INDEX,
-							DOP18_PLANES_DOWN_INDEX,
-							DOP18_PLANES_DOWN_LEFT_INDEX,
-							DOP18_PLANES_LEFT_FRONT_INDEX,
-							DOP18_PLANES_DOWN_FRONT_INDEX
-						};
-						findContact(bv1, centerObj1, line, planeIndexes, &planeIndex, &contactPoint);
+						details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_INDEX;
+						sp_float smallestDistace = bv1.planeLeft().distance(bv2.planeRight());
+
+						sp_float newDistace = bv1.planeFront().distance(bv2.planeDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDown().distance(bv2.planeUp());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_INDEX;
+							smallestDistace = newDistace;
+
+							Vec3 planeVertexes1[8]; // get vertexes of plane 1
+							sp_uint planeVertexes1Length;
+							bv1.pointsFromPlaneDown(planeVertexes1, &planeVertexes1Length);
+
+							Vec3 planeVertexes2[8]; // get vertexes of plane 2
+							sp_uint planeVertexes2Length;
+							bv2.pointsFromPlaneUp(planeVertexes2, &planeVertexes2Length);
+
+							SpArray<Vec3> vertexesReliesOnPlane1(8u);
+							Plane3D bv1PlaneDepth = bv1.planeDepth();
+							Plane3D bv1PlaneFront = bv1.planeFront();
+							Plane3D bv1PlaneLeft = bv1.planeLeft();
+							Plane3D bv1PlaneRight = bv1.planeRight();
+							Plane3D bv1PlaneLeftDepth = bv1.planeLeftDepth();
+							Plane3D bv1PlaneLeftFront = bv1.planeLeftFront();
+							Plane3D bv1PlaneRightDepth = bv1.planeRightDepth();
+							Plane3D bv1PlaneRightFront = bv1.planeRightFront();
+
+							for (sp_uint i = 0; i < planeVertexes2Length; i++)
+							{
+								if  (  bv1PlaneDepth.orientation(planeVertexes2[i]) == Orientation::RIGHT
+									&& bv1PlaneFront.orientation(planeVertexes2[i]) == Orientation::RIGHT
+									&& bv1PlaneLeft.orientation(planeVertexes2[i]) == Orientation::RIGHT
+									&& bv1PlaneRight.orientation(planeVertexes2[i]) == Orientation::RIGHT
+									&& bv1PlaneLeftDepth.orientation(planeVertexes2[i]) == Orientation::RIGHT
+									&& bv1PlaneLeftFront.orientation(planeVertexes2[i]) == Orientation::RIGHT
+									&& bv1PlaneRightDepth.orientation(planeVertexes2[i]) == Orientation::RIGHT
+									&& bv1PlaneRightFront.orientation(planeVertexes2[i]) == Orientation::RIGHT 
+								)
+									vertexesReliesOnPlane1.add(planeVertexes2[i]);
+							}
+
+							// if all vertexes of obj 2 are inside obj 1, so ...
+							if (vertexesReliesOnPlane1.length() == planeVertexes2Length)
+							{
+								details->contactPoint = planeVertexes2[0];
+
+								for (sp_uint i = 0; i < planeVertexes2Length; i++)
+									details->contactPoint 
+										= (details->contactPoint + planeVertexes2[0])
+										* 0.5f;
+							}
+
+							SpArray<Vec3> vertexesReliesOnPlane2(8u);
+							Plane3D bv2PlaneDepth = bv2.planeDepth();
+							Plane3D bv2PlaneFront = bv2.planeFront();
+							Plane3D bv2PlaneLeft = bv2.planeLeft();
+							Plane3D bv2PlaneRight = bv2.planeRight();
+							Plane3D bv2PlaneLeftDepth = bv2.planeLeftDepth();
+							Plane3D bv2PlaneLeftFront = bv2.planeLeftFront();
+							Plane3D bv2PlaneRightDepth = bv2.planeRightDepth();
+							Plane3D bv2PlaneRightFront = bv2.planeRightFront();
+
+							for (sp_uint i = 0u; i < planeVertexes1Length; i++)
+							{
+								if (   bv2PlaneDepth.orientation(planeVertexes1[i]) == Orientation::RIGHT
+									&& bv2PlaneFront.orientation(planeVertexes1[i]) == Orientation::RIGHT
+									&& bv2PlaneLeft.orientation(planeVertexes1[i]) == Orientation::RIGHT
+									&& bv2PlaneRight.orientation(planeVertexes1[i]) == Orientation::RIGHT
+									&& bv2PlaneLeftDepth.orientation(planeVertexes1[i]) == Orientation::RIGHT
+									&& bv2PlaneLeftFront.orientation(planeVertexes1[i]) == Orientation::RIGHT
+									&& bv2PlaneRightDepth.orientation(planeVertexes1[i]) == Orientation::RIGHT
+									&& bv2PlaneRightFront.orientation(planeVertexes1[i]) == Orientation::RIGHT
+								)
+									vertexesReliesOnPlane2.add(planeVertexes2[i]);
+							}
+
+							// if all vertexes of obj 1 are inside obj 2, so ...
+							if (vertexesReliesOnPlane2.length() == planeVertexes1Length)
+							{
+								details->contactPoint = planeVertexes1[0];
+
+								for (sp_uint i = 1u; i < planeVertexes1Length; i++)
+									details->contactPoint
+									= (details->contactPoint + planeVertexes1[i])
+									* 0.5f;
+							}
+
+							// SENÂO pegar todos os vértices do 2 que estão no 1
+							//       pegar cada aresta do 2 e verificar colisão com as arestas do 1
+							// Pegar o ponto médio de todos os vértices encontrados. Este é o ponto.
+
+						}
+
+						newDistace = bv1.planeDownLeft().distance(bv2.planeUpRight());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_LEFT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_RIGHT_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeLeftFront().distance(bv2.planeRightDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_LEFT_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
+
+						newDistace = bv1.planeDownFront().distance(bv2.planeUpDepth());
+						if (newDistace < smallestDistace)
+						{
+							details->objectIndexPlane1 = DOP18_PLANES_DOWN_FRONT_INDEX;
+							details->objectIndexPlane2 = DOP18_PLANES_UP_DEPTH_INDEX;
+							smallestDistace = newDistace;
+						}
 					}
 				}
 			}
+		}
+
+		void handleCollisionResponse(sp_uint objIndex1, sp_uint objIndex2, const SpCollisionDetails& details)
+		{
+			SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
+			SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
 
 			const sp_float sumMass = obj1Properties->massInverse() + obj2Properties->massInverse();
 			const Vec3 relativeVelocity = obj2Properties->velocity() - obj1Properties->velocity();
@@ -273,39 +625,71 @@ namespace NAMESPACE_PHYSICS
 
 			if (obj1Properties->isMovable())
 			{
-				sp_float factor1 
-					= (obj1Properties->massInverse() - cor * obj2Properties->massInverse())
-					/ sumMass;
+				obj1Properties->_acceleration = ZERO_FLOAT;
 
-				sp_float factor2 
-					= ((1.0f + cor) * obj2Properties->massInverse())
-					/ sumMass;
+				const Line3D lineOfAction(obj1Properties->position(), details.contactPoint);
 
-				const Vec3 newForceObj1
-					= (obj1Properties->velocity() * factor1)
-					+ (obj2Properties->velocity() * factor2);
+				if (obj2Properties->isMovable())
+				{
+					sp_float factor1
+						= (obj1Properties->massInverse() - cor * obj2Properties->massInverse())
+						/ sumMass;
 
-				obj1Properties->_acceleration = 0.0f;
-				obj1Properties->_velocity = direction * newForceObj1;
+					sp_float factor2
+						= ((1.0f + cor) * obj2Properties->massInverse())
+						/ sumMass;
+
+					const Vec3 newForceObj1
+						= (obj1Properties->velocity() * factor1)
+						+ (obj2Properties->velocity() * factor2);
+
+					obj1Properties->_velocity = lineOfAction.direction() * newForceObj1;
+				}
+				else
+					obj1Properties->_velocity = (lineOfAction.direction()  * obj1Properties->velocity()) * cor;
 			}
 
 			if (obj2Properties->isMovable())
 			{
-				sp_float factor1 =
-					((1.0f + cor) * obj1Properties->massInverse())
-					/ sumMass;
+				obj2Properties->_acceleration = ZERO_FLOAT;
 
-				sp_float factor2 =
-					(obj2Properties->massInverse() - cor * obj1Properties->massInverse())
-					/ sumMass;
+				const Line3D lineOfAction(obj2Properties->position(), details.contactPoint);
 
-				const Vec3 newForceObj2
-					= (obj1Properties->velocity() * factor1)
-					+ (obj2Properties->velocity() * factor2);
+				if (obj1Properties->isMovable())
+				{
+					sp_float factor1 =
+						((1.0f + cor) * obj1Properties->massInverse())
+						/ sumMass;
 
-				obj2Properties->_acceleration = 0.0f;
-				obj2Properties->_velocity = direction * newForceObj2;
+					sp_float factor2 =
+						(obj2Properties->massInverse() - cor * obj1Properties->massInverse())
+						/ sumMass;
+
+					const Vec3 newForceObj2
+						= (relativeVelocity * factor1)
+						+ (relativeVelocity * factor2);
+
+					obj2Properties->_velocity = lineOfAction.direction() * newForceObj2;
+				}
+				else
+					obj2Properties->_velocity = (lineOfAction.direction() * relativeVelocity) * cor;
 			}
+		}
+
+		void handleCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime)
+		{
+			sp_assert(objIndex1 != objIndex2, "InvalidArgumentException");
+
+			SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
+			SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
+
+			if (!obj1Properties->isMovable() && !obj2Properties->isMovable())
+				return;
+
+			SpCollisionDetails details;
+			collisionDetails(objIndex1, objIndex2, elapsedTime, &details);
+
+			handleCollisionResponse(objIndex1, objIndex2, details);
 		}
 
 	public:

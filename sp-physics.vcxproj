@@ -269,6 +269,7 @@
     <ClInclude Include="src\Mat3.h" />
     <ClInclude Include="src\Mat4.h" />
     <ClInclude Include="src\OBB.h" />
+    <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />
     <ClInclude Include="src\Particle.h" />

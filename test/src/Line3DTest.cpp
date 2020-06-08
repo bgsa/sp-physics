@@ -457,13 +457,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		Vec3 expected = { 9.0f, 11.5f, 4.0f };
 
-		Vec3* result = line1.findIntersection(line2);
+		Vec3 result;
+		line1.intersection(line2, &result);
 
-		Assert::IsNotNull(result, L"Value should not be null.", LINE_INFO());
+		Assert::IsTrue(result != ZERO_FLOAT, L"Value should not be null.", LINE_INFO());
 
-		Assert::AreEqual(expected.x, result->x, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(expected.y, result->y, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(expected.z, result->z, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(expected.x, result.x, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(expected.y, result.y, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(expected.z, result.z, L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Line3D_closestPointOnTheLine_point_Test1)

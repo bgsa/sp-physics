@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Build a line from 2 points (3 numbers for each point)
 		///</summary>
-		API_INTERFACE Line3D(float* point1, float* point2);
+		API_INTERFACE Line3D(sp_float* point1, sp_float* point2);
 
 		///<summary>
 		/// Get the direction of line
@@ -59,27 +59,27 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Returns the center of the segment of line
 		///</summary>
-		API_INTERFACE float lengthOfSegment() const;
+		API_INTERFACE sp_float lengthOfSegment() const;
 
 		///<summary>
 		/// Check the point is on the line
 		///</summary>
-		API_INTERFACE bool isOnLine(const Vec3& point) const;
+		API_INTERFACE sp_bool isOnLine(const Vec3& point) const;
 
 		///<summary>
 		/// Check the point is on segment
 		///</summary>
-		API_INTERFACE bool isOnSegment(const Vec3& point) const;
+		API_INTERFACE sp_bool isOnSegment(const Vec3& point) const;
 		
 		///<summary>
 		/// Check the ray has intersection with the sphere
 		///</summary>
-		API_INTERFACE bool hasIntersectionOnRay(const Sphere& sphere) const;
+		API_INTERFACE sp_bool hasIntersectionOnRay(const Sphere& sphere) const;
 
 		///<summary>
 		/// Find intersection of line against another one
 		///</summary>
-		API_INTERFACE Vec3* findIntersection(const Line3D& line2) const;
+		API_INTERFACE void intersection(const Line3D& line2, Vec3* point) const;
 
 		///<summary>
 		/// Find intersection of line against a phere
@@ -109,7 +109,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Find intersection RAY of line against a plane
 		/// </summary>
-		API_INTERFACE Vec3* findIntersectionOnRay(const Plane3D& plane) const;
+		API_INTERFACE void intersectionOnRay(const Plane3D& plane, Vec3* point) const;
 
 		///<summary>
 		/// Get the closest point in the SEGMENT of line, given an arbitrary point
