@@ -11,6 +11,7 @@
 #include "Timer.h"
 #include "SpPhysicSettings.h"
 #include "SpCollisionDetails.h"
+#include "SpPhysicSyncronizer.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -28,6 +29,15 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicProperties* _physicProperties;
 
 		SpPhysicSimulator() { }
+
+		inline void dispatchEvent(const sp_uint objIndex1, const sp_uint objIndex2)
+		{
+			SpCollisionEvent* evt = sp_mem_new(SpCollisionEvent)();
+			evt->indexBody1 = objIndex1;
+			evt->indexBody2 = objIndex2;
+
+			SpEventDispatcher::instance()->push(evt);
+		}
 
 		void findContact(const DOP18& dop, const Vec3& center, const Line3D& direction, sp_uint planeIndexes[6], sp_uint* planeIndex , Vec3* contactPoint)
 		{
@@ -622,8 +632,6 @@ namespace NAMESPACE_PHYSICS
 
 			if (obj1Properties->isDynamic())
 			{
-				obj1Properties->_acceleration = ZERO_FLOAT;
-
 				const Line3D lineOfAction(obj1Properties->position(), details.contactPoint);
 
 				if (obj2Properties->isDynamic())
@@ -644,12 +652,12 @@ namespace NAMESPACE_PHYSICS
 				}
 				else
 					obj1Properties->_velocity = (lineOfAction.direction()  * obj1Properties->velocity()) * cor;
+
+				obj1Properties->_acceleration = ZERO_FLOAT;
 			}
 
 			if (obj2Properties->isDynamic())
 			{
-				obj2Properties->_acceleration = ZERO_FLOAT;
-
 				const Line3D lineOfAction(obj2Properties->position(), details.contactPoint);
 
 				if (obj1Properties->isDynamic())
@@ -670,6 +678,8 @@ namespace NAMESPACE_PHYSICS
 				}
 				else
 					obj2Properties->_velocity = (lineOfAction.direction() * relativeVelocity) * cor;
+
+				obj2Properties->_acceleration = ZERO_FLOAT;
 			}
 		}
 
@@ -716,9 +726,13 @@ namespace NAMESPACE_PHYSICS
 			collisionDetails(objIndex1, objIndex2, elapsedTime, &details);
 
 			handleCollisionResponse(objIndex1, objIndex2, details);
+
+			dispatchEvent(objIndex1, objIndex2);
 		}
 
 	public:
+
+		SpPhysicSyncronizer* syncronizer;
 
 		API_INTERFACE static SpPhysicSimulator* instance();
 
@@ -761,10 +775,12 @@ namespace NAMESPACE_PHYSICS
 
 			const Vec3 newAcceleration = (element->force() - dragForce) * element->massInverse();
 
-			Vec3 newVelocity = element->velocity()
+			const Vec3 newVelocity = element->velocity()
 				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
 
-			_boundingVolumes[index].translate(newPosition - element->position()); // Sync with the bounding Volume
+			const Vec3 translation = newPosition - element->position();
+			_boundingVolumes[index].translate(translation); // Sync with the bounding Volume
+			syncronizer->sync(index, translation);
 
 			element->_previousAcceleration = element->acceleration();
 			element->_acceleration = newAcceleration;
@@ -776,7 +792,7 @@ namespace NAMESPACE_PHYSICS
 			element->_position = newPosition;
 
 			element->_previousForce = element->force();
-			element->_force = 0.0f;
+			element->_force = ZERO_FLOAT;
 		}
 
 		/// <summary>
@@ -787,7 +803,11 @@ namespace NAMESPACE_PHYSICS
 			SpPhysicProperties* element = &_physicProperties[index];
 			DOP18* dop = &_boundingVolumes[index];
 
-			dop->translate(element->previousPosition() - element->position());
+			const Vec3 translation = element->previousPosition() - element->position();
+
+			dop->translate(translation);
+			syncronizer->sync(index, translation);
+
 			element->rollbackState();
 		}
 

@@ -283,6 +283,7 @@
     <ClInclude Include="src\SpPhysicObjectList.h" />
     <ClInclude Include="src\SpPhysicSettings.h" />
     <ClInclude Include="src\SpPhysicSimulator.h" />
+    <ClInclude Include="src\SpPhysicSyncronizer.h" />
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SweepAndPrune.h" />
     <ClInclude Include="src\SweepAndPruneKdop.h" />

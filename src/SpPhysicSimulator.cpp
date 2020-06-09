@@ -72,15 +72,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float elapsedTime = timer.elapsedTime();
 
 		for (sp_uint i = 0; i < indexesLength; i+=2u)
-		{
-			SpCollisionEvent* evt = sp_mem_new(SpCollisionEvent)();
-			evt->indexBody1 = indexes[i];
-			evt->indexBody2 = indexes[i+1];
-
-			SpEventDispatcher::instance()->push(evt);
-
-			handleCollision(evt->indexBody1, evt->indexBody2, elapsedTime);
-		}
+			handleCollision(indexes[i], indexes[i+1], elapsedTime);
 
 		//ALLOC_RELEASE(indexes);
 		ALLOC_RELEASE(resultCpu.indexes);
