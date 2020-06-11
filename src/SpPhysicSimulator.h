@@ -509,88 +509,42 @@ namespace NAMESPACE_PHYSICS
 							details->objectIndexPlane2 = DOP18_PLANES_UP_INDEX;
 							smallestDistace = newDistace;
 
-							Vec3 planeVertexes1[8]; // get vertexes of plane 1
-							sp_uint planeVertexes1Length;
-							bv1.pointsFromPlaneDown(planeVertexes1, &planeVertexes1Length);
-
-							Vec3 planeVertexes2[8]; // get vertexes of plane 2
-							sp_uint planeVertexes2Length;
-							bv2.pointsFromPlaneUp(planeVertexes2, &planeVertexes2Length);
-
-							SpArray<Vec3> vertexesReliesOnPlane1(8u);
-							Plane3D bv1PlaneDepth = bv1.planeDepth();
-							Plane3D bv1PlaneFront = bv1.planeFront();
-							Plane3D bv1PlaneLeft = bv1.planeLeft();
-							Plane3D bv1PlaneRight = bv1.planeRight();
 							Plane3D bv1PlaneLeftDepth = bv1.planeLeftDepth();
 							Plane3D bv1PlaneLeftFront = bv1.planeLeftFront();
 							Plane3D bv1PlaneRightDepth = bv1.planeRightDepth();
 							Plane3D bv1PlaneRightFront = bv1.planeRightFront();
 
-							for (sp_uint i = 0; i < planeVertexes2Length; i++)
-							{
-								if  (  bv1PlaneDepth.orientation(planeVertexes2[i]) == Orientation::RIGHT
-									&& bv1PlaneFront.orientation(planeVertexes2[i]) == Orientation::RIGHT
-									&& bv1PlaneLeft.orientation(planeVertexes2[i]) == Orientation::RIGHT
-									&& bv1PlaneRight.orientation(planeVertexes2[i]) == Orientation::RIGHT
-									&& bv1PlaneLeftDepth.orientation(planeVertexes2[i]) == Orientation::RIGHT
-									&& bv1PlaneLeftFront.orientation(planeVertexes2[i]) == Orientation::RIGHT
-									&& bv1PlaneRightDepth.orientation(planeVertexes2[i]) == Orientation::RIGHT
-									&& bv1PlaneRightFront.orientation(planeVertexes2[i]) == Orientation::RIGHT 
-								)
-									vertexesReliesOnPlane1.add(planeVertexes2[i]);
-							}
-
-							// if all vertexes of obj 2 are inside obj 1, so ...
-							if (vertexesReliesOnPlane1.length() == planeVertexes2Length)
-							{
-								details->contactPoint = planeVertexes2[0];
-
-								for (sp_uint i = 0; i < planeVertexes2Length; i++)
-									details->contactPoint 
-										= (details->contactPoint + planeVertexes2[0])
-										* 0.5f;
-							}
-
-							SpArray<Vec3> vertexesReliesOnPlane2(8u);
-							Plane3D bv2PlaneDepth = bv2.planeDepth();
-							Plane3D bv2PlaneFront = bv2.planeFront();
-							Plane3D bv2PlaneLeft = bv2.planeLeft();
-							Plane3D bv2PlaneRight = bv2.planeRight();
 							Plane3D bv2PlaneLeftDepth = bv2.planeLeftDepth();
 							Plane3D bv2PlaneLeftFront = bv2.planeLeftFront();
 							Plane3D bv2PlaneRightDepth = bv2.planeRightDepth();
 							Plane3D bv2PlaneRightFront = bv2.planeRightFront();
 
-							for (sp_uint i = 0u; i < planeVertexes1Length; i++)
-							{
-								if (   bv2PlaneDepth.orientation(planeVertexes1[i]) == Orientation::RIGHT
-									&& bv2PlaneFront.orientation(planeVertexes1[i]) == Orientation::RIGHT
-									&& bv2PlaneLeft.orientation(planeVertexes1[i]) == Orientation::RIGHT
-									&& bv2PlaneRight.orientation(planeVertexes1[i]) == Orientation::RIGHT
-									&& bv2PlaneLeftDepth.orientation(planeVertexes1[i]) == Orientation::RIGHT
-									&& bv2PlaneLeftFront.orientation(planeVertexes1[i]) == Orientation::RIGHT
-									&& bv2PlaneRightDepth.orientation(planeVertexes1[i]) == Orientation::RIGHT
-									&& bv2PlaneRightFront.orientation(planeVertexes1[i]) == Orientation::RIGHT
-								)
-									vertexesReliesOnPlane2.add(planeVertexes2[i]);
-							}
+							Vec2 vertexes[4] = {
+								Vec2(bv1.min[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Z]),
+								Vec2(bv1.max[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Z]),
+								Vec2(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Z]),
+								Vec2(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Z])
+							};
 
-							// if all vertexes of obj 1 are inside obj 2, so ...
-							if (vertexesReliesOnPlane2.length() == planeVertexes1Length)
-							{
-								details->contactPoint = planeVertexes1[0];
+							const Vec3 temp0 = -bv1PlaneLeftFront.closestPointOnThePlane(Vec3(vertexes[0].x, bv1PlaneLeftFront.point.y, vertexes[0].y));
+							const Vec3 temp1 = -bv1PlaneRightDepth.closestPointOnThePlane(Vec3(vertexes[2].x, bv1PlaneRightDepth.point.y, vertexes[2].y));
+							const Vec3 temp2 = bv1PlaneRightFront.closestPointOnThePlane(Vec3(vertexes[1].x, bv1PlaneRightFront.point.y, vertexes[1].y));
+							const Vec3 temp3 = bv1PlaneLeftDepth.closestPointOnThePlane(Vec3(vertexes[3].x, bv1PlaneLeftDepth.point.y, vertexes[3].y));
 
-								for (sp_uint i = 1u; i < planeVertexes1Length; i++)
-									details->contactPoint
-									= (details->contactPoint + planeVertexes1[i])
-									* 0.5f;
-							}
+							vertexes[0].x = temp0.z;
+							vertexes[0].y = temp0.x;
 
-							// SENÂO pegar todos os vértices do 2 que estão no 1
-							//       pegar cada aresta do 2 e verificar colisão com as arestas do 1
-							// Pegar o ponto médio de todos os vértices encontrados. Este é o ponto.
+							vertexes[1].x = temp1.z;
+							vertexes[1].y = temp2.x;
+														
+							vertexes[2].x = temp2.z;
+							vertexes[2].y = temp1.x;
+							
+							vertexes[3].x = temp3.z;
+							vertexes[3].y = temp3.x;
 
+							vertexes[0] = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
+							details->contactPoint = Vec3(vertexes[0].x, bv1.planeDown().point.y, vertexes[0].y);
 						}
 
 						newDistace = bv1.planeDownLeft().distance(bv2.planeUpRight());

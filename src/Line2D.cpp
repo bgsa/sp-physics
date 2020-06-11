@@ -50,13 +50,6 @@ namespace NAMESPACE_PHYSICS
 		return Vec2(m, b);
 	}
 
-	Vec3 Line2D::getEquation() const
-	{
-		Vec3 values = SystemOfLinearEquations::getLineEquation(point1, point2);
-
-		return values;
-	}
-
 	Vec2 Line2D::toRay()
 	{
 		Vec2 result = (point2 - point1);
@@ -117,7 +110,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Line2D::getDistance(Vec2 point) const
 	{
-		Vec3 values = getEquation();
+		Vec3 values = equation();
 
 		sp_double numerador = std::fabs(values.x * point.x + values.y * point.y + values.z);
 		sp_double denominador = std::sqrt(values.x * values.x + values.y * values.y);

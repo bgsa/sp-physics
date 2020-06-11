@@ -41,7 +41,10 @@ namespace NAMESPACE_PHYSICS
 		/// The result is a vector with 3 components (a, b, c)
 		/// Line equation: "ax + bx + c = 0"
 		/// </summary>
-		API_INTERFACE Vec3 getEquation() const;
+		API_INTERFACE  Vec3 equation() const
+		{
+			return SystemOfLinearEquations::getLineEquation(point1, point2);
+		}
 		
 		/// <summary>
 		/// Convert line to directional ray
