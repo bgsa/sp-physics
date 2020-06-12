@@ -20,13 +20,13 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_int comparatorXAxisForQuickSortKDOP(const void* index1, const void* index2)
 	{
-		DOP18* obj1 = &tempKDOPs[(sp_uint)index1];
-		DOP18* obj2 = &tempKDOPs[(sp_uint)index2];
+		DOP18* obj1 = &tempKDOPs[*(sp_uint*)index1];
+		DOP18* obj2 = &tempKDOPs[*(sp_uint*)index2];
 
-		if (obj1->min[0] < obj2->min[0])
+		if (obj1->min[0] > obj2->min[0])
 			return -1;
 		else
-			if (obj1->min[0] > obj2->min[0])
+			if (obj1->min[0] < obj2->min[0])
 				return 1;
 
 		return 0;
@@ -114,7 +114,7 @@ namespace NAMESPACE_PHYSICS
 
 		tempKDOPs = kdops;
 
-		AlgorithmSorting::quickSortNative(indexes, length, SIZEOF_FLOAT, comparatorXAxisForQuickSortKDOP);
+		AlgorithmSorting::quickSortNative(indexes, length, SIZEOF_UINT, comparatorXAxisForQuickSortKDOP);
 
 		for (sp_uint i = 0; i < length; ++i)
 		{
