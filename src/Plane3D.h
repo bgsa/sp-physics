@@ -2,6 +2,7 @@
 #define PLANE3D_HEADER
 
 #include "SpectrumPhysics.h"
+#include "Ray.h"
 #include "Line3D.h"
 #include "Orientation.h"
 
@@ -59,6 +60,28 @@ namespace NAMESPACE_PHYSICS
 				normalVector[2],
 				getDcomponent()
 			);
+		}
+
+		/// <summary>
+		/// Test if the ray cross the plane
+		/// </summary>
+		API_INTERFACE inline void intersection(const Ray& ray, Vec3* contactPoint) const
+		{
+			sp_float angle = normalVector.dot(ray.direction);
+
+			if (isCloseEnough(angle, 0.0f))
+				return;
+
+			Vec4 planeEquation = equation();
+
+			sp_float numerator = -(planeEquation[0] * ray.point[0] + planeEquation[1] * ray.point[1] + planeEquation[2] * ray.point[2] + planeEquation[3]);
+			sp_float denominator = planeEquation[0] * ray.direction[0] + planeEquation[1] * ray.direction[1] + planeEquation[2] * ray.direction[2];
+
+			sp_float t = numerator / denominator;
+
+			contactPoint->x = ray.point[0] + ray.direction[0] * t;
+			contactPoint->y = ray.point[1] + ray.direction[1] * t;
+			contactPoint->z = ray.point[2] + ray.direction[2] * t;
 		}
 
 		/// <summary>

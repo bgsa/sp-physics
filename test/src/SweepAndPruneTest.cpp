@@ -2345,7 +2345,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			SweepAndPruneResultCpu resultCpu;
 			resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
-			SweepAndPrune::findCollisions(kdops, length, &resultCpu);
+
+			sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
+			for (sp_uint i = ZERO_UINT; i < length; i++)
+				indexes[i] = i;
+
+			SweepAndPrune::findCollisions(kdops, indexes, length, &resultCpu);
 
 			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
@@ -2432,7 +2437,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SweepAndPruneResultCpu expected;
 		expected.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
-		SweepAndPrune::findCollisions(kdops1, length, &expected);
+
+		sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
+		for (sp_uint i = ZERO_UINT; i < length; i++)
+			indexes[i] = i;
+
+		SweepAndPrune::findCollisions(kdops1, indexes, length, &expected);
 
 		sp_longlong cpuPerformance = performanceCounter.diff();
 

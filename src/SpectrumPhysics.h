@@ -30,8 +30,8 @@ namespace NAMESPACE_PHYSICS
 	class Mat3;
 	class Mat4;
 
+	class Ray;
 	class Quat;
-
 	class SpTransform;
 
 	class BoundingVolume;

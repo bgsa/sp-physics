@@ -2,6 +2,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
+	DOP18* tempKDOPs;
+
 	sp_int comparatorXAxisForQuickSort(const void* a, const void* b)
 	{
 		AABB* obj1 = (AABB*) a;
@@ -15,11 +17,11 @@ namespace NAMESPACE_PHYSICS
 
 		return 0;
 	}
-
-	sp_int comparatorXAxisForQuickSortKDOP(const void* a, const void* b)
+	
+	sp_int comparatorXAxisForQuickSortKDOP(const void* index1, const void* index2)
 	{
-		DOP18* obj1 = (DOP18*)a;
-		DOP18* obj2 = (DOP18*)b;
+		DOP18* obj1 = &tempKDOPs[(sp_uint)index1];
+		DOP18* obj2 = &tempKDOPs[(sp_uint)index2];
 
 		if (obj1->min[0] < obj2->min[0])
 			return -1;
@@ -104,40 +106,44 @@ namespace NAMESPACE_PHYSICS
 		return SweepAndPruneResultCpu(indexes, aabbIndex >> 1);
 	}
 
-	void SweepAndPrune::findCollisions(DOP18* kdops, sp_uint length, SweepAndPruneResultCpu* resultCpu)
+	void SweepAndPrune::findCollisions(DOP18* kdops, sp_uint* indexes, sp_uint length, SweepAndPruneResultCpu* resultCpu)
 	{
 		sp_uint* activeListIndex = ALLOC_ARRAY(sp_uint, length);
-		sp_uint activeListIndexCount = 0;
-		sp_uint activeListKDOPIndex = 0;
+		sp_uint activeListIndexCount = ZERO_UINT;
+		sp_uint kdopIndexJ = ZERO_UINT;
 
-		AlgorithmSorting::quickSortNative(kdops, length, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
+		tempKDOPs = kdops;
+
+		AlgorithmSorting::quickSortNative(indexes, length, SIZEOF_FLOAT, comparatorXAxisForQuickSortKDOP);
 
 		for (sp_uint i = 0; i < length; ++i)
 		{
+			sp_uint kdopIndexI = indexes[i];
+
 			for (sp_uint j = activeListIndexCount; j > 0; --j)
 			{
-				activeListKDOPIndex = activeListIndex[j - 1];
+				kdopIndexJ = indexes[activeListIndex[j - 1]];
 
-				if (kdops[activeListKDOPIndex].max[0] < kdops[i].min[0])
+				if (kdops[kdopIndexJ].max[0] < kdops[kdopIndexI].min[0])
 				{
 					erase_element(activeListIndex, activeListIndexCount, j - 1); //remove from active list
 					--activeListIndexCount;
 				}
 				else
 				{
-					if (   (kdops[i].max[0] >= kdops[activeListKDOPIndex].min[0] && kdops[i].min[0] <= kdops[activeListKDOPIndex].max[0])
-						&& (kdops[i].max[1] >= kdops[activeListKDOPIndex].min[1] && kdops[i].min[1] <= kdops[activeListKDOPIndex].max[1])
-						&& (kdops[i].max[2] >= kdops[activeListKDOPIndex].min[2] && kdops[i].min[2] <= kdops[activeListKDOPIndex].max[2])
-						&& (kdops[i].max[3] >= kdops[activeListKDOPIndex].min[3] && kdops[i].min[3] <= kdops[activeListKDOPIndex].max[3])
-						&& (kdops[i].max[4] >= kdops[activeListKDOPIndex].min[4] && kdops[i].min[4] <= kdops[activeListKDOPIndex].max[4])
-						&& (kdops[i].max[5] >= kdops[activeListKDOPIndex].min[5] && kdops[i].min[5] <= kdops[activeListKDOPIndex].max[5])
-						&& (kdops[i].max[6] >= kdops[activeListKDOPIndex].min[6] && kdops[i].min[6] <= kdops[activeListKDOPIndex].max[6])
-						&& (kdops[i].max[7] >= kdops[activeListKDOPIndex].min[7] && kdops[i].min[7] <= kdops[activeListKDOPIndex].max[7])
-						&& (kdops[i].max[8] >= kdops[activeListKDOPIndex].min[8] && kdops[i].min[8] <= kdops[activeListKDOPIndex].max[8])
+					if (   (kdops[kdopIndexI].max[0] >= kdops[kdopIndexJ].min[0] && kdops[kdopIndexI].min[0] <= kdops[kdopIndexJ].max[0])
+						&& (kdops[kdopIndexI].max[1] >= kdops[kdopIndexJ].min[1] && kdops[kdopIndexI].min[1] <= kdops[kdopIndexJ].max[1])
+						&& (kdops[kdopIndexI].max[2] >= kdops[kdopIndexJ].min[2] && kdops[kdopIndexI].min[2] <= kdops[kdopIndexJ].max[2])
+						&& (kdops[kdopIndexI].max[3] >= kdops[kdopIndexJ].min[3] && kdops[kdopIndexI].min[3] <= kdops[kdopIndexJ].max[3])
+						&& (kdops[kdopIndexI].max[4] >= kdops[kdopIndexJ].min[4] && kdops[kdopIndexI].min[4] <= kdops[kdopIndexJ].max[4])
+						&& (kdops[kdopIndexI].max[5] >= kdops[kdopIndexJ].min[5] && kdops[kdopIndexI].min[5] <= kdops[kdopIndexJ].max[5])
+						&& (kdops[kdopIndexI].max[6] >= kdops[kdopIndexJ].min[6] && kdops[kdopIndexI].min[6] <= kdops[kdopIndexJ].max[6])
+						&& (kdops[kdopIndexI].max[7] >= kdops[kdopIndexJ].min[7] && kdops[kdopIndexI].min[7] <= kdops[kdopIndexJ].max[7])
+						&& (kdops[kdopIndexI].max[8] >= kdops[kdopIndexJ].min[8] && kdops[kdopIndexI].min[8] <= kdops[kdopIndexJ].max[8])
 						)
 					{
-						resultCpu->indexes[resultCpu->length++] = i;
-						resultCpu->indexes[resultCpu->length++] = activeListKDOPIndex;
+						resultCpu->indexes[resultCpu->length++] = kdopIndexI;
+						resultCpu->indexes[resultCpu->length++] = kdopIndexJ;
 					}
 				}
 			}

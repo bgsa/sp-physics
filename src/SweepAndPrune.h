@@ -93,7 +93,7 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes and length in the last parameter
 		///</summary>
-		API_INTERFACE static void findCollisions(DOP18* kdops, sp_uint length, SweepAndPruneResultCpu* resultCpu);
+		API_INTERFACE static void findCollisions(DOP18* kdops, sp_uint* indexes, sp_uint length, SweepAndPruneResultCpu* resultCpu);
 
 #ifdef OPENCL_ENABLED
 
