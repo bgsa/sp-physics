@@ -147,9 +147,6 @@
     <ClCompile Include="src\SweepAndPrune.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SweepAndPruneKdop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Triangle2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -4455,9 +4452,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SweepAndPrune.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SweepAndPruneKdop.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SystemOfLinearEquations.h">

@@ -51,6 +51,8 @@ namespace NAMESPACE_PHYSICS
 
 		void handleCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime);
 
+		void findCollisions(SweepAndPruneResultCpu* result);
+
 	public:
 
 		SpPhysicSyncronizer* syncronizer;

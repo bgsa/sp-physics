@@ -76,13 +76,18 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
 		SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
 
+		const DOP18 bv1 = _boundingVolumes[objIndex1];
+		const DOP18 bv2 = _boundingVolumes[objIndex2];
+
 		const sp_float sumMass = obj1Properties->massInverse() + obj2Properties->massInverse();
 		const Vec3 relativeVelocity = obj2Properties->velocity() - obj1Properties->velocity();
 		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
+		const sp_float cof = std::max(obj1Properties->coeficientOfFriction(), obj2Properties->coeficientOfFriction());
 
 		if (obj1Properties->isDynamic())
 		{
 			const Line3D lineOfAction(obj1Properties->position(), details.contactPoint);
+			const Vec3 frictionVelocity = bv2.tangents()[details.objectIndexPlane2] * obj1Properties->_velocity * (ONE_FLOAT - cof);
 
 			if (obj2Properties->isDynamic())
 			{
@@ -98,18 +103,18 @@ namespace NAMESPACE_PHYSICS
 					= (obj1Properties->velocity() * factor1)
 					+ (obj2Properties->velocity() * factor2);
 
-				obj1Properties->_velocity = lineOfAction.direction() * newForceObj1;
+				obj1Properties->_velocity = lineOfAction.direction() * newForceObj1 + frictionVelocity;
 			}
 			else
-				obj1Properties->_velocity = (lineOfAction.direction()  * obj1Properties->velocity()) * cor;
+				obj1Properties->_velocity = ((lineOfAction.direction()  * obj1Properties->velocity()) * cor) + frictionVelocity;
 
 			obj1Properties->_acceleration = ZERO_FLOAT;
 		}
 
 		if (obj2Properties->isDynamic())
 		{
-			//const Line3D lineOfAction(obj2Properties->position(), details.contactPoint);
 			const Line3D lineOfAction(details.contactPoint, obj2Properties->position());
+			const Vec3 frictionVelocity = bv1.tangents()[details.objectIndexPlane1] * obj2Properties->_velocity * (ONE_FLOAT - cof);
 
 			if (obj1Properties->isDynamic())
 			{
@@ -125,10 +130,10 @@ namespace NAMESPACE_PHYSICS
 					= (relativeVelocity * factor1)
 					+ (relativeVelocity * factor2);
 
-				obj2Properties->_velocity = lineOfAction.direction() * newForceObj2;
+				obj2Properties->_velocity = lineOfAction.direction() * newForceObj2 + frictionVelocity;
 			}
 			else
-				obj2Properties->_velocity = (lineOfAction.direction() * relativeVelocity) * cor;
+				obj2Properties->_velocity = ((lineOfAction.direction() * relativeVelocity) * cor) + frictionVelocity;
 
 			obj2Properties->_acceleration = ZERO_FLOAT;
 		}
@@ -188,33 +193,26 @@ namespace NAMESPACE_PHYSICS
 		return allocated;
 	}
 
+	void SpPhysicSimulator::findCollisions(SweepAndPruneResultCpu* result)
+	{
+		sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, objectsLength);
+		for (sp_uint i = ZERO_UINT; i < objectsLength; i++)
+			sortedIndexes[i] = i;
+
+		sap->findCollisions(_boundingVolumes, sortedIndexes, objectsLength, result);
+
+		ALLOC_RELEASE(sortedIndexes);
+	}
+
 	void SpPhysicSimulator::run(const Timer& timer)
 	{
 		SweepAndPruneResultCpu resultCpu;
 		resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(objectsLength));
 
-		sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, objectsLength);
-		for (sp_uint i = ZERO_UINT; i < objectsLength; i++)
-			sortedIndexes[i] = i;
-
-		sap->findCollisions(_boundingVolumes, sortedIndexes, objectsLength, &resultCpu);
-
-		ALLOC_RELEASE(sortedIndexes);
+		findCollisions(&resultCpu);
 
 		sp_uint indexesLength = multiplyBy2(resultCpu.length);
 		sp_uint* indexes = resultCpu.indexes;
-		
-		/*
-		cl_event lastEvent = gpu->commandManager->updateBuffer(boundingVolumeBuffer, DOP18_SIZE * objectsLengthAllocated, _boundingVolumes);
-
-		cl_mem result = sap->execute(ONE_UINT, &lastEvent);
-
-		const sp_uint indexesLength = multiplyBy2(sap->fetchCollisionLength());
-
-		sp_uint* indexes = ALLOC_NEW_ARRAY(sp_uint, indexesLength);
-		gpu->commandManager->readBuffer(result, indexesLength * SIZEOF_UINT, indexes);
-		//ALLOC_RELEASE(indexes);
-		*/
 
 		const sp_float elapsedTime = timer.elapsedTime();
 
@@ -357,14 +355,11 @@ namespace NAMESPACE_PHYSICS
 		Vec3 centerObj1 = obj1Properties->position();
 		Vec3 centerObj2 = obj2Properties->position();
 
-		Line3D lineOfAction(centerObj2, centerObj1);
-		Vec3 direction = lineOfAction.direction().normalize();
+		Vec3 direction = (centerObj2 - centerObj1).normalize();
 
 		sp_float angleRight = direction.dot({ 1.0f, 0.0f, 0.0f });
 		sp_float angleUp = direction.dot({ 0.0f, 1.0f, 0.0f });
 		sp_float angleDepth = direction.dot({ 0.0f, 0.0f, 1.0f });
-
-		Vec3 contactPoint;
 
 		if (angleUp >= HALF_PI && angleUp <= HALF_PI) // it the collision happend up ...
 		{
@@ -757,7 +752,6 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 	}
-
 
 	void SpPhysicSimulator::dispose()
 	{

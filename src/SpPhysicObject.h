@@ -32,8 +32,20 @@ namespace NAMESPACE_PHYSICS
 		sp_float _inverseMass;
 		sp_float _damping;
 		sp_float _coeficientOfRestitution;
+		sp_float _coeficientOfFriction;
 
 		Quat _orientation;
+
+		inline Vec3 restingAcceleration() const
+		{
+			Vec3 forceX = SpPhysicSettings::instance()->gravityForce();
+
+			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
+			const Vec3 dragForce = (velocity() * velocity().abs()) * 0.5f * drag;
+			const Vec3 restingAcceleration = (forceX - dragForce) * massInverse();
+
+			return restingAcceleration;
+		}
 
 	public:
 
@@ -56,6 +68,7 @@ namespace NAMESPACE_PHYSICS
 
 			_damping = 0.95f;
 			_coeficientOfRestitution = 0.8f;
+			_coeficientOfFriction = 0.2f;
 			_inverseMass = ZERO_FLOAT;
 			_orientation = Quat();
 		}
@@ -115,11 +128,15 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_bool isResting() const
 		{
 			const sp_float restingEpsilon = SpPhysicSettings::instance()->restingVelocityEpsilon();
+			const Vec3 _restingAcceleration = restingAcceleration();
 
 			return
 				isCloseEnough(_position.x, _previousPosition.x, restingEpsilon) &&
 				isCloseEnough(_position.y, _previousPosition.y, restingEpsilon) &&
-				isCloseEnough(_position.z, _previousPosition.z, restingEpsilon);
+				isCloseEnough(_position.z, _previousPosition.z, restingEpsilon) &&
+				isCloseEnough(_acceleration.x, _restingAcceleration.x, restingEpsilon) &&
+				isCloseEnough(_acceleration.y, _restingAcceleration.y, restingEpsilon) &&
+				isCloseEnough(_acceleration.z, _restingAcceleration.z, restingEpsilon);
 		}
 
 		/// <summary>
@@ -224,6 +241,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float coeficientOfRestitution() const
 		{
 			return _coeficientOfRestitution;
+		}
+
+		/// <summary>
+		/// Define the material when it collides (tangent)
+		/// </summary>
+		API_INTERFACE inline sp_float coeficientOfFriction() const
+		{
+			return _coeficientOfFriction;
 		}
 
 		/// <summary>

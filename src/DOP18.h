@@ -140,6 +140,36 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get the tangents of k-DOP planes
+		/// </summary>
+		API_INTERFACE const Vec3* tangents(const sp_uint index = ZERO_UINT) const
+		{
+			const static Vec3 tangent[18] = {
+				{  0.0f,  1.0f,  1.0f },
+				{  0.0f,  1.0f,  1.0f },
+				{  1.0f,  0.0f,  1.0f },
+				{  1.0f,  0.0f,  1.0f },
+				{  1.0f,  1.0f,  0.0f },
+				{  1.0f,  1.0f,  0.0f },
+
+				{ -1.0f,  1.0f,  0.0f },
+				{  0.5f, -0.5f,  0.0f },
+				{  0.5f,  0.5f,  0.0f },
+				{ -0.5f, -0.5f,  0.0f },
+				{  0.0f,  0.5f, -0.5f },
+				{  0.0f, -0.5f,  0.5f },
+				{  0.0f,  0.5f,  0.5f },
+				{  0.0f, -0.5f, -0.5f },
+				{ -0.5f,  0.0f,  0.5f },
+				{  0.5f,  0.0f, -0.5f },
+				{  0.5f,  0.0f,  0.5f },
+				{ -0.5f,  0.0f, -0.5f }
+			};
+
+			return &tangent[0];
+		}
+
+		/// <summary>
 		/// Get the k-DOP planes
 		/// </summary>
 		API_INTERFACE Plane3D* planes() const;
