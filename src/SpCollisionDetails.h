@@ -11,6 +11,7 @@ namespace NAMESPACE_PHYSICS
 	public:
 		Vec3 contactPoint;
 		sp_float timeOfCollision;
+		sp_float timeStep;
 		sp_uint objectIndexPlane1;
 		sp_uint objectIndexPlane2;
 	};

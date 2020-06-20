@@ -166,13 +166,83 @@ namespace NAMESPACE_PHYSICS
 				{ -0.5f,  0.0f, -0.5f }
 			};
 
-			return &tangent[0];
+			return &tangent[index];
 		}
 
 		/// <summary>
 		/// Get the k-DOP planes
 		/// </summary>
 		API_INTERFACE Plane3D* planes() const;
+
+		/// <summary>
+		/// Get a k-DOP plane given a index
+		/// </summary>
+		API_INTERFACE Plane3D planes(sp_uint index) const
+		{
+			const Vec3* n = normals();
+
+			switch (index)
+			{
+			case DOP18_PLANES_LEFT_INDEX:
+				return Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[0]);
+
+			case DOP18_PLANES_RIGHT_INDEX:
+				return Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[1]);
+
+			case DOP18_PLANES_UP_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), n[2]);
+
+			case DOP18_PLANES_DOWN_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), n[3]);
+			
+			case DOP18_PLANES_FRONT_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), n[4]);
+			
+			case DOP18_PLANES_DEPTH_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), n[5]);
+
+			case DOP18_PLANES_UP_LEFT_INDEX:
+				return Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[6]);
+
+			case DOP18_PLANES_DOWN_RIGHT_INDEX:
+				return Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[7]);
+
+			case DOP18_PLANES_UP_RIGHT_INDEX:
+				return Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[8]);
+
+			case DOP18_PLANES_DOWN_LEFT_INDEX:
+				return Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[9]);
+
+			case DOP18_PLANES_UP_FRONT_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[10]);
+
+			case DOP18_PLANES_DOWN_DEPTH_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[11]);
+
+			case DOP18_PLANES_UP_DEPTH_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[12]);
+
+			case DOP18_PLANES_DOWN_FRONT_INDEX:
+				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[13]);
+
+			case DOP18_PLANES_LEFT_DEPTH_INDEX:
+				return Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[14]);
+
+			case DOP18_PLANES_RIGHT_FRONT_INDEX:
+				return Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[15]);
+
+			case DOP18_PLANES_RIGHT_DEPTH_INDEX:
+				return Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[16]);
+
+			case DOP18_PLANES_LEFT_FRONT_INDEX:
+				return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[17]);
+
+			default:
+				sp_assert(false, "InvalidArgumentException");
+			}
+
+			return Plane3D();
+		}
 
 		///<summary>
 		/// Get the center of k-DOP bounding volumne
@@ -581,7 +651,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the left plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeLeft()
+		API_INTERFACE inline Plane3D planeLeft() const
 		{
 			return Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), normals()[0]);
 		}
@@ -589,7 +659,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the right plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeRight()
+		API_INTERFACE inline Plane3D planeRight() const
 		{
 			return Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), normals()[1]);
 		}
@@ -597,7 +667,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the up plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeUp()
+		API_INTERFACE inline Plane3D planeUp() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), normals()[2]);
 		}
@@ -605,7 +675,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the down plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeDown()
+		API_INTERFACE inline Plane3D planeDown() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), normals()[3]);
 		}
@@ -613,7 +683,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the front plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeFront()
+		API_INTERFACE inline Plane3D planeFront() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), normals()[4]);
 		}
@@ -621,7 +691,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the depth plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeDepth()
+		API_INTERFACE inline Plane3D planeDepth() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), normals()[5]);
 		}
@@ -629,7 +699,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the up-left plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeUpLeft()
+		API_INTERFACE inline Plane3D planeUpLeft() const
 		{
 			return Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), normals()[6]);
 		}
@@ -637,7 +707,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the down-right plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeDownRight()
+		API_INTERFACE inline Plane3D planeDownRight() const
 		{
 			return Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), normals()[7]);
 		}
@@ -645,7 +715,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the up-right plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeUpRight()
+		API_INTERFACE inline Plane3D planeUpRight() const
 		{
 			return Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), normals()[8]);
 		}
@@ -653,7 +723,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the down-left plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeDownLeft()
+		API_INTERFACE inline Plane3D planeDownLeft() const
 		{
 			return Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), normals()[9]);
 		}
@@ -661,7 +731,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the up-front plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeUpFront()
+		API_INTERFACE inline Plane3D planeUpFront() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), normals()[10]);
 		}
@@ -669,7 +739,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the down-depth plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeDownDepth()
+		API_INTERFACE inline Plane3D planeDownDepth() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), normals()[11]);
 		}
@@ -677,7 +747,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the up-depth plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeUpDepth()
+		API_INTERFACE inline Plane3D planeUpDepth() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), normals()[12]);
 		}
@@ -685,7 +755,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the down-front plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeDownFront()
+		API_INTERFACE inline Plane3D planeDownFront() const
 		{
 			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), normals()[13]);
 		}
@@ -693,7 +763,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the left-depth plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeLeftDepth()
+		API_INTERFACE inline Plane3D planeLeftDepth() const
 		{
 			return Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[14]);
 		}
@@ -701,7 +771,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the right-front plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeRightFront()
+		API_INTERFACE inline Plane3D planeRightFront() const
 		{
 			return Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[15]);
 		}
@@ -709,7 +779,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the right-depth plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeRightDepth()
+		API_INTERFACE inline Plane3D planeRightDepth() const
 		{
 			return Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[16]);
 		}
@@ -717,7 +787,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the left-front plane of the bounding volume
 		/// </summary>
-		API_INTERFACE inline Plane3D planeLeftFront()
+		API_INTERFACE inline Plane3D planeLeftFront() const
 		{
 			return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[17]);
 		}		

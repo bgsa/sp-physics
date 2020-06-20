@@ -67,8 +67,8 @@ namespace NAMESPACE_PHYSICS
 			_previousAcceleration = _acceleration;
 
 			_damping = 0.95f;
-			_coeficientOfRestitution = 0.8f;
-			_coeficientOfFriction = 0.2f;
+			_coeficientOfRestitution = 0.5f;
+			_coeficientOfFriction = 0.8f;
 			_inverseMass = ZERO_FLOAT;
 			_orientation = Quat();
 		}
@@ -79,6 +79,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void addForce(const Vec3& force)
 		{
 			_force.add(force);
+		}
+
+		/// <summary>
+		/// Add Velocity to this object
+		/// </summary>
+		API_INTERFACE void addImpulse(const Vec3& impulse)
+		{
+			_velocity += impulse;
 		}
 
 		/// <summary>

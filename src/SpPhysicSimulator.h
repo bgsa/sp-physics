@@ -42,10 +42,11 @@ namespace NAMESPACE_PHYSICS
 
 		sp_float timeOfCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime);
 
-		void collisionDetails(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime, SpCollisionDetails* details);
-		void collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesLeftRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		//void collisionDetailsPlanesFrontDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetails(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
 
 		void handleCollisionResponse(sp_uint objIndex1, sp_uint objIndex2, const SpCollisionDetails& details);
 
@@ -88,7 +89,6 @@ namespace NAMESPACE_PHYSICS
 			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
 			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * 0.5f * drag;
 
-			// Velocity Verlet Integration
 			elapsedTime = elapsedTime * settings->physicVelocity();
 
 			// Velocity Verlet Integration because regards the velocity
@@ -98,8 +98,9 @@ namespace NAMESPACE_PHYSICS
 
 			const Vec3 newAcceleration = (element->force() - dragForce) * element->massInverse();
 
-			const Vec3 newVelocity = element->velocity()
+			Vec3 newVelocity = element->velocity()
 				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
+			newVelocity = newVelocity * element->damping();
 
 			const Vec3 translation = newPosition - element->position();
 			_boundingVolumes[index].translate(translation); // Sync with the bounding Volume
