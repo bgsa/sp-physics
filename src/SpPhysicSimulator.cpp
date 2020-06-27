@@ -88,8 +88,8 @@ namespace NAMESPACE_PHYSICS
 
 		if (obj1Properties->isStatic())
 		{
-			const Vec3 lineOfActionTangent = bv1.tangents()[details.objectIndexPlane1];
-			const Vec3 lineOfAction = (details.contactPoint - obj2Properties->position()).normalize();
+			const Vec3 lineOfActionTangent = bv1.tangent(details.objectIndexPlane1);
+			const Vec3 lineOfAction = (details.contactPoint - bv2.centerOfBoundingVolume()).normalize();
 			const Vec3 frictionVelocity = (lineOfActionTangent * obj2Properties->velocity()) * cof;
 			
 			obj2Properties->_velocity = ((lineOfAction * obj2Properties->velocity()) * cor) + frictionVelocity;
@@ -101,8 +101,8 @@ namespace NAMESPACE_PHYSICS
 		{
 			if (obj2Properties->isStatic())
 			{
-				const Vec3 lineOfActionTangent = bv2.tangents()[details.objectIndexPlane2];
-				const Vec3 lineOfAction = (details.contactPoint - obj1Properties->position()).normalize();
+				const Vec3 lineOfActionTangent = bv2.tangent(details.objectIndexPlane2);
+				const Vec3 lineOfAction = (details.contactPoint - bv1.centerOfBoundingVolume()).normalize();
 				const Vec3 frictionVelocity = (lineOfActionTangent * obj1Properties->velocity()) * cof;
 
 				obj1Properties->_velocity = ((lineOfAction * obj1Properties->velocity()) * cor) + frictionVelocity;
@@ -115,10 +115,10 @@ namespace NAMESPACE_PHYSICS
 				const sp_float sumMass = obj1Properties->massInverse() + obj2Properties->massInverse();
 				const Vec3 relativeVelocity = obj2Properties->velocity() - obj1Properties->velocity();
 
-				const Vec3 frictionVelocity1 = bv2.tangents()[details.objectIndexPlane2] * obj1Properties->velocity() * (ONE_FLOAT - cof);
-				const Vec3 frictionVelocity2 = bv1.tangents()[details.objectIndexPlane1] * obj2Properties->velocity() * (ONE_FLOAT - cof);
+				const Vec3 frictionVelocity1 = bv2.tangent(details.objectIndexPlane2) * obj1Properties->velocity() * (ONE_FLOAT - cof);
+				const Vec3 frictionVelocity2 = bv1.tangent(details.objectIndexPlane1) * obj2Properties->velocity() * (ONE_FLOAT - cof);
 
-				const Vec3 lineOfAction = (details.contactPoint - obj1Properties->position()).normalize();
+				const Vec3 lineOfAction = (details.contactPoint - bv1.centerOfBoundingVolume()).normalize();
 
 				sp_float impulse = (-(1.0f + cor) * (relativeVelocity.dot(lineOfAction)))
 					/ sumMass;
@@ -178,12 +178,17 @@ namespace NAMESPACE_PHYSICS
 			return;
 		}
 
+		if (areMovingAway(objIndex1, objIndex2)) // if the objects are getting distant
+			return;
+
 		SpCollisionDetails details;
 		details.timeStep = elapsedTime;
 
 		collisionDetails(objIndex1, objIndex2, &details);
 
-		std::cout << "HANDLE" << END_OF_LINE;
+		if (objIndex1 != 0 && objIndex2 != 0)
+			std::cout << details.contactPoint.x << "   " << details.contactPoint.y << "   " << details.contactPoint.z << END_OF_LINE;
+
 		handleCollisionResponse(objIndex1, objIndex2, details);
 
 		dispatchEvent(objIndex1, objIndex2);
@@ -267,6 +272,46 @@ namespace NAMESPACE_PHYSICS
 		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
 	}
 
+	void SpPhysicSimulator::collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const
+	{
+		DOP18 bv1 = _boundingVolumes[objIndex1];
+		DOP18 bv2 = _boundingVolumes[objIndex2];
+		Plane3D planeRightFront = bv1.planeRightFront();
+
+		Vec3 vertexes[4] = {
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z])
+		};
+
+		Ray ray(vertexes[0], Vec3(-1.0f, 0.0f, 0.0f));
+		planeRightFront.intersection(ray, vertexes);
+		vertexes[3].x = vertexes[0].x;
+
+		ray = Ray(vertexes[1], Vec3(0.0f, 0.0f, -1.0f));
+		planeRightFront.intersection(ray, &vertexes[1]);
+		vertexes[2].z = vertexes[1].z;
+		// plane right-front built
+
+		Vec3 temp;
+		ray = Ray(vertexes[0], Vec3(0.5f, 0.0f, -0.5f));
+		bv2.planeLeft().intersection(ray, &temp);
+		vertexes[0].x = std::max(temp.x, vertexes[0].x);
+		vertexes[0].z = std::min(temp.z, vertexes[0].z);
+		vertexes[3].x = vertexes[0].x;
+		vertexes[3].z = vertexes[0].z;
+
+		ray = Ray(vertexes[1], Vec3(-0.5f, 0.0f, 0.5f));
+		bv2.planeDepth().intersection(ray, &temp);
+		vertexes[1].x = std::min(temp.x, vertexes[1].x);
+		vertexes[1].z = std::max(temp.z, vertexes[1].z);
+		vertexes[2].x = vertexes[1].x;
+		vertexes[2].z = vertexes[1].z;
+
+		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
+	}
+
 	void SpPhysicSimulator::collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const
 	{
 		DOP18 bv1 = _boundingVolumes[objIndex1];
@@ -283,13 +328,13 @@ namespace NAMESPACE_PHYSICS
 		bv1.planeDownLeft().intersection(ray, vertexes);
 
 		ray = Ray(vertexes[1], Vec3(0.0f, 0.0f, 1.0f));
-		bv1.planeDownFront().intersection(ray, &vertexes[1]);
+		bv1.planeDownDepth().intersection(ray, &vertexes[1]);
 
 		ray = Ray(vertexes[2], Vec3(-1.0f, 0.0f, 0.0f));
 		bv1.planeDownRight().intersection(ray, &vertexes[2]);
 
 		ray = Ray(vertexes[3], Vec3(0.0f, 0.0f, -1.0f));
-		bv1.planeDownDepth().intersection(ray, &vertexes[3]);
+		bv1.planeDownFront().intersection(ray, &vertexes[3]);
 
 		vertexes[0].z = vertexes[1].z;
 		vertexes[1].x = vertexes[2].x;
@@ -307,7 +352,7 @@ namespace NAMESPACE_PHYSICS
 		vertexes[0].x = std::max(temp.x, vertexes[0].x);
 
 		ray = Ray(vertexes[1], Vec3(0.0f, 0.0f, 1.0f));
-		bv2.planeUpFront().intersection(ray, &temp);
+		bv2.planeUpDepth().intersection(ray, &temp);
 		vertexes[1].z = std::max(temp.z, vertexes[1].z);
 
 		ray = Ray(vertexes[2], Vec3(-1.0f, 0.0f, 0.0f));
@@ -315,7 +360,7 @@ namespace NAMESPACE_PHYSICS
 		vertexes[2].x = std::min(temp.x, vertexes[2].x);
 
 		ray = Ray(vertexes[3], Vec3(0.0f, 0.0f, -1.0f));
-		bv2.planeUpDepth().intersection(ray, &temp);
+		bv2.planeUpFront().intersection(ray, &temp);
 		vertexes[3].z = std::min(temp.z, vertexes[3].z);
 
 		vertexes[0].z = vertexes[1].z;
@@ -332,13 +377,13 @@ namespace NAMESPACE_PHYSICS
 		DOP18 bv2 = _boundingVolumes[objIndex2];
 
 		Vec3 vertexes[4] = { // pseudo-vertexes of plane right
-			Vec3(bv1.max[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
 			Vec3(bv1.max[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
-			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
-			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z])
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z])
 		};
 
-		Ray ray(vertexes[0], Vec3(1.0f, 0.0f, 0.0f));
+		Ray ray(vertexes[0], Vec3(-1.0f, 0.0f, 0.0f));
 		bv1.planeRightFront().intersection(ray, vertexes);
 
 		ray = Ray(vertexes[1], Vec3(0.0f, 0.0f, 1.0f));
@@ -391,16 +436,16 @@ namespace NAMESPACE_PHYSICS
 		DOP18 bv2 = _boundingVolumes[objIndex2];
 
 		Vec3 vertexes[4] = { // pseudo-vertexes of plane front
-			Vec3(bv2.min[DOP18_AXIS_X], bv2.min[DOP18_AXIS_Y], bv2.min[DOP18_AXIS_Z]),
-			Vec3(bv2.max[DOP18_AXIS_X], bv2.min[DOP18_AXIS_Y], bv2.min[DOP18_AXIS_Z]),
-			Vec3(bv2.max[DOP18_AXIS_X], bv2.max[DOP18_AXIS_Y], bv2.min[DOP18_AXIS_Z]),
-			Vec3(bv2.min[DOP18_AXIS_X], bv2.max[DOP18_AXIS_Y], bv2.min[DOP18_AXIS_Z])
+			Vec3(bv2.min[DOP18_AXIS_X], bv2.min[DOP18_AXIS_Y], bv2.max[DOP18_AXIS_Z]),
+			Vec3(bv2.max[DOP18_AXIS_X], bv2.min[DOP18_AXIS_Y], bv2.max[DOP18_AXIS_Z]),
+			Vec3(bv2.max[DOP18_AXIS_X], bv2.max[DOP18_AXIS_Y], bv2.max[DOP18_AXIS_Z]),
+			Vec3(bv2.min[DOP18_AXIS_X], bv2.max[DOP18_AXIS_Y], bv2.max[DOP18_AXIS_Z])
 		};
 
 		Ray ray(vertexes[0], Vec3(1.0f, 0.0f, 0.0f));
 		bv2.planeLeftFront().intersection(ray, vertexes);
 
-		ray = Ray(vertexes[1], Vec3(0.0f, 0.0f, 1.0f));
+		ray = Ray(vertexes[1], Vec3(0.0f, 0.0f, -1.0f));
 		bv2.planeDownFront().intersection(ray, &vertexes[1]);
 
 		ray = Ray(vertexes[2], Vec3(-1.0f, 0.0f, 0.0f));
@@ -414,10 +459,10 @@ namespace NAMESPACE_PHYSICS
 		vertexes[2].y = vertexes[3].y;
 		vertexes[3].x = vertexes[0].x;
 
-		vertexes[0].z = bv2.min[DOP18_AXIS_Z];
-		vertexes[1].z = bv2.min[DOP18_AXIS_Z];
-		vertexes[2].z = bv2.min[DOP18_AXIS_Z];
-		vertexes[3].z = bv2.min[DOP18_AXIS_Z]; // plane front built !
+		vertexes[0].z = bv2.max[DOP18_AXIS_Z];
+		vertexes[1].z = bv2.max[DOP18_AXIS_Z];
+		vertexes[2].z = bv2.max[DOP18_AXIS_Z];
+		vertexes[3].z = bv2.max[DOP18_AXIS_Z]; // plane front built !
 
 		Vec3 temp;
 		ray = Ray(vertexes[0], Vec3(1.0f, 0.0f, 0.0f));
@@ -432,7 +477,7 @@ namespace NAMESPACE_PHYSICS
 		bv1.planeRightDepth().intersection(ray, &temp);
 		vertexes[2].x = std::min(temp.x, vertexes[2].x);
 
-		ray = Ray(vertexes[3], Vec3(0.0f, 0.0f, -1.0f));
+		ray = Ray(vertexes[3], Vec3(0.0f, 0.0f, 1.0f));
 		bv1.planeUpDepth().intersection(ray, &temp);
 		vertexes[3].y = std::min(temp.y, vertexes[3].y);
 
@@ -444,8 +489,171 @@ namespace NAMESPACE_PHYSICS
 		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
 	}
 
+	void SpPhysicSimulator::collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const
+	{
+		DOP18 bv1 = _boundingVolumes[objIndex1];
+		DOP18 bv2 = _boundingVolumes[objIndex2];
+		Plane3D planeUpLeft = bv1.planeUpLeft();
+
+		Vec3 vertexes[4] = {
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z])
+		};
+
+		Ray ray(vertexes[0], Vec3(0.0f, -1.0f, 0.0f));
+		planeUpLeft.intersection(ray, vertexes);
+		vertexes[1].y = vertexes[0].y;
+
+		ray = Ray(vertexes[2], Vec3(1.0f, 0.0f, 0.0f));
+		planeUpLeft.intersection(ray, &vertexes[2]);
+		vertexes[3].x = vertexes[2].x;
+		// plane up-left built
+
+		Vec3 temp;
+		ray = Ray(vertexes[0], Vec3(-0.5f, -0.5f, 0.0f));
+		bv2.planeDown().intersection(ray, &temp);
+		vertexes[0].x = std::max(temp.x, vertexes[0].x);
+		vertexes[0].y = std::max(temp.y, vertexes[0].y);
+		vertexes[1].x = vertexes[0].x;
+		vertexes[1].y = vertexes[0].y;
+
+		ray = Ray(vertexes[2], Vec3(0.5f, 0.5f, 0.0f));
+		bv2.planeRight().intersection(ray, &temp);
+		vertexes[2].x = std::min(temp.x, vertexes[2].x);
+		vertexes[2].y = std::min(temp.y, vertexes[2].y);
+		vertexes[3].x = vertexes[2].x;
+		vertexes[3].y = vertexes[2].y;
+
+		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
+	}
+
+	void SpPhysicSimulator::collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const
+	{
+		DOP18 bv1 = _boundingVolumes[objIndex1];
+		DOP18 bv2 = _boundingVolumes[objIndex2];
+		Plane3D planeUpRight = bv1.planeUpRight();
+
+		Vec3 vertexes[4] = {
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z])
+		};
+
+		Ray ray(vertexes[0], Vec3(0.0f, -1.0f, 0.0f));
+		planeUpRight.intersection(ray, vertexes);
+		vertexes[1].y = vertexes[0].y;
+
+		ray = Ray(vertexes[2], Vec3(-1.0f, 0.0f, 0.0f));
+		planeUpRight.intersection(ray, &vertexes[2]);
+		vertexes[3].x = vertexes[2].x;
+		// plane up-right built
+
+		Vec3 temp;
+		ray = Ray(vertexes[0], Vec3(0.5f, -0.5f, 0.0f));
+		bv2.planeDown().intersection(ray, &temp);
+		vertexes[0].x = std::min(temp.x, vertexes[0].x);
+		vertexes[0].y = std::max(temp.y, vertexes[0].y);
+		vertexes[1].x = vertexes[0].x;
+		vertexes[1].y = vertexes[0].y;
+
+		ray = Ray(vertexes[2], Vec3(-0.5f, 0.5f, 0.0f));
+		bv2.planeLeft().intersection(ray, &temp);
+		vertexes[2].x = std::max(temp.x, vertexes[2].x);
+		vertexes[2].y = std::min(temp.y, vertexes[2].y);
+		vertexes[3].x = vertexes[2].x;
+		vertexes[3].y = vertexes[2].y;
+
+		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
+	}
+
+	void SpPhysicSimulator::collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const
+	{
+		DOP18 bv1 = _boundingVolumes[objIndex1];
+		DOP18 bv2 = _boundingVolumes[objIndex2];
+		Plane3D planeUpFront = bv1.planeUpFront();
+
+		Vec3 vertexes[4] = {
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z])
+		};
+
+		Ray ray(vertexes[0], Vec3(0.0f, -1.0f, 0.0f));
+		planeUpFront.intersection(ray, vertexes);
+		vertexes[1].y = vertexes[0].y;
+
+		ray = Ray(vertexes[2], Vec3(0.0f, 0.0f, -1.0f));
+		planeUpFront.intersection(ray, &vertexes[2]);
+		vertexes[3].z = vertexes[2].z;
+		// plane up-front built
+
+		Vec3 temp;
+		ray = Ray(vertexes[0], Vec3(0.0f, -0.5f, 0.5f));
+		bv2.planeDown().intersection(ray, &temp);
+		vertexes[0].y = std::max(temp.y, vertexes[0].y);
+		vertexes[0].z = std::min(temp.z, vertexes[0].z);
+		vertexes[1].y = vertexes[0].y;
+		vertexes[1].z = vertexes[0].z;
+
+		ray = Ray(vertexes[2], Vec3(0.0f, 0.5f, -0.5f));
+		bv2.planeDepth().intersection(ray, &temp);
+		vertexes[2].y = std::min(temp.y, vertexes[2].y);
+		vertexes[2].z = std::max(temp.z, vertexes[2].z);
+		vertexes[3].y = vertexes[2].y;
+		vertexes[3].z = vertexes[2].z;
+
+		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
+	}
+
+	void SpPhysicSimulator::collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const
+	{
+		DOP18 bv1 = _boundingVolumes[objIndex1];
+		DOP18 bv2 = _boundingVolumes[objIndex2];
+		Plane3D planeUpDepth = bv1.planeUpDepth();
+
+		Vec3 vertexes[4] = {
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.min[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
+			Vec3(bv1.max[DOP18_AXIS_X], bv1.max[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z])
+		};
+
+		Ray ray(vertexes[0], Vec3(0.0f, -1.0f, 0.0f));
+		planeUpDepth.intersection(ray, vertexes);
+		vertexes[1].y = vertexes[0].y;
+
+		ray = Ray(vertexes[2], Vec3(0.0f, 0.0f, 1.0f));
+		planeUpDepth.intersection(ray, &vertexes[2]);
+		vertexes[3].z = vertexes[2].z;
+		// plane up-depth built
+
+		Vec3 temp;
+		ray = Ray(vertexes[0], Vec3(0.0f, -0.5f, -0.5f));
+		bv2.planeDown().intersection(ray, &temp);
+		vertexes[0].y = std::max(temp.y, vertexes[0].y);
+		vertexes[0].z = std::max(temp.z, vertexes[0].z);
+		vertexes[1].y = vertexes[0].y;
+		vertexes[1].z = vertexes[0].z;
+
+		ray = Ray(vertexes[2], Vec3(0.0f, 0.5f, 0.5f));
+		bv2.planeFront().intersection(ray, &temp);
+		vertexes[2].y = std::min(temp.y, vertexes[2].y);
+		vertexes[2].z = std::min(temp.z, vertexes[2].z);
+		vertexes[3].y = vertexes[2].y;
+		vertexes[3].z = vertexes[2].z;
+
+		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
+	}
+	
 	void SpPhysicSimulator::collisionDetails(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
+		sp_assert(objIndex1 >= ZERO_UINT && objIndex1 < objectsLength, "IndexOutOfRangeException");
+		sp_assert(objIndex2 >= ZERO_UINT && objIndex2 < objectsLength, "IndexOutOfRangeException");
+
 		details->timeOfCollision = timeOfCollision(objIndex1, objIndex2, details->timeStep);
 
 		const SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
@@ -459,13 +667,13 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_bool isUp = Plane3D(centerObj1, Vec3(0.0f, 1.0f, 0.0f)).orientation(centerObj2) == Orientation::LEFT;
 		const sp_bool isRight = Plane3D(centerObj1, Vec3(1.0f, 0.0f, 0.0f)).orientation(centerObj2) == Orientation::LEFT;
-		const sp_bool isDepth = Plane3D(centerObj1, Vec3(0.0f, 0.0f, 1.0f)).orientation(centerObj2) == Orientation::LEFT;
+		const sp_bool isFront = Plane3D(centerObj1, Vec3(0.0f, 0.0f, 1.0f)).orientation(centerObj2) == Orientation::LEFT;
 
    		if (isUp) // it the collision happend up ...
 		{
 			if (isRight) // it the collision happend right ...
 			{
-				if (isDepth) // it the collision happend depth ...
+				if (isFront) // it the collision happend depth ...
 				{
 					details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
 					details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
@@ -493,28 +701,44 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex2, objIndex1, details);
 					}
 
-					newDistace = bv1.planeUpRight().distance(bv2.planeDownLeft());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_UP_RIGHT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_DOWN_LEFT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightFrontAndLeftDepth(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
 						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeUpDepth().distance(bv2.planeDownFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_UP_DEPTH_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_DOWN_FRONT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
 					}
 				}
 				else
@@ -525,7 +749,7 @@ namespace NAMESPACE_PHYSICS
 
 					collisionDetailsPlanesRightLeft(objIndex1, objIndex2, details);
 
-					sp_float newDistace = std::fabsf(bv1.max[DOP18_AXIS_Z] - bv2.min[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
+					sp_float newDistace = std::fabsf(bv1.min[DOP18_AXIS_Z] - bv2.max[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_DEPTH_INDEX;
@@ -545,14 +769,6 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex2, objIndex1, details);
 					}
 
-					newDistace = bv1.planeUpRight().distance(bv2.planeDownLeft());
-					if (newDistace < smallestDistace)
-					{
-						details->objectIndexPlane1 = DOP18_PLANES_UP_RIGHT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_DOWN_LEFT_INDEX;
-						smallestDistace = newDistace;
-					}
-
 					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]);
 					if (newDistace < smallestDistace)
 					{
@@ -563,18 +779,50 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesRightDepthAndLeftFront(objIndex2, objIndex1, details);
 					}
 
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_RIGHT] - bv2.min[DOP18_AXIS_UP_RIGHT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_LEFT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpRightAndDownLeft(objIndex1, objIndex2, details);
+					}
+
 					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
 						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
 					}
 				}
 			}
 			else
 			{
-				if (isDepth) // it the collision happend depth ...
+				if (isFront) // it the collision happend depth ...
 				{
 					details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
 					details->objectIndexPlane2 = DOP18_PLANES_RIGHT_INDEX;
@@ -602,39 +850,55 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex2, objIndex1, details);
 					}
 
-					newDistace = bv1.planeUpLeft().distance(bv2.planeDownRight());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]);
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_UP_LEFT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_LEFT_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex2, objIndex1, details);
 					}
 
-					newDistace = bv1.planeLeftDepth().distance(bv2.planeRightFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_LEFT_DEPTH_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeLeftDepth().distance(bv2.planeRightFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_UP_DEPTH_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_DOWN_FRONT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
 					}
 				}
 				else
 				{
 					details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
-					details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+					details->objectIndexPlane2 = DOP18_PLANES_RIGHT_INDEX;
 					sp_float smallestDistace = std::fabsf(bv1.min[DOP18_AXIS_X] - bv2.max[DOP18_AXIS_X]); // = bv1.planeLeft().distance(bv2.planeRight());
 
 					collisionDetailsPlanesRightLeft(objIndex2, objIndex1, details);
 
-					sp_float newDistace = std::fabsf(bv1.max[DOP18_AXIS_Z] - bv2.min[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
+					sp_float newDistace = std::fabsf(bv1.min[DOP18_AXIS_Z] - bv2.max[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_DEPTH_INDEX;
@@ -654,28 +918,54 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex2, objIndex1, details);
 					}
 
-					newDistace = bv1.planeUpLeft().distance(bv2.planeDownRight());
-					if (newDistace < smallestDistace)
-					{
-						details->objectIndexPlane1 = DOP18_PLANES_UP_LEFT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_DOWN_RIGHT_INDEX;
-						smallestDistace = newDistace;
-					}
-
-					newDistace = bv1.planeLeftFront().distance(bv2.planeRightDepth());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]);
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_LEFT_FRONT_INDEX;
 						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex2, objIndex1, details);
 					}
 
-					newDistace = bv1.planeUpFront().distance(bv2.planeDownDepth());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
 						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_DEPTH] - bv2.min[DOP18_AXIS_UP_DEPTH]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_FRONT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpDepthAndDownFront(objIndex1, objIndex2, details);
 					}
 				}
 			}
@@ -684,7 +974,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			if (isRight) // it the collision happend right ...
 			{
-				if (isDepth) // it the collision happend depth ...
+				if (isFront) // it the collision happend depth ...
 				{
 					details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
 					details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
@@ -712,28 +1002,44 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeDownRight().distance(bv2.planeUpLeft());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightFrontAndLeftDepth(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
 						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeDownDepth().distance(bv2.planeUpFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_DOWN_DEPTH_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
 					}
 				}
 				else
@@ -764,36 +1070,50 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeDownRight().distance(bv2.planeUpLeft());
-					if (newDistace < smallestDistace)
-					{
-						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
-						smallestDistace = newDistace;
-					}
-
 					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]);
-					if (newDistace < smallestDistace)
-					{
-						details->objectIndexPlane1 = DOP18_PLANES_LEFT_FRONT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
-						smallestDistace = newDistace;
-
-						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
-					}
-
-					newDistace = bv1.planeRightFront().distance(bv2.planeLeftDepth());
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_DOWN_FRONT_INDEX;
 						details->objectIndexPlane2 = DOP18_PLANES_UP_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightFrontAndLeftDepth(objIndex1, objIndex2, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT]- bv2.min[DOP18_AXIS_UP_LEFT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
 					}
 				}
 			}
 			else
 			{
-				if (isDepth)
+				if (isFront)
 				{
 					details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
 					details->objectIndexPlane2 = DOP18_PLANES_RIGHT_INDEX;
@@ -821,28 +1141,46 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeDownLeft().distance(bv2.planeUpRight());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]);
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_DOWN_LEFT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_UP_RIGHT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						sp_assert(false, "TODO");
+						collisionDetailsPlanesRightFrontAndLeftDepth(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeLeftDepth().distance(bv2.planeRightFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_LEFT_DEPTH_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
 						smallestDistace = newDistace;
+
+						sp_assert(false, "TODO");
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeDownDepth().distance(bv2.planeUpFront());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_DOWN_DEPTH_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
 						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
 					}
 				}
 				else
@@ -853,7 +1191,7 @@ namespace NAMESPACE_PHYSICS
 
 					collisionDetailsPlanesRightLeft(objIndex2, objIndex1, details);
 
-					sp_float newDistace = std::fabsf(bv1.max[DOP18_AXIS_Z] - bv2.min[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
+					sp_float newDistace = std::fabsf(bv1.min[DOP18_AXIS_Z] - bv2.max[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_DEPTH_INDEX;
@@ -873,32 +1211,54 @@ namespace NAMESPACE_PHYSICS
 						collisionDetailsPlanesDownUp(objIndex1, objIndex2, details);
 					}
 
-					newDistace = bv1.planeDownLeft().distance(bv2.planeUpRight());
-					if (newDistace < smallestDistace)
-					{
-						details->objectIndexPlane1 = DOP18_PLANES_DOWN_LEFT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_UP_RIGHT_INDEX;
-						smallestDistace = newDistace;
-					}
-
-					newDistace = bv1.planeLeftFront().distance(bv2.planeRightDepth());
-					if (newDistace < smallestDistace)
-					{
-						details->objectIndexPlane1 = DOP18_PLANES_LEFT_FRONT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
-						smallestDistace = newDistace;
-					}
-
-					newDistace = bv1.planeDownFront().distance(bv2.planeUpDepth());
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]);
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_DOWN_FRONT_INDEX;
 						details->objectIndexPlane2 = DOP18_PLANES_UP_DEPTH_INDEX;
 						smallestDistace = newDistace;
+
+						sp_assert(false, "TODO");
+						collisionDetailsPlanesRightFrontAndLeftDepth(objIndex1, objIndex2, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
+						smallestDistace = newDistace;
+
+						sp_assert(false, "TODO");
+						collisionDetailsPlanesRightDepthAndLeftFront(objIndex1, objIndex2, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+						smallestDistace = newDistace;
+
+						sp_assert(false, "TODO");
+						collisionDetailsPlanesUpLeftAndDownRight(objIndex2, objIndex1, details);
+					}
+
+					newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
+					if (newDistace < smallestDistace)
+					{
+						details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+						smallestDistace = newDistace;
+
+						collisionDetailsPlanesUpFrontAndDownDepth(objIndex1, objIndex2, details);
 					}
 				}
 			}
 		}
+
+		sp_assert(details->objectIndexPlane1 >= 0 && details->objectIndexPlane1 < 18, "Invalid Plane Index");
+		sp_assert(details->objectIndexPlane2 >= 0 && details->objectIndexPlane2 < 18, "Invalid Plane Index");
 	}
 
 	void SpPhysicSimulator::dispose()

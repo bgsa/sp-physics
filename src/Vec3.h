@@ -266,6 +266,38 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_bool operator!=(const sp_float value) const;
 
 		/// <summary>
+		/// Compare each component of vector is greater than scalar
+		/// </summary>
+		API_INTERFACE sp_bool operator>(const sp_float value) const
+		{
+			return (x > value && y > value && z > value);
+		}
+
+		/// <summary>
+		/// Compare each component of vector is greater  or equal than scalar
+		/// </summary>
+		API_INTERFACE sp_bool operator>=(const sp_float value) const
+		{
+			return (x >= value && y >= value && z >= value);
+		}
+
+		/// <summary>
+		/// Compare each component of vector is lesser than scalar
+		/// </summary>
+		API_INTERFACE sp_bool operator<(const sp_float value) const
+		{
+			return (x < value && y < value && z < value);
+		}
+
+		/// <summary>
+		/// Compare each component of vector is lesser or equal than scalar
+		/// </summary>
+		API_INTERFACE sp_bool operator<=(const sp_float value) const
+		{
+			return (x <= value && y <= value && z <= value);
+		}
+
+		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
 		API_INTERFACE sp_float& operator[](sp_int index);

@@ -3,29 +3,6 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	DOP18::DOP18()
-	{
-		min[DOP18_AXIS_X] = min[DOP18_AXIS_Y] = min[DOP18_AXIS_Z] = -0.5f;
-		max[DOP18_AXIS_X] = max[DOP18_AXIS_Y] = max[DOP18_AXIS_Z] = 0.5f;
-
-		min[DOP18_AXIS_UP_LEFT] = min[DOP18_AXIS_UP_RIGHT] = min[DOP18_AXIS_UP_FRONT] 
-			= min[DOP18_AXIS_UP_DEPTH] = min[DOP18_AXIS_LEFT_DEPTH] 
-			= min[DOP18_AXIS_RIGHT_DEPTH] = -0.75f;
-
-		max[DOP18_AXIS_UP_LEFT] = max[DOP18_AXIS_UP_RIGHT] = max[DOP18_AXIS_UP_FRONT]
-			= max[DOP18_AXIS_UP_DEPTH] = max[DOP18_AXIS_LEFT_DEPTH]
-			= max[DOP18_AXIS_RIGHT_DEPTH] = 0.75f;
-	}
-
-	Vec3 DOP18::centerOfBoundingVolume() const
-	{
-		return Vec3(
-			(max[0] + min[0]) * 0.5f,
-			(max[1] + min[1]) * 0.5f,
-			(max[2] + min[2]) * 0.5f
-		);
-	}
-
 	void DOP18::translate(const Vec3& translation)
 	{
 		min[DOP18_AXIS_X] += translation.x;
@@ -43,17 +20,17 @@ namespace NAMESPACE_PHYSICS
 		min[DOP18_AXIS_UP_RIGHT] += translation.x + translation.y;
 		max[DOP18_AXIS_UP_RIGHT] += translation.x + translation.y;
 
-		min[DOP18_AXIS_UP_FRONT] += translation.y - translation.z;
-		max[DOP18_AXIS_UP_FRONT] += translation.y - translation.z;
+		min[DOP18_AXIS_UP_FRONT] += translation.y + translation.z;
+		max[DOP18_AXIS_UP_FRONT] += translation.y + translation.z;
 
-		min[DOP18_AXIS_UP_DEPTH] += translation.y + translation.z;
-		max[DOP18_AXIS_UP_DEPTH] += translation.y + translation.z;
+		min[DOP18_AXIS_UP_DEPTH] += translation.y - translation.z;
+		max[DOP18_AXIS_UP_DEPTH] += translation.y - translation.z;
 
-		min[DOP18_AXIS_LEFT_DEPTH] += translation.x - translation.z;
-		max[DOP18_AXIS_LEFT_DEPTH] += translation.x - translation.z;
+		min[DOP18_AXIS_LEFT_DEPTH] += translation.x + translation.z;
+		max[DOP18_AXIS_LEFT_DEPTH] += translation.x + translation.z;
 
-		min[DOP18_AXIS_RIGHT_DEPTH] += translation.x + translation.z;
-		max[DOP18_AXIS_RIGHT_DEPTH] += translation.x + translation.z;
+		min[DOP18_AXIS_RIGHT_DEPTH] += translation.x - translation.z;
+		max[DOP18_AXIS_RIGHT_DEPTH] += translation.x - translation.z;
 	}
 
 	void DOP18::scale(const Vec3& factor) 
@@ -144,53 +121,51 @@ namespace NAMESPACE_PHYSICS
 		if (point.z < min[DOP18_AXIS_Z] || point.y > max[DOP18_AXIS_Z])
 			return CollisionStatus::OUTSIDE;
 
-		const Vec3* n = normals();
-		
-		Plane3D p1(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[6]); // up-left
+		Plane3D p1(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[6]); // up-left
 		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[7]); // down-right
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[7]); // down-right
 		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[9]); // down-left
+		p1 = Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[9]); // down-left
 		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[8]); // up-right
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[8]); // up-right
 		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[11]); // down-depth
+		p1 = Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[11]); // down-depth
 		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[10]); // up-front
+		p1 = Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[10]); // up-front
 		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[13]); // down-front
+		p1 = Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[13]); // down-front
 		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
 			return CollisionStatus::OUTSIDE;
 		
-		p1 = Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[12]); // up-depth
+		p1 = Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[12]); // up-depth
 		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[14]); // left-depth
+		p1 = Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[14]); // left-depth
 		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[15]); // right-front
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[15]); // right-front
 		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
 			return CollisionStatus::OUTSIDE;
 		
-		p1 = Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[17]); // left-front
+		p1 = Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[17]); // left-front
 		if (p1.distance(point) > 0.0f) // if left side of the (left) plane
 			return CollisionStatus::OUTSIDE;
 
-		p1 = Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[16]); // right-depth
+		p1 = Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[16]); // right-depth
 		if (p1.distance(point) > 0.0f) // if right side of the (right) plane
 			return CollisionStatus::OUTSIDE;
 
@@ -243,35 +218,33 @@ namespace NAMESPACE_PHYSICS
 
 	Plane3D* DOP18::planes() const
 	{
-		const Vec3* n = normals();
-
 		return sp_mem_new_array(Plane3D, 18) {
-			Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[0]), // left
-			Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[1]), // right
+			Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[0]), // left
+			Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[1]), // right
 
-			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), n[2]), // up
-			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), n[3]), // down
+			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), DOP18_NORMALS[2]), // up
+			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), DOP18_NORMALS[3]), // down
 
-			Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), n[4]), // front
-			Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), n[5]), // depth
+			Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), DOP18_NORMALS[4]), // front
+			Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), DOP18_NORMALS[5]), // depth
 
-			Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[6]), // up-left
-			Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[7]), // down-right
+			Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[6]), // up-left
+			Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[7]), // down-right
 
-			Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[8]), // up-right
-			Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[9]), // down-left
+			Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[8]), // up-right
+			Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[9]), // down-left
 
-			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[10]), // up-front
-			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[11]), // down-depth
+			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[10]), // up-front
+			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[11]), // down-depth
 
-			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[12]), // up-depth
-			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[13]), // down-front
+			Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[12]), // up-depth
+			Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[13]), // down-front
 
-			Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[14]), // left-depth
-			Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[15]), // right-front
+			Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[14]), // left-depth
+			Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[15]), // right-front
 
-			Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[16]), // right-depth
-			Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[17]), // left-front
+			Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[16]), // right-depth
+			Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[17]), // left-front
 		};
 	}
 

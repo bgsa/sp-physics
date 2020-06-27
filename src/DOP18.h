@@ -28,6 +28,7 @@
 #define DOP18_PLANES_DOWN_INDEX        ( 3)
 #define DOP18_PLANES_FRONT_INDEX       ( 4)
 #define DOP18_PLANES_DEPTH_INDEX       ( 5)
+
 #define DOP18_PLANES_UP_LEFT_INDEX     ( 6)
 #define DOP18_PLANES_DOWN_RIGHT_INDEX  ( 7)
 #define DOP18_PLANES_UP_RIGHT_INDEX    ( 8)
@@ -43,32 +44,54 @@
 
 namespace NAMESPACE_PHYSICS
 {
+
+	const static Vec3 DOP18_NORMALS[18] = {
+		{ -1.0f,  0.0f,  0.0f },
+		{  1.0f,  0.0f,  0.0f },
+		{  0.0f,  1.0f,  0.0f },
+		{  0.0f, -1.0f,  0.0f },
+		{  0.0f,  0.0f,  1.0f },
+		{  0.0f,  0.0f, -1.0f },
+
+		{ -0.5f,  0.5f,  0.0f },
+		{  0.5f, -0.5f,  0.0f },
+		{  0.5f,  0.5f,  0.0f },
+		{ -0.5f, -0.5f,  0.0f },
+		{  0.0f,  0.5f,  0.5f },
+		{  0.0f, -0.5f, -0.5f },
+		{  0.0f,  0.5f, -0.5f },
+		{  0.0f, -0.5f,  0.5f },
+		{ -0.5f,  0.0f, -0.5f },
+		{  0.5f,  0.0f,  0.5f },
+		{  0.5f,  0.0f, -0.5f },
+		{ -0.5f,  0.0f,  0.5f }
+	};
+
+	const static Vec3 DOP18_TANGENTS[18] = {
+		{  0.0f,  1.0f,  1.0f },
+		{  0.0f,  1.0f,  1.0f },
+		{  1.0f,  0.0f,  1.0f },
+		{  1.0f,  0.0f,  1.0f },
+		{  1.0f,  1.0f,  0.0f },
+		{  1.0f,  1.0f,  0.0f },
+
+		{ -1.0f,  1.0f,  0.0f },
+		{  0.5f, -0.5f,  0.0f },
+		{  0.5f,  0.5f,  0.0f },
+		{ -0.5f, -0.5f,  0.0f },
+		{  0.0f,  0.5f, -0.5f },
+		{  0.0f, -0.5f,  0.5f },
+		{  0.0f,  0.5f,  0.5f },
+		{  0.0f, -0.5f, -0.5f },
+		{ -0.5f,  0.0f,  0.5f },
+		{  0.5f,  0.0f, -0.5f },
+		{  0.5f,  1.0f, -0.5f }, // OK?
+		{ -0.5f,  1.0f,  0.5f }  // OK?
+	};
+
+
 	/// <summary>
 	/// Represents a k-DOP with 9 orientations and 18 DOPs
-	/// Normal coordinates od planes:
-	///
-	///     axis-aligned:
-	///		{ -1,  0,  0 } - left
-	///		{  1,  0,  0 } - right
-	///		{  0,  1,  0 } - up
-	///		{  0, -1,  0 } - down
-	///		{  0,  0, -1 } - front
-	///		{  0,  0,  1 } - depth
-	///
-	///     edges cut-off:
-	///		{ -1,  1,  0 } - up-left
-	///		{  1, -1,  0 } - down-right
-	///		{  1,  1,  0 } - up-right
-	///		{ -1, -1,  0 } - down-left
-	///		{  0,  1, -1 } - up-front
-	///		{  0, -1,  1 } - down-depth
-	///		{  0,  1,  1 } - up-depth
-	///		{  0, -1, -1 } - down-front
-	///		{ -1,  0,  1 } - left-depth
-	///		{  1,  0, -1 } - right-front
-	///		{  1,  0,  1 } - right-depth
-	///		{ -1,  0, -1 } - left-front
-	///
 	/// </summary>
 	class DOP18
 		: public BoundingVolume
@@ -107,66 +130,36 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Default constructur - build a unit k-DOP with the center in the origin
 		/// </summary>
-		API_INTERFACE DOP18();
+		API_INTERFACE DOP18()
+		{
+			min[DOP18_AXIS_X] = min[DOP18_AXIS_Y] = min[DOP18_AXIS_Z] = -0.5f;
+			max[DOP18_AXIS_X] = max[DOP18_AXIS_Y] = max[DOP18_AXIS_Z] = 0.5f;
+
+			min[DOP18_AXIS_UP_LEFT] = min[DOP18_AXIS_UP_RIGHT] = min[DOP18_AXIS_UP_FRONT]
+				= min[DOP18_AXIS_UP_DEPTH] = min[DOP18_AXIS_LEFT_DEPTH]
+				= min[DOP18_AXIS_RIGHT_DEPTH] = -0.75f;
+
+			max[DOP18_AXIS_UP_LEFT] = max[DOP18_AXIS_UP_RIGHT] = max[DOP18_AXIS_UP_FRONT]
+				= max[DOP18_AXIS_UP_DEPTH] = max[DOP18_AXIS_LEFT_DEPTH]
+				= max[DOP18_AXIS_RIGHT_DEPTH] = 0.75f;
+		}
 
 		/// <summary>
 		/// Get the normals of k-DOP planes
 		/// </summary>
-		API_INTERFACE const Vec3* normals() const
+		API_INTERFACE Vec3 normal(const sp_uint planeIndex) const
 		{
-			const static Vec3 normal[18] = {
-				{ -1.0f,  0.0f,  0.0f },
-				{  1.0f,  0.0f,  0.0f },
-				{  0.0f,  1.0f,  0.0f },
-				{  0.0f, -1.0f,  0.0f },
-				{  0.0f,  0.0f, -1.0f },
-				{  0.0f,  0.0f,  1.0f },
-
-				{ -0.5f,  0.5f,  0.0f },
-				{  0.5f, -0.5f,  0.0f },
-				{  0.5f,  0.5f,  0.0f },
-				{ -0.5f, -0.5f,  0.0f },
-				{  0.0f,  0.5f, -0.5f },
-				{  0.0f, -0.5f,  0.5f },
-				{  0.0f,  0.5f,  0.5f },
-				{  0.0f, -0.5f, -0.5f },
-				{ -0.5f,  0.0f,  0.5f },
-				{  0.5f,  0.0f, -0.5f },
-				{  0.5f,  0.0f,  0.5f },
-				{ -0.5f,  0.0f, -0.5f }
-			};
-
-			return &normal[0];
+			sp_assert(planeIndex >= ZERO_UINT && planeIndex < 18, "IndexOutOfRangeException");
+			return DOP18_NORMALS[planeIndex];
 		}
 
 		/// <summary>
 		/// Get the tangents of k-DOP planes
 		/// </summary>
-		API_INTERFACE const Vec3* tangents(const sp_uint index = ZERO_UINT) const
+		API_INTERFACE inline Vec3 tangent(const sp_uint planeIndex) const
 		{
-			const static Vec3 tangent[18] = {
-				{  0.0f,  1.0f,  1.0f },
-				{  0.0f,  1.0f,  1.0f },
-				{  1.0f,  0.0f,  1.0f },
-				{  1.0f,  0.0f,  1.0f },
-				{  1.0f,  1.0f,  0.0f },
-				{  1.0f,  1.0f,  0.0f },
-
-				{ -1.0f,  1.0f,  0.0f },
-				{  0.5f, -0.5f,  0.0f },
-				{  0.5f,  0.5f,  0.0f },
-				{ -0.5f, -0.5f,  0.0f },
-				{  0.0f,  0.5f, -0.5f },
-				{  0.0f, -0.5f,  0.5f },
-				{  0.0f,  0.5f,  0.5f },
-				{  0.0f, -0.5f, -0.5f },
-				{ -0.5f,  0.0f,  0.5f },
-				{  0.5f,  0.0f, -0.5f },
-				{  0.5f,  0.0f,  0.5f },
-				{ -0.5f,  0.0f, -0.5f }
-			};
-
-			return &tangent[index];
+			sp_assert(planeIndex >= ZERO_UINT && planeIndex < 18, "IndexOutOfRangeException");
+			return DOP18_TANGENTS[planeIndex];
 		}
 
 		/// <summary>
@@ -179,63 +172,63 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE Plane3D planes(sp_uint index) const
 		{
-			const Vec3* n = normals();
+			sp_assert(index >= ZERO_UINT && index < 18, "IndexOutOfRangeException");
 
 			switch (index)
 			{
 			case DOP18_PLANES_LEFT_INDEX:
-				return Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[0]);
+				return Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[0]);
 
 			case DOP18_PLANES_RIGHT_INDEX:
-				return Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), n[1]);
+				return Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[1]);
 
 			case DOP18_PLANES_UP_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), n[2]);
+				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), DOP18_NORMALS[2]);
 
 			case DOP18_PLANES_DOWN_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), n[3]);
+				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), DOP18_NORMALS[3]);
 			
 			case DOP18_PLANES_FRONT_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), n[4]);
+				return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), DOP18_NORMALS[4]);
 			
 			case DOP18_PLANES_DEPTH_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), n[5]);
+				return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), DOP18_NORMALS[5]);
 
 			case DOP18_PLANES_UP_LEFT_INDEX:
-				return Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[6]);
+				return Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[6]);
 
 			case DOP18_PLANES_DOWN_RIGHT_INDEX:
-				return Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), n[7]);
+				return Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[7]);
 
 			case DOP18_PLANES_UP_RIGHT_INDEX:
-				return Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[8]);
+				return Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[8]);
 
 			case DOP18_PLANES_DOWN_LEFT_INDEX:
-				return Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), n[9]);
+				return Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[9]);
 
 			case DOP18_PLANES_UP_FRONT_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[10]);
+				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[10]);
 
 			case DOP18_PLANES_DOWN_DEPTH_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), n[11]);
+				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[11]);
 
 			case DOP18_PLANES_UP_DEPTH_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[12]);
+				return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[12]);
 
 			case DOP18_PLANES_DOWN_FRONT_INDEX:
-				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), n[13]);
+				return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[13]);
 
 			case DOP18_PLANES_LEFT_DEPTH_INDEX:
-				return Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[14]);
+				return Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[14]);
 
 			case DOP18_PLANES_RIGHT_FRONT_INDEX:
-				return Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[15]);
+				return Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[15]);
 
 			case DOP18_PLANES_RIGHT_DEPTH_INDEX:
-				return Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[16]);
+				return Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[16]);
 
 			case DOP18_PLANES_LEFT_FRONT_INDEX:
-				return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), n[17]);
+				return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[17]);
 
 			default:
 				sp_assert(false, "InvalidArgumentException");
@@ -247,7 +240,14 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the center of k-DOP bounding volumne
 		///</summary>
-		API_INTERFACE Vec3 centerOfBoundingVolume() const override;
+		API_INTERFACE inline Vec3 centerOfBoundingVolume() const override
+		{
+			return Vec3(
+				(max[0] + min[0]) * 0.5f,
+				(max[1] + min[1]) * 0.5f,
+				(max[2] + min[2]) * 0.5f
+			);
+		}
 
 		/// <summary>
 		/// Translate the bounding volume
@@ -653,7 +653,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeLeft() const
 		{
-			return Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), normals()[0]);
+			return Plane3D(Vec3(min[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[0]);
 		}
 
 		/// <summary>
@@ -661,7 +661,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeRight() const
 		{
-			return Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), normals()[1]);
+			return Plane3D(Vec3(max[DOP18_AXIS_X], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[1]);
 		}
 
 		/// <summary>
@@ -669,7 +669,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeUp() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), normals()[2]);
+			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_Y], ZERO_FLOAT), DOP18_NORMALS[2]);
 		}
 
 		/// <summary>
@@ -677,7 +677,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeDown() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), normals()[3]);
+			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_Y], ZERO_FLOAT), DOP18_NORMALS[3]);
 		}
 
 		/// <summary>
@@ -685,7 +685,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeFront() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), normals()[4]);
+			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), DOP18_NORMALS[4]);
 		}
 
 		/// <summary>
@@ -693,7 +693,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeDepth() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, max[DOP18_AXIS_Z]), normals()[5]);
+			return Plane3D(Vec3(ZERO_FLOAT, ZERO_FLOAT, min[DOP18_AXIS_Z]), DOP18_NORMALS[5]);
 		}
 
 		/// <summary>
@@ -701,7 +701,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeUpLeft() const
 		{
-			return Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), normals()[6]);
+			return Plane3D(Vec3(min[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[6]);
 		}
 
 		/// <summary>
@@ -709,7 +709,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeDownRight() const
 		{
-			return Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), normals()[7]);
+			return Plane3D(Vec3(max[DOP18_AXIS_UP_LEFT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[7]);
 		}
 
 		/// <summary>
@@ -717,7 +717,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeUpRight() const
 		{
-			return Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), normals()[8]);
+			return Plane3D(Vec3(max[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[8]);
 		}
 
 		/// <summary>
@@ -725,7 +725,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeDownLeft() const
 		{
-			return Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), normals()[9]);
+			return Plane3D(Vec3(min[DOP18_AXIS_UP_RIGHT], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[9]);
 		}
 
 		/// <summary>
@@ -733,7 +733,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeUpFront() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), normals()[10]);
+			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[10]);
 		}
 
 		/// <summary>
@@ -741,7 +741,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeDownDepth() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), normals()[11]);
+			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_FRONT], ZERO_FLOAT), DOP18_NORMALS[11]);
 		}
 
 		/// <summary>
@@ -749,7 +749,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeUpDepth() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), normals()[12]);
+			return Plane3D(Vec3(ZERO_FLOAT, max[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[12]);
 		}
 
 		/// <summary>
@@ -757,7 +757,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeDownFront() const
 		{
-			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), normals()[13]);
+			return Plane3D(Vec3(ZERO_FLOAT, min[DOP18_AXIS_UP_DEPTH], ZERO_FLOAT), DOP18_NORMALS[13]);
 		}
 		
 		/// <summary>
@@ -765,7 +765,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeLeftDepth() const
 		{
-			return Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[14]);
+			return Plane3D(Vec3(min[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[14]);
 		}
 
 		/// <summary>
@@ -773,7 +773,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeRightFront() const
 		{
-			return Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[15]);
+			return Plane3D(Vec3(max[DOP18_AXIS_LEFT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[15]);
 		}
 		
 		/// <summary>
@@ -781,7 +781,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeRightDepth() const
 		{
-			return Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[16]);
+			return Plane3D(Vec3(max[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[16]);
 		}
 
 		/// <summary>
@@ -789,7 +789,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Plane3D planeLeftFront() const
 		{
-			return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), normals()[17]);
+			return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[17]);
 		}		
 
 		/// <summary>

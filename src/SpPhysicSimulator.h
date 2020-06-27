@@ -14,6 +14,8 @@
 #include "SpPhysicSyncronizer.h"
 #include "Ray.h"
 
+#include <iostream>
+
 namespace NAMESPACE_PHYSICS
 {
 	class SpPhysicSimulator
@@ -47,10 +49,29 @@ namespace NAMESPACE_PHYSICS
 		void collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
 		void collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
 		void collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		void collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
 
 		void handleCollisionResponse(sp_uint objIndex1, sp_uint objIndex2, const SpCollisionDetails& details);
 
 		void handleCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime);
+
+		sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2)
+		{
+			const SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
+			const SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
+			
+			Vec3 lineOfAction = obj2Properties->position() - obj1Properties->position();
+			const Vec3 velocityToObject2 = obj1Properties->velocity() * lineOfAction;
+
+			lineOfAction = obj1Properties->position() - obj2Properties->position();
+			const Vec3 velocityToObject1 = obj2Properties->velocity() * lineOfAction;
+
+			return velocityToObject2 <= ZERO_FLOAT && velocityToObject1 <= ZERO_FLOAT;
+		}
 
 		void findCollisions(SweepAndPruneResultCpu* result);
 
@@ -81,10 +102,7 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(index < objectsLength, "IndexOutOfRangeException");
 
 			SpPhysicSettings* settings = SpPhysicSettings::instance();
-
 			SpPhysicProperties* element = &_physicProperties[index];
-
-			element->addForce(settings->gravityForce());
 
 			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
 			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * 0.5f * drag;
