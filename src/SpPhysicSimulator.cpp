@@ -88,49 +88,77 @@ namespace NAMESPACE_PHYSICS
 
 		if (obj1Properties->isStatic())
 		{
-			const Vec3 lineOfActionTangent = bv1.tangent(details.objectIndexPlane1);
-			const Vec3 lineOfAction = (details.contactPoint - bv2.centerOfBoundingVolume()).normalize();
-			const Vec3 frictionVelocity = (lineOfActionTangent * obj2Properties->velocity()) * cof;
+			const Vec3 collisionNormal = (bv2.centerOfBoundingVolume() - details.contactPoint).normalize();
+
+			const Vec3 collisionTangent = bv1.tangent(details.objectIndexPlane1);
+			const Vec3 frictionVelocity = (collisionTangent * obj2Properties->velocity()) * cof;			
+
+			/* friccao melhor, mas quando o k-DOP do Obj1 é grande. Será corrigido qdo tiver velocidade angular!!
+			const Vec3 normalVelocity = collisionNormal * obj2Properties->velocity().dot(collisionNormal);
+			const Vec3 tangentVelocity = obj2Properties->velocity() - normalVelocity;
+			const Vec3 frictionVelocity = tangentVelocity * cof;
+			*/
+
+			const Vec3 impulse = (obj2Properties->velocity() * -(ONE_FLOAT + cor)) 
+							* obj2Properties->massInverse();
 			
-			obj2Properties->_velocity = ((lineOfAction * obj2Properties->velocity()) * cor) + frictionVelocity;
+			obj2Properties->_velocity = impulse * collisionNormal + frictionVelocity;
 			obj2Properties->_acceleration = ZERO_FLOAT;
 
+			//obj2Properties->_previousVelocity = impulse * collisionNormal + frictionVelocity;
 			integrate(objIndex2, details.timeStep);
 		}
 		else
 		{
 			if (obj2Properties->isStatic())
 			{
-				const Vec3 lineOfActionTangent = bv2.tangent(details.objectIndexPlane2);
-				const Vec3 lineOfAction = (details.contactPoint - bv1.centerOfBoundingVolume()).normalize();
-				const Vec3 frictionVelocity = (lineOfActionTangent * obj1Properties->velocity()) * cof;
+				const Vec3 collisionTangent = bv2.tangent(details.objectIndexPlane2);
+				const Vec3 frictionVelocity = (collisionTangent * obj1Properties->velocity()) * cof;
 
-				obj1Properties->_velocity = ((lineOfAction * obj1Properties->velocity()) * cor) + frictionVelocity;
+				const Vec3 collisionNormal = (bv1.centerOfBoundingVolume() - details.contactPoint).normalize();
+
+				const Vec3 impulse = (obj1Properties->velocity() * -(ONE_FLOAT + cor))
+					* obj1Properties->massInverse();
+
+				obj1Properties->_velocity = impulse * collisionNormal + frictionVelocity;
 				obj1Properties->_acceleration = ZERO_FLOAT;
 
+				//obj1Properties->_previousVelocity = impulse * collisionNormal + frictionVelocity;
 				integrate(objIndex1, details.timeStep);
 			}
 			else // both are dynamic
 			{
+				const Vec3 bv1Center = bv1.centerOfBoundingVolume();
+
 				const sp_float sumMass = obj1Properties->massInverse() + obj2Properties->massInverse();
-				const Vec3 relativeVelocity = obj2Properties->velocity() - obj1Properties->velocity();
+				const Vec3 collisionNormal = (details.contactPoint - bv1Center).normalize();
 
-				const Vec3 frictionVelocity1 = bv2.tangent(details.objectIndexPlane2) * obj1Properties->velocity() * (ONE_FLOAT - cof);
-				const Vec3 frictionVelocity2 = bv1.tangent(details.objectIndexPlane1) * obj2Properties->velocity() * (ONE_FLOAT - cof);
+				/*
+				const Vec3 normalVelocityObj1 = (-collisionNormal) * obj1Properties->velocity().dot(-collisionNormal);
+				const Vec3 normalVelocityObj2 = collisionNormal * obj2Properties->velocity().dot(collisionNormal);
 
-				const Vec3 lineOfAction = (details.contactPoint - bv1.centerOfBoundingVolume()).normalize();
+				const Vec3 tangentVelocityObj1 = -(obj1Properties->velocity() - normalVelocityObj1);
+				const Vec3 tangentVelocityObj2 = obj2Properties->velocity() - normalVelocityObj2;
 
-				sp_float impulse = (-(1.0f + cor) * (relativeVelocity.dot(lineOfAction)))
-					/ sumMass;
+				const Vec3 frictionVelocity1 = tangentVelocityObj1 * cof;
+				const Vec3 frictionVelocity2 = tangentVelocityObj2 * cof;
+				*/
 
-				obj1Properties->_velocity -= (lineOfAction * impulse) * obj1Properties->massInverse() + frictionVelocity1;
-				obj2Properties->_velocity += (lineOfAction * impulse) * obj2Properties->massInverse() + frictionVelocity2;
+				const Vec3 relativeVelocity = (obj2Properties->velocity() - obj1Properties->velocity()).dot(collisionNormal);
 
-				obj1Properties->_previousVelocity = obj1Properties->velocity();
-				obj2Properties->_previousVelocity = obj2Properties->velocity();
+				const Vec3 impulse = (relativeVelocity * -(ONE_FLOAT + cor))
+									* sumMass;
+
+				obj1Properties->_velocity = collisionNormal * -impulse;
+				obj2Properties->_velocity = collisionNormal * impulse;
 
 				obj1Properties->_acceleration = ZERO_FLOAT;
 				obj2Properties->_acceleration = ZERO_FLOAT;
+
+				//obj1Properties->_previousVelocity = obj1Properties->velocity();
+				//obj2Properties->_previousVelocity = obj2Properties->velocity();
+				integrate(objIndex1, details.timeStep);
+				integrate(objIndex2, details.timeStep);
 			}
 		}
 	}
@@ -187,7 +215,7 @@ namespace NAMESPACE_PHYSICS
 		collisionDetails(objIndex1, objIndex2, &details);
 
 		if (objIndex1 != 0 && objIndex2 != 0)
-			std::cout << details.contactPoint.x << "   " << details.contactPoint.y << "   " << details.contactPoint.z << END_OF_LINE;
+			std::cout << "CONTACT AT: " << details.contactPoint.x << "   " << details.contactPoint.y << "   " << details.contactPoint.z << END_OF_LINE;
 
 		handleCollisionResponse(objIndex1, objIndex2, details);
 
@@ -1115,13 +1143,13 @@ namespace NAMESPACE_PHYSICS
 			{
 				if (isFront)
 				{
-					details->objectIndexPlane1 = DOP18_PLANES_LEFT_INDEX;
-					details->objectIndexPlane2 = DOP18_PLANES_RIGHT_INDEX;
-					sp_float smallestDistace = std::fabsf(bv1.min[DOP18_AXIS_X] - bv2.max[DOP18_AXIS_X]); // = bv1.planeLeft().distance(bv2.planeRight());
+					details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+					details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
+					sp_float smallestDistace = std::fabsf(bv1.max[DOP18_AXIS_X] - bv2.min[DOP18_AXIS_X]); // = bv1.planeLeft().distance(bv2.planeRight());
 
-					collisionDetailsPlanesRightLeft(objIndex2, objIndex1, details);
+					collisionDetailsPlanesRightLeft(objIndex1, objIndex2, details);
 
-					sp_float newDistace = std::fabsf(bv1.max[DOP18_AXIS_Z] - bv2.min[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
+					sp_float newDistace = std::fabsf(bv1.min[DOP18_AXIS_Z] - bv2.max[DOP18_AXIS_Z]); // = bv1.planeDepth().distance(bv2.planeFront());
 					if (newDistace < smallestDistace)
 					{
 						details->objectIndexPlane1 = DOP18_PLANES_FRONT_INDEX;
@@ -1144,12 +1172,12 @@ namespace NAMESPACE_PHYSICS
 					newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]);
 					if (newDistace < smallestDistace)
 					{
-						details->objectIndexPlane1 = DOP18_PLANES_DOWN_FRONT_INDEX;
-						details->objectIndexPlane2 = DOP18_PLANES_UP_DEPTH_INDEX;
+						details->objectIndexPlane1 = DOP18_PLANES_LEFT_DEPTH_INDEX;
+						details->objectIndexPlane2 = DOP18_PLANES_RIGHT_FRONT_INDEX;
 						smallestDistace = newDistace;
 
 						sp_assert(false, "TODO");
-						collisionDetailsPlanesRightFrontAndLeftDepth(objIndex1, objIndex2, details);
+						collisionDetailsPlanesRightFrontAndLeftDepth(objIndex2, objIndex1, details);
 					}
 
 					newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());

@@ -67,7 +67,7 @@ namespace NAMESPACE_PHYSICS
 			_previousAcceleration = _acceleration;
 
 			_damping = 0.95f;
-			_coeficientOfRestitution = 0.7f;
+			_coeficientOfRestitution = 0.8f;
 			_coeficientOfFriction = 0.8f;
 			_inverseMass = ZERO_FLOAT;
 			_orientation = Quat();
