@@ -9,7 +9,7 @@ namespace NAMESPACE_PHYSICS
 	{
 	public:
 		
-		API_INTERFACE virtual void sync(const sp_uint objectIndex, const Vec3& position) = 0;
+		API_INTERFACE virtual void sync(const sp_uint objectIndex, const Vec3& position, const Quat& orientation) = 0;
 
 	};
 

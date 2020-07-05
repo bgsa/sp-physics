@@ -107,6 +107,12 @@ namespace NAMESPACE_PHYSICS
 			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
 			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * 0.5f * drag;
 
+			const Mat3 orientationAsMatrix = element->orientation().toMat3();
+			const Mat3 currentInertalTensor  // I^-1 = R * I^-1 * R^T
+				= orientationAsMatrix
+				* element->inertialTensor()
+				* orientationAsMatrix.transpose();
+
 			elapsedTime = elapsedTime * settings->physicVelocity();
 
 			// Velocity Verlet Integration because regards the velocity
@@ -120,9 +126,30 @@ namespace NAMESPACE_PHYSICS
 				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
 			newVelocity = newVelocity * element->damping();
 
+
+
+			Vec3 newAngularVelocity = (currentInertalTensor * element->angularVelocity()).normalize(); // angular = I * W
+			const Quat wq = Quat(newAngularVelocity);
+			element->_orientation += wq * element->orientation() * HALF_FLOAT * elapsedTime;
+			element->_orientation = element->orientation().normalize();
+
+			// https://www.ashwinnarayan.com/post/how-to-integrate-quaternions/
+			// https://arxiv.org/pdf/1604.08139.pdf
+
+			newAngularVelocity += element->_torque;
+			newAngularVelocity *= 0.8f;
+			//The angular velocity must therefore be integrated to arrive at the orientation!!
+			// a taxa de mudança da velocidade angular do ponto de contato é WxR, 
+			// sendo R vetor do centro de massa para o ponto e W a velocidade angular
+
+
 			const Vec3 translation = newPosition - element->position();
 			_boundingVolumes[index].translate(translation); // Sync with the bounding Volume
-			syncronizer->sync(index, translation);
+			syncronizer->sync(index, translation, element->orientation());
+
+
+			element->_previousAngularVelocity = element->_angularVelocity;
+			element->_angularVelocity = newAngularVelocity;
 
 			element->_previousAcceleration = element->acceleration();
 			element->_acceleration = newAcceleration;
@@ -135,6 +162,9 @@ namespace NAMESPACE_PHYSICS
 
 			element->_previousForce = element->force();
 			element->_force = ZERO_FLOAT;
+
+			element->_previousTorque = element->torque();
+			element->_torque = ZERO_FLOAT;
 		}
 
 		/// <summary>
@@ -148,7 +178,7 @@ namespace NAMESPACE_PHYSICS
 			const Vec3 translation = element->previousPosition() - element->position();
 
 			dop->translate(translation);
-			syncronizer->sync(index, translation);
+			syncronizer->sync(index, translation, element->previousOrientation());
 
 			element->rollbackState();
 		}

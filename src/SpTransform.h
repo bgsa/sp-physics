@@ -17,17 +17,49 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Default construct
 		/// </summary>
-		API_INTERFACE SpTransform();
+		API_INTERFACE inline SpTransform()
+		{
+			orientation = Quat::identity();
+			position = Vec3(ZERO_FLOAT);
+			scaleVector = Vec3(ONE_FLOAT);
+		}
 
-		API_INTERFACE SpTransform* scale(const Vec3& scaleVector);
+		API_INTERFACE inline SpTransform* scale(const Vec3& scaleVector)
+		{
+			this->scaleVector.x *= scaleVector.x;
+			this->scaleVector.y *= scaleVector.y;
+			this->scaleVector.z *= scaleVector.z;
+			return this;
+		}
 
-		API_INTERFACE SpTransform* scale(const sp_float factor);
+		API_INTERFACE inline SpTransform* scale(const sp_float factor)
+		{
+			scaleVector *= factor;
+			return this;
+		}
 
-		API_INTERFACE SpTransform* translate(const Vec3& translationVector);
+		API_INTERFACE inline SpTransform* translate(const Vec3& translationVector)
+		{
+			position += translationVector;
+			return this;
+		}
 
-		API_INTERFACE SpTransform* translate(const sp_float x, const sp_float y, const sp_float z);
+		API_INTERFACE inline SpTransform* translate(const sp_float x, const sp_float y, const sp_float z)
+		{
+			position.x += x;
+			position.y += y;
+			position.z += z;
+			return this;
+		}
 
-		API_INTERFACE inline Mat4 toMat4() const;
+		API_INTERFACE inline Mat4 toMat4(const Vec3& initialPosition = Vec3(ZERO_FLOAT)) const
+		{
+			return Mat4::createTranslate(position)
+				* orientation.toMat4()
+				* Mat4::createScale(scaleVector)
+				* Mat4::createTranslate(-initialPosition);
+		}
+
 	};
 
 }

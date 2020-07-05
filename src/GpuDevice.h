@@ -49,7 +49,8 @@ namespace NAMESPACE_PHYSICS
 		cl_ulong maxMemoryAllocSize;
 		cl_ulong constantsBufferSize;
 		cl_uint maxConstantArgument;
-		cl_uint memoryAlign;
+		cl_uint memoryBaseAddressAlign;
+		cl_uint memoryAlignmentRequirement;
 		cl_uint clockFrequency;
 		std::string profile;
 

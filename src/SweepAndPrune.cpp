@@ -189,7 +189,7 @@ namespace NAMESPACE_PHYSICS
 	
 	void SweepAndPrune::initIndexes(sp_uint inputLength)
 	{
-		indexesLengthGPU = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
+		indexesLengthGPU = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		GpuIndexes* createIndexes = sp_mem_new(GpuIndexes)();
 		createIndexes->init(gpu, nullptr);

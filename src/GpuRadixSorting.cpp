@@ -146,8 +146,8 @@ namespace NAMESPACE_PHYSICS
 			->buildFromProgram(program, "reorderNegatives");
 
 		cl_buffer_region region = { offsetTableSizeNegatives - TWO_UINT * SIZEOF_UINT, SIZEOF_UINT };
-		negativeCounterLocation1 = gpu->createSubBuffer(offsetTable1Negatives, &region, CL_MEM_READ_ONLY);
-		negativeCounterLocation2 = gpu->createSubBuffer(offsetTable2Negatives, &region, CL_MEM_READ_ONLY);
+		negativeCounterLocation1 = gpu->createSubBuffer(offsetTable1Negatives, &region, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		negativeCounterLocation2 = gpu->createSubBuffer(offsetTable2Negatives, &region, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 		commandReverse
 			->updateInputLength(inputLength)
 			->setParameters(inputIndexesGpu, outputIndexesGpu, negativeCounterLocation1);

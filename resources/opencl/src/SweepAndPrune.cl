@@ -36,7 +36,7 @@ __kernel void sweepAndPruneSingleAxis(
     if (index + 1u > *indexesLength)
         return;
 
-    const sp_float minPoint = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + axis];
+    //const sp_float minPoint = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + axis];
     const sp_float maxPoint = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + axis + ORIENTATION_LENGTH];
 
     const sp_float minPointX  = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET    ];

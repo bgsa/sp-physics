@@ -269,6 +269,9 @@ namespace NAMESPACE_PHYSICS
 			case CL_INVALID_DEVICE_PARTITION_COUNT:
 				return "Invalid device partition count";
 
+			case -13: // OPENCL_2.0 ->  CL_MISALIGNED_SUB _BUFFER_OFFSET
+				return "Misaligned subbuffer offset";
+
 				/*
 			case CL_INVALID_PIPE_SIZE:
 				return "Invalid pipe size";

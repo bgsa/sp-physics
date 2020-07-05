@@ -42,7 +42,7 @@ namespace NAMESPACE_PHYSICS
 		createIndexesLocalWorkSize[0] = gpu->getGroupLength(createIndexesGlobalWorkSize[0], length);
 
 		commandInitIndexes = gpu->commandManager->createCommand()
-			->setInputParameter(&length, SIZEOF_UINT, CL_MEM_READ_ONLY)
+			->setInputParameter(&length, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(output, length * SIZEOF_UINT)
 			->buildFromProgram(program, "create");
 

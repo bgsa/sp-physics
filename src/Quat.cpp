@@ -2,120 +2,13 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	Quat::Quat()
-	{
-		static sp_float identityQuaternion[QUAT_LENGTH] = { 
-			ONE_FLOAT,
-			ZERO_FLOAT,
-			ZERO_FLOAT, 
-			ZERO_FLOAT
-		};
-
-		std::memcpy(this, identityQuaternion, QUAT_SIZE);
-	}
-
-	Quat::Quat(sp_float* values)
-	{
-		std::memcpy(this, values, QUAT_SIZE);
-	}
-
-	Quat::Quat(sp_float w, sp_float x, sp_float y, sp_float z)
-	{
-		this->w = w;
-		this->x = x;
-		this->y = y;
-		this->z = z;
-	}
 
 	Quat::Quat(const Vec3& vector)
 	{
-		w = ZERO_FLOAT;
+		w = ONE_FLOAT;
 		x = vector.x;
 		y = vector.y;
 		z = vector.z;
-	}
-
-	Quat Quat::identity()
-	{
-		return Quat();
-	}
-
-	sp_float* Quat::values()
-	{
-		return (sp_float*)this;
-	}
-
-	Quat Quat::add(const Quat& quatB) const
-	{
-		return Quat(
-			w + quatB.w,
-			x + quatB.x,
-			y + quatB.y,
-			z + quatB.z
-		);
-	}
-
-	Quat Quat::subtract(const Quat& quatB) const
-	{
-		return Quat(
-			w - quatB.w,
-			x - quatB.x,
-			y - quatB.y,
-			z - quatB.z
-		);
-	}
-
-	Quat Quat::scale(sp_float value) const
-	{
-		return Quat(
-			w * value,
-			x * value,
-			y * value,
-			z * value
-		);
-	}
-
-	Quat Quat::multiply(const Quat& quat) const
-	{
-		return Quat(
-			(w * quat.w) - (x * quat.x) - (y * quat.y) - (z * quat.z),
-			(w * quat.x) + (x * quat.w) - (y * quat.z) + (z * quat.y),
-			(w * quat.y) + (x * quat.z) + (y * quat.w) - (z * quat.x),
-			(w * quat.z) - (x * quat.y) + (y * quat.x) + (z * quat.w)
-		);
-	}
-
-	sp_float Quat::length() const
-	{
-		return std::sqrtf(x * x + y * y + z * z + w * w);
-	}
-
-	Quat Quat::normalize() const
-	{
-		sp_float magnitude = ONE_FLOAT / length();
-
-		assert(magnitude != ZERO_FLOAT);
-
-		return Quat(
-			w * magnitude,
-			x * magnitude,
-			y * magnitude,
-			z * magnitude
-		);
-	}
-
-	Quat Quat::conjugate() const
-	{
-		return Quat(w, -x, -y, -z);
-	}
-
-	sp_float Quat::angle() const
-	{
-		// TODO: TESTS !!!!
-		if (std::fabsf(w) > std::cosf(0.5f))
-			return std::asinf(sqrtf(x * x + y * y + z * z)) * TWO_FLOAT;
-
-		return acos(w) * TWO_FLOAT;
 	}
 
 	Vec3 Quat::axis() const
@@ -129,25 +22,6 @@ namespace NAMESPACE_PHYSICS
 		const sp_float tmp2 = ONE_FLOAT / std::sqrtf(tmp1);
 
 		return Vec3(x * tmp2, y * tmp2, z * tmp2);
-	}
-
-	sp_float Quat::dot(const Quat& quatB) const
-	{
-		return (w * quatB.w) + (x * quatB.x) + (y * quatB.y) + (z * quatB.z);
-	}
-
-	Quat Quat::cross(const Quat& quatB) const
-	{
-		return multiply(quatB);
-	}
-
-	Quat Quat::inverse() const
-	{
-		sp_float magnitude = (x * x + y * y + z * z + w * w);
-
-		assert(magnitude != ZERO_FLOAT);
-
-		return conjugate().scale(ONE_FLOAT / magnitude);
 	}
 
 	Quat Quat::createRotate(sp_float angle, const Vec3& axis)
@@ -169,11 +43,6 @@ namespace NAMESPACE_PHYSICS
 	Vec3 Quat::rotate(const Vec3& point) const
 	{
 		return (conjugate() * (Quat(point) * (*this))).toVec3();
-	}
-
-	Quat Quat::lerp(const Quat& quatB, sp_float t) const
-	{
-		return scale(ONE_FLOAT - t) + quatB.scale(t);
 	}
 
 	Quat Quat::slerp(const Quat& quatB, sp_float t) const
@@ -238,37 +107,6 @@ namespace NAMESPACE_PHYSICS
 			return (scale(std::sinf(angle - t * phi)) + (copyQuatB * std::sinf(t * phi)))
 						/ std::sinf(angle);
 		}
-	}
-
-	Quat Quat::operator+(const Quat& quatB) const
-	{
-		return add(quatB);
-	}
-
-	Quat Quat::operator-(const Quat& quatB) const
-	{
-		return subtract(quatB);
-	}
-
-	Quat Quat::operator-() const
-	{
-		return Quat(-w, -x, -y, -z);
-	}
-
-	Quat Quat::operator*(const Quat& quat) const
-	{
-		return multiply(quat);
-	}
-
-	Quat Quat::operator*(sp_float value) const
-	{
-		return scale(value);
-	}
-
-	Quat Quat::operator/(sp_float value) const
-	{
-		sp_float temp = ONE_FLOAT / value;
-		return Quat(w*temp, x  * temp, y*temp, z*temp);
 	}
 
 	Vec3 Quat::toVec3() const
@@ -382,23 +220,6 @@ namespace NAMESPACE_PHYSICS
 		);
 	}
 
-	Quat Quat::fromEulerAngles(sp_float roll, sp_float pitch, sp_float yaw)
-	{
-		sp_float cosRoll = std::cosf(roll * HALF_FLOAT);
-		sp_float sinRoll = std::sinf(roll * HALF_FLOAT);
-		sp_float cosPitch = std::cosf(pitch * HALF_FLOAT);
-		sp_float sinPitch = std::sinf(pitch * HALF_FLOAT);
-		sp_float cosYaw = std::cosf(yaw * HALF_FLOAT);
-		sp_float sinYaw = std::sinf(yaw * HALF_FLOAT);
-
-		return Quat(
-			cosYaw * cosPitch * cosRoll - sinYaw * sinPitch * sinRoll,
-			cosYaw * cosPitch * sinRoll + sinYaw * sinPitch * cosRoll,
-			cosYaw * sinPitch * cosRoll - sinYaw * cosPitch * sinRoll,
-			sinYaw * cosPitch * cosRoll + cosYaw * sinPitch * sinRoll
-		);
-	}
-
 	Vec3 Quat::toEulerAngles() const
 	{
 		sp_float sqw = w*w;
@@ -482,18 +303,6 @@ namespace NAMESPACE_PHYSICS
 		return angles;
 	}
 
-	sp_float Quat::operator[](sp_int index) const
-	{
-		sp_assert(index >= ZERO_INT && index < QUAT_LENGTH, "IndexOutOfrangeException");
-		return ((sp_float*)this)[index];
-	}
-
-	sp_float Quat::operator[](sp_uint index) const
-	{
-		sp_assert(index >= ZERO_UINT && index < QUAT_LENGTH, "IndexOutOfrangeException");
-		return ((sp_float*)this)[index];
-	}
-
 #ifdef ENV_64BITS
 	sp_float Quat::operator[](sp_size index) const
 	{
@@ -505,11 +314,6 @@ namespace NAMESPACE_PHYSICS
 	Quat::operator Vec3() const
 	{
 		return Vec3(x, y, z);
-	}
-
-	Quat::operator void*() const
-	{
-		return (void*)this;
 	}
 
 }

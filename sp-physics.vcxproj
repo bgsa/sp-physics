@@ -217,7 +217,6 @@
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
-    <ClCompile Include="src\SpTransform.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
     <ClCompile Include="src\SystemOfLinearEquations.cpp" />
     <ClCompile Include="src\Triangle2D.cpp" />

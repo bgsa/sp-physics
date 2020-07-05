@@ -12,26 +12,29 @@ namespace NAMESPACE_PHYSICS
 	void SpPhysicSimulator::init(sp_uint objectsLength)
 	{
 		_instance = sp_mem_new(SpPhysicSimulator)();
-		_instance->gpu = GpuContext::instance()->defaultDevice();
-
 		_instance->objectsLength = ZERO_UINT;
 		_instance->objectsLengthAllocated = objectsLength;
-		_instance->_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
-		_instance->boundingVolumeBuffer = _instance->gpu->createBuffer(DOP18_SIZE*objectsLength, CL_MEM_READ_WRITE);
-
 		_instance->_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
+		_instance->_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
 
+		// _instance->gpu = GpuContext::instance()->defaultDevice();  // TODO: ENABLE!
+		// _instance->boundingVolumeBuffer = _instance->gpu->createBuffer(DOP18_SIZE*objectsLength, CL_MEM_READ_WRITE); // TODO: ENABLE!
+
+		/*
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << _instance->objectsLengthAllocated
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
 			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
 			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
+		*/
 
-		_instance->sap = ALLOC_NEW(SweepAndPrune)();
-		_instance->sap->init(_instance->gpu, buildOptions.str().c_str());
+		//_instance->sap = ALLOC_NEW(SweepAndPrune)(); // TODO: ENABLE!
+		//_instance->sap->init(_instance->gpu, buildOptions.str().c_str()); // TODO: ENABLE!
 
-		_instance->sap->setParameters(_instance->boundingVolumeBuffer, objectsLength,
-			DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);
+		//_instance->sap->setParameters(_instance->boundingVolumeBuffer, objectsLength,
+		//	DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);  // TODO: ENABLE!
+
+
 
 		//cl_mem glMem = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glBufId, null);
 
@@ -245,6 +248,7 @@ namespace NAMESPACE_PHYSICS
 		SweepAndPruneResultCpu resultCpu;
 		resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(objectsLength));
 
+		resultCpu.length = 0;
 		findCollisions(&resultCpu);
 
 		sp_uint indexesLength = multiplyBy2(resultCpu.length);
@@ -256,6 +260,7 @@ namespace NAMESPACE_PHYSICS
 			handleCollision(indexes[i], indexes[i+1], elapsedTime);
 
 		ALLOC_RELEASE(resultCpu.indexes);
+		resultCpu.indexes = nullptr;
 	}
 
 	void SpPhysicSimulator::collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const
