@@ -100,7 +100,7 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 			sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
 			sp_assert(index < objectsLength, "IndexOutOfRangeException");
-
+			
 			SpPhysicSettings* settings = SpPhysicSettings::instance();
 			SpPhysicProperties* element = &_physicProperties[index];
 
@@ -126,8 +126,6 @@ namespace NAMESPACE_PHYSICS
 				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
 			newVelocity = newVelocity * element->damping();
 
-
-
 			Vec3 newAngularVelocity = (currentInertalTensor * element->angularVelocity()).normalize(); // angular = I * W
 			const Quat wq = Quat(newAngularVelocity);
 			element->_orientation += wq * element->orientation() * HALF_FLOAT * elapsedTime;
@@ -136,8 +134,8 @@ namespace NAMESPACE_PHYSICS
 			// https://www.ashwinnarayan.com/post/how-to-integrate-quaternions/
 			// https://arxiv.org/pdf/1604.08139.pdf
 
+			//newAngularVelocity = Vec3(0.0f);
 			newAngularVelocity += element->_torque;
-			newAngularVelocity *= 0.8f;
 			//The angular velocity must therefore be integrated to arrive at the orientation!!
 			// a taxa de mudança da velocidade angular do ponto de contato é WxR, 
 			// sendo R vetor do centro de massa para o ponto e W a velocidade angular

@@ -127,47 +127,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Create the inertial tensor from particles with the same mass for all of them
-		/// </summary>
-		API_INTERFACE inline void buildInertialTensor(const Vec3* vertexes, const sp_uint length)
-		{
-			sp_float m00 = ZERO_FLOAT;
-			sp_float m11 = ZERO_FLOAT;
-			sp_float m22 = ZERO_FLOAT;
-			sp_float m10 = ZERO_FLOAT;
-			sp_float m20 = ZERO_FLOAT;
-			sp_float m21 = ZERO_FLOAT;
-			sp_float mass = massInverse();
-
-			for (sp_uint i = 0; i < length; i++)
-			{
-				//const Vec3 particle = vertexes[i] - _position;
-				const Vec3 particle = vertexes[i];
-
-				m00 += sp_pow2(particle.y) + sp_pow2(particle.z);
-				m11 += sp_pow2(particle.x) + sp_pow2(particle.z);
-				m22 += sp_pow2(particle.x) + sp_pow2(particle.y);
-
-				m10 += particle.x * particle.y;
-				m20 += particle.x * particle.z;
-				m21 += particle.y * particle.z;
-			}
-
-			m00 *= mass;
-			m11 *= mass;
-			m22 *= mass;
-			m10 *= mass;
-			m20 *= mass;
-			m21 *= mass;
-
-			_inertialTensor = Mat3(
-				m00, -m10, -m20,
-				-m10, m11, -m21,
-				-m20, -m21, m22
-			);
-		}
-
-		/// <summary>
 		/// Add force to this object
 		/// </summary>
 		API_INTERFACE inline void addForce(const Vec3& force)

@@ -278,6 +278,7 @@
     <ClInclude Include="src\Randomizer.h" />
     <ClInclude Include="src\Rectangle2D.h" />
     <ClInclude Include="src\Sphere.h" />
+    <ClInclude Include="src\SpInertiaTensor.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
     <ClInclude Include="src\SpPhysicObjectList.h" />
     <ClInclude Include="src\SpPhysicSettings.h" />
