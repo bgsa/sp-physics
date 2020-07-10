@@ -17,6 +17,8 @@ namespace NAMESPACE_PHYSICS
 		/// Default constructor
 		/// Load a empty quaternion = 0
 		/// </summary>
+#pragma warning(push, 0)
+#pragma warning(disable : 26495)
 		API_INTERFACE Quat()
 		{
 			static sp_float identityQuaternion[QUAT_LENGTH] = {
@@ -28,6 +30,7 @@ namespace NAMESPACE_PHYSICS
 
 			std::memcpy(this, identityQuaternion, QUAT_SIZE);
 		}
+#pragma warning(pop)
 
 		/// <summary>
 		/// Default constructor
@@ -44,10 +47,13 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Constructor with initialized values
 		/// </summary>
+#pragma warning(push, 0)
+#pragma warning(disable : 26495)
 		API_INTERFACE Quat(sp_float* values)
 		{
 			std::memcpy(this, values, QUAT_SIZE);
 		}
+#pragma warning(pop)
 
 		/// <summary>
 		/// Constructor with initialized values
