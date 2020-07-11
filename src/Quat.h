@@ -72,6 +72,11 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Quat(const Vec3& vector);
 
 		/// <summary>
+		/// Constructor with a 3D vector
+		/// </summary>
+		API_INTERFACE Quat(const sp_float w, const Vec3& vector);
+
+		/// <summary>
 		/// Create a new quanternion from euler angles provided
 		/// </summary>
 		API_INTERFACE static Quat fromEulerAngles(const sp_float roll, const sp_float pitch, const sp_float yaw)

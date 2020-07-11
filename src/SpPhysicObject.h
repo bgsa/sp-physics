@@ -23,20 +23,18 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _acceleration;
 		Vec3 _previousAcceleration;
 
-		Quat _orientation;
-		Quat _previousOrientation;
-
-		Vec3 _angularVelocity;
-		Vec3 _previousAngularVelocity;
-
 		Vec3 _force;
 		Vec3 _previousForce;
+
+		Quat _orientation;
+		Quat _previousOrientation;
 
 		Vec3 _torque;
 		Vec3 _previousTorque;
 
 		sp_float _inverseMass;
 		sp_float _damping;
+		sp_float _angularDamping;
 		sp_float _coeficientOfRestitution;
 		sp_float _coeficientOfFriction;
 
@@ -79,6 +77,7 @@ namespace NAMESPACE_PHYSICS
 			_previousOrientation = Quat::identity();
 
 			_damping = 0.95f;
+			_angularDamping = 0.85f;
 			_coeficientOfRestitution = 0.8f;
 			_coeficientOfFriction = 0.8f;
 			_inverseMass = ZERO_FLOAT;
@@ -147,8 +146,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void addTorque(const Vec3& point, const Vec3& force)
 		{
-			//_angularVelocity += (point - _position).cross(force);
-			_angularVelocity += Vec3(0.5, 0.0f, 0.0f);
+			_torque += (point - _position).cross(force);
 		}
 
 		/// <summary>
@@ -274,22 +272,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get the angular velocity of the object
-		/// </summary>
-		API_INTERFACE inline Vec3 angularVelocity() const
-		{
-			return _angularVelocity;
-		}
-
-		/// <summary>
-		/// Get the previous angular velocity of the object
-		/// </summary>
-		API_INTERFACE inline Vec3 previousAngularVelocity() const
-		{
-			return _previousAngularVelocity;
-		}
-
-		/// <summary>
 		/// Get the acceleration of the object
 		/// </summary>
 		API_INTERFACE inline Vec3 acceleration() const
@@ -306,11 +288,35 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get the change the velocity over the time
+		/// Hold linear velocity over time
 		/// </summary>
 		API_INTERFACE inline sp_float damping() const
 		{
 			return _damping;
+		}
+
+		/// <summary>
+		/// Set linear velocity over time
+		/// </summary>
+		API_INTERFACE inline void damping(const sp_float newDamping)
+		{
+			_damping = newDamping;
+		}
+
+		/// <summary>
+		/// Set angular velocity over time
+		/// </summary>
+		API_INTERFACE inline void angularDamping(const sp_float newAngularDamping)
+		{
+			_angularDamping = newAngularDamping;
+		}
+
+		/// <summary>
+		/// Hold angular velocity over time
+		/// </summary>
+		API_INTERFACE inline sp_float angularDamping() const
+		{
+			return _angularDamping;
 		}
 
 		/// <summary>
@@ -340,7 +346,6 @@ namespace NAMESPACE_PHYSICS
 			_position = _previousPosition;
 
 			_torque = _previousTorque;
-			_angularVelocity = _previousAngularVelocity;
 			_orientation = _previousOrientation;
 		}
 

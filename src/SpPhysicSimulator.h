@@ -109,9 +109,9 @@ namespace NAMESPACE_PHYSICS
 
 			const Mat3 orientationAsMatrix = element->orientation().toMat3();
 			const Mat3 currentInertalTensor  // I^-1 = R * I^-1 * R^T
-				= orientationAsMatrix
+				= orientationAsMatrix.transpose()
 				* element->inertialTensor()
-				* orientationAsMatrix.transpose();
+				* orientationAsMatrix;
 
 			elapsedTime = elapsedTime * settings->physicVelocity();
 
@@ -126,28 +126,15 @@ namespace NAMESPACE_PHYSICS
 				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
 			newVelocity = newVelocity * element->damping();
 
-			Vec3 newAngularVelocity = (currentInertalTensor * element->angularVelocity()).normalize(); // angular = I * W
-			const Quat wq = Quat(newAngularVelocity);
+			const Vec3 newAngularVelocity = (currentInertalTensor * element->torque());
+			const Quat wq = Quat(0.0f, newAngularVelocity);
 			element->_orientation += wq * element->orientation() * HALF_FLOAT * elapsedTime;
 			element->_orientation = element->orientation().normalize();
-
-			// https://www.ashwinnarayan.com/post/how-to-integrate-quaternions/
-			// https://arxiv.org/pdf/1604.08139.pdf
-
-			//newAngularVelocity = Vec3(0.0f);
-			newAngularVelocity += element->_torque;
-			//The angular velocity must therefore be integrated to arrive at the orientation!!
-			// a taxa de mudança da velocidade angular do ponto de contato é WxR, 
-			// sendo R vetor do centro de massa para o ponto e W a velocidade angular
 
 
 			const Vec3 translation = newPosition - element->position();
 			_boundingVolumes[index].translate(translation); // Sync with the bounding Volume
 			syncronizer->sync(index, translation, element->orientation());
-
-
-			element->_previousAngularVelocity = element->_angularVelocity;
-			element->_angularVelocity = newAngularVelocity;
 
 			element->_previousAcceleration = element->acceleration();
 			element->_acceleration = newAcceleration;
@@ -162,7 +149,7 @@ namespace NAMESPACE_PHYSICS
 			element->_force = ZERO_FLOAT;
 
 			element->_previousTorque = element->torque();
-			element->_torque = ZERO_FLOAT;
+			element->_torque *= element->angularDamping();
 		}
 
 		/// <summary>

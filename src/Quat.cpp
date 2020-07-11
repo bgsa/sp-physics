@@ -11,6 +11,14 @@ namespace NAMESPACE_PHYSICS
 		z = vector.z;
 	}
 
+	Quat::Quat(const sp_float w, const Vec3& vector)
+	{
+		this->w = w;
+		x = vector.x;
+		y = vector.y;
+		z = vector.z;
+	}
+
 	Vec3 Quat::axis() const
 	{
 		// TODO: TESTS !!!!
