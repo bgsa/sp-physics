@@ -82,7 +82,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		sp_float expected[4] = {2.0f, 3.0f, 4.0f, 1.0f };
 		Quat quat(expected);
-		sp_float* result = quat.values();
+		sp_float* result = (sp_float*) &quat;
 
 		for (sp_int i = 0; i < QUAT_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"", LINE_INFO());
@@ -280,7 +280,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Quat_createRotate_Test)
 	{
 		Vec3 axis(2.0, 5.0f, 3.0f);
-		sp_float angle = degreesToRadians(60.0f);
+		SP_CONSTEXPR sp_float angle = degreesToRadians(60.0f);
 
 		Quat result = Quat::createRotate(angle, axis);
 		Quat expected(0.866025388f, 0.162221417f, 0.405553550f, 0.243332133f);

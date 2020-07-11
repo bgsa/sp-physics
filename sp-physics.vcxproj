@@ -281,6 +281,7 @@
     <ClInclude Include="src\SpInertiaTensor.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
     <ClInclude Include="src\SpPhysicObjectList.h" />
+    <ClInclude Include="src\SpPhysicProperties.h" />
     <ClInclude Include="src\SpPhysicSettings.h" />
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />

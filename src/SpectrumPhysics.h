@@ -16,7 +16,7 @@ using namespace NAMESPACE_FOUNDATION;
 
 namespace NAMESPACE_PHYSICS
 {
-	enum CollisionStatus { OUTSIDE, INLINE, INSIDE };
+	enum class CollisionStatus { OUTSIDE, INLINE, INSIDE };
 
 	class Vec2;
 	class Vec3;
