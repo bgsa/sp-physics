@@ -107,12 +107,6 @@ namespace NAMESPACE_PHYSICS
 			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
 			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * 0.5f * drag;
 
-			const Mat3 orientationAsMatrix = element->orientation().toMat3();
-			const Mat3 currentInertalTensor  // I^-1 = R * I^-1 * R^T
-				= orientationAsMatrix.transpose()
-				* element->inertialTensor()
-				* orientationAsMatrix;
-
 			elapsedTime = elapsedTime * settings->physicVelocity();
 
 			// Velocity Verlet Integration because regards the velocity
@@ -123,12 +117,12 @@ namespace NAMESPACE_PHYSICS
 			const Vec3 newAcceleration = (element->force() - dragForce) * element->massInverse();
 
 			Vec3 newVelocity = element->velocity()
-				+ (element->acceleration() + newAcceleration) * (elapsedTime * 0.5f);
-			newVelocity = newVelocity * element->damping();
+				+ (element->acceleration() + newAcceleration) 
+				* (elapsedTime * 0.5f);
+			newVelocity *= element->damping();
 
-			const Vec3 newAngularVelocity = (currentInertalTensor * element->torque());
-			const Quat wq = Quat(0.0f, newAngularVelocity);
-			element->_orientation += wq * element->orientation() * HALF_FLOAT * elapsedTime;
+			const Quat angularVelocity = Quat(0.0f, element->inertialTensorInverse() * element->torque());
+			element->_orientation += angularVelocity * element->orientation() * HALF_FLOAT * elapsedTime;
 			element->_orientation = element->orientation().normalize();
 
 

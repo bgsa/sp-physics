@@ -427,6 +427,17 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Multiply the quaternion to a scalar
+		/// </summary>
+		API_INTERFACE inline void operator*=(const sp_float value)
+		{
+			w *= value;
+			x *= value;
+			y *= value;
+			z *= value;
+		}
+
+		/// <summary>
 		/// Divide the quaternion by scalar
 		/// </summary>
 		API_INTERFACE Quat operator/(const sp_float value) const

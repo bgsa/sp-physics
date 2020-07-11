@@ -30,25 +30,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE virtual void update(sp_float elapsedTime)
 		{
 			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
-
-			/*
-			SpPhysicProperties* element = &physicData;
-
-			const Vec3 newAcceleration = element->acceleration() + // accumulate new acceleration with the previous one
-				element->force() * element->massInverse();
-
-			const Vec3 newVelocity = (element->velocity() * element->damping()) + ((element->acceleration()) / elapsedTime);
-
-			const Vec3 newPosition = element->position() + ((newVelocity + element->velocity) / (elapsedTime * 2.0f));
-
-			//_boundingVolumes->translate(newPosition - element->_position);
-
-			physicData._acceleration     = newAcceleration;
-			physicData.velocity   = newVelocity;
-			physicData._previousPosition = physicData.position();
-			physicData._position         = newPosition;
-			physicData._force            = ZERO_FLOAT;
-			*/
 		}
 
 		/// <summary>

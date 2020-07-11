@@ -91,75 +91,75 @@ namespace NAMESPACE_PHYSICS
 
 		if (obj1Properties->isStatic())
 		{
-			const Vec3 collisionNormal = (bv2.centerOfBoundingVolume() - details.contactPoint).normalize();
+			const Vec3 normal = bv1.normal(details.objectIndexPlane1);
+			const Vec3 rayToContact = (details.contactPoint - bv2.centerOfBoundingVolume());
+			const Vec3 pointVelocity = obj2Properties->velocity() + obj2Properties->torque().cross(rayToContact);
+			const Vec3 velocity = pointVelocity.dot(normal);
 
-			const Vec3 collisionTangent = bv1.tangent(details.objectIndexPlane1);
-			const Vec3 frictionVelocity = (collisionTangent * obj2Properties->velocity()) * cof;			
+			const Vec3 parenthesis = obj2Properties->inertialTensorInverse() * rayToContact.cross(rayToContact.cross(normal));
+			const sp_float denominator = normal.dot(parenthesis) + obj2Properties->massInverse();
 
-			/* friccao melhor, mas quando o k-DOP do Obj1 é grande. Será corrigido qdo tiver velocidade angular!!
-			const Vec3 normalVelocity = collisionNormal * obj2Properties->velocity().dot(collisionNormal);
-			const Vec3 tangentVelocity = obj2Properties->velocity() - normalVelocity;
-			const Vec3 frictionVelocity = tangentVelocity * cof;
-			*/
-
-			const Vec3 impulse = (obj2Properties->velocity() * -(ONE_FLOAT + cor)) 
-							* obj2Properties->massInverse();
+			const Vec3 impulse = (velocity * -(ONE_FLOAT + cor)) / denominator;
 			
-			obj2Properties->_velocity = impulse * collisionNormal + frictionVelocity;
-			obj2Properties->_acceleration = ZERO_FLOAT;
+			obj2Properties->_velocity = impulse * rayToContact;
+			obj2Properties->_torque = impulse * rayToContact.cross(normal);
+			obj2Properties->_torque *= obj2Properties->angularDamping();
 
-			//obj2Properties->_previousVelocity = impulse * collisionNormal + frictionVelocity;
-			integrate(objIndex2, details.timeStep);
+			obj2Properties->_acceleration = ZERO_FLOAT;
 		}
 		else
 		{
 			if (obj2Properties->isStatic())
 			{
-				const Vec3 collisionTangent = bv2.tangent(details.objectIndexPlane2);
-				const Vec3 frictionVelocity = (collisionTangent * obj1Properties->velocity()) * cof;
+				const Vec3 normal = bv2.normal(details.objectIndexPlane2);
+				const Vec3 rayToContact = (details.contactPoint - bv1.centerOfBoundingVolume());
+				const Vec3 pointVelocity = obj1Properties->velocity() + obj1Properties->torque().cross(rayToContact);
+				const Vec3 velocity = pointVelocity.dot(normal);
 
-				const Vec3 collisionNormal = (bv1.centerOfBoundingVolume() - details.contactPoint).normalize();
+				const Vec3 parenthesis = obj1Properties->inertialTensorInverse() * rayToContact.cross(rayToContact.cross(normal));
+				const sp_float denominator = normal.dot(parenthesis) + obj1Properties->massInverse();
 
-				const Vec3 impulse = (obj1Properties->velocity() * -(ONE_FLOAT + cor))
-					* obj1Properties->massInverse();
+				const Vec3 impulse = (velocity * -(ONE_FLOAT + cor)) / denominator;
 
-				obj1Properties->_velocity = impulse * collisionNormal + frictionVelocity;
+				obj1Properties->_velocity = impulse * rayToContact;
+				obj1Properties->_torque = impulse * rayToContact.cross(normal);
+				obj1Properties->_torque *= obj1Properties->angularDamping();
+
 				obj1Properties->_acceleration = ZERO_FLOAT;
-
-				//obj1Properties->_previousVelocity = impulse * collisionNormal + frictionVelocity;
-				integrate(objIndex1, details.timeStep);
 			}
 			else // both are dynamic
 			{
-				const Vec3 bv1Center = bv1.centerOfBoundingVolume();
+				const Vec3 normalObj1 = bv1.normal(details.objectIndexPlane1);
+				const Vec3 normalObj2 = bv2.normal(details.objectIndexPlane2);
 
-				const sp_float sumMass = obj1Properties->massInverse() + obj2Properties->massInverse();
-				const Vec3 collisionNormal = (details.contactPoint - bv1Center).normalize();
+				const Vec3 normal = normalObj1;
+				const Vec3 rayToContactObj1 = (details.contactPoint - bv1.centerOfBoundingVolume());
+				const Vec3 rayToContactObj2 = (details.contactPoint - bv2.centerOfBoundingVolume());
+				const Vec3 pointVelocityObj1 = obj1Properties->velocity() + obj1Properties->torque().cross(rayToContactObj1);
+				const Vec3 pointVelocityObj2 = obj2Properties->velocity() + obj2Properties->torque().cross(rayToContactObj2);
+				const Vec3 relativeVelocity = normal.dot(pointVelocityObj1 - pointVelocityObj2);
 
-				/*
-				const Vec3 normalVelocityObj1 = (-collisionNormal) * obj1Properties->velocity().dot(-collisionNormal);
-				const Vec3 normalVelocityObj2 = collisionNormal * obj2Properties->velocity().dot(collisionNormal);
+				const Vec3 parenthesisObj1 = obj1Properties->inertialTensorInverse() 
+					* rayToContactObj1.cross(rayToContactObj1.cross(normal));
 
-				const Vec3 tangentVelocityObj1 = -(obj1Properties->velocity() - normalVelocityObj1);
-				const Vec3 tangentVelocityObj2 = obj2Properties->velocity() - normalVelocityObj2;
+				const Vec3 parenthesisObj2 = obj2Properties->inertialTensorInverse()
+					* rayToContactObj2.cross(rayToContactObj2.cross(normal));
 
-				const Vec3 frictionVelocity1 = tangentVelocityObj1 * cof;
-				const Vec3 frictionVelocity2 = tangentVelocityObj2 * cof;
-				*/
+				const sp_float denominator = obj1Properties->massInverse() + obj2Properties->massInverse()
+					+ normal.dot(parenthesisObj1 + parenthesisObj2);
 
-				const Vec3 relativeVelocity = (obj2Properties->velocity() - obj1Properties->velocity()).dot(collisionNormal);
+				const Vec3 impulse = (relativeVelocity * -(ONE_FLOAT + cor)) / denominator;
 
-				const Vec3 impulse = (relativeVelocity * -(ONE_FLOAT + cor))
-									* sumMass;
-
-				obj1Properties->_velocity = collisionNormal * -impulse;
-				obj2Properties->_velocity = collisionNormal * impulse;
-
+				obj1Properties->_velocity = -impulse * normal;
+				obj1Properties->_torque = -impulse * rayToContactObj1.cross(normal);
+				obj1Properties->_torque *= obj1Properties->angularDamping();
 				obj1Properties->_acceleration = ZERO_FLOAT;
+
+				obj2Properties->_velocity = impulse * normal;
+				obj2Properties->_torque = impulse * rayToContactObj2.cross(normal);
+				obj2Properties->_torque *= obj2Properties->angularDamping();
 				obj2Properties->_acceleration = ZERO_FLOAT;
 
-				//obj1Properties->_previousVelocity = obj1Properties->velocity();
-				//obj2Properties->_previousVelocity = obj2Properties->velocity();
 				integrate(objIndex1, details.timeStep);
 				integrate(objIndex2, details.timeStep);
 			}

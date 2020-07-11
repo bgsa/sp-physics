@@ -76,11 +76,22 @@ namespace NAMESPACE_PHYSICS
 			_previousOrientation = Quat::identity();
 
 			_damping = 0.95f;
-			_angularDamping = 0.85f;
+			_angularDamping = 0.65f;
 			_coeficientOfRestitution = 0.8f;
 			_coeficientOfFriction = 0.8f;
 			_inverseMass = ZERO_FLOAT;
 			_inertialTensor = Mat3::identity();
+		}
+
+		API_INTERFACE inline Mat3 inertialTensorInverse() const
+		{
+			const Mat3 orientationAsMatrix = _orientation.toMat3();
+
+			// I^-1 = R * I^-1 * R^T
+			return  
+				 orientationAsMatrix.transpose()
+				* _inertialTensor
+				* orientationAsMatrix;
 		}
 
 		/// <summary>

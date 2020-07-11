@@ -233,6 +233,18 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3 operator*(const Vec3& matrix) const;
 
 		/// <summary>
+		/// Multiply the value by all components of matrix
+		/// </summary>
+		API_INTERFACE inline Mat3 operator*(const sp_float value)
+		{
+			return Mat3(
+				values[0] * value, values[1] * value, values[2] * value,
+				values[3] * value, values[4] * value, values[5] * value,
+				values[6] * value, values[7] * value, values[7] * value
+			);
+		}
+
+		/// <summary>
 		/// Multiply the matrix to another one
 		/// </summary>
 		API_INTERFACE void operator*=(const Mat3& matrix);
