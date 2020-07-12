@@ -77,7 +77,7 @@ namespace NAMESPACE_PHYSICS
 
 			_damping = 0.95f;
 			_angularDamping = 0.65f;
-			_coeficientOfRestitution = 0.8f;
+			_coeficientOfRestitution = 0.7f;
 			_coeficientOfFriction = 0.8f;
 			_inverseMass = ZERO_FLOAT;
 			_inertialTensor = Mat3::identity();

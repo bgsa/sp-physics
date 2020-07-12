@@ -96,7 +96,7 @@ namespace NAMESPACE_PHYSICS
 			const Vec3 pointVelocity = obj2Properties->velocity() + obj2Properties->torque().cross(rayToContact);
 			const Vec3 velocity = pointVelocity.dot(normal);
 
-			const Vec3 parenthesis = obj2Properties->inertialTensorInverse() * rayToContact.cross(rayToContact.cross(normal));
+			const Vec3 parenthesis = rayToContact.cross(obj2Properties->inertialTensorInverse() * (rayToContact.cross(normal)));
 			const sp_float denominator = normal.dot(parenthesis) + obj2Properties->massInverse();
 
 			const Vec3 impulse = (velocity * -(ONE_FLOAT + cor)) / denominator;

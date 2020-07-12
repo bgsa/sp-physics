@@ -105,20 +105,19 @@ namespace NAMESPACE_PHYSICS
 			SpPhysicProperties* element = &_physicProperties[index];
 
 			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
-			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * 0.5f * drag;
+			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * HALF_FLOAT * drag;
 
 			elapsedTime = elapsedTime * settings->physicVelocity();
 
 			// Velocity Verlet Integration because regards the velocity
 			const Vec3 newPosition = element->position()
 				+ element->velocity() * elapsedTime
-				+ element->acceleration()  * (elapsedTime * elapsedTime * 0.5f);
+				+ element->acceleration()  * (elapsedTime * elapsedTime * HALF_FLOAT);
 
 			const Vec3 newAcceleration = (element->force() - dragForce) * element->massInverse();
 
 			Vec3 newVelocity = element->velocity()
-				+ (element->acceleration() + newAcceleration) 
-				* (elapsedTime * 0.5f);
+				+ ((element->acceleration() + newAcceleration) * elapsedTime * HALF_FLOAT);
 			newVelocity *= element->damping();
 
 			const Quat angularVelocity = Quat(0.0f, element->inertialTensorInverse() * element->torque());
