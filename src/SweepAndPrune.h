@@ -15,25 +15,25 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	class SweepAndPruneResultCpu
+	class SweepAndPruneResult
 	{
 	public:
 		sp_uint* indexes;
 		sp_uint length;
 
-		SweepAndPruneResultCpu()
+		SweepAndPruneResult()
 		{
 			this->indexes = nullptr;
 			this->length = ZERO_UINT;
 		}
 
-		SweepAndPruneResultCpu(sp_uint* indexes, sp_uint count)
+		SweepAndPruneResult(sp_uint* indexes, sp_uint count)
 		{
 			this->indexes = indexes;
 			this->length = count;
 		}
 
-		~SweepAndPruneResultCpu()
+		~SweepAndPruneResult()
 		{
 			if (indexes != nullptr)
 			{
@@ -43,21 +43,6 @@ namespace NAMESPACE_PHYSICS
 		}
 	};
 	
-#ifdef OPENCL_ENABLED
-	class SweepAndPruneResultGpu
-	{
-	public:
-		cl_mem indexes;
-		sp_uint count;
-
-		SweepAndPruneResultGpu(cl_mem indexes, sp_uint count)
-		{
-			this->indexes = indexes;
-			this->count = count;
-		}
-	};
-#endif // OPENCL_ENABLED
-
 	class SweepAndPrune
 		: public GpuComposedCommand
 	{
@@ -87,13 +72,13 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE static SweepAndPruneResultCpu findCollisions(AABB* aabbs, sp_uint length);
+		API_INTERFACE static SweepAndPruneResult findCollisions(AABB* aabbs, sp_uint length);
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes and length in the last parameter
 		///</summary>
-		API_INTERFACE static void findCollisions(DOP18* kdops, sp_uint* indexes, sp_uint length, SweepAndPruneResultCpu* resultCpu);
+		API_INTERFACE static void findCollisions(DOP18* kdops, sp_uint* indexes, sp_uint length, SweepAndPruneResult* resultCpu);
 
 #ifdef OPENCL_ENABLED
 

@@ -73,7 +73,8 @@ namespace NAMESPACE_PHYSICS
 			return velocityToObject2 <= ZERO_FLOAT && velocityToObject1 <= ZERO_FLOAT;
 		}
 
-		void findCollisions(SweepAndPruneResultCpu* result);
+		void findCollisionsCpu(SweepAndPruneResult* result);
+		void findCollisionsGpu(SweepAndPruneResult* result);
 
 	public:
 

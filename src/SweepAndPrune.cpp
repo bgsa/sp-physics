@@ -64,7 +64,7 @@ namespace NAMESPACE_PHYSICS
 		std::memcpy(arrayOfT + index, arrayOfT + index + 1, (count - index - 1) * sizeof(T));
 	}
 
-	SweepAndPruneResultCpu SweepAndPrune::findCollisions(AABB* aabbs, sp_uint count)
+	SweepAndPruneResult SweepAndPrune::findCollisions(AABB* aabbs, sp_uint count)
 	{
 		sp_uint* indexes = ALLOC_ARRAY(sp_uint, count*2);
 		sp_uint aabbIndex = 0;
@@ -103,10 +103,10 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		ALLOC_RELEASE(activeListIndex);
-		return SweepAndPruneResultCpu(indexes, aabbIndex >> 1);
+		return SweepAndPruneResult(indexes, aabbIndex >> 1);
 	}
 
-	void SweepAndPrune::findCollisions(DOP18* kdops, sp_uint* indexes, sp_uint length, SweepAndPruneResultCpu* resultCpu)
+	void SweepAndPrune::findCollisions(DOP18* kdops, sp_uint* indexes, sp_uint length, SweepAndPruneResult* resultCpu)
 	{
 		sp_uint* activeListIndex = ALLOC_ARRAY(sp_uint, length);
 		sp_uint activeListIndexCount = ZERO_UINT;

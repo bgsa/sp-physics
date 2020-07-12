@@ -17,25 +17,22 @@ namespace NAMESPACE_PHYSICS
 		_instance->_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
 		_instance->_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
 
-		// _instance->gpu = GpuContext::instance()->defaultDevice();  // TODO: ENABLE!
-		// _instance->boundingVolumeBuffer = _instance->gpu->createBuffer(DOP18_SIZE*objectsLength, CL_MEM_READ_WRITE); // TODO: ENABLE!
+		_instance->gpu = GpuContext::instance()->defaultDevice();  // TODO: ENABLE!
+		_instance->boundingVolumeBuffer = _instance->gpu->createBuffer(DOP18_SIZE*objectsLength, CL_MEM_READ_WRITE); // TODO: ENABLE!
 
-		/*
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << _instance->objectsLengthAllocated
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
 			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
 			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
-		*/
 
-		//_instance->sap = ALLOC_NEW(SweepAndPrune)(); // TODO: ENABLE!
-		//_instance->sap->init(_instance->gpu, buildOptions.str().c_str()); // TODO: ENABLE!
+		_instance->sap = ALLOC_NEW(SweepAndPrune)(); // TODO: ENABLE!
+		_instance->sap->init(_instance->gpu, buildOptions.str().c_str()); // TODO: ENABLE!
 
-		//_instance->sap->setParameters(_instance->boundingVolumeBuffer, objectsLength,
-		//	DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);  // TODO: ENABLE!
+		_instance->sap->setParameters(_instance->boundingVolumeBuffer, objectsLength,
+			DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);
 
-
-
+		// Share OpenCL OpenGL Buffer
 		//cl_mem glMem = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glBufId, null);
 
 		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);
@@ -217,9 +214,6 @@ namespace NAMESPACE_PHYSICS
 
 		collisionDetails(objIndex1, objIndex2, &details);
 
-		if (objIndex1 != 0 && objIndex2 != 0)
-			std::cout << "CONTACT AT: " << details.contactPoint.x << "   " << details.contactPoint.y << "   " << details.contactPoint.z << END_OF_LINE;
-
 		handleCollisionResponse(objIndex1, objIndex2, details);
 
 		dispatchEvent(objIndex1, objIndex2);
@@ -232,7 +226,7 @@ namespace NAMESPACE_PHYSICS
 		return allocated;
 	}
 
-	void SpPhysicSimulator::findCollisions(SweepAndPruneResultCpu* result)
+	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
 	{
 		sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, objectsLength);
 		for (sp_uint i = ZERO_UINT; i < objectsLength; i++)
@@ -243,24 +237,33 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(sortedIndexes);
 	}
 
+	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
+	{
+		cl_event lastEvent = gpu->commandManager->updateBuffer(boundingVolumeBuffer, DOP18_SIZE * objectsLengthAllocated, _boundingVolumes);
+		
+		cl_mem sapBuffer = sap->execute(ONE_UINT, &lastEvent);
+		result->length = sap->fetchCollisionLength();
+
+		const sp_uint indexesLength = multiplyBy2(sap->fetchCollisionLength());
+		
+		gpu->commandManager->readBuffer(sapBuffer, indexesLength * SIZEOF_UINT, result->indexes);
+	}
+
 	void SpPhysicSimulator::run(const Timer& timer)
 	{
-		SweepAndPruneResultCpu resultCpu;
-		resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(objectsLength));
+		SweepAndPruneResult sapResult;
+		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(objectsLength));
 
-		resultCpu.length = 0;
-		findCollisions(&resultCpu);
-
-		sp_uint indexesLength = multiplyBy2(resultCpu.length);
-		sp_uint* indexes = resultCpu.indexes;
+		//findCollisions(&sapResult);
+		findCollisionsGpu(&sapResult);
 
 		const sp_float elapsedTime = timer.elapsedTime();
 
-		for (sp_uint i = 0; i < indexesLength; i+=2u)
-			handleCollision(indexes[i], indexes[i+1], elapsedTime);
+		for (sp_uint i = 0; i < sapResult.length; i+=2u)
+			handleCollision(sapResult.indexes[i], sapResult.indexes[i+1], elapsedTime);
 
-		ALLOC_RELEASE(resultCpu.indexes);
-		resultCpu.indexes = nullptr;
+		ALLOC_RELEASE(sapResult.indexes);
+		sapResult.indexes = nullptr;
 	}
 
 	void SpPhysicSimulator::collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const

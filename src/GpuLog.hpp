@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 
 				errorMessage[logSize] = '\0';
 
-				assert(false);
+				sp_assert(false, "OpenCLBuildException");
 				ALLOC_RELEASE(errorMessage);
 			}
 		}
