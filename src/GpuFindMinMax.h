@@ -15,7 +15,7 @@ namespace NAMESPACE_PHYSICS
 	class GpuFindMinMax
 	{
 	private:
-		sp_uint findMinMaxProgramIndex;
+		cl_program findMinMaxProgram;
 		GpuDevice* gpu = NULL;
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
@@ -36,10 +36,11 @@ namespace NAMESPACE_PHYSICS
 		cl_mem inputGpu;
 		cl_mem indexesGpu;
 		cl_mem inputLengthGpu;
-
+		
 	public:
 
 		cl_mem output;
+		cl_event lastEvent;
 
 		API_INTERFACE GpuFindMinMax* init(GpuDevice* gpu, const sp_char* buildOptions);
 

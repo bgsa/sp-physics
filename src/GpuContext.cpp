@@ -69,7 +69,7 @@ namespace NAMESPACE_PHYSICS
 		cl_uint platformCount;
 		HANDLE_OPENCL_ERROR(clGetPlatformIDs(ZERO_UINT, NULL, &platformCount));
 
-		_platforms = sp_mem_new(SpArray< cl_platform_id>)(platformCount);
+		_platforms = sp_mem_new(SpArray< cl_platform_id>)(platformCount, platformCount);
 
 		HANDLE_OPENCL_ERROR(clGetPlatformIDs(platformCount, _platforms->data(), NULL));
 		

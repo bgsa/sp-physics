@@ -10,16 +10,23 @@ namespace NAMESPACE_PHYSICS
 			return this;
 
 		this->gpu = gpu;
+		this->lastEvent = nullptr;
 
 		commandIndexes = ALLOC_NEW(GpuIndexes)();
 		commandIndexes->init(gpu, buildOptions);
 
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("FindMinMax.cl");
+
 		SP_FILE file;
-		SpString* source = file.readTextFile("FindMinMax.cl");
+		SpString* source = file.readTextFile(filename->name()->data());
 		
-		findMinMaxProgramIndex = this->gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions);
+		const sp_uint findMinMaxProgramIndex = this->gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions);
+		findMinMaxProgram = gpu->commandManager->cachedPrograms[findMinMaxProgramIndex];
 
 		sp_mem_delete(source, SpString);
+		sp_mem_delete(filename, SpDirectory);
 		return this;
 	}
 
@@ -56,15 +63,15 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(indexesGpu, SIZEOF_UINT * realIndexLength)
 			->setInputParameter(inputLengthGpu, SIZEOF_UINT)
 			->setInputParameter(output, outputSize)
-			->buildFromProgram(gpu->commandManager->cachedPrograms[findMinMaxProgramIndex], "findMinMaxByThread");
+			->buildFromProgram(findMinMaxProgram, "findMinMaxByThread");
 
 		commandFindMinMaxParallelReduce = gpu->commandManager->createCommand()
 			->setInputParameter(output, outputSize)
-			->buildFromProgram(gpu->commandManager->cachedPrograms[findMinMaxProgramIndex], "findMinMaxParallelReduce");
+			->buildFromProgram(findMinMaxProgram, "findMinMaxParallelReduce");
 
 		commandFindMinMaxParallelReduce_OneThread = gpu->commandManager->createCommand()
 			->setInputParameter(output, outputSize)
-			->buildFromProgram(gpu->commandManager->cachedPrograms[findMinMaxProgramIndex], "findMinMaxParallelReduce_OneThread");
+			->buildFromProgram(findMinMaxProgram, "findMinMaxParallelReduce_OneThread");
 
 		if (isIndexLengthOdd)
 		{
@@ -73,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 				->setInputParameter(indexesGpu, SIZEOF_UINT * realIndexLength)
 				->setInputParameter(output, outputSize)
 				->setInputParameter(inputLengthGpu, SIZEOF_UINT)
-				->buildFromProgram(gpu->commandManager->cachedPrograms[findMinMaxProgramIndex], "findMinMaxParallelReduce_Odd");
+				->buildFromProgram(findMinMaxProgram, "findMinMaxParallelReduce_Odd");
 		}
 
 		return this;
@@ -81,8 +88,8 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem GpuFindMinMax::execute()
 	{
-		cl_event previousEvent = NULL;
-		cl_event lastEvent = NULL;
+		cl_event previousEvent = nullptr;
+		lastEvent = nullptr;
 
 		commandFindMinMaxByThread
 			->execute(1, globalWorkSize, localWorkSize, ZERO_UINT, NULL, ZERO_UINT);
@@ -134,9 +141,11 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		if (indexLength > TWO_UINT)
+		{
 			commandFindMinMaxParallelReduce_OneThread
 				->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
-		lastEvent = commandFindMinMaxParallelReduce_OneThread->lastEvent;
+			lastEvent = commandFindMinMaxParallelReduce_OneThread->lastEvent;
+		}
 
 		return output;
 	}
@@ -150,7 +159,7 @@ namespace NAMESPACE_PHYSICS
 		commandFindMinMaxParallelReduce->~GpuCommand();
 		commandFindMinMaxParallelReduce_OneThread->~GpuCommand();
 
-		if (commandFindMinMaxParallelReduce_Odd != NULL)
+		if (commandFindMinMaxParallelReduce_Odd != nullptr)
 			commandFindMinMaxParallelReduce_Odd->~GpuCommand();
 	}
 }

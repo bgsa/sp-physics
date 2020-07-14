@@ -18,13 +18,8 @@ namespace NAMESPACE_PHYSICS
 		GpuDevice* gpu;
 		cl_program program;
 
-		GpuCommand* commandInitIndexes = NULL;
-		GpuCommand* commandInitIndexes_Odd = NULL;
-
-		cl_mem output = NULL;
-		sp_bool isInputOdd;
-
-		sp_uint createIndexesProgramIndex = UINT_MAX;
+		GpuCommand* commandInitIndexes = nullptr;
+		cl_mem output = nullptr;
 
 		sp_size createIndexesGlobalWorkSize[3] = { 0, 0, 0 };
 		sp_size createIndexesLocalWorkSize[3] = { 0, 0, 0 };

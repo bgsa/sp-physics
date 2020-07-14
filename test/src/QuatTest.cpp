@@ -72,7 +72,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec3 vector(1.0f, 2.0f, 3.0f);
 		Quat result(vector);
-		sp_float expected[QUAT_LENGTH] = { 0.0f, 1.0f, 2.0f, 3.0f };
+		sp_float expected[QUAT_LENGTH] = { 1.0f, 1.0f, 2.0f, 3.0f };
 		
 		for (sp_int i = 0; i < QUAT_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"", LINE_INFO());

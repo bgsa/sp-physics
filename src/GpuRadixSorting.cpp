@@ -122,8 +122,8 @@ namespace NAMESPACE_PHYSICS
 
 
 		const sp_uint offsetTableSizeNegatives = SIZEOF_UINT * TWO_UINT * threadsLength;
-		offsetTable1Negatives = gpu->createBuffer(offsetTableSizeNegatives, CL_MEM_READ_WRITE);
-		offsetTable2Negatives = gpu->createBuffer(offsetTableSizeNegatives, CL_MEM_READ_WRITE);
+		offsetTable1Negatives = gpu->createBuffer(offsetTableSizeNegatives, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		offsetTable2Negatives = gpu->createBuffer(offsetTableSizeNegatives, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		commandCountNegative = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
@@ -145,9 +145,11 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorderNegatives");
 
-		cl_buffer_region region = { offsetTableSizeNegatives - TWO_UINT * SIZEOF_UINT, SIZEOF_UINT };
-		negativeCounterLocation1 = gpu->createSubBuffer(offsetTable1Negatives, &region, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
-		negativeCounterLocation2 = gpu->createSubBuffer(offsetTable2Negatives, &region, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		cl_buffer_region region;
+		region.origin = offsetTableSizeNegatives - TWO_UINT * SIZEOF_UINT;
+		region.size = SIZEOF_UINT;
+		negativeCounterLocation1 = gpu->createSubBuffer(offsetTable1Negatives, &region, CL_MEM_READ_ONLY);
+		negativeCounterLocation2 = gpu->createSubBuffer(offsetTable2Negatives, &region, CL_MEM_READ_ONLY);
 		commandReverse
 			->updateInputLength(inputLength)
 			->setParameters(inputIndexesGpu, outputIndexesGpu, negativeCounterLocation1);
@@ -162,7 +164,7 @@ namespace NAMESPACE_PHYSICS
 		
 		globalWorkSize[0] = threadsLength;
 		localWorkSize[0] = defaultLocalWorkSize;
-		
+
 		for (sp_uint digitIndex = ZERO_UINT; digitIndex < 7u; digitIndex++)  // for each digit in the number ...
 		{
 			if (offsetChanged)
@@ -171,13 +173,13 @@ namespace NAMESPACE_PHYSICS
 			if (indexesChanged)
 			{	
 				commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, previousEventsLength);
-				previousEvents[0] = commandCountSwapped->lastEvent;
+				previousEvents = &commandCountSwapped->lastEvent;
 				previousEventsLength = ONE_UINT;
 			}
 			else
 			{
 				commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, previousEventsLength);
-				previousEvents[0] = commandCount->lastEvent;
+				previousEvents = &commandCount->lastEvent;
 				previousEventsLength = ONE_UINT;
 			}
 
@@ -250,7 +252,6 @@ namespace NAMESPACE_PHYSICS
 		else
 			commandReverse->swapIndexes();
 
-
 		commandCountNegative->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
 		previousEvent = commandCountNegative->lastEvent;
 
@@ -266,8 +267,11 @@ namespace NAMESPACE_PHYSICS
 			offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
 		}
 
-		if (offsetChanged) 
+		if (offsetChanged)
+		{
 			commandReorderNegative->updateInputParameter(TWO_UINT, offsetTable2Negatives);
+			commandReverse->updateInputLength(negativeCounterLocation2);
+		}
 
 		commandReorderNegative->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
 

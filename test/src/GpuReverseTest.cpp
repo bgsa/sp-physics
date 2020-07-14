@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->execute();
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, true);
+		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, ONE_UINT, &commandReverse->lastEvent);
 
 		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], values[i], L"Wrong value.", LINE_INFO());

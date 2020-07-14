@@ -2307,7 +2307,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
-		SweepAndPruneResultCpu result = SweepAndPrune::findCollisions(aabbs, count);
+		SweepAndPruneResult result = SweepAndPrune::findCollisions(aabbs, count);
 
 		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 		std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
@@ -2343,7 +2343,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
-			SweepAndPruneResultCpu resultCpu;
+			SweepAndPruneResult resultCpu;
 			resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
 
 			sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
@@ -2386,7 +2386,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		std::chrono::high_resolution_clock::time_point currentTime1 = std::chrono::high_resolution_clock::now();
 
-		SweepAndPruneResultCpu result1 = SweepAndPrune::findCollisions(aabbs1, count);
+		SweepAndPruneResult result1 = SweepAndPrune::findCollisions(aabbs1, count);
 
 		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
@@ -2435,7 +2435,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		performanceCounter.start();
 
-		SweepAndPruneResultCpu expected;
+		SweepAndPruneResult expected;
 		expected.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
 
 		sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);

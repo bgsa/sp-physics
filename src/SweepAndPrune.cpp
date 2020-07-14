@@ -227,15 +227,14 @@ namespace NAMESPACE_PHYSICS
 		radixSorting->execute(previousEventsLength, previousEvents);
 		cl_event lastEvent = radixSorting->lastEvent;
 
-		/*
-		sp_uint* buffer = ALLOC_ARRAY(sp_uint, 64);
-		lastEvent = gpu->commandManager->executeReadBuffer(radixSorting->output, 4 * 64, buffer, ONE_UINT, &lastEvent);
+		const sp_uint len = 512u;
+		sp_uint* buffer = ALLOC_ARRAY(sp_uint, len);
+		lastEvent = gpu->commandManager->readBuffer(radixSorting->output, 4 * len, buffer, ONE_UINT, &lastEvent);
 		std::cout << "BEGIN SORT" << END_OF_LINE;
-		for (size_t i = 0; i < 64; i++)
-			std::cout << i << END_OF_LINE;
+		for (size_t i = 0; i < len; i++)
+			std::cout << buffer[i] << END_OF_LINE;
 		std::cout << "END SORT" << END_OF_LINE;
 		ALLOC_RELEASE(buffer);
-		*/
 
 		commandSaPCollisions
 			->updateInputParameter(2, radixSorting->output)

@@ -137,6 +137,9 @@ namespace NAMESPACE_PHYSICS
 			case CL_KERNEL_ARG_INFO_NOT_AVAILABLE:
 				return "The argument information is not available for kernel";
 
+			case CL_INVALID_EVENT_WAIT_LIST:
+				return "Invalid Event Wait List";
+
 			default:
 				return "Unknonwn OpenCL runtime error";
 			}

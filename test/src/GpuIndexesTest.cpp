@@ -36,18 +36,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_uint length = 10;
 
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << length;
-		buildOptions << " -DINPUT_STRIDE=1";
-		buildOptions << " -DINPUT_OFFSET=0";
-
-		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(length);
 
 		cl_mem output = commandIndexes->execute();
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, length);
-		gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, values, true);
+		gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, values, ONE_UINT, &commandIndexes->lastEvent);
 
 		for (sp_uint i = 0; i < length; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
@@ -66,18 +61,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_uint count = (sp_uint)powf(2.0f, 17.0f);
 
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count;
-		buildOptions << " -DINPUT_STRIDE=1";
-		buildOptions << " -DINPUT_OFFSET=0";
-
-		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(count);
 
 		cl_mem output = commandIndexes->execute();
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, true);
+		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, ONE_UINT, &commandIndexes->lastEvent);
 
 		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
@@ -96,12 +86,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_uint count = 100u;
 
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count;
-		buildOptions << " -DINPUT_STRIDE=1";
-		buildOptions << " -DINPUT_OFFSET=0";
-
-		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(count);
 
 		cl_mem output = commandIndexes->execute();

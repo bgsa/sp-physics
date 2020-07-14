@@ -5,7 +5,8 @@
 
 #include "SpectrumPhysics.h"
 #include <algorithm>
-#include <CL/cl.h>
+#define CL_TARGET_OPENCL_VERSION 120
+#include <CL/opencl.h>
 
 #include "GpuCommandManager.h"
 

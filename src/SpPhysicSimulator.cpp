@@ -239,14 +239,14 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
 	{
-		cl_event lastEvent = gpu->commandManager->updateBuffer(boundingVolumeBuffer, DOP18_SIZE * objectsLengthAllocated, _boundingVolumes);
+		cl_event lastEvent = gpu->commandManager->updateBuffer(boundingVolumeBuffer, sizeof(DOP18) * objectsLengthAllocated, _boundingVolumes);
 		
 		cl_mem sapBuffer = sap->execute(ONE_UINT, &lastEvent);
 		result->length = sap->fetchCollisionLength();
 
 		const sp_uint indexesLength = multiplyBy2(sap->fetchCollisionLength());
 		
-		gpu->commandManager->readBuffer(sapBuffer, indexesLength * SIZEOF_UINT, result->indexes);
+		gpu->commandManager->readBuffer(sapBuffer, indexesLength * SIZEOF_UINT, &result->indexes);
 	}
 
 	void SpPhysicSimulator::run(const Timer& timer)

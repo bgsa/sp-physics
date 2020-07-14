@@ -133,7 +133,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			minTime = std::min(times[i], minTime);
 
 			sp_float* result = ALLOC_ARRAY(sp_float, 2);
-			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, true);
+			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &findMinMax->lastEvent);
 
 			Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 			Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
@@ -189,7 +189,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			findMinMax->execute();
 
 			sp_float* result = ALLOC_ARRAY(sp_float, 2);
-			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, true);
+			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &findMinMax->lastEvent);
 
 			Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 			Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
@@ -244,7 +244,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		findMinMax->execute();
 
 		sp_float* result = ALLOC_ARRAY(sp_float, 2);
-		gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, true);
+		gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &findMinMax->lastEvent);
 
 		Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
@@ -298,7 +298,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			findMinMax->execute();
 
 			sp_float* result = ALLOC_ARRAY(sp_float, 2);
-			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, true);
+			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &findMinMax->lastEvent);
 
 			Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 			Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());

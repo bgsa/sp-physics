@@ -43,7 +43,6 @@
     <ClCompile Include="src\CollisionResponseTest.cpp" />
     <ClCompile Include="src\DOP18Test.cpp" />
     <ClCompile Include="src\GpuIndexesTest.cpp" />
-    <ClCompile Include="src\GpuCommandTest.cpp" />
     <ClCompile Include="src\GpuContextTest.cpp" />
     <ClCompile Include="src\GpuFindMinMaxTest.cpp" />
     <ClCompile Include="src\GpuRadixSortingTest.cpp" />

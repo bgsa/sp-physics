@@ -3,12 +3,6 @@
 #ifndef GPU_CONTEXT_HEADER
 #define GPU_CONTEXT_HEADER
 
-#ifdef APPLE
-	#include <OpenCL/opencl.h>
-#else
-	#include <CL/cl.h>
-#endif
-
 #include "SpectrumPhysics.h"
 #include "GpuDevice.h"
 #include "SpArray.h"

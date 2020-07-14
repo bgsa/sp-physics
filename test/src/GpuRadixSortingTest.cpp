@@ -166,13 +166,19 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
 		commandIndexes->init(gpu, buildOptions.str().c_str());
 		commandIndexes->setParametersCreateIndexes(count);
-				
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
 		SP_FILE file;
-		file.open("RadixSorting.cl", std::ios::in);
+		file.open(filename->name()->data(), std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
 
 		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
 
@@ -213,7 +219,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, orderedIndexes, true);
+		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, orderedIndexes, ONE_UINT, &commandCount->lastEvent);
 
 		for (sp_uint shift = 0; shift < threadsLength * 10; shift+=10)
 		{
@@ -248,12 +254,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, buildOptions.str().c_str());
 		commandIndexes->setParametersCreateIndexes(count);
 		
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
 		SP_FILE file;
-		file.open("RadixSorting.cl", std::ios::in);
+		file.open(filename->name()->data(), std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
 
 		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
 
@@ -313,7 +325,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->buildFromProgram(program, "prefixScanDown");
 
 		sp_uint* temp = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, temp, true);
+		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, temp, ONE_UINT, &commandCount->lastEvent);
 
 		for (sp_uint shift = 0; shift < threadsLength * 10; shift += 10)
 		{
@@ -343,7 +355,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset);
 			
 			// test scan up
-			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, true);
+			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, ONE_UINT, &commandPrefixScanUp->lastEvent);
 			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
 			{
 				sp_uint sum = 0;
@@ -371,7 +383,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset);
 
 			// test scan down
-			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, true);
+			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, ONE_UINT, &commandPrefixScanDown->lastEvent);
 			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
 			{
 				sp_uint sum = 0;
@@ -453,7 +465,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			minTime = std::min(times[i], minTime);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
+			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
@@ -513,7 +525,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			times[i] = ms2;
 
 			sp_size* result = ALLOC_ARRAY(sp_size, length * SIZEOF_UINT);
-			gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, result, true);
+			gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, result, ONE_UINT, &radixSorting->lastEvent);
 
 			for (sp_uint i = 0; i < length; i++)
 				Assert::AreEqual(input1[i].minPoint.x, input2[result[i]].minPoint.x, L"Wrong value.", LINE_INFO());
@@ -560,7 +572,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem output = radixGpu->execute();
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
+		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
@@ -623,7 +635,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			minTime = std::min(times[i], minTime);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, true);
+			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				for (sp_uint j = 0; i < DOP18_ORIENTATIONS; i++)

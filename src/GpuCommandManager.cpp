@@ -15,9 +15,10 @@ namespace NAMESPACE_PHYSICS
 			queueProperties |= CL_QUEUE_PROFILING_ENABLE;
 	#endif
 
-	#if defined(CL_VERSION_2_0) || defined(CL_VERSION_1_2)
+	#if (CL_TARGET_OPENCL_VERSION > 120)
 			commandQueue = clCreateCommandQueueWithProperties(deviceContext, deviceId, &queueProperties, &errorCode);
 	#else
+			#pragma warning(suppress : 4996)
 			commandQueue = clCreateCommandQueue(deviceContext, deviceId, queueProperties, &errorCode);
 	#endif
 

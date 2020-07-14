@@ -11,8 +11,8 @@ namespace NAMESPACE_PHYSICS
 		cl_int errorCode;
 		this->deviceContext = clCreateContext(NULL, 1, &this->id, NULL, NULL, &errorCode);
 		HANDLE_OPENCL_ERROR(errorCode);
-
-		this->commandManager = new GpuCommandManager(deviceContext, id);
+		
+		this->commandManager = sp_mem_new(GpuCommandManager)(deviceContext, id);
 			
 		sp_size valueSize;
 		clGetDeviceInfo(id, CL_DEVICE_NAME, 0, NULL, &valueSize);
@@ -182,7 +182,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		if (commandManager != nullptr)
 		{
-			delete commandManager;
+			sp_mem_delete(commandManager, GpuCommandManager);
 			commandManager = nullptr;
 		}
 
