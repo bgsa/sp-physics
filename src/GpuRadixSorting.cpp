@@ -165,7 +165,7 @@ namespace NAMESPACE_PHYSICS
 		globalWorkSize[0] = threadsLength;
 		localWorkSize[0] = defaultLocalWorkSize;
 
-		for (sp_uint digitIndex = ZERO_UINT; digitIndex < 7u; digitIndex++)  // for each digit in the number ...
+		for (sp_uint digitIndex = ZERO_UINT; digitIndex < 9u; digitIndex++)  // for each digit in the number ...
 		{
 			if (offsetChanged)
 				commandCountSwapped->updateInputParameter(THREE_UINT, offsetTable2);

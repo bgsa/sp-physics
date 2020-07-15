@@ -68,6 +68,8 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 
+		AABB* aabbs;
+
 		///<summary>
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes

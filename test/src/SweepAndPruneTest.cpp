@@ -2392,6 +2392,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
 		currentTime1 = std::chrono::high_resolution_clock::now();
 
+		sap->aabbs = aabbs2;
 		cl_mem output = sap->execute();
 
 		currentTime2 = std::chrono::high_resolution_clock::now();
