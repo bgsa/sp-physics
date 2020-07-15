@@ -225,7 +225,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint zeroValue = ZERO_UINT;
 
 		radixSorting->execute(previousEventsLength, previousEvents);
-		cl_event lastEvent = radixSorting->lastEvent;
+		lastEvent = radixSorting->lastEvent;
 
 		/*
 		const sp_uint len = 512u;

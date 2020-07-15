@@ -24,8 +24,8 @@ namespace NAMESPACE_PHYSICS
 		GpuDevice* gpu;
 		SweepAndPrune* sap;
 
-		sp_uint objectsLengthAllocated;
-		sp_uint objectsLength;
+		sp_uint _objectsLengthAllocated;
+		sp_uint _objectsLength;
 
 		cl_mem boundingVolumeBuffer = nullptr;
 		DOP18* _boundingVolumes;
@@ -84,7 +84,27 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE static void init(sp_uint objectsLength);
 
-		API_INTERFACE sp_uint alloc(sp_uint length);
+		API_INTERFACE inline sp_uint alloc(sp_uint length)
+		{
+			sp_uint allocated = _objectsLength;
+			_objectsLength += length;
+
+			sp_assert(_objectsLength <= _objectsLengthAllocated, "InvalidArgumentException");
+
+			return allocated;
+		}
+
+		API_INTERFACE inline sp_uint objectsLength() const
+		{
+			return _objectsLength;
+		}
+
+		API_INTERFACE inline sp_uint objectsLengthAllocated() const
+		{
+			return _objectsLengthAllocated;
+		}
+
+		
 
 		API_INTERFACE inline BoundingVolume* boundingVolumes(const sp_uint index) const
 		{
@@ -100,7 +120,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 			sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-			sp_assert(index < objectsLength, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 			
 			SpPhysicSettings* settings = SpPhysicSettings::instance();
 			SpPhysicProperties* element = &_physicProperties[index];

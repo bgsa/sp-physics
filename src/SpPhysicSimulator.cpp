@@ -12,8 +12,8 @@ namespace NAMESPACE_PHYSICS
 	void SpPhysicSimulator::init(sp_uint objectsLength)
 	{
 		_instance = sp_mem_new(SpPhysicSimulator)();
-		_instance->objectsLength = ZERO_UINT;
-		_instance->objectsLengthAllocated = objectsLength;
+		_instance->_objectsLength = ZERO_UINT;
+		_instance->_objectsLengthAllocated = objectsLength;
 		_instance->_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
 		_instance->_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
 
@@ -21,7 +21,7 @@ namespace NAMESPACE_PHYSICS
 		_instance->boundingVolumeBuffer = _instance->gpu->createBuffer(DOP18_SIZE*objectsLength, CL_MEM_READ_WRITE); // TODO: ENABLE!
 
 		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << _instance->objectsLengthAllocated
+		buildOptions << " -DINPUT_LENGTH=" << _instance->_objectsLengthAllocated
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
 			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
 			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
@@ -219,48 +219,66 @@ namespace NAMESPACE_PHYSICS
 		dispatchEvent(objIndex1, objIndex2);
 	}
 
-	sp_uint SpPhysicSimulator::alloc(sp_uint length)
-	{
-		sp_uint allocated = objectsLength;		
-		objectsLength += length;
-		return allocated;
-	}
-
 	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
 	{
-		sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, objectsLength);
-		for (sp_uint i = ZERO_UINT; i < objectsLength; i++)
+		sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, _objectsLength);
+		for (sp_uint i = ZERO_UINT; i < _objectsLength; i++)
 			sortedIndexes[i] = i;
 
-		sap->findCollisions(_boundingVolumes, sortedIndexes, objectsLength, result);
+		sap->findCollisions(_boundingVolumes, sortedIndexes, _objectsLength, result);
 
 		ALLOC_RELEASE(sortedIndexes);
 	}
 
 	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
 	{
-		cl_event lastEvent = gpu->commandManager->updateBuffer(boundingVolumeBuffer, sizeof(DOP18) * objectsLengthAllocated, _boundingVolumes);
+		cl_event lastEvent = gpu->commandManager->updateBuffer(boundingVolumeBuffer, sizeof(DOP18) * _objectsLengthAllocated, _boundingVolumes);
 		
 		cl_mem sapBuffer = sap->execute(ONE_UINT, &lastEvent);
+		
+		lastEvent = sap->lastEvent;
+
 		result->length = sap->fetchCollisionLength();
 
-		const sp_uint indexesLength = multiplyBy2(sap->fetchCollisionLength());
-		
-		gpu->commandManager->readBuffer(sapBuffer, indexesLength * SIZEOF_UINT, &result->indexes);
+		gpu->commandManager->readBuffer(sapBuffer, multiplyBy2(result->length) * SIZEOF_UINT, result->indexes, ONE_UINT, &lastEvent);
 	}
 
 	void SpPhysicSimulator::run(const Timer& timer)
 	{
+		/*
 		SweepAndPruneResult sapResult;
-		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(objectsLength));
+		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
 
-		//findCollisions(&sapResult);
-		findCollisionsGpu(&sapResult);
+		findCollisionsCpu(&sapResult);
 
 		const sp_float elapsedTime = timer.elapsedTime();
 
-		for (sp_uint i = 0; i < sapResult.length; i+=2u)
+		for (sp_uint i = 0; i < multiplyBy2(sapResult.length); i += 2u)
+			handleCollision(sapResult.indexes[i], sapResult.indexes[i + 1], elapsedTime);
+	
+		ALLOC_RELEASE(sapResult.indexes);
+		sapResult.indexes = nullptr;
+		*/
+
+		SweepAndPruneResult sapResult;
+		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
+
+		//Timer tt; tt.start();
+
+		findCollisionsGpu(&sapResult);
+		
+		//sp_float t = tt.elapsedTime(); // 3-4 ms
+		//std::cout << t << END_OF_LINE;
+
+		const sp_float elapsedTime = timer.elapsedTime();
+
+		Timer tt; tt.start();
+
+		for (sp_uint i = 0; i < multiplyBy2(sapResult.length); i+=2u)
 			handleCollision(sapResult.indexes[i], sapResult.indexes[i+1], elapsedTime);
+
+		sp_float t = tt.elapsedTime(); // 3-4 ms
+		std::cout << t << END_OF_LINE;
 
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;
@@ -687,8 +705,8 @@ namespace NAMESPACE_PHYSICS
 	
 	void SpPhysicSimulator::collisionDetails(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		sp_assert(objIndex1 >= ZERO_UINT && objIndex1 < objectsLength, "IndexOutOfRangeException");
-		sp_assert(objIndex2 >= ZERO_UINT && objIndex2 < objectsLength, "IndexOutOfRangeException");
+		sp_assert(objIndex1 >= ZERO_UINT && objIndex1 < _objectsLength, "IndexOutOfRangeException");
+		sp_assert(objIndex2 >= ZERO_UINT && objIndex2 < _objectsLength, "IndexOutOfRangeException");
 
 		details->timeOfCollision = timeOfCollision(objIndex1, objIndex2, details->timeStep);
 
