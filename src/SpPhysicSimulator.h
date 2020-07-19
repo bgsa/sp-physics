@@ -51,37 +51,22 @@ namespace NAMESPACE_PHYSICS
 			SpEventDispatcher::instance()->push(evt);
 		}
 
-		static void timeOfCollision(SpCollisionDetails* details);
+		void timeOfCollision(SpCollisionDetails* details);
 
-		static void collisionDetails(SpCollisionDetails* details);
-		static void collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		static void collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetails(SpCollisionDetails* details);
+		void collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		void collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
 
-		static void handleCollisionResponse(SpCollisionDetails* details);
+		void handleCollisionResponse(SpCollisionDetails* details);
 
 		static void handleCollision(void* collisionParamter);
-		//static void handle(void* a);
-
-		static sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2)
-		{
-			const SpPhysicProperties* obj1Properties = &SpPhysicSimulator::instance()->_physicProperties[objIndex1];
-			const SpPhysicProperties* obj2Properties = &SpPhysicSimulator::instance()->_physicProperties[objIndex2];
-			
-			Vec3 lineOfAction = obj2Properties->position() - obj1Properties->position();
-			const Vec3 velocityToObject2 = obj1Properties->velocity() * lineOfAction;
-
-			lineOfAction = obj1Properties->position() - obj2Properties->position();
-			const Vec3 velocityToObject1 = obj2Properties->velocity() * lineOfAction;
-
-			return velocityToObject2 <= ZERO_FLOAT && velocityToObject1 <= ZERO_FLOAT;
-		}
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpu(SweepAndPruneResult* result);
@@ -191,6 +176,20 @@ namespace NAMESPACE_PHYSICS
 			simulator->syncronizer->sync(index, translation, element->previousOrientation());
 
 			element->rollbackState();
+		}
+
+		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2)
+		{
+			const SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
+			const SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
+
+			Vec3 lineOfAction = obj2Properties->position() - obj1Properties->position();
+			const Vec3 velocityToObject2 = obj1Properties->velocity() * lineOfAction;
+
+			lineOfAction = obj1Properties->position() - obj2Properties->position();
+			const Vec3 velocityToObject1 = obj2Properties->velocity() * lineOfAction;
+
+			return velocityToObject2 <= ZERO_FLOAT && velocityToObject1 <= ZERO_FLOAT;
 		}
 
 		API_INTERFACE void run(const Timer& timer);

@@ -43,9 +43,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::timeOfCollision(SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		SpPhysicProperties* obj1Properties = &simulator->_physicProperties[details->objIndex1];
-		SpPhysicProperties* obj2Properties = &simulator->_physicProperties[details->objIndex2];
+		SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
+		SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
 
 		CollisionStatus status = CollisionStatus::INLINE;
 		const sp_float _epsilon = 0.09f;
@@ -62,7 +61,7 @@ namespace NAMESPACE_PHYSICS
 			integrate(details->objIndex1, elapsedTime);
 			integrate(details->objIndex2, elapsedTime);
 
-			status = simulator->_boundingVolumes[details->objIndex1].collisionStatus(simulator->_boundingVolumes[details->objIndex2]);
+			status = _boundingVolumes[details->objIndex1].collisionStatus(_boundingVolumes[details->objIndex2]);
 
 			diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
@@ -78,13 +77,11 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::handleCollisionResponse(SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
+		SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
 
-		SpPhysicProperties* obj1Properties = &simulator->_physicProperties[details->objIndex1];
-		SpPhysicProperties* obj2Properties = &simulator->_physicProperties[details->objIndex2];
-
-		const DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		const DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		const DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		const DOP18 bv2 = _boundingVolumes[details->objIndex2];
 
 		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
 		const sp_float cof = std::max(obj1Properties->coeficientOfFriction(), obj2Properties->coeficientOfFriction());
@@ -172,8 +169,9 @@ namespace NAMESPACE_PHYSICS
 		
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
 
-		SpPhysicProperties* obj1Properties = &SpPhysicSimulator::instance()->_physicProperties[details->objIndex1];
-		SpPhysicProperties* obj2Properties = &SpPhysicSimulator::instance()->_physicProperties[details->objIndex2];
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpPhysicProperties* obj1Properties = &simulator->_physicProperties[details->objIndex1];
+		SpPhysicProperties* obj2Properties = &simulator->_physicProperties[details->objIndex2];
 
 		const sp_bool isObj1Static = obj1Properties->isStatic();
 		const sp_bool isObj2Static = obj2Properties->isStatic();
@@ -219,15 +217,15 @@ namespace NAMESPACE_PHYSICS
 			return;
 		}
 
-		if (areMovingAway(details->objIndex1, details->objIndex2)) // if the objects are getting distant
+		if (simulator->areMovingAway(details->objIndex1, details->objIndex2)) // if the objects are getting distant
 		{
 			details->ignoreCollision = true;
 			return;
 		}
 
-		collisionDetails(details);
+		simulator->collisionDetails(details);
 
-		handleCollisionResponse(details);
+		simulator->handleCollisionResponse(details);
 	}
 
 	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
@@ -285,44 +283,38 @@ namespace NAMESPACE_PHYSICS
 
 		//Timer tt; tt.start();
 
-		SpCollisionDetails** detailsArray = ALLOC_ARRAY(SpCollisionDetails*, sapResult.length);
+		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
+		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
+		
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
-			detailsArray[i] = ALLOC_NEW(SpCollisionDetails)();
-			detailsArray[i]->objIndex1 = sapResult.indexes[multiplyBy2(i)];
-			detailsArray[i]->objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
-			detailsArray[i]->timeStep = elapsedTime;
+			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
+			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
+			detailsArray[i].timeStep = elapsedTime;
 
-			SpThreadTask* task = ALLOC_NEW(SpThreadTask)();
-			task->func = &SpPhysicSimulator::handleCollision;
-			task->parameter = detailsArray[i];
+			tasks[i].func = &SpPhysicSimulator::handleCollision;
+			tasks[i]. parameter = &detailsArray[i];
 
-			SpThreadPool::instance()->schedule(task);
-			//handleCollision(detailsArray[i]);
+			SpThreadPool::instance()->schedule(&tasks[i]);
 		}
 
 		SpThreadPool::instance()->waitToFinish();
-		for (sp_uint i = 0; i < sapResult.length; i++)
-		{
-			if (!detailsArray[i]->ignoreCollision)
-				dispatchEvent(detailsArray[i]);
-
-			ALLOC_DELETE(detailsArray[i], SpCollisionDetails);
-		}
-		ALLOC_RELEASE(detailsArray);
 		
-		//sp_float t = ; // 3-4 ms
+		for (sp_uint i = 0; i < sapResult.length; i++)
+			if (!detailsArray[i].ignoreCollision)
+				dispatchEvent(&detailsArray[i]);
+
 		//std::cout << tt.elapsedTime() << END_OF_LINE;
 
+		ALLOC_RELEASE(detailsArray);
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;
 	}
 
 	void SpPhysicSimulator::collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
-	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+	{	
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 		Plane3D planeRightDepth = bv1.planeRightDepth();
 
 		Vec3 vertexes[4] = {
@@ -363,9 +355,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 		Plane3D planeRightFront = bv1.planeRightFront();
 
 		Vec3 vertexes[4] = {
@@ -404,9 +395,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 
 		Vec3 vertexes[4] = {
 			Vec3(bv1.min[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Y], bv1.min[DOP18_AXIS_Z]),
@@ -464,9 +454,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 
 		Vec3 vertexes[4] = { // pseudo-vertexes of plane right
 			Vec3(bv1.max[DOP18_AXIS_X], bv1.min[DOP18_AXIS_Y], bv1.max[DOP18_AXIS_Z]),
@@ -524,9 +513,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 
 		Vec3 vertexes[4] = { // pseudo-vertexes of plane front
 			Vec3(bv2.min[DOP18_AXIS_X], bv2.min[DOP18_AXIS_Y], bv2.max[DOP18_AXIS_Z]),
@@ -584,9 +572,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 		Plane3D planeUpLeft = bv1.planeUpLeft();
 
 		Vec3 vertexes[4] = {
@@ -625,9 +612,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 		Plane3D planeUpRight = bv1.planeUpRight();
 
 		Vec3 vertexes[4] = {
@@ -666,9 +652,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 		Plane3D planeUpFront = bv1.planeUpFront();
 
 		Vec3 vertexes[4] = {
@@ -707,9 +692,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
 		Plane3D planeUpDepth = bv1.planeUpDepth();
 
 		Vec3 vertexes[4] = {
@@ -748,18 +732,16 @@ namespace NAMESPACE_PHYSICS
 	
 	void SpPhysicSimulator::collisionDetails(SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-
-		sp_assert(details->objIndex1 >= ZERO_UINT && details->objIndex1 < simulator->_objectsLength, "IndexOutOfRangeException");
-		sp_assert(details->objIndex2 >= ZERO_UINT && details->objIndex2 < simulator->_objectsLength, "IndexOutOfRangeException");
+		sp_assert(details->objIndex1 >= ZERO_UINT && details->objIndex1 < _objectsLength, "IndexOutOfRangeException");
+		sp_assert(details->objIndex2 >= ZERO_UINT && details->objIndex2 < _objectsLength, "IndexOutOfRangeException");
 
 		timeOfCollision(details);
 
-		const SpPhysicProperties* obj1Properties = &simulator->_physicProperties[details->objIndex1];
-		const SpPhysicProperties* obj2Properties = &simulator->_physicProperties[details->objIndex2];
+		const SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
+		const SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
 
-		const DOP18 bv1 = simulator->_boundingVolumes[details->objIndex1];
-		const DOP18 bv2 = simulator->_boundingVolumes[details->objIndex2];
+		const DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		const DOP18 bv2 = _boundingVolumes[details->objIndex2];
 
 		const Vec3 centerObj1 = obj1Properties->position();
 		const Vec3 centerObj2 = obj2Properties->position();
