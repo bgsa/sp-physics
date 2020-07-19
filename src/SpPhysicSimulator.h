@@ -13,11 +13,20 @@
 #include "SpCollisionDetails.h"
 #include "SpPhysicSyncronizer.h"
 #include "Ray.h"
+#include "SpThreadPool.h"
 
 #include <iostream>
 
 namespace NAMESPACE_PHYSICS
 {
+	class SpHandleCollisionParameter
+	{
+	public:
+		sp_uint objIndex1;
+		sp_uint objIndex2;
+		sp_float elapsedTime;
+	};
+
 	class SpPhysicSimulator
 	{
 	private:
@@ -33,36 +42,37 @@ namespace NAMESPACE_PHYSICS
 
 		SpPhysicSimulator() { }
 
-		inline void dispatchEvent(const sp_uint objIndex1, const sp_uint objIndex2)
+		inline void dispatchEvent(SpCollisionDetails* details)
 		{
-			SpCollisionEvent* evt = sp_mem_new(SpCollisionEvent)();
-			evt->indexBody1 = objIndex1;
-			evt->indexBody2 = objIndex2;
+			SpCollisionEvent* evt = sp_mem_new(SpCollisionEvent);
+			evt->indexBody1 = details->objIndex1;
+			evt->indexBody2 = details->objIndex2;
 
 			SpEventDispatcher::instance()->push(evt);
 		}
 
-		sp_float timeOfCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime);
+		static void timeOfCollision(SpCollisionDetails* details);
 
-		void collisionDetails(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
-		void collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details) const;
+		static void collisionDetails(SpCollisionDetails* details);
+		static void collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		static void collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
 
-		void handleCollisionResponse(sp_uint objIndex1, sp_uint objIndex2, const SpCollisionDetails& details);
+		static void handleCollisionResponse(SpCollisionDetails* details);
 
-		void handleCollision(const sp_uint objIndex1, const sp_uint objIndex2, sp_float elapsedTime);
+		static void handleCollision(void* collisionParamter);
+		//static void handle(void* a);
 
-		sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2)
+		static sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2)
 		{
-			const SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
-			const SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
+			const SpPhysicProperties* obj1Properties = &SpPhysicSimulator::instance()->_physicProperties[objIndex1];
+			const SpPhysicProperties* obj2Properties = &SpPhysicSimulator::instance()->_physicProperties[objIndex2];
 			
 			Vec3 lineOfAction = obj2Properties->position() - obj1Properties->position();
 			const Vec3 velocityToObject2 = obj1Properties->velocity() * lineOfAction;
@@ -104,8 +114,6 @@ namespace NAMESPACE_PHYSICS
 			return _objectsLengthAllocated;
 		}
 
-		
-
 		API_INTERFACE inline BoundingVolume* boundingVolumes(const sp_uint index) const
 		{
 			return &_boundingVolumes[index];
@@ -116,14 +124,16 @@ namespace NAMESPACE_PHYSICS
 			return &_physicProperties[index];
 		}
 
-		API_INTERFACE inline void integrate(const sp_uint index, sp_float elapsedTime)
+		API_INTERFACE static void integrate(const sp_uint index, sp_float elapsedTime)
 		{
+			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+
 			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 			sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
+			sp_assert(index < simulator->_objectsLength, "IndexOutOfRangeException");
 			
 			SpPhysicSettings* settings = SpPhysicSettings::instance();
-			SpPhysicProperties* element = &_physicProperties[index];
+			SpPhysicProperties* element = &simulator->_physicProperties[index];
 
 			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
 			const Vec3 dragForce = (element->velocity() * element->velocity().abs()) * HALF_FLOAT * drag;
@@ -147,8 +157,8 @@ namespace NAMESPACE_PHYSICS
 
 
 			const Vec3 translation = newPosition - element->position();
-			_boundingVolumes[index].translate(translation); // Sync with the bounding Volume
-			syncronizer->sync(index, translation, element->orientation());
+			simulator->_boundingVolumes[index].translate(translation); // Sync with the bounding Volume
+			simulator->syncronizer->sync(index, translation, element->orientation());
 
 			element->_previousAcceleration = element->acceleration();
 			element->_acceleration = newAcceleration;
@@ -169,15 +179,16 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Back the object to the state before timestep
 		/// </summary>
-		API_INTERFACE inline void backToTime(const sp_uint index)
+		API_INTERFACE inline static void backToTime(const sp_uint index)
 		{
-			SpPhysicProperties* element = &_physicProperties[index];
-			DOP18* dop = &_boundingVolumes[index];
+			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+			SpPhysicProperties* element = &simulator->_physicProperties[index];
+			DOP18* dop = &simulator->_boundingVolumes[index];
 
 			const Vec3 translation = element->previousPosition() - element->position();
 
 			dop->translate(translation);
-			syncronizer->sync(index, translation, element->previousOrientation());
+			simulator->syncronizer->sync(index, translation, element->previousOrientation());
 
 			element->rollbackState();
 		}

@@ -9,11 +9,19 @@ namespace NAMESPACE_PHYSICS
 	class SpCollisionDetails
 	{
 	public:
-		Vec3 contactPoint;
-		sp_float timeOfCollision;
-		sp_float timeStep;
+		sp_uint objIndex1;
+		sp_uint objIndex2;
 		sp_uint objectIndexPlane1;
 		sp_uint objectIndexPlane2;
+		sp_float timeOfCollision;
+		sp_float timeStep;
+		Vec3 contactPoint;
+		sp_bool ignoreCollision;
+
+		SpCollisionDetails()
+		{
+			ignoreCollision = false;
+		}
 	};
 
 }
