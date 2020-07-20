@@ -309,8 +309,8 @@
     <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
     <None Include="resources\opencl\src\RadixSortingByThread.cl" />
     <None Include="resources\opencl\src\Reverse.cl" />
+    <None Include="resources\opencl\src\SpPhysicProperties.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />
-    <None Include="resources\opencl\src\SweepAndPruneKdop.cl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

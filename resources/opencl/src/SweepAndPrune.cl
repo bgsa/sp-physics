@@ -1,4 +1,5 @@
 #include "OpenCLBase.cl"
+#include "SpPhysicProperties.cl"
 
 #define MIN_POINT_NEXT_ELEMENT input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + axis                     ]
 #define MAX_POINT_NEXT_ELEMENT input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + axis + ORIENTATION_LENGTH]
@@ -23,7 +24,8 @@
 #define MAX_POINT_NEXT_ELEMENT_ZX input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 8 + ORIENTATION_LENGTH]
 
 __kernel void sweepAndPruneSingleAxis(
-	__global   sp_float* input, 
+	__global   sp_float* input,
+    __global   sp_float* physicProperties,
 	__constant sp_uint * indexesLength, 
     __global   sp_uint * indexes, 
 	__global   sp_uint * outputLength, 
@@ -59,9 +61,11 @@ __kernel void sweepAndPruneSingleAxis(
     const sp_float maxPointXZ = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 7 + ORIENTATION_LENGTH];
     const sp_float maxPointZX = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 8 + ORIENTATION_LENGTH];
 
+    const sp_bool isStatic = SpPhysicProperties_isStatic(physicProperties, index);
+
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
-        if (maxPoint < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element do not collide with nobody else
+        if (maxPoint < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else
             return;
 
         if (   (maxPointX  >= MIN_POINT_NEXT_ELEMENT_X  && minPointX  <= MAX_POINT_NEXT_ELEMENT_X)
@@ -75,9 +79,12 @@ __kernel void sweepAndPruneSingleAxis(
             && (maxPointZX >= MIN_POINT_NEXT_ELEMENT_ZX && minPointZX <= MAX_POINT_NEXT_ELEMENT_ZX)  
         )
         {
-            const sp_uint temp = atomic_add(outputLength, 2);
-            output[temp    ] = indexes[index];
-            output[temp + 1] = indexes[j];
+            if (!isStatic || !SpPhysicProperties_isStatic(physicProperties, j)) // if the objects are no static, inclulde on collision
+            {
+                const sp_uint temp = atomic_add(outputLength, 2);
+                output[temp] = indexes[index];
+                output[temp + 1] = indexes[j];
+            }
         }
     }
 }

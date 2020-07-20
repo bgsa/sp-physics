@@ -3,8 +3,6 @@
 
 #include "SpectrumPhysics.h"
 #include "AutoValueAutoVector.h"
-#include <cstring>
-#include <vector>
 
 namespace NAMESPACE_PHYSICS
 {

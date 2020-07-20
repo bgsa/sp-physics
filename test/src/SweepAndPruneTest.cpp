@@ -2,6 +2,7 @@
 #include <SweepAndPrune.h>
 #include "Randomizer.h"
 #include "DOP18.h"
+#include "SpPhysicProperties.h"
 
 #define CLASS_NAME SweepAndPruneTest
 
@@ -2374,6 +2375,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		AABB* aabbs2 = ALLOC_COPY(aabbs1, AABB, count);
 		cl_mem inputGpu = gpu->createBuffer(aabbs2, sizeof(AABB) * count, CL_MEM_READ_ONLY, true);
 
+		SpPhysicProperties* physicProperties = nullptr;
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * count, CL_MEM_READ_ONLY, true);
+
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count
 					<< " -DINPUT_STRIDE=" << AABB_STRIDER
@@ -2382,7 +2386,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION);
+		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, physcPropertiesGpu, sizeof(SpPhysicProperties));
 
 		std::chrono::high_resolution_clock::time_point currentTime1 = std::chrono::high_resolution_clock::now();
 
@@ -2425,6 +2429,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
 		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY, true);
 
+		SpPhysicProperties* physicProperties = nullptr;
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY, true);
+
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << length
 					<< " -DINPUT_STRIDE=" << DOP18_STRIDER
@@ -2432,7 +2439,7 @@ namespace NAMESPACE_PHYSICS_TEST
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS);
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS, physcPropertiesGpu, sizeof(SpPhysicProperties));
 
 		performanceCounter.start();
 

@@ -14,21 +14,17 @@ namespace NAMESPACE_PHYSICS
 
 	private:
 		Vec3 _position;
-		Vec3 _previousPosition;
-
 		Vec3 _velocity;
-		Vec3 _previousVelocity;
-
 		Vec3 _acceleration;
-		Vec3 _previousAcceleration;
-
 		Vec3 _force;
-		Vec3 _previousForce;
-
 		Quat _orientation;
-		Quat _previousOrientation;
-
 		Vec3 _torque;
+
+		Vec3 _previousPosition;
+		Vec3 _previousVelocity;
+		Vec3 _previousAcceleration;
+		Vec3 _previousForce;
+		Quat _previousOrientation;
 		Vec3 _previousTorque;
 
 		sp_float _inverseMass;
@@ -274,6 +270,14 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get the velocity of the object
+		/// </summary>
+		API_INTERFACE inline void velocity(const Vec3& newVelocity)
+		{
+			_velocity = newVelocity;
+		}
+
+		/// <summary>
 		/// Get the previous velocity of the object
 		/// </summary>
 		API_INTERFACE inline Vec3 previousVelocity() const
@@ -287,6 +291,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline Vec3 acceleration() const
 		{
 			return _acceleration;
+		}
+
+		/// <summary>
+		/// Get the acceleration of the object
+		/// </summary>
+		API_INTERFACE inline void acceleration(const Vec3& newAcceleration)
+		{
+			_acceleration = newAcceleration	;
 		}
 
 		/// <summary>
@@ -338,11 +350,27 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Define the material when it collides
+		/// </summary>
+		API_INTERFACE inline void coeficientOfRestitution(const sp_float newCoR)
+		{
+			_coeficientOfRestitution = newCoR;
+		}
+
+		/// <summary>
 		/// Define the material when it collides (tangent)
 		/// </summary>
 		API_INTERFACE inline sp_float coeficientOfFriction() const
 		{
 			return _coeficientOfFriction;
+		}
+
+		/// <summary>
+		/// Define the material when it collides (tangent)
+		/// </summary>
+		API_INTERFACE inline void coeficientOfFriction(const sp_float newCoF)
+		{
+			_coeficientOfFriction = newCoF;
 		}
 
 		/// <summary>

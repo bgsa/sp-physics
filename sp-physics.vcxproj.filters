@@ -1038,9 +1038,6 @@
     <ClCompile Include="src\SweepAndPrune.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SweepAndPruneKdop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Triangle2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -2131,9 +2128,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SpPhysicSimulator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SpTransform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SweepAndPrune.cpp">
@@ -4247,9 +4241,6 @@
     <ClInclude Include="src\SweepAndPrune.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SweepAndPruneKdop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SystemOfLinearEquations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6348,9 +6339,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\CollisionResponse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\CollisionStatus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\DOP18.h">
@@ -6535,10 +6523,10 @@
     <None Include="resources\opencl\src\SweepAndPrune.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
-    <None Include="resources\opencl\src\SweepAndPruneKdop.cl">
+    <None Include="resources\opencl\src\Reverse.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
-    <None Include="resources\opencl\src\Reverse.cl">
+    <None Include="resources\opencl\src\SpPhysicProperties.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
   </ItemGroup>

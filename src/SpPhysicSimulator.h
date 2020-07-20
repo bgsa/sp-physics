@@ -36,11 +36,19 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _objectsLengthAllocated;
 		sp_uint _objectsLength;
 
-		cl_mem boundingVolumeBuffer = nullptr;
 		DOP18* _boundingVolumes;
 		SpPhysicProperties* _physicProperties;
 
-		SpPhysicSimulator() { }
+		cl_event lastEvent;
+		cl_mem _boundingVolumesGPU;
+		cl_mem _physicPropertiesGPU;
+
+		SpPhysicSimulator() 
+		{
+			lastEvent = nullptr;
+			_boundingVolumesGPU = nullptr;
+			_physicPropertiesGPU = nullptr;
+		}
 
 		inline void dispatchEvent(SpCollisionDetails* details)
 		{
@@ -66,10 +74,12 @@ namespace NAMESPACE_PHYSICS
 
 		void handleCollisionResponse(SpCollisionDetails* details);
 
-		static void handleCollision(void* collisionParamter);
-
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpu(SweepAndPruneResult* result);
+
+		void updateDataOnGPU();
+
+		static void handleCollision(void* collisionParamter);
 
 	public:
 

@@ -198,7 +198,7 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
-	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength)
+	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize)
 	{
 		globalWorkSize[0] = inputLength;
 		localWorkSize[0] = 1u;
@@ -213,6 +213,7 @@ namespace NAMESPACE_PHYSICS
 
 		commandSaPCollisions = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputLength * strider * SIZEOF_FLOAT)
+			->setInputParameter(physicProperties, inputLength * physicPropertySize)
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(radixSorting->output, inputLength * SIZEOF_UINT)
 			->setInputParameter(collisionsLength, SIZEOF_UINT)
@@ -227,7 +228,7 @@ namespace NAMESPACE_PHYSICS
 		radixSorting->execute(previousEventsLength, previousEvents);
 		lastEvent = radixSorting->lastEvent;
 
-		/*
+		/* // check if sorting is OK
 		const sp_uint len = 512u;
 		sp_uint* buffer = ALLOC_ARRAY(sp_uint, len);
 		lastEvent = gpu->commandManager->readBuffer(radixSorting->output, 4 * len, buffer, ONE_UINT, &lastEvent);
@@ -239,8 +240,8 @@ namespace NAMESPACE_PHYSICS
 		*/
 
 		commandSaPCollisions
-			->updateInputParameter(2, radixSorting->output)
-			->updateInputParameterValue(3, &zeroValue)
+			->updateInputParameter(3, radixSorting->output)
+			->updateInputParameterValue(4, &zeroValue)
 			->execute(1, globalWorkSize, localWorkSize, 0, &lastEvent, ONE_UINT);
 
 		lastEvent = commandSaPCollisions->lastEvent;
@@ -248,147 +249,9 @@ namespace NAMESPACE_PHYSICS
 		return collisions;
 	}
 
-	/*
-	cl_mem SweepAndPrune::execute()
-	{
-		DOP18* kdops = (DOP18*)values;
-		sp_uint zeroValue = ZERO_UINT;
-
-		std::vector<sp_uint> keptIndexes;
-		for (sp_uint i = 0; i < inputLength; i++)
-			keptIndexes.push_back(i);
-
-		std::stringstream out;
-
-		sp_size axis = 0;
-		for (; axis < axisLength - 1; axis++)
-		{	
-			sp_uint length;
-			gpu->commandManager->executeReadBuffer(indexesLengthGPU, SIZEOF_UINT, &length, true);
-			sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
-			gpu->commandManager->executeReadBuffer(indexesGPU, length * SIZEOF_UINT, indexes, true);
-
-			radixSorting->updateIndexes(indexesGPU, indexesLengthGPU);
-			radixSorting->execute();
-
-			sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, length);
-			gpu->commandManager->executeReadBuffer(radixSorting->output, length * SIZEOF_UINT, sortedIndexes, true);
-
-			// TODO: REMOVE - CHECK if the sorting is OK
-			for (sp_uint i = 1; i < length; i++)
-			{
-				sp_uint previousIndex = sortedIndexes[i - 1];
-				sp_uint currentIndex = sortedIndexes[i];
-
-				sp_float previous = ((sp_float*)&kdops[previousIndex])[DOP18_OFFSET + axis];
-				sp_float current = ((sp_float*)&kdops[currentIndex])[DOP18_OFFSET + axis];
-
-				if (previous > current)
-					break; // error
-			}
-
-			lastEvent = gpu->commandManager->updateBuffer(newIndexesLengthGPU, SIZEOF_UINT, &zeroValue, ONE_UINT, &radixSorting->lastEvent);
-			sp_uint temp;
-			gpu->commandManager->executeReadBuffer(newIndexesLengthGPU, SIZEOF_UINT, &temp, true);
-			gpu->commandManager->executeReadBuffer(indexesLengthGPU, SIZEOF_UINT, &length, true);
-
-			commandSaPStep
-				->updateInputParameter(1, indexesLengthGPU)
-				->updateInputParameter(2, radixSorting->output)
-				->updateInputParameterValue(3, &zeroValue)
-				->execute(1, globalWorkSize, localWorkSize, &axis, &lastEvent, ONE_UINT);
-
-			sp_float* p1 = commandSaPStep->fetchInOutParameter<sp_float>(0);
-			sp_uint* p2 = commandSaPStep->fetchInOutParameter<sp_uint>(1);
-			sp_uint* p3 = commandSaPStep->fetchInOutParameter<sp_uint>(2);
-			sp_uint* p4 = commandSaPStep->fetchInOutParameter<sp_uint>(3);
-			sp_uint* p5 = commandSaPStep->fetchInOutParameter<sp_uint>(4);
-
-			sp_uint newLengthCpu;
-			gpu->commandManager->executeReadBuffer(newIndexesLengthGPU, SIZEOF_UINT, &newLengthCpu, true);
-			sp_uint* newIndexesCpu = ALLOC_ARRAY(sp_uint, length);
-			gpu->commandManager->executeReadBuffer(newIndexesGPU, length * SIZEOF_UINT, newIndexesCpu, true);
-			
-
-			// TODO: REMOVE - CHECK sap step is OK
-			for (sp_uint i = 0; i < length; i++)
-			{
-				sp_bool foundCollision = false;
-				sp_uint index = sortedIndexes[i];
-
-				auto item = std::find(keptIndexes.begin(), keptIndexes.end(), index);
-				if (item == keptIndexes.end()) // se index not kept,  ignore
-					continue;
-
-				for (sp_uint j = i+1; j < length; j++)
-				{
-					sp_uint nextIndex = sortedIndexes[j];
-
-					auto itemJ = std::find(keptIndexes.begin(), keptIndexes.end(), nextIndex);
-					if (itemJ == keptIndexes.end()) // se index not kept, ignore
-						continue;
-
-					if (kdops[index].max[axis] >= kdops[nextIndex].min[axis] && kdops[index].min[axis] <= kdops[nextIndex].max[axis])
-					{
-						foundCollision = true;
-						break;
-					}
-				}
-
-				if (!foundCollision) // if not found collision, remove index
-					keptIndexes.erase(item);
-			}
-
-			out.clear();
-			std::vector<sp_uint> itensFound;
-			for (sp_uint i = 0; i < keptIndexes.size(); i++)
-			{
-				sp_bool foundInList = false;
-
-				for (sp_uint j = 0; j < newLengthCpu; j++)
-				{
-					if (newIndexesCpu[j] == values[keptIndexes.at(i)])
-					{
-						itensFound.push_back(j);
-						foundInList = true;
-						break;
-					}
-				}
-
-				if (! foundInList)
-					out << keptIndexes.at(i) << ',' << END_OF_LINE;
-			}
-
-			std::string str = out.str();
-
-			sp_assert(keptIndexes.size() == newLengthCpu, "error");
-
-			radixSorting->lastEvent = lastEvent = commandSaPStep->lastEvent;
-
-			gpu->commandManager->copyBuffer(newIndexesLengthGPU, indexesLengthGPU, SIZEOF_UINT, 0, 0, 1u, &lastEvent);
-			lastEvent = gpu->commandManager->copyBuffer(newIndexesGPU, indexesGPU, inputLength * SIZEOF_UINT, 0, 0, 1u, &lastEvent);
-			
-			ALLOC_RELEASE(indexes);
-		}
-
-
-		sp_uint length;
-		gpu->commandManager->executeReadBuffer(indexesLengthGPU, SIZEOF_UINT, &length, true);
-		sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
-		gpu->commandManager->executeReadBuffer(indexesGPU, length * SIZEOF_UINT, indexes, true);
-
-
-		commandSaPCollisions  // last axis and get collisions pair!
-			->execute(1, globalWorkSize, localWorkSize, &axis, &lastEvent , ONE_UINT);
-		lastEvent = commandSaPCollisions->lastEvent;
-
-		return collisions;
-	}
-	*/
-
 	sp_uint SweepAndPrune::fetchCollisionLength()
 	{
-		return divideBy2((*commandSaPCollisions->fetchInOutParameter<sp_uint>(3)));
+		return divideBy2((*commandSaPCollisions->fetchInOutParameter<sp_uint>(4)));
 	}
 
 #endif // OPENCL_ENALBED
