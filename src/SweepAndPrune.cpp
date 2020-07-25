@@ -198,14 +198,12 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
-	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize)
+	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex)
 	{
 		globalWorkSize[0] = inputLength;
 		localWorkSize[0] = 1u;
 
-		const sp_uint collisionsSize = inputLength * 20u * SIZEOF_UINT;
-		collisionsLength = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE);
-		collisions = gpu->createBuffer(collisionsSize, CL_MEM_READ_WRITE);
+		const sp_uint collisionsSize = inputLength * 2u * SIZEOF_UINT;
 
 		initIndexes(inputLength);
 
@@ -216,8 +214,8 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(physicProperties, inputLength * physicPropertySize)
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(radixSorting->output, inputLength * SIZEOF_UINT)
-			->setInputParameter(collisionsLength, SIZEOF_UINT)
-			->setInputParameter(collisions, collisionsSize)
+			->setInputParameter(outputIndexLength, SIZEOF_UINT)
+			->setInputParameter(outputIndex, collisionsSize)
 			->buildFromProgram(sapProgram, "sweepAndPruneSingleAxis");
 	}
 
@@ -246,12 +244,15 @@ namespace NAMESPACE_PHYSICS
 
 		lastEvent = commandSaPCollisions->lastEvent;
 
-		return collisions;
+		return nullptr;
 	}
 
 	sp_uint SweepAndPrune::fetchCollisionLength()
 	{
-		return divideBy2((*commandSaPCollisions->fetchInOutParameter<sp_uint>(4)));
+		sp_uint value;
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(4, &value);
+		
+		return divideBy2(value);
 	}
 
 #endif // OPENCL_ENALBED

@@ -9,31 +9,47 @@ namespace NAMESPACE_PHYSICS
 		return _instance;
 	}
 
-	void SpPhysicSimulator::init(sp_uint objectsLength)
+	SpPhysicSimulator::SpPhysicSimulator(sp_uint objectsLength)
 	{
-		_instance = sp_mem_new(SpPhysicSimulator)();
-		_instance->_objectsLength = ZERO_UINT;
-		_instance->_objectsLengthAllocated = objectsLength;
-		_instance->_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
-		_instance->_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
+		lastEvent = nullptr;
+		_boundingVolumesGPU = nullptr;
+		_physicPropertiesGPU = nullptr;
 
-		_instance->gpu = GpuContext::instance()->defaultDevice();
-		_instance->_boundingVolumesGPU = _instance->gpu->createBuffer(DOP18_SIZE*objectsLength, CL_MEM_READ_WRITE);
-		_instance->_physicPropertiesGPU = _instance->gpu->createBuffer(sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE);
+		_objectsLength = ZERO_UINT;
+		_objectsLengthAllocated = objectsLength;
+		_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
+		_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
+		
+		gpu = GpuContext::instance()->defaultDevice();
+		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, DOP18_SIZE * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
+		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
+		_collisionIndexesGPU = gpu->createBuffer(multiplyBy4(objectsLength) * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		_collisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
-		_instance->lastEvent = _instance->gpu->commandManager->updateBuffer(_instance->_boundingVolumesGPU, sizeof(DOP18) * _instance->_objectsLengthAllocated, _instance->_boundingVolumes);
+		_sapCollisionIndexesGPU = gpu->createBuffer(multiplyBy4(objectsLength) * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		_sapCollisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		lastEvent = gpu->commandManager->updateBuffer(_boundingVolumesGPU, sizeof(DOP18) * _objectsLengthAllocated, _boundingVolumes);
 
 		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << _instance->_objectsLengthAllocated
+		buildOptions << " -DINPUT_LENGTH=" << _objectsLengthAllocated
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
 			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
 			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
-		_instance->sap = ALLOC_NEW(SweepAndPrune)();
-		_instance->sap->init(_instance->gpu, buildOptions.str().c_str());
+		sap = sp_mem_new(SweepAndPrune)();
+		sap->init(gpu, buildOptions.str().c_str());
+		sap->setParameters(_boundingVolumesGPU, objectsLength,
+			DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU);
 
-		_instance->sap->setParameters(_instance->_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS, _instance->_physicPropertiesGPU, sizeof(SpPhysicProperties));
+		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
+		collisionResponseGPU->init(gpu, buildOptions.str().c_str());
+		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _physicPropertiesGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU);
+	}
+
+	SpPhysicSimulator* SpPhysicSimulator::init(sp_uint objectsLength)
+	{
+		_instance = sp_mem_new(SpPhysicSimulator)(objectsLength);
 
 		// Share OpenCL OpenGL Buffer
 		//cl_mem glMem = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glBufId, null);
@@ -42,6 +58,7 @@ namespace NAMESPACE_PHYSICS
 		//error = CL10GL.clEnqueueReleaseGLObjects(queue, glMem, null, null);
 
 		// dispose: CL10.clReleaseMemObject(glMem);
+		return _instance;
 	}
 
 	void SpPhysicSimulator::timeOfCollision(SpCollisionDetails* details)
@@ -244,25 +261,17 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
 	{
-		cl_mem sapBuffer = sap->execute(ONE_UINT, &lastEvent);
-		
-		lastEvent = sap->lastEvent;
+		sap->execute(ONE_UINT, &lastEvent);
 
-		result->length = sap->fetchCollisionLength();
+		collisionResponseGPU->execute(ONE_UINT, &sap->lastEvent);
+		lastEvent = collisionResponseGPU->lastEvent;
 
-		gpu->commandManager->readBuffer(sapBuffer, multiplyBy2(result->length) * SIZEOF_UINT, result->indexes, ONE_UINT, &lastEvent);
-	}
-
-	void SpPhysicSimulator::updateDataOnGPU()
-	{
-		gpu->commandManager->updateBuffer(_boundingVolumesGPU, sizeof(DOP18) * _objectsLengthAllocated, _boundingVolumes, ONE_UINT, &lastEvent);
-		lastEvent = gpu->commandManager->updateBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLengthAllocated, _physicProperties, ONE_UINT, &lastEvent);
+		collisionResponseGPU->fetchCollisionLength(&result->length);
+		collisionResponseGPU->fetchCollisions(result->indexes);
 	}
 
 	void SpPhysicSimulator::run(const Timer& timer)
 	{
-		updateDataOnGPU();
-
 		/*
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
@@ -283,8 +292,10 @@ namespace NAMESPACE_PHYSICS
 
 		//Timer tt; tt.start();
 
+		updateDataOnGPU();
 		findCollisionsGpu(&sapResult);
-		
+		updateDataOnCPU();
+
 		//std::cout << tt.elapsedTime() << END_OF_LINE;
 
 		//sp_float t = tt.elapsedTime(); // 3-4 ms
@@ -323,7 +334,7 @@ namespace NAMESPACE_PHYSICS
 		//std::cout << tt.elapsedTime() << END_OF_LINE;
 
 		ALLOC_RELEASE(detailsArray);
-		ALLOC_RELEASE(sapResult.indexes);
+		//ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;
 	}
 
@@ -1382,6 +1393,30 @@ namespace NAMESPACE_PHYSICS
 		{
 			gpu->releaseBuffer(_physicPropertiesGPU);
 			_physicPropertiesGPU = nullptr;
+		}
+
+		if (_collisionIndexesGPU != nullptr)
+		{
+			gpu->releaseBuffer(_collisionIndexesGPU);
+			_collisionIndexesGPU = nullptr;
+		}
+
+		if (_collisionIndexesLengthGPU != nullptr)
+		{
+			gpu->releaseBuffer(_collisionIndexesLengthGPU);
+			_collisionIndexesLengthGPU = nullptr;
+		}
+
+		if (sap != nullptr)
+		{
+			sp_mem_delete(sap, SweepAndPrune);
+			sap = nullptr;
+		}
+
+		if (collisionResponseGPU != nullptr)
+		{
+			sp_mem_delete(collisionResponseGPU, SpCollisionResponseGPU);
+			collisionResponseGPU = nullptr;
 		}
 	}
 

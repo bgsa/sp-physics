@@ -269,6 +269,7 @@
     <ClInclude Include="src\OBB.h" />
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
+    <ClInclude Include="src\SpCollisionResponseGPU.h" />
     <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />
     <ClInclude Include="src\Particle.h" />
@@ -302,6 +303,7 @@
   <ItemGroup>
     <None Include="resources\opencl\src\BasicCommands.cl" />
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
+    <None Include="resources\opencl\src\CollisionResponse.cl" />
     <None Include="resources\opencl\src\FindMinMax.cl" />
     <None Include="resources\opencl\src\InsertionSorting.cl" />
     <None Include="resources\opencl\src\OpenCLBase.cl" />
@@ -311,6 +313,7 @@
     <None Include="resources\opencl\src\Reverse.cl" />
     <None Include="resources\opencl\src\SpPhysicProperties.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />
+    <None Include="resources\opencl\src\Vec3.cl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

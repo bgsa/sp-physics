@@ -57,9 +57,6 @@ namespace NAMESPACE_PHYSICS
 		cl_mem indexesLengthGPU = nullptr;
 		cl_mem indexesGPU = nullptr;
 
-		cl_mem collisions = nullptr;
-		cl_mem collisionsLength = nullptr;
-
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 
@@ -67,9 +64,6 @@ namespace NAMESPACE_PHYSICS
 #endif // OPENCL_ENABLED
 
 	public:
-
-		AABB* aabbs;
-
 		///<summary>
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes
@@ -92,7 +86,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(cl_mem input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize);
+		API_INTERFACE void setParameters(cl_mem input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex);
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method in GPU
@@ -104,6 +98,22 @@ namespace NAMESPACE_PHYSICS
 		/// Get the length of collisions pairs detected
 		///</summary>
 		API_INTERFACE sp_uint fetchCollisionLength();
+
+		///<summary>
+		/// Update physic data on GPU
+		///</summary>
+		API_INTERFACE inline void updatePhysicProperties(void* physicProperties)
+		{
+			commandSaPCollisions->updateInputParameterValue(1u, physicProperties);
+		}
+
+		///<summary>
+		/// Update bouding volume parameter
+		///</summary>
+		API_INTERFACE inline void updateBoundingVolumes(void* boudingVolumes)
+		{
+			commandSaPCollisions->updateInputParameterValue(0u, boudingVolumes);
+		}
 
 #endif // OPENCL_ENABLED
 

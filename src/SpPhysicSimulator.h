@@ -14,8 +14,7 @@
 #include "SpPhysicSyncronizer.h"
 #include "Ray.h"
 #include "SpThreadPool.h"
-
-#include <iostream>
+#include "SpCollisionResponseGPU.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -32,6 +31,7 @@ namespace NAMESPACE_PHYSICS
 	private:
 		GpuDevice* gpu;
 		SweepAndPrune* sap;
+		SpCollisionResponseGPU* collisionResponseGPU;
 
 		sp_uint _objectsLengthAllocated;
 		sp_uint _objectsLength;
@@ -42,13 +42,12 @@ namespace NAMESPACE_PHYSICS
 		cl_event lastEvent;
 		cl_mem _boundingVolumesGPU;
 		cl_mem _physicPropertiesGPU;
+		cl_mem _collisionIndexesGPU;
+		cl_mem _collisionIndexesLengthGPU;
+		cl_mem _sapCollisionIndexesGPU;
+		cl_mem _sapCollisionIndexesLengthGPU;
 
-		SpPhysicSimulator() 
-		{
-			lastEvent = nullptr;
-			_boundingVolumesGPU = nullptr;
-			_physicPropertiesGPU = nullptr;
-		}
+		SpPhysicSimulator(sp_uint objectsLength);
 
 		inline void dispatchEvent(SpCollisionDetails* details)
 		{
@@ -77,7 +76,18 @@ namespace NAMESPACE_PHYSICS
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpu(SweepAndPruneResult* result);
 
-		void updateDataOnGPU();
+		void updateDataOnGPU()
+		{
+			//gpu->commandManager->updateBuffer(_boundingVolumesGPU, sizeof(DOP18) * _objectsLengthAllocated, _boundingVolumes, ONE_UINT, &lastEvent);
+			//lastEvent = gpu->commandManager->updateBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLengthAllocated, _physicProperties, ONE_UINT, &lastEvent);
+			sap->updateBoundingVolumes(_boundingVolumes);
+			sap->updatePhysicProperties(_physicProperties);
+		}
+
+		void updateDataOnCPU()
+		{
+			gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
+		}
 
 		static void handleCollision(void* collisionParamter);
 
@@ -87,7 +97,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE static SpPhysicSimulator* instance();
 
-		API_INTERFACE static void init(sp_uint objectsLength);
+		API_INTERFACE static SpPhysicSimulator* init(sp_uint objectsLength);
 
 		API_INTERFACE inline sp_uint alloc(sp_uint length)
 		{

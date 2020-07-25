@@ -73,6 +73,11 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_uint getGroupLength(sp_uint threadLength, sp_uint inputLength);
 		API_INTERFACE sp_uint getDefaultGroupLength();
 
+		API_INTERFACE inline void waitEvents(sp_size eventsLength, cl_event* events)
+		{
+			clWaitForEvents(eventsLength, events);
+		}
+
 		~GpuDevice();
 	};
 

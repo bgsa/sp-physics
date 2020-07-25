@@ -65,10 +65,17 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE sp_double getTimeOfExecution();
 
-		API_INTERFACE void fetch(void* buffer);
+		API_INTERFACE inline void fetch(void* buffer)
+		{
+			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, buffer, 0, NULL, &lastEvent));
+		}
 
 		template <typename T>
-		API_INTERFACE T* fetchInOutParameter(sp_uint index);
+		API_INTERFACE inline void fetchInOutParameter(sp_uint index, T* result)
+		{
+			sp_size size = inputParametersSize[index];
+			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, &lastEvent));
+		}
 
 		API_INTERFACE void fetchInOutParameter(void* buffer, sp_uint index);
 

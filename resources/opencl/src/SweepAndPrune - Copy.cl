@@ -61,7 +61,16 @@ __kernel void sweepAndPruneSingleAxis(
     const sp_float maxPointXZ = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 7 + ORIENTATION_LENGTH];
     const sp_float maxPointZX = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 8 + ORIENTATION_LENGTH];
 
-    const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, index * SP_PHYSIC_PROPERTY_SIZE);
+    const sp_uint stride    = index * SP_PHYSIC_PROPERTY_SIZE;
+    const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, stride);
+    const sp_bool isRestingObj1 = SpPhysicProperties_isResting(physicProperties, stride);
+    const Vec3 VEC3_ZERO = { 0.0f, 0.0f, 0.0f };
+
+    const Vec3 previousPosition = {
+        physicProperties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX],
+        physicProperties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1],
+        physicProperties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2]
+    };
 
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
@@ -79,10 +88,46 @@ __kernel void sweepAndPruneSingleAxis(
             && (maxPointZX >= MIN_POINT_NEXT_ELEMENT_ZX && minPointZX <= MAX_POINT_NEXT_ELEMENT_ZX)  
         )
         {
-            const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, j * SP_PHYSIC_PROPERTY_SIZE);
+            const sp_uint strideObj2 = j * SP_PHYSIC_PROPERTY_SIZE;
+            const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, strideObj2);
 
             if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
                 continue;
+
+            const sp_bool isRestingObj2 = SpPhysicProperties_isResting(physicProperties, strideObj2);
+            
+            if (isRestingObj1 && isRestingObj2) // if one of them are not resting
+            {
+                const Vec3 previousPositionObj2 = {
+                    physicProperties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX],
+                    physicProperties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1],
+                    physicProperties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2]
+                };
+
+                SpPhysicProperties_setPosition(physicProperties, stride, previousPosition);
+                SpPhysicProperties_setVelocity(physicProperties, stride, VEC3_ZERO);
+                SpPhysicProperties_setAcceleration(physicProperties, stride, VEC3_ZERO);
+
+                SpPhysicProperties_setPosition(physicProperties, strideObj2, previousPositionObj2);
+                SpPhysicProperties_setVelocity(physicProperties, strideObj2, VEC3_ZERO);
+                SpPhysicProperties_setAcceleration(physicProperties, strideObj2, VEC3_ZERO);
+
+                continue;
+            }
+
+            if (isStaticObj1 && isRestingObj2)
+            {
+                SpPhysicProperties_setVelocity(physicProperties, strideObj2, VEC3_ZERO);
+                SpPhysicProperties_setAcceleration(physicProperties, strideObj2, VEC3_ZERO);
+                continue;
+            }
+
+            if (isStaticObj2 && isRestingObj1)
+            {
+                SpPhysicProperties_setVelocity(physicProperties, stride, VEC3_ZERO);
+                SpPhysicProperties_setAcceleration(physicProperties, stride, VEC3_ZERO);
+                continue;
+            }
 
             const sp_uint temp = atomic_add(outputLength, 2);
             output[temp] = indexes[index];

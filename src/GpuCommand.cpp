@@ -203,32 +203,6 @@ namespace NAMESPACE_PHYSICS
 		return this;
 	}
 
-	void GpuCommand::fetch(void* buffer)
-	{
-		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, buffer, 0, NULL, &lastEvent));
-	}
-
-	template <typename T>
-	T* GpuCommand::fetchInOutParameter(sp_uint index)
-	{
-		sp_size size = inputParametersSize[index];
-
-		void* result = ALLOC_SIZE(size);
-
-		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, &lastEvent));
-
-		return (T*)result;
-	}
-	template void*        GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_bool*     GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_char*     GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_short*    GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_int*      GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_size*     GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_longlong* GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_float*    GpuCommand::fetchInOutParameter(sp_uint index);
-	template sp_double*   GpuCommand::fetchInOutParameter(sp_uint index);
-
 	void GpuCommand::fetchInOutParameter(void* buffer, sp_uint index)
 	{
 		sp_size size = inputParametersSize[index];

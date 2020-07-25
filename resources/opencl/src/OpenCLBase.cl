@@ -1,3 +1,6 @@
+#ifndef OPNCL_BASE_HEADER
+#define OPNCL_BASE_HEADER
+
 #define OVERLOAD  __attribute__((overloadable))
 
 #define THREAD_ID           get_global_id(0)
@@ -85,17 +88,20 @@ typedef double         sp_double;
             _destinyArray[_offset + 9] = _sourceArray[_offset + 9];  \
 
 
-sp_bool isPowerOf2(sp_uint value)
-{
-    return value && !(value & (value - 1));
-}
+#define isPowerOf2(value) \
+    value && !(value & (value - ONE_UINT))
 
-sp_uint nextPowOf2(sp_uint value)
+#define isCloseEnough(value, compare, epsilon) \
+    fabs(value - compare) < epsilon
+
+inline sp_uint nextPowOf2(const sp_uint value)
 {
-    sp_uint rval = 1;
+    sp_uint rval = ONE_UINT;
 
     while (rval < value) 
         rval = multiplyBy2(rval);
 
     return rval;
 }
+
+#endif // OPNCL_BASE_HEADER
