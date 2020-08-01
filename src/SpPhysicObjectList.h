@@ -13,6 +13,8 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		sp_uint listLength;
+
+	protected:
 		sp_uint physicIndex;
 		DOP18* _boundingVolumes;
 		SpPhysicProperties* _physicProperties;
@@ -41,9 +43,20 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline DOP18* boundingVolumes(const sp_uint index) { return &_boundingVolumes[index]; }
 
 		/// <summary>
+		/// Get the Transformations of these object
+		/// </summary>
+		API_INTERFACE inline SpTransform* transforms(const sp_uint index = ZERO_UINT) const
+		{
+			return SpPhysicSimulator::instance()->transforms(physicIndex + index);
+		}
+
+		/// <summary>
 		/// Define how many objects the list contains
 		/// </summary>
-		API_INTERFACE virtual sp_uint length() const = 0;
+		API_INTERFACE inline sp_uint length() const
+		{
+			return listLength;
+		}
 
 		/// <summary>
 		/// Update the linear and angular velocity and others parameters

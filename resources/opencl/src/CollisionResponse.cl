@@ -27,7 +27,21 @@ __kernel void handleCollision(
     const Vec3 VEC3_ZERO = { 0.0f, 0.0f, 0.0f };
     const sp_bool isRestingObj1 = SpPhysicProperties_isResting(physicProperties, physicIndex1);
     const sp_bool isRestingObj2 = SpPhysicProperties_isResting(physicProperties, physicIndex2);
-            
+
+    if (isStaticObj1 && isRestingObj2)
+    {
+        SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
+        SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
+        return;
+    }
+
+    if (isStaticObj2 && isRestingObj1)
+    {
+        SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
+        SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);
+        return;
+    }
+
     if (isRestingObj1 && isRestingObj2) // if one of them are not resting
     {
         const Vec3 previousPosition = {
@@ -53,19 +67,9 @@ __kernel void handleCollision(
         return;
     }
 
-    if (isStaticObj1 && isRestingObj2)
-    {
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
+    if (SpPhysicProperties_areMovingAway(physicProperties, physicIndex1, physicIndex2))
         return;
-    }
 
-    if (isStaticObj2 && isRestingObj1)
-    {
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);
-        return;
-    }
 
     const sp_uint temp = atomic_add(outputIndexesLength, 2);
     outputIndexes[temp] = index1;

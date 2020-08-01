@@ -19,8 +19,16 @@ namespace NAMESPACE_PHYSICS
 		_objectsLengthAllocated = objectsLength;
 		_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
 		_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
-		
+		_transforms = sp_mem_new_array(SpTransform, objectsLength);
+
 		gpu = GpuContext::instance()->defaultDevice();
+		
+		_transformsGPUBuffer = instanceGpuRendering->createTextureBuffer();
+		_transformsGPUBuffer
+			->use()
+			->updateData(sizeof(SpTransform) * objectsLength, _transforms);
+
+		_transformsGPU = gpu->createBufferFromOpenGL(_transformsGPUBuffer);
 		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, DOP18_SIZE * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
 		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
 		_collisionIndexesGPU = gpu->createBuffer(multiplyBy4(objectsLength) * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
@@ -52,8 +60,6 @@ namespace NAMESPACE_PHYSICS
 		_instance = sp_mem_new(SpPhysicSimulator)(objectsLength);
 
 		// Share OpenCL OpenGL Buffer
-		//cl_mem glMem = clCreateFromGLBuffer(context, CL_MEM_READ_WRITE, glBufId, null);
-
 		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);
 		//error = CL10GL.clEnqueueReleaseGLObjects(queue, glMem, null, null);
 
@@ -183,7 +189,7 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	void SpPhysicSimulator::handleCollision(void* threadParameter)
+	void SpPhysicSimulator::handleCollisionCPU(void* threadParameter)
 	{
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
 		
@@ -245,6 +251,18 @@ namespace NAMESPACE_PHYSICS
 
 		simulator->collisionDetails(details);
 
+		simulator->handleCollisionResponse(details);
+	}
+
+	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
+	{
+		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
+
+		sp_assert(details != nullptr, "InvalidArgumentException");
+		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		simulator->collisionDetails(details);
 		simulator->handleCollisionResponse(details);
 	}
 
@@ -313,7 +331,8 @@ namespace NAMESPACE_PHYSICS
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
 
-			tasks[i].func = &SpPhysicSimulator::handleCollision;
+			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
+			tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
 			tasks[i]. parameter = &detailsArray[i];
 
 			SpThreadPool::instance()->schedule(&tasks[i]);

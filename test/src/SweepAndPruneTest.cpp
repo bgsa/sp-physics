@@ -2374,6 +2374,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		AABB* aabbs1 = getRandomAABBs(count, 10000);
 		AABB* aabbs2 = ALLOC_COPY(aabbs1, AABB, count);
 		cl_mem inputGpu = gpu->createBuffer(aabbs2, sizeof(AABB) * count, CL_MEM_READ_ONLY, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(AABB) * count * 2, CL_MEM_READ_ONLY);
+		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
 		SpPhysicProperties* physicProperties = nullptr;
 		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * count, CL_MEM_READ_ONLY, true);
@@ -2386,7 +2388,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, physcPropertiesGpu, sizeof(SpPhysicProperties));
+		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu);
 
 		std::chrono::high_resolution_clock::time_point currentTime1 = std::chrono::high_resolution_clock::now();
 
@@ -2396,7 +2398,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
 		currentTime1 = std::chrono::high_resolution_clock::now();
 
-		cl_mem output = sap->execute();
+		sap->execute();
 
 		currentTime2 = std::chrono::high_resolution_clock::now();
 		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
@@ -2430,6 +2432,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SpPhysicProperties* physicProperties = nullptr;
 		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(AABB) * length * 2, CL_MEM_READ_ONLY);
+		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << length
@@ -2438,7 +2442,7 @@ namespace NAMESPACE_PHYSICS_TEST
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS, physcPropertiesGpu, sizeof(SpPhysicProperties));
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS, physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu);
 
 		performanceCounter.start();
 
@@ -2454,7 +2458,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_longlong cpuPerformance = performanceCounter.diff();
 
 		performanceCounter.start();
-		cl_mem output = sap.execute();
+		sap.execute();
 		sp_longlong gpuPerformance = performanceCounter.diff();
 
 		sp_uint collisionsLength = sap.fetchCollisionLength();

@@ -36,6 +36,22 @@ inline void vec3_minus_vec3(const Vec3 vec1, const Vec3 vec2, Vec3* result)
 	result->z = vec1.z - vec2.z;
 }
 
+inline sp_bool vec3_lesserThanOrEqual_float(const Vec3 vec, const sp_float value)
+{
+	return
+		vec.x <= value &&
+		vec.y <= value &&
+		vec.z <= value;
+}
+
+inline sp_bool vec3_graterThanOrEqual_float(const Vec3 vec, const sp_float value)
+{
+	return
+		vec.x >= value &&
+		vec.y >= value &&
+		vec.z >= value;
+}
+
 inline sp_bool vec3_isCloseEnough_vec3(const Vec3 vec1, const Vec3 vec2, const sp_float epsilon)
 {
 	return 

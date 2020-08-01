@@ -91,8 +91,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DEBUG;OPENCL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEBUG;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
@@ -119,8 +119,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>OPENCL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -147,9 +147,9 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>DEBUG;ENV_64BITS;OPENCL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;WINDOWS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;ENV_64BITS;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;WINDOWS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\x86_64\$(Configuration);$(SolutionDir)sp-foundation\lib\x86_64\$(Configuration)</AdditionalLibraryDirectories>
@@ -160,8 +160,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>OPENCL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -278,6 +278,9 @@
     <ClInclude Include="src\Quat.h" />
     <ClInclude Include="src\Randomizer.h" />
     <ClInclude Include="src\Rectangle2D.h" />
+    <ClInclude Include="src\SpGpuBuffer.h" />
+    <ClInclude Include="src\SpGpuRenderingFactory.h" />
+    <ClInclude Include="src\SpGpuTextureBuffer.h" />
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\SpInertiaTensor.h" />
     <ClInclude Include="src\SpPhysicObject.h" />

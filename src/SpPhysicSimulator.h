@@ -15,6 +15,7 @@
 #include "Ray.h"
 #include "SpThreadPool.h"
 #include "SpCollisionResponseGPU.h"
+#include "SpGpuRenderingFactory.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -38,8 +39,11 @@ namespace NAMESPACE_PHYSICS
 
 		DOP18* _boundingVolumes;
 		SpPhysicProperties* _physicProperties;
+		SpTransform* _transforms;
 
 		cl_event lastEvent;
+		cl_mem _transformsGPU;
+		SpGpuTextureBuffer* _transformsGPUBuffer;
 		cl_mem _boundingVolumesGPU;
 		cl_mem _physicPropertiesGPU;
 		cl_mem _collisionIndexesGPU;
@@ -89,13 +93,31 @@ namespace NAMESPACE_PHYSICS
 			gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
 		}
 
-		static void handleCollision(void* collisionParamter);
+		static void handleCollisionCPU(void* collisionParamter);
+		static void handleCollisionGPU(void* collisionParamter);
 
 	public:
 
 		SpPhysicSyncronizer* syncronizer;
 
 		API_INTERFACE static SpPhysicSimulator* instance();
+
+		API_INTERFACE inline void updateTransformsOnGPU()
+		{
+			sp_size size = sizeof(SpTransform) * _objectsLength;
+			sp_double mult = size / 12.0;
+			mult = mult - ((int)mult);
+
+			if (mult != ZERO_DOUBLE)  // size must be mulple 12
+				if (mult > 0.5)
+					size += SIZEOF_WORD;
+				else
+					size += SIZEOF_TWO_WORDS;
+			
+			_transformsGPUBuffer
+				->use()
+				->updateData(size, _transforms);
+		}
 
 		API_INTERFACE static SpPhysicSimulator* init(sp_uint objectsLength);
 
@@ -129,6 +151,16 @@ namespace NAMESPACE_PHYSICS
 			return &_physicProperties[index];
 		}
 
+		API_INTERFACE inline SpTransform* transforms(const sp_uint index) const
+		{
+			return &_transforms[index];
+		}
+
+		API_INTERFACE inline SpGpuTextureBuffer* transformsGPU() const
+		{
+			return _transformsGPUBuffer;
+		}
+
 		API_INTERFACE static void integrate(const sp_uint index, sp_float elapsedTime)
 		{
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
@@ -160,11 +192,12 @@ namespace NAMESPACE_PHYSICS
 			element->_orientation += angularVelocity * element->orientation() * HALF_FLOAT * elapsedTime;
 			element->_orientation = element->orientation().normalize();
 
-
 			const Vec3 translation = newPosition - element->position();
 			simulator->_boundingVolumes[index].translate(translation); // Sync with the bounding Volume
-			simulator->syncronizer->sync(index, translation, element->orientation());
-
+			simulator->_transforms[index].translate(translation);
+			simulator->_transforms[index].orientation = element->orientation();
+//			simulator->syncronizer->sync(index, translation, element->orientation());
+			
 			element->_previousAcceleration = element->acceleration();
 			element->_acceleration = newAcceleration;
 
@@ -193,7 +226,9 @@ namespace NAMESPACE_PHYSICS
 			const Vec3 translation = element->previousPosition() - element->position();
 
 			dop->translate(translation);
-			simulator->syncronizer->sync(index, translation, element->previousOrientation());
+			
+			simulator->transforms(index)->translate(translation);
+			simulator->transforms(index)->orientation = element->previousOrientation();
 
 			element->rollbackState();
 		}

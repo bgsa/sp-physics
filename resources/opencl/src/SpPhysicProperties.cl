@@ -76,6 +76,48 @@ inline sp_bool SpPhysicProperties_isResting(__global sp_float* properties, const
         vec3_isCloseEnough_vec3(acc, restingAcc, SP_PHYSIC_RESTING_VELOCITY);
  }
 
+inline sp_bool SpPhysicProperties_areMovingAway(__global sp_float* properties, const sp_uint strideObj1, const sp_uint strideObj2)
+{
+    const Vec3 positionObj1 = {
+        properties[strideObj1 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX],
+        properties[strideObj1 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1],
+        properties[strideObj1 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2]
+    };
+
+    const Vec3 velocityObj1 = {
+        properties[strideObj1 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX],
+        properties[strideObj1 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1],
+        properties[strideObj1 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2]
+    };
+
+    const Vec3 positionObj2 = {
+        properties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX],
+        properties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1],
+        properties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2]
+    };
+
+    const Vec3 velocityObj2 = {
+        properties[strideObj2 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX],
+        properties[strideObj2 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1],
+        properties[strideObj2 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2]
+    };
+
+    Vec3 lineOfAction;
+    vec3_minus_vec3(positionObj2, positionObj1, &lineOfAction);
+    
+    Vec3 velocityToObject2;
+    vec3_multiply_vec3(velocityObj1, lineOfAction, &velocityToObject2);
+
+    vec3_minus_vec3(positionObj1, positionObj2, &lineOfAction);
+    
+    Vec3 velocityToObject1;
+    vec3_multiply_vec3(velocityObj2, lineOfAction, &velocityToObject1);
+
+    return
+           vec3_lesserThanOrEqual_float(velocityToObject2, ZERO_FLOAT)
+        && vec3_lesserThanOrEqual_float(velocityToObject1, ZERO_FLOAT);
+}
+
 #define SpPhysicProperties_setPosition(properties, stride, newPosition) \
     properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX    ] = newPosition.x; \
     properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 1] = newPosition.y; \
@@ -90,6 +132,8 @@ inline sp_bool SpPhysicProperties_isResting(__global sp_float* properties, const
     properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX    ] = newAcceleration.x; \
     properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 1] = newAcceleration.y; \
     properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 2] = newAcceleration.z;
+
+
 
 
 __kernel void isResting(

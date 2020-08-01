@@ -21,7 +21,7 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint i = 0; i < devicesCount; i++) 
 		{
-			GpuDevice* device = sp_mem_new(GpuDevice)(devicesAsArray[i]);
+			GpuDevice* device = sp_mem_new(GpuDevice)(devicesAsArray[i], platformId);
 
 			if (device->type & CL_DEVICE_TYPE_DEFAULT)
 				_defaultDevice = device;

@@ -9,6 +9,8 @@
 #include <CL/opencl.h>
 
 #include "GpuCommandManager.h"
+#include "SpGpuBuffer.h"
+#include "SpGpuTextureBuffer.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -57,21 +59,91 @@ namespace NAMESPACE_PHYSICS
 
 		GpuCommandManager* commandManager = nullptr;
 		
-		API_INTERFACE GpuDevice(cl_device_id id);
+		API_INTERFACE GpuDevice(cl_device_id id, cl_platform_id platformId);
 
-		API_INTERFACE bool isGPU();
-		API_INTERFACE bool isCPU();
+		API_INTERFACE inline sp_bool isGPU()
+		{
+			return (type & CL_DEVICE_TYPE_GPU) || (type & CL_DEVICE_TYPE_ALL);
+		}
 
-		API_INTERFACE cl_mem createBuffer(size_t sizeOfValue, cl_mem_flags memoryFlags);
-		API_INTERFACE cl_mem createBuffer(void * value, size_t sizeOfValue, cl_mem_flags memoryFlags, bool writeValueOnDevice = true);
-		API_INTERFACE cl_mem createSubBuffer(cl_mem buffer, cl_buffer_region* region, cl_mem_flags memoryFlags);
+		API_INTERFACE inline sp_bool isCPU()
+		{
+			return (type & CL_DEVICE_TYPE_CPU) || (type & CL_DEVICE_TYPE_ALL);
+		}
 
-		API_INTERFACE void releaseBuffer(cl_mem memoryBuffer);
-		API_INTERFACE void releaseBuffer(size_t length, cl_mem memoryBuffers ...);
+		API_INTERFACE inline cl_mem createBuffer(sp_size sizeOfValue, cl_mem_flags memoryFlags)
+		{
+			cl_int errorCode;
+			cl_mem memoryBuffer = clCreateBuffer(deviceContext, memoryFlags, sizeOfValue, NULL, &errorCode);
+			HANDLE_OPENCL_ERROR(errorCode);
+
+			return memoryBuffer;
+		}
+
+		API_INTERFACE inline cl_mem createBuffer(void * value, sp_size sizeOfValue, cl_mem_flags memoryFlags, sp_bool writeValueOnDevice = true)
+		{		
+			cl_int errorCode;
+			cl_mem memoryBuffer = clCreateBuffer(deviceContext, memoryFlags, sizeOfValue, value, &errorCode);
+			HANDLE_OPENCL_ERROR(errorCode);
+
+			if (writeValueOnDevice)
+				HANDLE_OPENCL_ERROR(clEnqueueWriteBuffer(commandManager->commandQueue, memoryBuffer, CL_FALSE, 0, sizeOfValue, value, 0, NULL, NULL));
+
+			return memoryBuffer;
+		}
+
+		API_INTERFACE inline cl_mem createSubBuffer(cl_mem buffer, cl_buffer_region* region, cl_mem_flags memoryFlags)
+		{
+			cl_int errorCode;
+			cl_mem subBuffer = clCreateSubBuffer(buffer, memoryFlags, CL_BUFFER_CREATE_TYPE_REGION, region, &errorCode);
+			HANDLE_OPENCL_ERROR(errorCode);
+
+			return subBuffer;
+		}
+
+		API_INTERFACE inline cl_mem createBufferFromOpenGL(SpGpuBuffer* buffer, cl_mem_flags memoryFlags = CL_MEM_READ_WRITE)
+		{
+			cl_int errorCode;
+			cl_mem openCLBuffer = clCreateFromGLBuffer(deviceContext, memoryFlags, buffer->id(), &errorCode);			
+			HANDLE_OPENCL_ERROR(errorCode);
+		
+			return openCLBuffer;
+		}
+
+		API_INTERFACE inline cl_mem createBufferFromOpenGL(SpGpuTextureBuffer* buffer, cl_mem_flags memoryFlags = CL_MEM_READ_WRITE)
+		{
+#ifndef GL_TEXTURE_BUFFER
+	#define GL_TEXTURE_BUFFER 0x8C2A
+#endif
+			cl_int errorCode;
+			cl_mem openCLBuffer = clCreateFromGLBuffer(deviceContext, memoryFlags, buffer->bufferId(), &errorCode);
+			HANDLE_OPENCL_ERROR(errorCode);
+
+			return openCLBuffer;
+		}
+
+		API_INTERFACE inline void releaseBuffer(cl_mem memoryBuffer)
+		{
+			HANDLE_OPENCL_ERROR(clReleaseMemObject(memoryBuffer));
+		}
+
+		API_INTERFACE inline void releaseBuffer(size_t length, cl_mem memoryBuffers ...)
+		{
+			va_list parameters;
+			va_start(parameters, memoryBuffers);
+
+			for (sp_uint i = 0; i < length - 1; i++)
+				releaseBuffer(va_arg(parameters, cl_mem));
+
+			va_end(parameters);
+		}
 		
 		API_INTERFACE sp_uint getThreadLength(sp_uint inputLength);
 		API_INTERFACE sp_uint getGroupLength(sp_uint threadLength, sp_uint inputLength);
-		API_INTERFACE sp_uint getDefaultGroupLength();
+		API_INTERFACE inline sp_uint getDefaultGroupLength()
+		{
+			return nextPowOf2(multiplyBy2(computeUnits));
+		}
 
 		API_INTERFACE inline void waitEvents(sp_size eventsLength, cl_event* events)
 		{

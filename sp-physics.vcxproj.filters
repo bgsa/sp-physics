@@ -1641,9 +1641,6 @@
     <ClCompile Include="src\SweepAndPrune.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SweepAndPruneKdop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SystemOfLinearEquations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -3109,9 +3106,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\GpuReverse.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\SpTransform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SpPhysicSimulator.cpp">
@@ -4901,9 +4895,6 @@
     <ClInclude Include="src\SweepAndPrune.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SweepAndPruneKdop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SystemOfLinearEquations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6465,6 +6456,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpCollisionResponseGPU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpGpuBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpGpuRenderingFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpGpuTextureBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
