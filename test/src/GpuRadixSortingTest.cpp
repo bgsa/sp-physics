@@ -454,7 +454,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_uint offset = 0u;
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 			radixGpu->init(gpu, buildOptions.str().c_str())
-				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider, offset);
+				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider);
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
@@ -507,7 +507,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			GpuRadixSorting* radixSorting = ALLOC_NEW(GpuRadixSorting)();
 			radixSorting->init(gpu, buildOptions.str().c_str())
-				->setParameters(inputGpu, length, newIndexes, newIndexesLength, AABB_STRIDER, AABB_OFFSET);
+				->setParameters(inputGpu, length, newIndexes, newIndexesLength, AABB_STRIDER);
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
@@ -565,7 +565,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 		radixGpu->init(gpu, buildOptions.str().c_str())
-			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider, offset);
+			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider);
 
 		AlgorithmSorting::native(input1, inputLength);
 
@@ -618,13 +618,13 @@ namespace NAMESPACE_PHYSICS_TEST
 			std::ostringstream buildOptions;
 			buildOptions << " -DINPUT_LENGTH=" << inputLength
 				<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-				<< " -DINPUT_OFFSET=" << DOP18_OFFSET
+				<< " -DINPUT_OFFSET=" << 0
 				<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 			radixGpu
 				->init(gpu, buildOptions.str().c_str())
-				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER, DOP18_OFFSET);
+				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER);
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
@@ -676,13 +676,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << inputLength
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
+			<< " -DINPUT_OFFSET=" << 0
 			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 		radixGpu
 			->init(gpu, buildOptions.str().c_str())
-			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER, DOP18_OFFSET);
+			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER);
 
 		AlgorithmSorting::quickSortNative(input1, inputLength, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
 

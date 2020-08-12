@@ -8,18 +8,17 @@
 #include "DetailedCollisionStatus.h"
 
 #define DOP18_ORIENTATIONS (9)
-#define DOP18_STRIDER      (20)
-#define DOP18_OFFSET       (2)
-#define DOP18_SIZE         (80) /* DOP18_ORIENTATIONS * 2 (min,max) * SIZEOF_FLOAT + 8 (2 x heritage) */
+#define DOP18_STRIDER (18)
+#define DOP18_SIZE (72) /* DOP18_ORIENTATIONS * 2 (min,max) * SIZEOF_FLOAT */
 
-#define DOP18_AXIS_X           (0)
-#define DOP18_AXIS_Y           (1)
-#define DOP18_AXIS_Z           (2)
-#define DOP18_AXIS_UP_LEFT     (3)
-#define DOP18_AXIS_UP_RIGHT    (4)
-#define DOP18_AXIS_UP_FRONT    (5)
-#define DOP18_AXIS_UP_DEPTH    (6)
-#define DOP18_AXIS_LEFT_DEPTH  (7)
+#define DOP18_AXIS_X (0)
+#define DOP18_AXIS_Y (1)
+#define DOP18_AXIS_Z (2)
+#define DOP18_AXIS_UP_LEFT (3)
+#define DOP18_AXIS_UP_RIGHT (4)
+#define DOP18_AXIS_UP_FRONT (5)
+#define DOP18_AXIS_UP_DEPTH (6)
+#define DOP18_AXIS_LEFT_DEPTH (7)
 #define DOP18_AXIS_RIGHT_DEPTH (8)
 
 #define DOP18_PLANES_LEFT_INDEX        ( 0)
@@ -28,7 +27,6 @@
 #define DOP18_PLANES_DOWN_INDEX        ( 3)
 #define DOP18_PLANES_FRONT_INDEX       ( 4)
 #define DOP18_PLANES_DEPTH_INDEX       ( 5)
-
 #define DOP18_PLANES_UP_LEFT_INDEX     ( 6)
 #define DOP18_PLANES_DOWN_RIGHT_INDEX  ( 7)
 #define DOP18_PLANES_UP_RIGHT_INDEX    ( 8)
@@ -45,7 +43,7 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	const static Vec3 DOP18_NORMALS[18] = {
+	const Vec3 DOP18_NORMALS[18] = {
 		{ -1.0f,  0.0f,  0.0f },
 		{  1.0f,  0.0f,  0.0f },
 		{  0.0f,  1.0f,  0.0f },
@@ -67,7 +65,7 @@ namespace NAMESPACE_PHYSICS
 		{ -0.5f,  0.0f,  0.5f }
 	};
 
-	const static Vec3 DOP18_TANGENTS[18] = {
+	const Vec3 DOP18_TANGENTS[18] = {
 		{  0.0f,  1.0f,  1.0f },
 		{  0.0f,  1.0f,  1.0f },
 		{  1.0f,  0.0f,  1.0f },
@@ -94,7 +92,6 @@ namespace NAMESPACE_PHYSICS
 	/// Represents a k-DOP with 9 orientations and 18 DOPs
 	/// </summary>
 	class DOP18
-		: public BoundingVolume
 	{
 	private:
 		void fixTopDegeneration(const Plane3D* planes);
@@ -103,11 +100,6 @@ namespace NAMESPACE_PHYSICS
 		void fixRightDegeneration(const Plane3D* planes);
 		void fixFrontDegeneration(const Plane3D* planes);
 		void fixDepthDegeneration(const Plane3D* planes);
-
-		/// <summary>
-		/// This method is not applied to k-DOPs
-		/// </summary>
-		void rotate(const Vec3& angles) override { }
 
 		/// <summary>
 		/// Get the points from planes
@@ -240,7 +232,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the center of k-DOP bounding volumne
 		///</summary>
-		API_INTERFACE inline Vec3 centerOfBoundingVolume() const override
+		API_INTERFACE inline Vec3 centerOfBoundingVolume() const
 		{
 			return Vec3(
 				(max[0] + min[0]) * 0.5f,
@@ -252,7 +244,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Translate the bounding volume
 		/// </summary>
-		API_INTERFACE void translate(const Vec3& translation) override;
+		API_INTERFACE void translate(const Vec3& translation);
 
 		/// <summary>
 		/// Translate the bounding volume
@@ -265,7 +257,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Scale the bounding volume (only in X, Y and Z)
 		/// </summary>
-		API_INTERFACE void scale(const Vec3& factor) override;
+		API_INTERFACE void scale(const Vec3& factor);
 
 		/// <summary>
 		/// Check collision with another k-DOP
@@ -790,7 +782,31 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline Plane3D planeLeftFront() const
 		{
 			return Plane3D(Vec3(min[DOP18_AXIS_RIGHT_DEPTH], ZERO_FLOAT, ZERO_FLOAT), DOP18_NORMALS[17]);
-		}		
+		}
+
+		/// <summary>
+		/// Get the height of the bounding volume
+		/// </summary>
+		API_INTERFACE inline sp_float height() const
+		{
+			return max[DOP18_AXIS_Y] - min[DOP18_AXIS_Y];
+		}
+
+		/// <summary>
+		/// Get the width of the bounding volume
+		/// </summary>
+		API_INTERFACE inline sp_float width() const
+		{
+			return max[DOP18_AXIS_X] - min[DOP18_AXIS_X];
+		}
+
+		/// <summary>
+		/// Get the depth of the bounding volume
+		/// </summary>
+		API_INTERFACE inline sp_float depth() const
+		{
+			return max[DOP18_AXIS_Z] - min[DOP18_AXIS_Z];
+		}
 
 		/// <summary>
 		/// Auto convertion to void *
@@ -801,18 +817,6 @@ namespace NAMESPACE_PHYSICS
 		/// Auto convertion to sp_float*
 		/// </summary>
 		API_INTERFACE operator sp_float*() const;
-
-		/// <summary>
-		/// Releases all allocated resouces
-		/// </summary>
-		API_INTERFACE virtual void dispose() override
-		{
-		}
-
-		API_INTERFACE virtual const sp_char* toString() override
-		{
-			return "k-DOP 18";
-		}
 
 	};
 

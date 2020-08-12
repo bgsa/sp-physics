@@ -8,20 +8,32 @@ namespace NAMESPACE_PHYSICS
 	{
 		this->id = id;
 
-#ifdef WINDOWS
-		HGLRC glCtx = wglGetCurrentContext();
-		cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platformId,
-											CL_WGL_HDC_KHR,(intptr_t)wglGetCurrentDC(),
-											CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
-#else
-		GLXContext glCtx = glXGetCurrentContext();
-		cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platform,
-											CL_GLX_DISPLAY_KHR,(intptr_t)glXGetCurrentDisplay(),
-											CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
-#endif
-
 		cl_int errorCode;
-		this->deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
+
+	#ifdef WINDOWS
+		HGLRC glCtx = wglGetCurrentContext();
+		if (glCtx != nullptr)
+		{
+			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platformId,
+												CL_WGL_HDC_KHR,(intptr_t)wglGetCurrentDC(),
+												CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
+
+			this->deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
+		}
+		else
+			this->deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
+	#else
+		if (glCtx != nullptr)
+		{
+			GLXContext glCtx = glXGetCurrentContext();
+			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platform,
+												CL_GLX_DISPLAY_KHR,(intptr_t)glXGetCurrentDisplay(),
+												CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
+			this->deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
+		}
+		else
+			this->deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
+	#endif
 		HANDLE_OPENCL_ERROR(errorCode);
 		
 		this->commandManager = sp_mem_new(GpuCommandManager)(deviceContext, id);

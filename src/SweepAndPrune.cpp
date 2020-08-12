@@ -207,7 +207,7 @@ namespace NAMESPACE_PHYSICS
 
 		initIndexes(inputLength);
 
-		radixSorting->setParameters(inputGpu, inputLength, indexesGPU, indexesLengthGPU, strider, offset);
+		radixSorting->setParameters(inputGpu, inputLength, indexesGPU, indexesLengthGPU, strider);
 
 		commandSaPCollisions = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputLength * strider * SIZEOF_FLOAT)
@@ -221,7 +221,7 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
-		const sp_uint zeroValue = ZERO_UINT;
+		sp_uint zeroValue = ZERO_UINT;
 
 		radixSorting->execute(previousEventsLength, previousEvents);
 		lastEvent = radixSorting->lastEvent;

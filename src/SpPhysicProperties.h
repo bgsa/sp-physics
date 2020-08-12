@@ -18,6 +18,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _acceleration;
 		Vec3 _force;
 		Quat _orientation;
+		Vec3 _angularVelocity;
 		Vec3 _torque;
 
 		Vec3 _previousPosition;
@@ -25,6 +26,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _previousAcceleration;
 		Vec3 _previousForce;
 		Quat _previousOrientation;
+		Vec3 _previousAngularVelocity;
 		Vec3 _previousTorque;
 
 		sp_float _inverseMass;
@@ -33,15 +35,12 @@ namespace NAMESPACE_PHYSICS
 		sp_float _coeficientOfRestitution;
 		sp_float _coeficientOfFriction;
 
-		Mat3 _inertialTensor;
+		Mat3 _inertialTensorInverse;
 
 		inline Vec3 restingAcceleration() const
 		{
-			Vec3 forceX = SpPhysicSettings::instance()->gravityForce();
-
-			const sp_float drag = 0.1f; // rho*C*Area - simplified drag for this example
-			const Vec3 dragForce = (velocity() * velocity().abs()) * 0.5f * drag;
-			const Vec3 restingAcceleration = (forceX - dragForce) * massInverse();
+			const Vec3 gravityForce = SpPhysicSettings::instance()->gravityForce();
+			const Vec3 restingAcceleration = gravityForce * massInverse();
 
 			return restingAcceleration;
 		}
@@ -71,29 +70,26 @@ namespace NAMESPACE_PHYSICS
 			_orientation = Quat::identity();
 			_previousOrientation = Quat::identity();
 
+			_angularVelocity = Vec3(ZERO_FLOAT);
+			_previousAngularVelocity = _angularVelocity;
+
 			_damping = 0.95f;
 			_angularDamping = 0.65f;
 			_coeficientOfRestitution = 0.7f;
 			_coeficientOfFriction = 0.8f;
 			_inverseMass = ZERO_FLOAT;
-			_inertialTensor = Mat3::identity();
+			_inertialTensorInverse = Mat3::identity();
 		}
 
 		API_INTERFACE inline Mat3 inertialTensorInverse() const
 		{
-			const Mat3 orientationAsMatrix = _orientation.toMat3();
-
-			// I^-1 = R * I^-1 * R^T
-			return  
-				 orientationAsMatrix.transpose()
-				* _inertialTensor
-				* orientationAsMatrix;
+			return _inertialTensorInverse;
 		}
 
 		/// <summary>
 		/// Get the orientation
 		/// </summary>
-		API_INTERFACE inline Quat orientation()
+		API_INTERFACE inline Quat orientation() const
 		{
 			return _orientation;
 		}
@@ -116,11 +112,27 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Set the inertial tensor
+		/// Get the angular velocity of the object
 		/// </summary>
-		API_INTERFACE inline Mat3 inertialTensor()
+		API_INTERFACE inline Vec3 angularVelocity() const
 		{
-			return _inertialTensor;
+			return _angularVelocity;
+		}
+
+		/// <summary>
+		/// Set the angular velocity of the object
+		/// </summary>
+		API_INTERFACE inline void angularVelocity(const Vec3& newAgnularVelocity)
+		{
+			_angularVelocity = newAgnularVelocity;
+		}
+
+		/// <summary>
+		/// Get the previous angular velocity of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 previousAngularVelocity() const
+		{
+			return _previousAngularVelocity;
 		}
 
 		/// <summary>
@@ -128,7 +140,13 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void inertialTensor(const Mat3& tensor)
 		{
-			_inertialTensor = tensor;
+			const Mat3 orientationAsMatrix = _orientation.toMat3();
+
+			// I^-1 = R * I^-1 * R^T
+			_inertialTensorInverse =
+				orientationAsMatrix.transpose()
+				* tensor
+				* orientationAsMatrix;
 		}
 
 		/// <summary>
@@ -150,9 +168,11 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Add torque to this object
 		/// </summary>
-		API_INTERFACE inline void addTorque(const Vec3& point, const Vec3& force)
+		API_INTERFACE inline void addImpulseAngular(const Vec3& point, const Vec3& force)
 		{
-			_torque += (point - _position).cross(force);
+			//_torque += (point - _position).cross(force);
+			const Vec3 torqueTemp = (point - _position).cross(force);
+			_angularVelocity += _inertialTensorInverse * torqueTemp;
 		}
 
 		/// <summary>
@@ -383,8 +403,9 @@ namespace NAMESPACE_PHYSICS
 			_velocity = _previousVelocity;
 			_position = _previousPosition;
 
-			_torque = _previousTorque;
 			_orientation = _previousOrientation;
+			_angularVelocity = _previousAngularVelocity;
+			_torque = _previousTorque;
 		}
 
 	};

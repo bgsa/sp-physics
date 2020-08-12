@@ -64,7 +64,7 @@ namespace NAMESPACE_PHYSICS
 		commandReverse->updateInputLength(newIndexesLength);
 	}
 
-	GpuRadixSorting* GpuRadixSorting::setParameters(cl_mem inputGpu, sp_uint inputLength, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint strider, sp_uint offset)
+	GpuRadixSorting* GpuRadixSorting::setParameters(cl_mem inputGpu, sp_uint inputLength, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint strider)
 	{
 		inputIndexesGpu = indexesGpu;
 		const sp_uint inputSize = inputLength * strider * SIZEOF_FLOAT;

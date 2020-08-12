@@ -35,18 +35,27 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get physic properties data from list
 		/// </summary>
-		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) { return &_physicProperties[index]; }
+		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) 
+		{
+			sp_assert(index < listLength, "IndexOutOfRangeException");
+			return &_physicProperties[index]; 
+		}
 
 		/// <summary>
 		/// Get the bounding volume of these object for collision detection
 		/// </summary>
-		API_INTERFACE inline DOP18* boundingVolumes(const sp_uint index) { return &_boundingVolumes[index]; }
+		API_INTERFACE inline DOP18* boundingVolumes(const sp_uint index) 
+		{ 
+			sp_assert(index < listLength, "IndexOutOfRangeException");
+			return &_boundingVolumes[index]; 
+		}
 
 		/// <summary>
 		/// Get the Transformations of these object
 		/// </summary>
 		API_INTERFACE inline SpTransform* transforms(const sp_uint index = ZERO_UINT) const
 		{
+			sp_assert(index < listLength, "IndexOutOfRangeException");
 			return SpPhysicSimulator::instance()->transforms(physicIndex + index);
 		}
 

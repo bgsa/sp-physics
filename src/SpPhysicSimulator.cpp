@@ -28,31 +28,31 @@ namespace NAMESPACE_PHYSICS
 			->use()
 			->updateData(sizeof(SpTransform) * objectsLength, _transforms);
 
+		const sp_uint outputIndexSize = multiplyBy4(objectsLength) * SIZEOF_UINT;
+
 		_transformsGPU = gpu->createBufferFromOpenGL(_transformsGPUBuffer);
-		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, DOP18_SIZE * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
+		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
 		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
-		_collisionIndexesGPU = gpu->createBuffer(multiplyBy4(objectsLength) * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		_collisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		_collisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
-		_sapCollisionIndexesGPU = gpu->createBuffer(multiplyBy4(objectsLength) * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		_sapCollisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		_sapCollisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-
-		lastEvent = gpu->commandManager->updateBuffer(_boundingVolumesGPU, sizeof(DOP18) * _objectsLengthAllocated, _boundingVolumes);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << _objectsLengthAllocated
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-			<< " -DINPUT_OFFSET=" << DOP18_OFFSET
+			<< " -DINPUT_OFFSET=" << 0
 			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap = sp_mem_new(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
 		sap->setParameters(_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU);
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU);
 
 		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
-		collisionResponseGPU->init(gpu, buildOptions.str().c_str());
-		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _physicPropertiesGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU);
+		collisionResponseGPU->init(gpu, nullptr);
+		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _boundingVolumesGPU, _physicPropertiesGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU, outputIndexSize);
 	}
 
 	SpPhysicSimulator* SpPhysicSimulator::init(sp_uint objectsLength)
@@ -101,7 +101,7 @@ namespace NAMESPACE_PHYSICS
 		details->timeOfCollision = elapsedTime < minElapsedTime ? ZERO_FLOAT : elapsedTime;
 	}
 
-	void SpPhysicSimulator::handleCollisionResponse(SpCollisionDetails* details)
+	void SpPhysicSimulator::handleCollisionResponseOLD(SpCollisionDetails* details)
 	{
 		SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
 		SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
@@ -139,12 +139,14 @@ namespace NAMESPACE_PHYSICS
 				const Vec3 pointVelocity = obj1Properties->velocity() + obj1Properties->torque().cross(rayToContact);
 				const Vec3 velocity = pointVelocity.dot(normal);
 
-				const Vec3 parenthesis = obj1Properties->inertialTensorInverse() * rayToContact.cross(rayToContact.cross(normal));
-				const sp_float denominator = normal.dot(parenthesis) + obj1Properties->massInverse();
+				const Vec3 raCrossN = rayToContact.cross(normal);
+
+				const Vec3 parenthesis = obj1Properties->inertialTensorInverse() * raCrossN.cross(rayToContact);
+				const sp_float denominator = obj1Properties->massInverse() + normal.dot(parenthesis);
 
 				const Vec3 impulse = (velocity * -(ONE_FLOAT + cor)) / denominator;
 
-				obj1Properties->_velocity = impulse * rayToContact;
+				obj1Properties->_velocity = -impulse * rayToContact;
 				obj1Properties->_torque = impulse * rayToContact.cross(normal);
 				obj1Properties->_torque *= obj1Properties->angularDamping();
 
@@ -189,6 +191,175 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
+	void SpPhysicSimulator::handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center, const sp_float cor)
+	{
+		const Vec3 rayToContact = details->contactPoint - center;
+		const Vec3 collisionNormal = rayToContact.normalize();
+
+		sp_float numerator = (-(1.0f + cor) * (-objProperties->velocity()).dot(collisionNormal));
+
+		Vec3 d2 = (objProperties->inertialTensorInverse() * rayToContact.cross(collisionNormal))
+			.cross(rayToContact);
+
+		sp_float denominator = objProperties->massInverse() + collisionNormal.dot(d2);
+
+		const sp_float j = denominator == ZERO_FLOAT ? ZERO_FLOAT
+			: numerator / denominator;
+
+		const Vec3 impulse = collisionNormal * j;
+
+		objProperties->_velocity = objProperties->velocity() - impulse * objProperties->massInverse();
+		objProperties->_angularVelocity = objProperties->angularVelocity() - objProperties->inertialTensorInverse() * rayToContact.cross(impulse);
+		
+		if (objProperties->position().y < 1.5f)
+			objProperties->_position.y = 1.5f;
+
+		/*
+			// calculate friction ...
+			Vec3 tangent = relativeVel - (collisionNormal * relativeVel.dot(collisionNormal));
+
+			if (isCloseEnough((tangent.x + tangent.y + tangent.z), ZERO_FLOAT))
+				return;
+
+			tangent = tangent.normalize();
+			numerator = -relativeVel.dot(tangent);
+			d2 = (obj1Properties->inertialTensorInverse() * tangent.cross(rayToContact)).cross(rayToContact);
+			denominator = obj1Properties->massInverse() + tangent.dot(d2);
+
+			if (denominator == 0.0f)
+				return;
+
+			sp_float jt = numerator / denominator;
+
+			if (isCloseEnough(jt, 0.0f))
+				return;
+
+			sp_float friction = sqrtf(obj1Properties->coeficientOfFriction() * obj2Properties->coeficientOfFriction());
+			if (jt > j * friction) {
+				jt = j * friction;
+			}
+			else if (jt < -j * friction) {
+				jt = -j * friction;
+			}
+
+			Vec3 tangentImpuse = tangent * jt;
+
+			obj1Properties->_velocity = obj1Properties->velocity() - tangentImpuse * obj1Properties->massInverse();
+			obj1Properties->_angularVelocity = obj1Properties->angularVelocity() - obj1Properties->inertialTensorInverse() * rayToContact.cross(tangentImpuse);
+			*/
+
+		objProperties->_acceleration = ZERO_FLOAT;
+		objProperties->_force = ZERO_FLOAT;
+		objProperties->_torque = ZERO_FLOAT;
+		integrate(details->objIndex2, details->timeStep);
+	}
+
+	void SpPhysicSimulator::handleCollisionResponse(SpCollisionDetails* details)
+	{
+		SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
+		SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
+
+		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
+
+		if (obj1Properties->isStatic())
+		{
+			const Vec3 center = _boundingVolumes[details->objIndex2].centerOfBoundingVolume();
+			handleCollisionResponseWithStatic(details, obj2Properties, center, cor);
+		}
+		else if (obj2Properties->isStatic())
+		{
+			const Vec3 center = _boundingVolumes[details->objIndex1].centerOfBoundingVolume();
+			handleCollisionResponseWithStatic(details, obj1Properties, center, cor);
+		}
+		else
+		{
+			const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
+			
+			const Vec3 centerObj1 = _boundingVolumes[details->objIndex1].centerOfBoundingVolume();
+			const Vec3 centerObj2 = _boundingVolumes[details->objIndex2].centerOfBoundingVolume();
+
+			const Vec3 rayToContactObj1 = (details->contactPoint - centerObj1);
+			const Vec3 rayToContactObj2 = (details->contactPoint - centerObj2);
+			
+			const Vec3 collisionNormal = (details->contactPoint - centerObj1).normalize();
+
+			const Vec3 relativeVel = (obj2Properties->velocity() + obj2Properties->angularVelocity().cross(rayToContactObj2))
+									- (obj1Properties->velocity() + obj2Properties->angularVelocity().cross(rayToContactObj1));
+
+			sp_float numerator = (-(1.0f + cor) * relativeVel.dot(collisionNormal));
+			
+			Vec3 d2 = (obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(collisionNormal))
+									.cross(rayToContactObj1);
+			
+			Vec3 d3 = (obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(collisionNormal))
+									.cross(rayToContactObj2);
+			
+			sp_float denominator = invMassSum + collisionNormal.dot(d2 + d3);
+
+			const sp_float j = denominator == ZERO_FLOAT ? ZERO_FLOAT 
+								: numerator / denominator;
+
+			/* if had many contact points ...
+			if (M.contacts.size() > 0.0f && j != 0.0f) {
+				j /= (float)M.contacts.size();
+			}*/
+
+			const Vec3 impulse = collisionNormal * j;
+
+			obj1Properties->_velocity = obj1Properties->velocity() - impulse * obj1Properties->massInverse();
+			obj1Properties->_angularVelocity = obj1Properties->angularVelocity() - obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(impulse);
+			
+			obj2Properties->_velocity = obj2Properties->velocity() + impulse * obj2Properties->massInverse();
+			obj2Properties->_angularVelocity = obj2Properties->angularVelocity() + obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(impulse);
+
+			/*
+			// calculate friction
+			Vec3 tangent = relativeVel - (collisionNormal * relativeVel.dot(collisionNormal));
+
+			if (isCloseEnough((tangent.x + tangent.y + tangent.z), ZERO_FLOAT))
+				return;
+
+			tangent = tangent.normalize();
+			numerator = -relativeVel.dot(tangent);
+			d2 = (obj1Properties->inertialTensorInverse() * tangent.cross(rayToContactObj1)).cross(rayToContactObj1);
+			d3 = (obj2Properties->inertialTensorInverse() * tangent.cross(rayToContactObj2)).cross(rayToContactObj2);
+			denominator = invMassSum + tangent.dot(d2 + d3);
+
+			if (denominator == 0.0f)
+				return;
+
+			sp_float jt = numerator / denominator;
+
+			if (isCloseEnough(jt, 0.0f))
+				return;
+
+			const sp_float friction = sqrtf(obj1Properties->coeficientOfFriction() * obj2Properties->coeficientOfFriction());
+			if (jt > j * friction) {
+				jt = j * friction;
+			}
+			else if (jt < -j * friction) {
+				jt = -j * friction;
+			}
+
+			const Vec3 tangentImpuse = tangent * jt;
+
+			obj1Properties->_velocity = obj1Properties->velocity() - tangentImpuse * obj1Properties->massInverse();
+			obj1Properties->_angularVelocity = obj1Properties->angularVelocity() - obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(tangentImpuse);
+			
+			obj2Properties->_velocity = obj2Properties->velocity() + tangentImpuse * obj2Properties->massInverse();
+			obj2Properties->_angularVelocity = obj2Properties->angularVelocity()+ obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(tangentImpuse);
+			*/
+
+			obj1Properties->_acceleration = ZERO_FLOAT;
+			obj1Properties->_torque = ZERO_FLOAT;
+			integrate(details->objIndex1, details->timeStep);
+
+			obj2Properties->_acceleration = ZERO_FLOAT;
+			obj2Properties->_torque = ZERO_FLOAT;
+			integrate(details->objIndex2, details->timeStep);
+		}
+	}
+
 	void SpPhysicSimulator::handleCollisionCPU(void* threadParameter)
 	{
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
@@ -213,20 +384,27 @@ namespace NAMESPACE_PHYSICS
 
 		if (isObj1Resting && isObj2Resting)
 		{
+			if (!isObj1Static && !isObj2Static)
+				return;
+
+			simulator->translate(details->objIndex1, obj1Properties->_previousPosition - obj1Properties->_position);
 			obj1Properties->_position = obj1Properties->_previousPosition;
 			obj1Properties->_velocity = Vec3(ZERO_FLOAT);
 			obj1Properties->_acceleration = Vec3(ZERO_FLOAT);
-			
+
+			simulator->translate(details->objIndex2, obj2Properties->_previousPosition - obj2Properties->_position);
 			obj2Properties->_position = obj2Properties->_previousPosition;
 			obj2Properties->_velocity = Vec3(ZERO_FLOAT);
 			obj2Properties->_acceleration = Vec3(ZERO_FLOAT);
-			
+
 			details->ignoreCollision = true;
 			return;
 		}
 
 		if (isObj1Static && isObj2Resting)
 		{
+			simulator->translate(details->objIndex2, obj2Properties->_previousPosition - obj2Properties->_position);
+			obj2Properties->_position = obj2Properties->_previousPosition;
 			obj2Properties->_acceleration = Vec3(ZERO_FLOAT);
 			obj2Properties->_velocity = Vec3(ZERO_FLOAT);
 			
@@ -236,6 +414,8 @@ namespace NAMESPACE_PHYSICS
 
 		if (isObj2Static && isObj1Resting)
 		{
+			simulator->translate(details->objIndex1, obj1Properties->_previousPosition - obj1Properties->_position);
+			obj1Properties->_position = obj1Properties->_previousPosition;
 			obj1Properties->_acceleration = Vec3(ZERO_FLOAT);
 			obj1Properties->_velocity = Vec3(ZERO_FLOAT);
 			
@@ -250,7 +430,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		simulator->collisionDetails(details);
-
 		simulator->handleCollisionResponse(details);
 	}
 
@@ -277,9 +456,22 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(sortedIndexes);
 	}
 
-	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
+	void SpPhysicSimulator::findCollisionsGpuOLD(SweepAndPruneResult* result)
 	{
 		sap->execute(ONE_UINT, &lastEvent);
+		lastEvent = sap->lastEvent;
+
+		result->length = sap->fetchCollisionLength();
+
+		gpu->commandManager->readBuffer(_sapCollisionIndexesGPU, SIZEOF_TWO_UINT * result->length, result->indexes, 1u, &lastEvent);
+	}
+
+	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
+	{
+		//sap->updateBoundingVolumes(_boundingVolumes);
+		sap->execute(ONE_UINT, &sap->lastEvent);
+
+		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, _boundingVolumes, _physicProperties);
 
 		collisionResponseGPU->execute(ONE_UINT, &sap->lastEvent);
 		lastEvent = collisionResponseGPU->lastEvent;
@@ -290,67 +482,41 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::run(const Timer& timer)
 	{
-		/*
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
-
-		findCollisionsCpu(&sapResult);
-
-		const sp_float elapsedTime = timer.elapsedTime();
-
-		for (sp_uint i = 0; i < multiplyBy2(sapResult.length); i += 2u)
-			handleCollision({ sapResult.indexes[i], sapResult.indexes[i + 1], elapsedTime });
-	
-		ALLOC_RELEASE(sapResult.indexes);
-		sapResult.indexes = nullptr;
-		*/
-
-		SweepAndPruneResult sapResult;
-		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
-
-		//Timer tt; tt.start();
+		
+		//findCollisionsCpu(&sapResult);
+		//sp_uint cpu = sapResult.length;
 
 		updateDataOnGPU();
 		findCollisionsGpu(&sapResult);
 		updateDataOnCPU();
 
-		//std::cout << tt.elapsedTime() << END_OF_LINE;
-
-		//sp_float t = tt.elapsedTime(); // 3-4 ms
-		//std::cout << t << END_OF_LINE;
-		
-		//Timer tt; tt.start();
+		//std::cout << cpu << " x " << sapResult.length << END_OF_LINE;
 
 		const sp_float elapsedTime = timer.elapsedTime();
 		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
 		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
-		
+		SpThreadPool* threadPool = SpThreadPool::instance();
+
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
 
-			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
 			tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
-			tasks[i]. parameter = &detailsArray[i];
+			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
+			tasks[i].parameter = &detailsArray[i];
 
-			SpThreadPool::instance()->schedule(&tasks[i]);
+			threadPool->schedule(&tasks[i]);
 		}
 
-		//std::cout << tt.elapsedTime() << "   -   " << sapResult.length;
-
-		//Timer tt; tt.start();
-
 		SpThreadPool::instance()->waitToFinish();
-		
-		//std::cout << tt.elapsedTime() << END_OF_LINE;
 
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)
 				dispatchEvent(&detailsArray[i]);
-
-		//std::cout << tt.elapsedTime() << END_OF_LINE;
 
 		ALLOC_RELEASE(detailsArray);
 		//ALLOC_RELEASE(sapResult.indexes);
@@ -776,6 +942,117 @@ namespace NAMESPACE_PHYSICS
 		details->contactPoint = (vertexes[0] + vertexes[1] + vertexes[2] + vertexes[3]) * 0.25f;
 	}
 	
+	void SpPhysicSimulator::collisionDetails(SpCollisionDetails* details)
+	{
+		sp_assert(details->objIndex1 >= ZERO_UINT && details->objIndex1 < _objectsLength, "IndexOutOfRangeException");
+		sp_assert(details->objIndex2 >= ZERO_UINT && details->objIndex2 < _objectsLength, "IndexOutOfRangeException");
+
+		timeOfCollision(details);
+
+		DOP18 bv1 = _boundingVolumes[details->objIndex1];
+		DOP18 bv2 = _boundingVolumes[details->objIndex2];
+
+		sp_float smallestDistace;
+		sp_float newDistace;
+
+		for (sp_uint i = 0; i < 2; i++)
+		{
+			details->objectIndexPlane1 = DOP18_PLANES_RIGHT_INDEX;
+			details->objectIndexPlane2 = DOP18_PLANES_LEFT_INDEX;
+			smallestDistace = std::fabsf(bv1.max[DOP18_AXIS_X] - bv2.min[DOP18_AXIS_X]);
+
+			collisionDetailsPlanesRightLeft(details->objIndex1, details->objIndex2, details);
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_Z] - bv2.min[DOP18_AXIS_Z]);
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_FRONT_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_DEPTH_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesDepthFront(details->objIndex2, details->objIndex1, details);
+			}
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_Y] - bv2.min[DOP18_AXIS_Y]);
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_UP_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_DOWN_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesDownUp(details->objIndex2, details->objIndex1, details);
+			}
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_LEFT_DEPTH] - bv2.min[DOP18_AXIS_LEFT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_RIGHT_FRONT_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_LEFT_DEPTH_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesRightFrontAndLeftDepth(details->objIndex1, details->objIndex2, details);
+			}
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_RIGHT_DEPTH] - bv2.min[DOP18_AXIS_RIGHT_DEPTH]); // = bv1.planeRightDepth().distance(bv2.planeLeftFront());
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_RIGHT_DEPTH_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesRightDepthAndLeftFront(details->objIndex1, details->objIndex2, details);
+			}
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_LEFT] - bv2.min[DOP18_AXIS_UP_LEFT]);
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_DOWN_RIGHT_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_UP_LEFT_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesUpLeftAndDownRight(details->objIndex2, details->objIndex1, details);
+			}
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_FRONT] - bv2.min[DOP18_AXIS_UP_FRONT]);
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_UP_FRONT_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_DOWN_DEPTH_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesUpFrontAndDownDepth(details->objIndex1, details->objIndex2, details);
+			}
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_RIGHT] - bv2.min[DOP18_AXIS_UP_RIGHT]);
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_UP_RIGHT_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_DOWN_LEFT_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesUpRightAndDownLeft(details->objIndex1, details->objIndex2, details);
+			}
+
+			newDistace = std::fabsf(bv1.max[DOP18_AXIS_UP_DEPTH] - bv2.min[DOP18_AXIS_UP_DEPTH]);
+			if (newDistace < smallestDistace)
+			{
+				details->objectIndexPlane1 = DOP18_PLANES_UP_DEPTH_INDEX;
+				details->objectIndexPlane2 = DOP18_PLANES_DOWN_FRONT_INDEX;
+				smallestDistace = newDistace;
+
+				collisionDetailsPlanesUpDepthAndDownFront(details->objIndex1, details->objIndex2, details);
+			}
+
+			bv1 = _boundingVolumes[details->objIndex2];
+			bv2 = _boundingVolumes[details->objIndex1];
+		}
+
+		sp_assert(details->objectIndexPlane1 >= 0 && details->objectIndexPlane1 < 18, "Invalid Plane Index");
+		sp_assert(details->objectIndexPlane2 >= 0 && details->objectIndexPlane2 < 18, "Invalid Plane Index");
+	}
+
+
+	/*
 	void SpPhysicSimulator::collisionDetails(SpCollisionDetails* details)
 	{
 		sp_assert(details->objIndex1 >= ZERO_UINT && details->objIndex1 < _objectsLength, "IndexOutOfRangeException");
@@ -1345,7 +1622,7 @@ namespace NAMESPACE_PHYSICS
 						details->objectIndexPlane2 = DOP18_PLANES_UP_DEPTH_INDEX;
 						smallestDistace = newDistace;
 
-						sp_assert(false, "TODO");
+						//sp_assert(false, "TODO");
 						collisionDetailsPlanesRightFrontAndLeftDepth(details->objIndex1, details->objIndex2, details);
 					}
 
@@ -1356,7 +1633,7 @@ namespace NAMESPACE_PHYSICS
 						details->objectIndexPlane2 = DOP18_PLANES_LEFT_FRONT_INDEX;
 						smallestDistace = newDistace;
 
-						sp_assert(false, "TODO");
+						//sp_assert(false, "TODO");
 						collisionDetailsPlanesRightDepthAndLeftFront(details->objIndex1, details->objIndex2, details);
 					}
 
@@ -1387,6 +1664,7 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(details->objectIndexPlane1 >= 0 && details->objectIndexPlane1 < 18, "Invalid Plane Index");
 		sp_assert(details->objectIndexPlane2 >= 0 && details->objectIndexPlane2 < 18, "Invalid Plane Index");
 	}
+	*/
 
 	void SpPhysicSimulator::dispose()
 	{

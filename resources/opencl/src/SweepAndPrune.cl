@@ -1,27 +1,47 @@
 #include "OpenCLBase.cl"
+#include "DOP18.cl"
 #include "SpPhysicProperties.cl"
 
-#define MIN_POINT_NEXT_ELEMENT input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + axis                     ]
-#define MAX_POINT_NEXT_ELEMENT input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + axis + ORIENTATION_LENGTH]
+#define MIN_POINT_NEXT_ELEMENT input[dopIndex2                            ]
+#define MAX_POINT_NEXT_ELEMENT input[dopIndex2 + axis + DOP18_ORIENTATIONS]
 
-#define MIN_POINT_NEXT_ELEMENT_X  input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET    ]
-#define MIN_POINT_NEXT_ELEMENT_Y  input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 1]
-#define MIN_POINT_NEXT_ELEMENT_Z  input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 2]
-#define MIN_POINT_NEXT_ELEMENT_XY input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 3]
-#define MIN_POINT_NEXT_ELEMENT_YX input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 4]
-#define MIN_POINT_NEXT_ELEMENT_YZ input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 5]
-#define MIN_POINT_NEXT_ELEMENT_ZY input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 6]
-#define MIN_POINT_NEXT_ELEMENT_XZ input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 7]
-#define MIN_POINT_NEXT_ELEMENT_ZX input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 8]
-#define MAX_POINT_NEXT_ELEMENT_X  input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET +     ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_Y  input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 1 + ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_Z  input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 2 + ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_XY input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 3 + ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_YX input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 4 + ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_YZ input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 5 + ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_ZY input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 6 + ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_XZ input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 7 + ORIENTATION_LENGTH]
-#define MAX_POINT_NEXT_ELEMENT_ZX input[indexes[j] * INPUT_STRIDE + INPUT_OFFSET + 8 + ORIENTATION_LENGTH]
+#define MIN_POINT_NEXT_ELEMENT_X  input[dopIndex2     ]
+#define MIN_POINT_NEXT_ELEMENT_Y  input[dopIndex2 +  1]
+#define MIN_POINT_NEXT_ELEMENT_Z  input[dopIndex2 +  2]
+#define MIN_POINT_NEXT_ELEMENT_XY input[dopIndex2 +  3]
+#define MIN_POINT_NEXT_ELEMENT_YX input[dopIndex2 +  4]
+#define MIN_POINT_NEXT_ELEMENT_YZ input[dopIndex2 +  5]
+#define MIN_POINT_NEXT_ELEMENT_ZY input[dopIndex2 +  6]
+#define MIN_POINT_NEXT_ELEMENT_XZ input[dopIndex2 +  7]
+#define MIN_POINT_NEXT_ELEMENT_ZX input[dopIndex2 +  8]
+#define MAX_POINT_NEXT_ELEMENT_X  input[dopIndex2 +  9]
+#define MAX_POINT_NEXT_ELEMENT_Y  input[dopIndex2 + 10]
+#define MAX_POINT_NEXT_ELEMENT_Z  input[dopIndex2 + 11]
+#define MAX_POINT_NEXT_ELEMENT_XY input[dopIndex2 + 12]
+#define MAX_POINT_NEXT_ELEMENT_YX input[dopIndex2 + 13]
+#define MAX_POINT_NEXT_ELEMENT_YZ input[dopIndex2 + 14]
+#define MAX_POINT_NEXT_ELEMENT_ZY input[dopIndex2 + 15]
+#define MAX_POINT_NEXT_ELEMENT_XZ input[dopIndex2 + 16]
+#define MAX_POINT_NEXT_ELEMENT_ZX input[dopIndex2 + 17]
+
+#define minPointX input[dopIndex1      ]
+#define minPointY input[dopIndex1  +  1]
+#define minPointZ input[dopIndex1  +  2]
+#define minPointXY input[dopIndex1 +  3]
+#define minPointYX input[dopIndex1 +  4]
+#define minPointYZ input[dopIndex1 +  5]
+#define minPointZY input[dopIndex1 +  6]
+#define minPointXZ input[dopIndex1 +  7]
+#define minPointZX input[dopIndex1 +  8]
+#define maxPointX input[dopIndex1  +  9]
+#define maxPointY input[dopIndex1  + 10]
+#define maxPointZ input[dopIndex1  + 11]
+#define maxPointXY input[dopIndex1 + 12]
+#define maxPointYX input[dopIndex1 + 13]
+#define maxPointYZ input[dopIndex1 + 14]
+#define maxPointZY input[dopIndex1 + 15]
+#define maxPointXZ input[dopIndex1 + 16]
+#define maxPointZX input[dopIndex1 + 17]
 
 __kernel void sweepAndPruneSingleAxis(
 	__global   sp_float* input,
@@ -31,40 +51,25 @@ __kernel void sweepAndPruneSingleAxis(
 	__global   sp_uint * outputLength, 
 	__global   sp_uint * output)
 {
-
     __private const sp_uint axis = THREAD_OFFSET;
-    __private const sp_uint index = THREAD_ID - axis;
+    __private const sp_uint index = THREAD_ID - THREAD_OFFSET;
 
     if (index + 1u > *indexesLength)
         return;
 
-    //const sp_float minPoint = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + axis];
-    const sp_float maxPoint = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + axis + ORIENTATION_LENGTH];
+    const sp_uint objIndex1 = indexes[index];
+    const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
 
-    const sp_float minPointX  = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET    ];
-    const sp_float minPointY  = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 1];
-    const sp_float minPointZ  = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 2];
-    const sp_float minPointXY = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 3];
-    const sp_float minPointYX = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 4];
-    const sp_float minPointYZ = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 5];
-    const sp_float minPointZY = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 6];
-    const sp_float minPointXZ = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 7];
-    const sp_float minPointZX = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 8];
+    //const sp_float minPoint = input[dopIndex1 + axis];
+    const sp_float maxPoint = input[dopIndex1 + axis + DOP18_ORIENTATIONS];
 
-    const sp_float maxPointX  = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET +     ORIENTATION_LENGTH];
-    const sp_float maxPointY  = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 1 + ORIENTATION_LENGTH];
-    const sp_float maxPointZ  = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 2 + ORIENTATION_LENGTH];
-    const sp_float maxPointXY = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 3 + ORIENTATION_LENGTH];
-    const sp_float maxPointYX = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 4 + ORIENTATION_LENGTH];
-    const sp_float maxPointYZ = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 5 + ORIENTATION_LENGTH];
-    const sp_float maxPointZY = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 6 + ORIENTATION_LENGTH];
-    const sp_float maxPointXZ = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 7 + ORIENTATION_LENGTH];
-    const sp_float maxPointZX = input[indexes[index] * INPUT_STRIDE + INPUT_OFFSET + 8 + ORIENTATION_LENGTH];
-
-    const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, index * SP_PHYSIC_PROPERTY_SIZE);
+    const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, objIndex1 * SP_PHYSIC_PROPERTY_SIZE);
 
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
+        const sp_uint objIndex2 = indexes[j];
+        const sp_uint dopIndex2 = objIndex2 * INPUT_STRIDE;
+
         if (maxPoint < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else
             return;
 
@@ -79,14 +84,14 @@ __kernel void sweepAndPruneSingleAxis(
             && (maxPointZX >= MIN_POINT_NEXT_ELEMENT_ZX && minPointZX <= MAX_POINT_NEXT_ELEMENT_ZX)  
         )
         {
-            const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, j * SP_PHYSIC_PROPERTY_SIZE);
+            const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, objIndex2 * SP_PHYSIC_PROPERTY_SIZE);
 
             if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
                 continue;
 
             const sp_uint temp = atomic_add(outputLength, 2);
-            output[temp] = indexes[index];
-            output[temp + 1] = indexes[j];
+            output[temp    ] = objIndex1;
+            output[temp + 1] = objIndex2;
         }
     }
 }

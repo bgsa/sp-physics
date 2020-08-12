@@ -2291,17 +2291,17 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(findCollisions);
+		SP_TEST_METHOD_DEF(findCollisions_WithAABB);
 		SP_TEST_METHOD_DEF(findCollisions_WithKDOPs);
 
 #ifdef OPENCL_ENABLED
-		SP_TEST_METHOD_DEF(findCollisionsGPU);
+		SP_TEST_METHOD_DEF(findCollisionsGPU_WithAABB);
 		SP_TEST_METHOD_DEF(findCollisionsGPU_WithKDOPs);
 #endif
 
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, findCollisions)
+	SP_TEST_METHOD(CLASS_NAME, findCollisions_WithAABB)
 	{
 		size_t count = 1000;
 		AABB* aabbs = get1000AABBs();
@@ -2364,7 +2364,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 #ifdef OPENCL_ENABLED
 
-	SP_TEST_METHOD(CLASS_NAME, findCollisionsGPU)
+	SP_TEST_METHOD(CLASS_NAME, findCollisionsGPU_WithAABB)
 	{
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
@@ -2377,7 +2377,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem outputGpu = gpu->createBuffer(sizeof(AABB) * count * 2, CL_MEM_READ_ONLY);
 		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
-		SpPhysicProperties* physicProperties = nullptr;
+		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, count);
 		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * count, CL_MEM_READ_ONLY, true);
 
 		std::ostringstream buildOptions;
@@ -2430,19 +2430,22 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
 		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY, true);
 
-		SpPhysicProperties* physicProperties = nullptr;
+		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
+		for (sp_uint i = 0; i < length; i++)
+			physicProperties[i].mass(ZERO_FLOAT);
+
 		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(AABB) * length * 2, CL_MEM_READ_ONLY);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(DOP18) * length * 2, CL_MEM_READ_ONLY);
 		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << length
 					<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-					<< " -DINPUT_OFFSET=" << DOP18_OFFSET
+					<< " -DINPUT_OFFSET=" << 0
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, DOP18_OFFSET, DOP18_ORIENTATIONS, physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu);
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, 0, DOP18_ORIENTATIONS, physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu);
 
 		performanceCounter.start();
 

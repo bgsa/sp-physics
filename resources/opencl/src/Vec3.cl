@@ -29,12 +29,10 @@ inline void vec3_multiply_vec3(const Vec3 vec1, const Vec3 vec2, Vec3* result)
 	result->z = vec1.z * vec2.z;
 }
 
-inline void vec3_minus_vec3(const Vec3 vec1, const Vec3 vec2, Vec3* result)
-{
-	result->x = vec1.x - vec2.x;
-	result->y = vec1.y - vec2.y;
-	result->z = vec1.z - vec2.z;
-}
+#define vec3_minus_vec3(vec1, vec2, result) \
+	result.x = vec1.x - vec2.x; \
+	result.y = vec1.y - vec2.y; \
+	result.z = vec1.z - vec2.z
 
 inline sp_bool vec3_lesserThanOrEqual_float(const Vec3 vec, const sp_float value)
 {

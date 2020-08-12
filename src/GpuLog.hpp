@@ -62,7 +62,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		///<summary>
-		///Handle Comp�le errors
+		///Handle Compile errors
 		///</summary>
 		API_INTERFACE static void handleCompileError(int errorCode)
 		{

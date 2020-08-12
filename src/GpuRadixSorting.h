@@ -54,7 +54,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;
 
-		API_INTERFACE GpuRadixSorting* setParameters(cl_mem inputGpu, sp_uint indexesLengthCpu, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint striderCpu, sp_uint offsetCpu);
+		API_INTERFACE GpuRadixSorting* setParameters(cl_mem inputGpu, sp_uint indexesLengthCpu, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint striderCpu);
 
 		API_INTERFACE void updateIndexes(cl_mem newIndexes, cl_mem newIndexesLength);
 

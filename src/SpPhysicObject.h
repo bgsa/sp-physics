@@ -35,7 +35,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the bounding volume for this object
 		/// </summary>
-		API_INTERFACE virtual BoundingVolume* boundingVolume() const = 0;
+		API_INTERFACE virtual DOP18* boundingVolume() const = 0;
 
 		/// <summary>
 		/// Get the description for this object

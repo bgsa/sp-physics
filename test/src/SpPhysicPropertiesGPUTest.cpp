@@ -38,8 +38,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			index += 3;
 			physicProperties[i].orientation(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 4;
-			physicProperties[i].addTorque(Vec3(index, index + 1.0f, index + 2.0f), Vec3(index, index + 1.0f, index + 2.0f));
-			index += 3 + 18;
+			physicProperties[i].addImpulseAngular(Vec3(index, index + 1.0f, index + 2.0f), Vec3(index, index + 1.0f, index + 2.0f));
+			index += 6 + 21;
 			physicProperties[i].mass(index);
 			index += 1;
 			physicProperties[i].damping(index);
@@ -115,8 +115,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			index += 3;
 			physicProperties[i].orientation(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 4;
-			physicProperties[i].addTorque(Vec3(index, index + 1.0f, index + 2.0f), Vec3(index, index + 1.0f, index + 2.0f));
-			index += 3 + 18;
+			physicProperties[i].angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 6 + 21;
 			physicProperties[i].mass(index);
 			index += 1;
 			physicProperties[i].damping(index);

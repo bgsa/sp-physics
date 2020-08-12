@@ -105,6 +105,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void updatePhysicProperties(void* physicProperties)
 		{
 			commandSaPCollisions->updateInputParameterValue(1u, physicProperties);
+			lastEvent = commandSaPCollisions->lastEvent;
 		}
 
 		///<summary>
@@ -113,6 +114,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void updateBoundingVolumes(void* boudingVolumes)
 		{
 			commandSaPCollisions->updateInputParameterValue(0u, boudingVolumes);
+			lastEvent = commandSaPCollisions->lastEvent;
 		}
 
 #endif // OPENCL_ENABLED

@@ -56,17 +56,18 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(cl_mem indexesGPU, cl_mem indexesLengthGPU, sp_uint indexesLength, cl_mem physicPropertiesGPU, cl_mem outputIndexesGPU, cl_mem outputIndexLengthGPU)
+		API_INTERFACE void setParameters(cl_mem indexesGPU, cl_mem indexesLengthGPU, sp_uint indexesLength, cl_mem boundingVolumes, cl_mem physicPropertiesGPU, cl_mem outputIndexesGPU, cl_mem outputIndexLengthGPU, sp_size outputIndexSize)
 		{
 			globalWorkSize[0] = indexesLength;
 			localWorkSize[0] = gpu->getGroupLength(indexesLength, indexesLength);
 
 			command = gpu->commandManager->createCommand()
-				->setInputParameter(indexesGPU, indexesLength * 2u * SIZEOF_UINT)
+				->setInputParameter(indexesGPU, outputIndexSize)
 				->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
+				->setInputParameter(boundingVolumes, indexesLength * sizeof(DOP18))
 				->setInputParameter(physicPropertiesGPU, indexesLength * sizeof(SpPhysicProperties))
 				->setInputParameter(outputIndexLengthGPU, SIZEOF_UINT)
-				->setInputParameter(outputIndexesGPU, indexesLength * SIZEOF_UINT)
+				->setInputParameter(outputIndexesGPU, outputIndexSize)
 				->buildFromProgram(program, "handleCollision");
 		}
 		
@@ -79,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint zeroValue = ZERO_UINT;
 
 			command
-				->updateInputParameterValue(3u, &zeroValue)
+				->updateInputParameterValue(4u, &zeroValue)
 				->execute(1, globalWorkSize, localWorkSize, 0, previousEvents, previousEventsLength);
 
 			lastEvent = command->lastEvent;
@@ -90,7 +91,7 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE inline void fetchCollisionLength(sp_uint* length)
 		{
-			command->fetchInOutParameter<sp_uint>(3u, length);
+			command->fetchInOutParameter<sp_uint>(4u, length);
 			length[0] = divideBy2(length[0]);
 		}
 
@@ -99,17 +100,18 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE inline void fetchCollisions(sp_uint* indexes)
 		{
-			command->fetchInOutParameter<sp_uint>(4u, indexes);
+			command->fetchInOutParameter<sp_uint>(5u, indexes);
 		}
 
 		///<summary>
 		///</summary>
-		API_INTERFACE inline void updateParameters(cl_mem indexes, cl_mem length, void* physicProperties)
+		API_INTERFACE inline void updateParameters(cl_mem indexes, cl_mem length, void* boudingVolumes, void* physicProperties)
 		{
 			command
 				->updateInputParameter(0u, indexes)
 				->updateInputParameter(1u, length)
-				->updateInputParameterValue(2u, physicProperties);
+				->updateInputParameterValue(2u, boudingVolumes)
+				->updateInputParameterValue(3u, physicProperties);
 		}
 
 		/// <summary>

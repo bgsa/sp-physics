@@ -5,25 +5,27 @@
 #define SP_PHYSIC_DRAG_FORCE (0.1f)
 #define SP_PHYSIC_RESTING_VELOCITY (0.09f)
 
-#define SP_PHYSIC_PROPERTY_SIZE                (52)
-#define SP_PHYSIC_PROPERTY_POSITION_INDEX      (0)
-#define SP_PHYSIC_PROPERTY_VELOCITY_INDEX      (3)
-#define SP_PHYSIC_PROPERTY_ACCELERATION_INDEX  (6)
-#define SP_PHYSIC_PROPERTY_FORCE_INDEX         (9)
-#define SP_PHYSIC_PROPERTY_ORIENTATION_INDEX   (12)
-#define SP_PHYSIC_PROPERTY_TORQUE_INDEX        (16)
-#define SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX (19)
-#define SP_PHYSIC_PROPERTY_PREV_VEL_INDEX      (22)
-#define SP_PHYSIC_PROPERTY_PREV_ACC_INDEX      (25)
-#define SP_PHYSIC_PROPERTY_PREV_FORCE_INDEX    (28)
-#define SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX (31)
-#define SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX   (35)
-#define SP_PHYSIC_PROPERTY_INV_MASS_INDEX      (38) // OK!!
-#define SP_PHYSIC_PROPERTY_DAMPING_INDEX       (39)
-#define SP_PHYSIC_PROPERTY_ANG_DAMPING_INDEX   (40)
-#define SP_PHYSIC_PROPERTY_COR_INDEX           (41)
-#define SP_PHYSIC_PROPERTY_COF_INDEX           (42)
-#define SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX  (43)
+#define SP_PHYSIC_PROPERTY_SIZE                 (58)
+#define SP_PHYSIC_PROPERTY_POSITION_INDEX       (0)
+#define SP_PHYSIC_PROPERTY_VELOCITY_INDEX       (3)
+#define SP_PHYSIC_PROPERTY_ACCELERATION_INDEX   (6)
+#define SP_PHYSIC_PROPERTY_FORCE_INDEX          (9)
+#define SP_PHYSIC_PROPERTY_ORIENTATION_INDEX    (12)
+#define SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX   (16)
+#define SP_PHYSIC_PROPERTY_TORQUE_INDEX         (19)
+#define SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX  (22)
+#define SP_PHYSIC_PROPERTY_PREV_VEL_INDEX       (25)
+#define SP_PHYSIC_PROPERTY_PREV_ACC_INDEX       (28)
+#define SP_PHYSIC_PROPERTY_PREV_FORCE_INDEX     (31)
+#define SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX  (34)
+#define SP_PHYSIC_PROPERTY_PREV_ANG_VEL_INDEX   (38)
+#define SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX    (41)
+#define SP_PHYSIC_PROPERTY_INV_MASS_INDEX       (44)
+#define SP_PHYSIC_PROPERTY_DAMPING_INDEX        (45)
+#define SP_PHYSIC_PROPERTY_ANG_DAMPING_INDEX    (46)
+#define SP_PHYSIC_PROPERTY_COR_INDEX            (47)
+#define SP_PHYSIC_PROPERTY_COF_INDEX            (48)
+#define SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX   (49)
 
 inline void restingAcceleration(__global sp_float* properties, const sp_uint stride, Vec3* result)
 {
@@ -44,7 +46,7 @@ inline void restingAcceleration(__global sp_float* properties, const sp_uint str
     vec3_multiply_float(dragForce, 0.5f * SP_PHYSIC_DRAG_FORCE, &dragForce);
 
     Vec3 restingAcc;
-    vec3_minus_vec3(gravityForce, dragForce, &restingAcc);
+    vec3_minus_vec3(gravityForce, dragForce, restingAcc);
     vec3_multiply_float(restingAcc, mass, result);
 }
 
@@ -103,12 +105,12 @@ inline sp_bool SpPhysicProperties_areMovingAway(__global sp_float* properties, c
     };
 
     Vec3 lineOfAction;
-    vec3_minus_vec3(positionObj2, positionObj1, &lineOfAction);
+    vec3_minus_vec3(positionObj2, positionObj1, lineOfAction);
     
     Vec3 velocityToObject2;
     vec3_multiply_vec3(velocityObj1, lineOfAction, &velocityToObject2);
 
-    vec3_minus_vec3(positionObj1, positionObj2, &lineOfAction);
+    vec3_minus_vec3(positionObj1, positionObj2, lineOfAction);
     
     Vec3 velocityToObject1;
     vec3_multiply_vec3(velocityObj2, lineOfAction, &velocityToObject1);
