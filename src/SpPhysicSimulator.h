@@ -19,14 +19,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpHandleCollisionParameter
-	{
-	public:
-		sp_uint objIndex1;
-		sp_uint objIndex2;
-		sp_float elapsedTime;
-	};
-
 	class SpPhysicSimulator
 	{
 	private:
@@ -67,8 +59,6 @@ namespace NAMESPACE_PHYSICS
 
 			SpEventDispatcher::instance()->push(evt);
 		}
-
-		void timeOfCollision(SpCollisionDetails* details);
 
 		void collisionDetails(SpCollisionDetails* details);
 		
@@ -184,7 +174,7 @@ namespace NAMESPACE_PHYSICS
 			return _transformsGPUBuffer;
 		}
 
-		API_INTERFACE void findTimeOfCollisionWithMeshAndObj1Static(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
+		API_INTERFACE void timeOfCollisionWithObj1Static(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
 		{
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 			SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
@@ -223,7 +213,7 @@ namespace NAMESPACE_PHYSICS
 			details->timeOfCollision = elapsedTime;		
 		}
 
-		API_INTERFACE void findTimeOfCollisionWithMesh(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
+		API_INTERFACE void timeOfCollision(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
 		{
 			sp_assert(false , "NotImplementedException");
 		}
