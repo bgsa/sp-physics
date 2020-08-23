@@ -43,9 +43,9 @@ namespace NAMESPACE_PHYSICS
 		return point1.distance(point2);
 	}
 
-	sp_bool Line3D::isOnLine(const Vec3& point) const
+	sp_bool Line3D::isOnLine(const Vec3& point, const sp_float _epsilon) const
 	{
-		return (point2 - point1).cross(point) == ZERO_FLOAT;
+		return (point2 - point1).cross(point).isCloseEnough(ZERO_FLOAT, _epsilon);
 	}
 
 	sp_bool Line3D::isOnSegment(const Vec3& point) const
@@ -88,6 +88,55 @@ namespace NAMESPACE_PHYSICS
 
 		if (s >= ZERO_FLOAT && s <= ONE_FLOAT)
 			*point = (da * s * valueSign + point1);
+	}
+
+	sp_bool Line3D::isParallel(const Line3D& line, const sp_float _epsilon) const
+	{
+		return line.direction().cross(direction()).isCloseEnough(_epsilon);
+	}
+
+	sp_bool Line3D::isPerpendicular(const Line3D& line, const sp_float _epsilon) const
+	{
+		return isCloseEnough(line.direction().dot(direction()), ZERO_FLOAT, _epsilon);
+	}
+
+	void Line3D::intersection(const Triangle3D& triangle, Vec3* point, sp_bool* hasIntersection) const
+	{
+		Vec3 triangleNormal;
+		triangle.normal(&triangleNormal);
+
+		const Line3D lineTriangleNormal(triangle.point1, triangle.point1 + triangleNormal * TWO_FLOAT);
+	
+		if (isPerpendicular(lineTriangleNormal)) // if the normal plane is perpendicular. there is no way to cross the plane
+		{
+			*hasIntersection = false;
+			*point = Vec3(ZERO_FLOAT);
+			return;
+		}
+
+		const Plane3D trianglePlane(triangle.point1, triangleNormal);
+
+		sp_float distanceToPoint1 = trianglePlane.distance(point1);
+		sp_float distanceToPoint2 = trianglePlane.distance(point2);
+
+		// if the this line is completely one side of triangle, no intersection
+		if (sign(distanceToPoint1) == sign(distanceToPoint2)) 
+		{
+			*hasIntersection = false;
+			*point = Vec3(ZERO_FLOAT);
+			return;
+		}
+
+		trianglePlane.intersection(*this, point);
+
+		if (!triangle.isInside(*point))
+		{
+			*hasIntersection = false;
+			*point = Vec3(ZERO_FLOAT);
+			return;
+		}
+
+		* hasIntersection = true;
 	}
 
 	Vec3 Line3D::closestPointOnTheLine(const Vec3& target) const
@@ -314,20 +363,20 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INSIDE;
 	}
 
-	float Line3D::squaredDistance(const Vec3& target) const
+	sp_float Line3D::squaredDistance(const Vec3& target) const
 	{
 		//Returns the squared distance between point and segment point1-point2
 
-		Vec3 ab = point2 - point1;
-		Vec3 ac = target - point1;
-		Vec3 bc = target - point2;
+		const Vec3 ab = point2 - point1;
+		const Vec3 ac = target - point1;
+		const Vec3 bc = target - point2;
 		
-		sp_float e = ac.dot(ab); // Handle cases where point projects outside the line segment
+		const sp_float e = ac.dot(ab); // Handle cases where point projects outside the line segment
 		
 		if (e <= ZERO_FLOAT)
 			return ac.dot(ac); 
 		
-		float f = ab.dot(ab);
+		sp_float f = ab.dot(ab);
 
 		if (e >= f) 		
 			return bc.dot(bc); // Handle cases where point projects onto line segment

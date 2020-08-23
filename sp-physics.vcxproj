@@ -216,7 +216,9 @@
     <ClCompile Include="src\Quat.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
+    <ClCompile Include="src\SpMesh.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
+    <ClCompile Include="src\SpVertexEdges.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
     <ClCompile Include="src\SystemOfLinearEquations.cpp" />
     <ClCompile Include="src\Triangle2D.cpp" />
@@ -269,7 +271,9 @@
     <ClInclude Include="src\OBB.h" />
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
+    <ClInclude Include="src\SpCollisionFeatures.h" />
     <ClInclude Include="src\SpCollisionResponseGPU.h" />
+    <ClInclude Include="src\SpMesh.h" />
     <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />
     <ClInclude Include="src\Particle.h" />

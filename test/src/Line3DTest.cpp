@@ -12,77 +12,84 @@ namespace NAMESPACE_PHYSICS_TEST
 	public:
 
 		SP_TEST_METHOD_DEF(Line3D_centerOfSegment_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_lengthOfSegment_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test2);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test4);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test5);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test2);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test4);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test5);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_AABB_Test6);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnRay_sphere_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnRay_sphere_Test2);
-
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnRay_sphere_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_isOnSegment_point_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_isOnSegment_point_Test2);
-		
 		SP_TEST_METHOD_DEF(Line3D_isOnSegment_point_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test2);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_sphere_Test4);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_sphere_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_sphere_Test2);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnRay_sphere_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test2);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_findIntersection_Test);
-
 		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test2);
-
 		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test3);
-
 		SP_TEST_METHOD_DEF(Line3D_squaredDistance_point_Test1);
-
 		SP_TEST_METHOD_DEF(Line3D_distance_point_Test1);
-
+		SP_TEST_METHOD_DEF(isParallel);
+		SP_TEST_METHOD_DEF(isPerpendicular);
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, isPerpendicular)
+	{
+		Line3D line1 = Line3D(Vec3{ 2.0f, 2.0f, 0.0f }, Vec3{ 4.0f, 2.0f, 0.0f });
+		Line3D line2 = Line3D(Vec3{ 0.0f, 1.0f, 2.0f }, Vec3{ 0.0f, 3.0f, 2.0f });
+
+		sp_bool result = line1.isPerpendicular(line2);
+		Assert::IsTrue(result, L"Wrong value");
+		
+		result = line2.isPerpendicular(line1);
+		Assert::IsTrue(result, L"Wrong value");
+
+		line2 = Line3D(Vec3{ 0.0f, 1.0f, 2.0f }, Vec3{ 0.0f, 3.0f, -2.0f });
+		result = line1.isPerpendicular(line2);
+		Assert::IsTrue(result, L"Wrong value");
 	
+		line2 = Line3D(Vec3{ 0.0f, 1.0f, 2.0f }, Vec3{ -5.0f, 3.0f, -2.0f });
+		result = line1.isPerpendicular(line2);
+		Assert::IsFalse(result, L"Wrong value");
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, isParallel)
+	{
+		Line3D line1 = Line3D(Vec3{ 2.0f, 2.0f, 0.0f }, Vec3{ 4.0f, 2.0f, 0.0f });
+		Line3D line2 = Line3D(Vec3{ 0.0f, 1.0f, 0.0f }, Vec3{ 1.0f, 1.0f, 0.0f });
+
+		sp_bool result = line1.isParallel(line2);
+		Assert::IsTrue(result, L"Wrong value");
+
+		result = line2.isParallel(line1);
+		Assert::IsTrue(result, L"Wrong value");
+
+		line2 = Line3D(Vec3{ 0.0f, 1.0f, 0.0f }, Vec3{ -1.0f, 1.0f, 0.0f });
+		result = line1.isParallel(line2);
+		Assert::IsTrue(result, L"Wrong value");
+
+		line2 = Line3D(Vec3{ 0.0f, 1.0f, 0.0f }, Vec3{ -1.0f, 2.0f, 0.0f });
+		result = line1.isParallel(line2);
+		Assert::IsFalse(result, L"Wrong value");
+	}
+
 	SP_TEST_METHOD(CLASS_NAME, Line3D_centerOfSegment_Test1)
 	{
 		Line3D line = Line3D(Vec3{ 2.0f, 2.0f, 2.0f }, Vec3{ 4.0f, 4.0f, 2.0f });

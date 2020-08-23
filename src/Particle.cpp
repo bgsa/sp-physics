@@ -22,6 +22,7 @@ namespace NAMESPACE_PHYSICS
 		this->force.add(force);
 	}
 
+	/*
 	void Particle::update(sp_float elapsedTime)
 	{
 		sp_assert(elapsedTime > 0, "InvalidArgumentException");
@@ -42,6 +43,7 @@ namespace NAMESPACE_PHYSICS
 
 		force = 0.0f;
 	}
+	*/
 
 	Vec3 Particle::direction() 
 	{

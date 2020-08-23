@@ -15,6 +15,7 @@
 #include "SpThreadPool.h"
 #include "SpCollisionResponseGPU.h"
 #include "SpGpuRenderingFactory.h"
+#include "SpCollisionFeatures.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -35,10 +36,14 @@ namespace NAMESPACE_PHYSICS
 
 		sp_uint _objectsLengthAllocated;
 		sp_uint _objectsLength;
+		sp_uint _collisionFeatureLength;
 
 		DOP18* _boundingVolumes;
 		SpPhysicProperties* _physicProperties;
 		SpTransform* _transforms;
+		SpCollisionFeatures* _collisionFeatures;
+		SpArray<SpMesh*>* _meshes;
+
 
 		cl_event lastEvent;
 		cl_mem _transformsGPU;
@@ -49,6 +54,8 @@ namespace NAMESPACE_PHYSICS
 		cl_mem _collisionIndexesLengthGPU;
 		cl_mem _sapCollisionIndexesGPU;
 		cl_mem _sapCollisionIndexesLengthGPU;
+
+		Timer timerToPhysic;
 
 		SpPhysicSimulator(sp_uint objectsLength);
 
@@ -64,15 +71,8 @@ namespace NAMESPACE_PHYSICS
 		void timeOfCollision(SpCollisionDetails* details);
 
 		void collisionDetails(SpCollisionDetails* details);
-		void collisionDetailsPlanesDownUp(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesRightLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesDepthFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesRightDepthAndLeftFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesRightFrontAndLeftDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesUpLeftAndDownRight(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesUpRightAndDownLeft(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesUpFrontAndDownDepth(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
-		void collisionDetailsPlanesUpDepthAndDownFront(const sp_uint objIndex1, const sp_uint objIndex2, SpCollisionDetails* details);
+		
+		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void handleCollisionResponse(SpCollisionDetails* details);
 		void handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center, const sp_float cor);
@@ -127,7 +127,11 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline sp_uint alloc(sp_uint length)
 		{
-			sp_uint allocated = _objectsLength;
+			const sp_uint allocated = _objectsLength;
+			
+			for (sp_uint i = _objectsLength; i < _objectsLength + length; i++)
+				_collisionFeatures[i].meshIndex = _objectsLength;;
+			
 			_objectsLength += length;
 
 			sp_assert(_objectsLength <= _objectsLengthAllocated, "InvalidArgumentException");
@@ -159,10 +163,69 @@ namespace NAMESPACE_PHYSICS
 		{
 			return &_transforms[index];
 		}
+		
+		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index) const
+		{
+			return &_collisionFeatures[index];
+		}
+
+		API_INTERFACE inline SpMesh* mesh(const sp_uint index) const
+		{
+			return _meshes->data()[index];
+		}
+
+		API_INTERFACE inline void mesh(const sp_uint index, SpMesh* mesh)
+		{
+			_meshes->data()[index] = mesh;
+		}
 
 		API_INTERFACE inline SpGpuTextureBuffer* transformsGPU() const
 		{
 			return _transformsGPUBuffer;
+		}
+
+		API_INTERFACE void findTimeOfCollisionWithMeshAndObj1Static(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
+		{
+			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+			SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
+			SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(obj2Index)->meshIndex);
+
+			CollisionStatus status = CollisionStatus::OUTSIDE;
+			const sp_float _epsilon = 1.0f;
+			sp_float previousElapsedTime = details->timeStep;
+			sp_float diff = TEN_FLOAT;
+			sp_float elapsedTime = details->timeStep * HALF_FLOAT;
+
+			while ((status != CollisionStatus::INSIDE || diff > _epsilon) && diff > 0.1f)
+			{
+				backToTime(obj2Index);
+				integrate(obj2Index, elapsedTime);
+
+				status = mesh1->collisionStatus(mesh2,
+					simulator->transforms(obj1Index), simulator->transforms(obj2Index)
+					, details);
+				
+				diff = std::fabsf(previousElapsedTime - elapsedTime);
+				previousElapsedTime = elapsedTime;
+
+				if (status == CollisionStatus::OUTSIDE)
+					elapsedTime += (diff * HALF_FLOAT);
+				else
+					elapsedTime -= (diff * HALF_FLOAT);
+			}
+
+			if (status == CollisionStatus::OUTSIDE)
+			{
+				details->ignoreCollision = true;
+				return;
+			}
+				
+			details->timeOfCollision = elapsedTime;		
+		}
+
+		API_INTERFACE void findTimeOfCollisionWithMesh(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
+		{
+			sp_assert(false , "NotImplementedException");
 		}
 
 		API_INTERFACE static void integrateEuler(const sp_uint index, sp_float elapsedTime)
@@ -273,7 +336,6 @@ namespace NAMESPACE_PHYSICS
 			element->_torque = newAngularAcceleration;
 		}
 
-
 		API_INTERFACE static void integrate(const sp_uint index, sp_float elapsedTime)
 		{
 			//integrateEuler(index, elapsedTime);
@@ -321,7 +383,7 @@ namespace NAMESPACE_PHYSICS
 			_transforms[index].translate(translation);
 		}
 
-		API_INTERFACE void run(const Timer& timer);
+		API_INTERFACE void run();
 
 		API_INTERFACE void moveAwayDynamicObjects()
 		{
@@ -342,6 +404,8 @@ namespace NAMESPACE_PHYSICS
 				}
 			}
 		}
+
+		API_INTERFACE void collisionDetailsObj1ToObj2(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details);
 
 		API_INTERFACE void dispose();
 

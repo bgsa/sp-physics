@@ -5,16 +5,23 @@ namespace NAMESPACE_PHYSICS
 
 	Plane3D::Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 	{
-		Vec3 ab = point1 - point2;
-		Vec3 ac = point1 - point3;
+		const Vec3 edge1 = point1 - point2;
+		const Vec3 edge2 = point1 - point3;
 
-		point = point2;
+		point = point1;
 
 		normalVector = Vec3{
-			ab[1] * ac[2] - (ab[2] * ac[1]),
-			ab[2] * ac[0] - (ab[0] * ac[2]),
-			ab[0] * ac[1] - (ab[1] * ac[0])
+			edge1[1] * edge2[2] - (edge1[2] * edge2[1]),
+			edge1[2] * edge2[0] - (edge1[0] * edge2[2]),
+			edge1[0] * edge2[1] - (edge1[1] * edge2[0])
 		}.normalize();
+	}
+
+
+	Plane3D::Plane3D(const Triangle3D& triangle)
+	{
+		point = triangle.point1;
+		triangle.normal(&normalVector);
 	}
 
 	Plane3D::Plane3D(sp_float a, sp_float b, sp_float c, sp_float d)
@@ -34,7 +41,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_float angle = normalVector.dot(lineAsVector);
 
-		if (isCloseEnough(angle, 0.0f))
+		if (isCloseEnough(angle, ZERO_FLOAT))
 			return;
 
 		Vec4 planeEquation = equation();
@@ -98,18 +105,6 @@ namespace NAMESPACE_PHYSICS
 		sp_float length = normalVector.length() * plane.normalVector.length();
 
 		return angle / length;
-	}
-
-	Orientation Plane3D::orientation(const Vec3& point) const
-	{
-		sp_float distanceToPoint =  distance(point);
-
-		if (distanceToPoint == 0.0f)
-			return Orientation::NONE;
-		else if (distanceToPoint > 0.0f)
-			return Orientation::LEFT;
-		
-		return Orientation::RIGHT;
 	}
 
 }

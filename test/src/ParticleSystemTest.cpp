@@ -9,13 +9,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
-
 		SP_TEST_METHOD_DEF(ParticleSystem_constructor_empty);
-
 		SP_TEST_METHOD_DEF(ParticleSystem_addForce);
-
-		SP_TEST_METHOD_DEF(ParticleSystem_update);
-
+		//SP_TEST_METHOD_DEF(ParticleSystem_update);
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, ParticleSystem_constructor_empty)
@@ -35,6 +31,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(force, particleSystem.particles[0].force, L"Wrong value.", LINE_INFO());
 	}
 
+	/*
 	SP_TEST_METHOD(CLASS_NAME, ParticleSystem_update)
 	{
 		ParticleSystem particleSystem = ParticleSystem(1);
@@ -46,6 +43,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::AreEqual(Vec3(1.6f, 3.2f, 4.8f), particleSystem.particles[0].acceleration, L"Wrong value.", LINE_INFO());
 	}
+	*/
 
 }
 

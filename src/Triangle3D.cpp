@@ -2,54 +2,19 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	Triangle3D::Triangle3D()
+	void Triangle3D::project(const Vec3& target, Vec3* output) const
 	{
+		Plane3D plane(point1, point2, point3);
+		Ray ray(target, -plane.normalVector);
+
+		plane.intersection(ray, output);
 	}
 
-	Triangle3D::Triangle3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
+	void Triangle3D::edges(Line3D* lines) const
 	{
-		this->point1 = point1;
-		this->point2 = point2;
-		this->point3 = point3;
-	}
-
-	Triangle3D::Triangle3D(float* point1, float* point2, float* point3)
-	{
-		this->point1 = Vec3(point1[0], point1[1]);
-		this->point2 = Vec3(point2[0], point2[1]);
-		this->point3 = Vec3(point3[0], point3[1]);
-	}
-
-	Line3D* Triangle3D::getLines() const
-	{
-		Line3D* lines = ALLOC_NEW_ARRAY(Line3D, 3);
-
 		lines[0] = Line3D(point1, point2);
 		lines[1] = Line3D(point2, point3);
 		lines[2] = Line3D(point3, point1);
-
-		return lines;
 	}
 
-	Vec3 Triangle3D::barycentric(const Vec3& point) const
-	{
-		Vec3 result;
-		Vec3 v0 = point2 - point1;
-		Vec3 v1 = point3 - point1;
-		Vec3 v2 = point - point1;
-		
-		float d00 = v0.dot(v0); 
-		float d01 = v0.dot(v1);
-		float d11 = v1.dot(v1);
-		float d20 = v2.dot(v0);
-		float d21 = v2.dot(v1);
-		
-		float denom = 1.0f / (d00 * d11 - d01 * d01);
-		
-		result[1] = (d11 * d20 - d01 * d21) * denom;
-		result[2] = (d00 * d21 - d01 * d20) * denom;
-		result[0] = 1.0f - result[1] - result[2];
-
-		return result;
-	}
 }

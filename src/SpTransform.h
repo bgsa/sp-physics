@@ -52,6 +52,11 @@ namespace NAMESPACE_PHYSICS
 			return this;
 		}
 
+		API_INTERFACE inline void transform(const Vec3& vertex, Vec3* output) const
+		{
+			output[0] = orientation.rotate(scaleVector * vertex) + position;
+		}
+
 		API_INTERFACE inline Mat4 toMat4(const Vec3& initialPosition = Vec3(ZERO_FLOAT)) const
 		{
 			return Mat4::createTranslate(position)

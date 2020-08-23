@@ -12,6 +12,8 @@
 	#define NAMESPACE_PHYSICS SpPhyiscs
 #endif
 
+#define SP_MAX_FACE_PER_VERTEX 10
+
 using namespace NAMESPACE_FOUNDATION;
 
 namespace NAMESPACE_PHYSICS
@@ -45,6 +47,7 @@ namespace NAMESPACE_PHYSICS
 	class Line3D;
 	class Plane3D;
 	class Triangle2D;
+	class Triangle3D;
 	class Circle2D;
 
 	class AABB;
@@ -53,6 +56,10 @@ namespace NAMESPACE_PHYSICS
 	class DOP18;
 
 	class Rectangle2D;
+
+	class SpCollisionDetails;
+	class SpMesh;
+	class SpVertexEdges;
 }
 
 #include "Vec2.h"

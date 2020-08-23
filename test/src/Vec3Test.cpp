@@ -39,8 +39,6 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SP_TEST_METHOD_DEF(Vec3_normalize_Test);
 
-		SP_TEST_METHOD_DEF(Vec3_transformToUnit_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_distance_Test);
 
 		SP_TEST_METHOD_DEF(Vec3_clone_Test);
@@ -245,17 +243,6 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		for (int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Value wrong.", LINE_INFO());
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, Vec3_transformToUnit_Test)
-	{
-		Vec3 vector = { 3.0f, 1.0f, 2.0f };
-		Vec3 expected = { 0.801783681f, 0.267261237f, 0.534522474f };
-
-		vector.transformToUnit();
-
-		for (int i = 0; i < VEC3_LENGTH; i++)
-			Assert::AreEqual(expected[i], vector[i], L"Value wrong.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Vec3_distance_Test)

@@ -80,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 			return memoryBuffer;
 		}
 
-		API_INTERFACE inline cl_mem createBuffer(void * value, sp_size sizeOfValue, cl_mem_flags memoryFlags, sp_bool writeValueOnDevice = true)
+		API_INTERFACE inline cl_mem createBuffer(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, sp_bool writeValueOnDevice = true)
 		{		
 			cl_int errorCode;
 			cl_mem memoryBuffer = clCreateBuffer(deviceContext, memoryFlags, sizeOfValue, value, &errorCode);

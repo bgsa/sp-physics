@@ -53,8 +53,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		physicProperties[2].position(physicProperties[2].previousPosition());
 		physicProperties[2].acceleration(physicProperties[2].previousAcceleration());
 
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)

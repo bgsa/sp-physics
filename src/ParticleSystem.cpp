@@ -33,6 +33,7 @@ namespace NAMESPACE_PHYSICS
 		return constantForces.size() - 1;
 	}
 
+	/*
 	void ParticleSystem::update(sp_float elapsedTime)
 	{
 		for (sp_size i = 0; i < particlesCount; i++)
@@ -43,4 +44,5 @@ namespace NAMESPACE_PHYSICS
 			this->particles[i].update(elapsedTime);
 		}
 	}
+	*/
 }

@@ -10,12 +10,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	public:
 		
 		SP_TEST_METHOD_DEF(Particle_constructor_empty);
-
 		SP_TEST_METHOD_DEF(Particle_constructor_withParameters);
-
 		SP_TEST_METHOD_DEF(Particle_addForce);
-
-		SP_TEST_METHOD_DEF(Particle_update);
+		//SP_TEST_METHOD_DEF(Particle_update);
 
 	};
 
@@ -56,6 +53,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(Vec3(2.0f, 4.0f, 6.0f), particle.force, L"Wrong value.", LINE_INFO());
 	}
 
+	/*
 	SP_TEST_METHOD(CLASS_NAME, Particle_update)
 	{
 		Particle particle = Particle(0.0f, 0.0f, 0.8f);
@@ -71,6 +69,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		Assert::AreEqual(Vec3(0), particle.force, L"Wrong value.", LINE_INFO());
 	}
+	*/
 }
 
 #undef CLASS_NAME

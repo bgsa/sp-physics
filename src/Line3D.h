@@ -64,13 +64,29 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Check the point is on the line
 		///</summary>
-		API_INTERFACE sp_bool isOnLine(const Vec3& point) const;
+		API_INTERFACE sp_bool isOnLine(const Vec3& point, const sp_float _epsilon = DefaultErrorMargin) const;
 
 		///<summary>
 		/// Check the point is on segment
 		///</summary>
 		API_INTERFACE sp_bool isOnSegment(const Vec3& point) const;
 		
+		/// <summary>
+		/// Check if the lines are parallel
+		/// </summary>
+		/// <param name="line">Line Segment</param>
+		/// <param name="_epsilon">Error Margin</param>
+		/// <returns>True if they are parallel or else false</returns>
+		API_INTERFACE sp_bool isParallel(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const;
+		
+		/// <summary>
+		/// Check if the lines are perpendicular
+		/// </summary>
+		/// <param name="line">Line Segment</param>
+		/// <param name="_epsilon">Error Margin</param>
+		/// <returns>True if they are penpendicular or else false</returns>
+		API_INTERFACE sp_bool isPerpendicular(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const;
+
 		///<summary>
 		/// Check the ray has intersection with the sphere
 		///</summary>
@@ -80,6 +96,15 @@ namespace NAMESPACE_PHYSICS
 		/// Find intersection of line against another one
 		///</summary>
 		API_INTERFACE void intersection(const Line3D& line2, Vec3* point) const;
+
+		/// <summary>
+		/// Find intersection of line against triangle
+		/// </summary>
+		/// <param name="triangle">Target</param>
+		/// <param name="point">Intersection point</param>
+		/// <param name="hasIntersection">True if has intersection or else False</param>
+		/// <returns>void</returns>
+		API_INTERFACE void intersection(const Triangle3D& triangle, Vec3* point, sp_bool* hasIntersection) const;
 
 		///<summary>
 		/// Find intersection of line against a phere

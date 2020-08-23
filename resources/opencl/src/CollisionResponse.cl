@@ -7,6 +7,7 @@ __kernel void handleCollision(
 	__constant sp_uint * indexesLength,
     __global   sp_float* dops,
     __global   sp_float* physicProperties,
+    //__global   sp_float* transforms,
     __global   sp_uint * outputIndexesLength,
     __global   sp_uint * outputIndexes
 )

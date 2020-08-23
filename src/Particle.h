@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Update the status of particle (integration method)
 		/// </summary>
-		API_INTERFACE void update(sp_float elapsedTime);
+		//API_INTERFACE void update(sp_float elapsedTime);
 
 		/// <summary>
 		/// Define the direction (normalized) where the particle is going to

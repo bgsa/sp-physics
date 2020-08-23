@@ -5,18 +5,18 @@
 #include "BoundingVolume.h"
 #include "SpPhysicSimulator.h"
 #include "SpPhysicSettings.h"
+#include "SpCollisionFeatures.h"
 
 namespace NAMESPACE_PHYSICS
 {
 	class SpPhysicObjectList :
 		public Object
 	{
-	private:
-		sp_uint listLength;
-
 	protected:
+		sp_uint listLength;
 		sp_uint physicIndex;
 		DOP18* _boundingVolumes;
+		SpCollisionFeatures* _collisionFeatures;
 		SpPhysicProperties* _physicProperties;
 
 	public:
@@ -28,8 +28,9 @@ namespace NAMESPACE_PHYSICS
 		{
 			listLength = length;
 			physicIndex = SpPhysicSimulator::instance()->alloc(length);
-			_boundingVolumes = (DOP18*)SpPhysicSimulator::instance()->boundingVolumes(physicIndex);
+			_boundingVolumes = SpPhysicSimulator::instance()->boundingVolumes(physicIndex);
 			_physicProperties = SpPhysicSimulator::instance()->physicProperties(physicIndex);
+			_collisionFeatures = SpPhysicSimulator::instance()->collisionFeatures(physicIndex);
 		}
 
 		/// <summary>
@@ -57,6 +58,15 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index < listLength, "IndexOutOfRangeException");
 			return SpPhysicSimulator::instance()->transforms(physicIndex + index);
+		}
+
+		/// <summary>
+		/// Get collision features data from list
+		/// </summary>
+		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index)
+		{
+			sp_assert(index < listLength, "IndexOutOfRangeException");
+			return &_collisionFeatures[index];
 		}
 
 		/// <summary>

@@ -19,14 +19,14 @@ namespace NAMESPACE_PHYSICS
 		Mat3 orientation;
 		Vec3 angularVelocity;
 
-		API_INTERFACE ParticleSystem(size_t particlesCount);
-		API_INTERFACE ParticleSystem(Particle* particles, size_t particlesCount);
+		API_INTERFACE ParticleSystem(sp_size particlesCount);
+		API_INTERFACE ParticleSystem(Particle* particles, sp_size particlesCount);
 
 		API_INTERFACE void addForce(const Vec3& force);
 
 		API_INTERFACE size_t addConstantForce(const Vec3& constantForce);
 
-		API_INTERFACE void update(sp_float elapsedTime);
+		//API_INTERFACE void update(sp_float elapsedTime);
 	};
 
 }

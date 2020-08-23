@@ -27,6 +27,27 @@
 #define SP_PHYSIC_PROPERTY_COF_INDEX            (48)
 #define SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX   (49)
 
+#define SpPhysicProperties_isStatic(properties, stride) \
+    properties[stride + SP_PHYSIC_PROPERTY_INV_MASS_INDEX] == ZERO_FLOAT
+
+
+#define SpPhysicProperties_setPosition(properties, stride, newPosition) \
+    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX    ] = newPosition.x; \
+    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 1] = newPosition.y; \
+    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 2] = newPosition.z;
+
+#define SpPhysicProperties_setVelocity(properties, stride, newVelocity) \
+    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX    ] = newVelocity.x; \
+    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1] = newVelocity.y; \
+    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2] = newVelocity.z;
+
+#define SpPhysicProperties_setAcceleration(properties, stride, newAcceleration) \
+    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX    ] = newAcceleration.x; \
+    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 1] = newAcceleration.y; \
+    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 2] = newAcceleration.z;
+
+
+
 inline void restingAcceleration(__global sp_float* properties, const sp_uint stride, Vec3* result)
 {
     const sp_float mass = properties[stride + SP_PHYSIC_PROPERTY_INV_MASS_INDEX];
@@ -48,11 +69,6 @@ inline void restingAcceleration(__global sp_float* properties, const sp_uint str
     Vec3 restingAcc;
     vec3_minus_vec3(gravityForce, dragForce, restingAcc);
     vec3_multiply_float(restingAcc, mass, result);
-}
-
-inline sp_bool SpPhysicProperties_isStatic(__global sp_float* properties, const sp_uint stride)
-{
-    return properties[stride + SP_PHYSIC_PROPERTY_INV_MASS_INDEX] == ZERO_FLOAT;
 }
 
 inline sp_bool SpPhysicProperties_isResting(__global sp_float* properties, const sp_uint stride)
@@ -119,23 +135,6 @@ inline sp_bool SpPhysicProperties_areMovingAway(__global sp_float* properties, c
            vec3_lesserThanOrEqual_float(velocityToObject2, ZERO_FLOAT)
         && vec3_lesserThanOrEqual_float(velocityToObject1, ZERO_FLOAT);
 }
-
-#define SpPhysicProperties_setPosition(properties, stride, newPosition) \
-    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX    ] = newPosition.x; \
-    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 1] = newPosition.y; \
-    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 2] = newPosition.z;
-
-#define SpPhysicProperties_setVelocity(properties, stride, newVelocity) \
-    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX    ] = newVelocity.x; \
-    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1] = newVelocity.y; \
-    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2] = newVelocity.z;
-
-#define SpPhysicProperties_setAcceleration(properties, stride, newAcceleration) \
-    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX    ] = newAcceleration.x; \
-    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 1] = newAcceleration.y; \
-    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 2] = newAcceleration.z;
-
-
 
 
 __kernel void isResting(
@@ -278,4 +277,9 @@ __kernel void fetch(
     output[outputIndex + 50] = physicProperties[stride + 50];
     output[outputIndex + 51] = physicProperties[stride + 51];
     output[outputIndex + 52] = physicProperties[stride + 52];
+    output[outputIndex + 53] = physicProperties[stride + 53];
+    output[outputIndex + 54] = physicProperties[stride + 54];
+    output[outputIndex + 55] = physicProperties[stride + 55];
+    output[outputIndex + 56] = physicProperties[stride + 56];
+    output[outputIndex + 57] = physicProperties[stride + 57];
 }

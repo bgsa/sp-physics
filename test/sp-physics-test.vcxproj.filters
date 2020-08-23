@@ -164,5 +164,8 @@
     <ClCompile Include="src\SpPhysicPropertiesGPUTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpMeshTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

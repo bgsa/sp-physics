@@ -5,10 +5,10 @@
 #include "Ray.h"
 #include "Line3D.h"
 #include "Orientation.h"
+#include "Triangle3D.h"
 
 namespace NAMESPACE_PHYSICS
 {
-
 	class Plane3D
 	{
 
@@ -32,7 +32,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Build a plane from 3 points, making a face
+		/// Build a plane from 3 points (right-hand)
 		/// </summary>
 		API_INTERFACE Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3);
 
@@ -40,6 +40,11 @@ namespace NAMESPACE_PHYSICS
 		/// Build a plane from equation
 		/// </summary>
 		API_INTERFACE Plane3D(sp_float a, sp_float b, sp_float c, sp_float d);
+
+		/// <summary>
+		/// Build a plane from triangle
+		/// </summary>
+		API_INTERFACE Plane3D(const Triangle3D& triangle);
 
 		/// <summary>
 		/// Get "D" components from plane equation: ax + by + cz + D = 0
@@ -110,24 +115,32 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_float distance(const Plane3D& plane) const;
 
 		/// <summary>
-		/// Indicate whether the point is on the left, right fo the plane OR the point lies on the plane
+		/// Indicate whether the point is on the left, right fo the plane OR the point relies on the plane
 		/// </summary>
-		API_INTERFACE Orientation orientation(const Vec3& point) const;
+		/// <param name="point">Arbitrary point</param>
+		/// <returns>0 if the point relies on the plane; 
+		/// Greater than zero if the point is left of the plane; 
+		/// Lesser than zero if the point is right of the plane 
+		/// </returns>
+		API_INTERFACE sp_float orientation(const Vec3& point) const
+		{
+			return distance(point);
+		}
 
 		/// <summary>
 		/// Check if the planes are parallel each other
 		/// </summary>
-		API_INTERFACE inline sp_bool isParallel(const Plane3D& plane) const
+		API_INTERFACE inline sp_bool isParallel(const Plane3D& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
-			return normalVector.cross(plane.normalVector) == ZERO_FLOAT;
+			return normalVector.cross(plane.normalVector).isCloseEnough(Vec3(), _epsilon);
 		}
 
 		/// <summary>
 		/// Check if the planes are perpendicular each other
 		/// </summary>
-		API_INTERFACE inline sp_bool isPerpendicular(const Plane3D& plane) const
+		API_INTERFACE inline sp_bool isPerpendicular(const Plane3D& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
-			return normalVector.dot(plane.normalVector) == ZERO_FLOAT;
+			return isCloseEnough(normalVector.dot(plane.normalVector), ZERO_FLOAT, _epsilon);
 		}
 
 		/// <summary>

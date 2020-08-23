@@ -51,6 +51,20 @@ namespace NAMESPACE_PHYSICS
 	{
 		return std::sqrtf(squaredLength());
 	}
+
+	sp_float Vec3::orientation(const Vec3& vertex1, const Vec3& vertex2) const
+	{
+		const Vec3 ray1 = (vertex1 - *this);
+		const Vec3 ray2 = (vertex2 - *this);
+
+		const Mat3 m(
+			ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
+			ray1.x, ray1.y, ray1.z,
+			ray2.x, ray2.y, ray2.z
+		);
+
+		return m.determinant();
+	}
 	
 	sp_float Vec3::maximum() const
 	{
@@ -199,23 +213,18 @@ namespace NAMESPACE_PHYSICS
 	Vec3 Vec3::normalize() const
 	{
 		//sp_assert(length() != T(0));   // avoid division by zero
-		sp_float len = length();
+		const sp_float len = length();
 
 		if (len == 0.0f)
 			return Vec3(0.0f);
 
-		sp_float vectorLengthInverted = 1.0f / len;
+		const sp_float vectorLengthInverted = 1.0f / len;
 
 		return Vec3 {
 			x * vectorLengthInverted,
 			y * vectorLengthInverted,
 			z * vectorLengthInverted
 		};
-	}
-
-	void Vec3::transformToUnit()
-	{
-		scale(1.0f / length());
 	}
 
 	sp_float Vec3::squaredDistance(const Vec3& vector) const
@@ -248,7 +257,7 @@ namespace NAMESPACE_PHYSICS
 			z - floorf(z)
 		};
 	}
-	
+
 	Vec3 Vec3::clone()
 	{
 		return Vec3(x, y, z);

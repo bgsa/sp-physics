@@ -140,9 +140,13 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3 normalize() const;
 
 		/// <summary>
-		/// Normalize the current vector - change to unit vector
+		/// Check the orientation of 3 ordered vertexes (left, right or inline)
+		/// Z-axis is inverted due to right-hand rule
+		/// Returns Zero if the vertexes are (close) inline. 
+		/// Lesser than Zero if the third vertex is on the right, 
+		/// else the third vertex is on the left.
 		/// </summary>
-		API_INTERFACE void transformToUnit();
+		API_INTERFACE sp_float orientation(const Vec3& vertex1, const Vec3& vertex2) const;
 
 		/// <summary>
 		/// Compute the SQUARED distance from this vector/point to another one
@@ -166,6 +170,21 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3 fractional();
 
 		/// <summary>
+		/// Check if this vector is close to "compare" parameter, given _epsilon
+		/// </summary>
+		/// <param name="compare">Value to compare</param>
+		/// <param name="_epsilon">Error margin</param>
+		/// <returns></returns>
+		API_INTERFACE inline sp_bool isCloseEnough(const Vec3& compare, const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			const Vec3 diff = (*this - compare).abs();
+
+			return diff.x <= _epsilon 
+				&& diff.y <= _epsilon
+				&& diff.z <= _epsilon;
+		}
+
+		/// <summary>
 		/// Clone the vector to a new instance
 		/// </summary>
 		API_INTERFACE Vec3 clone();
@@ -181,7 +200,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3 operator-=(const sp_float value);
 
 		/// <summary>
-		/// Multiply the vector to a scalar
+		/// Divide the vector to a scalar
 		/// </summary>
 		API_INTERFACE Vec3 operator/(const sp_float value) const;
 		
@@ -189,6 +208,17 @@ namespace NAMESPACE_PHYSICS
 		/// Divide the each component by other component's vector
 		/// </summary>
 		API_INTERFACE Vec3 operator/(const Vec3& vector) const;
+
+		/// <summary>
+		/// Divide the vector to a scalar
+		/// <summary>
+		API_INTERFACE inline void operator/=(const sp_float value)
+		{
+			const sp_float _inverse = ONE_FLOAT / value;
+			x *= _inverse;
+			y *= _inverse;
+			z *= _inverse;
+		}
 
 		/// <summary>
 		/// Multiply the vector to a scalar

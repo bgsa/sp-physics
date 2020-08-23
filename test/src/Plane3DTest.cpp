@@ -51,9 +51,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		Asserts::isCloseEnough(plane.normalVector[1], normalVectorExpected[1], 0.0009f, L"Wrong value", LINE_INFO());
 		Asserts::isCloseEnough(plane.normalVector[2], normalVectorExpected[2], 0.0009f, L"Wrong value", LINE_INFO());
 
-		Assert::AreEqual(point2.x, plane.point.x, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(point2.y, plane.point.y, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(point2.z, plane.point.z, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(point1.x, plane.point.x, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(point1.y, plane.point.y, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(point1.z, plane.point.z, L"Wrong value.", LINE_INFO());
 	}
 	
 	SP_TEST_METHOD(CLASS_NAME, equation1_Test)
@@ -253,9 +253,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		Plane3D plane = Plane3D(point1, point2, point3);
 		Vec3 targetPoint = Vec3(0.0f, 0.0f, 10.0f);
 
-		Orientation result = plane.orientation(targetPoint);
+		sp_float result = plane.orientation(targetPoint);
 
-		Assert::IsTrue(result == Orientation::LEFT, L"Wrong value", LINE_INFO());
+		Assert::IsTrue(result > ZERO_FLOAT, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, orientation_Test2)
@@ -267,9 +267,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		Plane3D plane = Plane3D(point1, point2, point3);
 		Vec3 targetPoint = Vec3(0.0f, 0.0f, -10.0f);
 
-		Orientation result = plane.orientation(targetPoint);
+		sp_float result = plane.orientation(targetPoint);
 
-		Assert::IsTrue(result == Orientation::RIGHT, L"Wrong value", LINE_INFO());
+		Assert::IsTrue(result < ZERO_FLOAT, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, orientation_Test3)
@@ -281,9 +281,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		Plane3D plane = Plane3D(point1, point2, point3);
 		Vec3 targetPoint = Vec3(-10.0f, 10.0f, 0.0f);
 
-		Orientation result = plane.orientation(targetPoint);
+		sp_float result = plane.orientation(targetPoint);
 
-		Assert::IsTrue(result == Orientation::NONE, L"Wrong value", LINE_INFO());
+		Assert::IsTrue(result == ZERO_FLOAT, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, isParallel_Test1)
@@ -338,7 +338,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Plane3D plane2 = Plane3D(point1, point2, point3);
 
-		bool result = plane1.isParallel(plane2);
+		sp_bool result = plane1.isParallel(plane2);
 
 		Assert::IsFalse(result, L"Wrong value", LINE_INFO());
 	}
@@ -353,11 +353,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		point1 = Vec3(0.0f, 0.0f, 0.0f);
 		point2 = Vec3(1.0f, 0.0f, 0.0f);
-		point3 = Vec3(1.0f, 0.0f, 1.0f);
+		point3 = Vec3(1.0f, 0.0f, -1.0f);
 
 		Plane3D plane2 = Plane3D(point1, point2, point3);
 
-		bool result = plane1.isPerpendicular(plane2);
+		sp_bool result = plane1.isPerpendicular(plane2);
 
 		Assert::IsTrue(result, L"Wrong value", LINE_INFO());
 	}
