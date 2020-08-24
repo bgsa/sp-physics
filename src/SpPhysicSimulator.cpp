@@ -172,14 +172,15 @@ namespace NAMESPACE_PHYSICS
 			break;
 
 		case SpCollisionType::EdgeFace:
-			rayToContact
-				= (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
+			rayToContact = (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
+			rayToContact -= center;
 			break;
 
 		case SpCollisionType::FaceFace:
 			for (sp_uint i = 0u; i < details->contactPointsLength; i++)
 				rayToContact += details->contactPoints[i];
 			rayToContact /= details->contactPointsLength;
+			rayToContact -= center;
 			break;
 
 		default:
@@ -418,37 +419,31 @@ namespace NAMESPACE_PHYSICS
 
 				details->extremeVertexObj1 = vertexEdge;
 				details->collisionNormal = faceAsPlane.normalVector;
-				details->contactPoints[0] = contactPoint;
-				details->contactPointsLength = parallelPointsLength;
-
+				
 				if (parallelPointsLength == ZERO_UINT) // point-face contact
 				{
-					details->contactPoints[0] = contactPoint;
+					details->type = SpCollisionType::PointFace;
 					details->contactPointsLength = ONE_UINT;
-					details->type = SpCollisionType::PointFace;
+					transformObj1->transform(vertexesObj1[contactPointIndex], &details->contactPoints[0]);
 					return;
 				}
 
-				if (parallelPointsLength == ONE_UINT) // point-face contact
+				if (parallelPointsLength == ONE_UINT) // edge-face contact
 				{
-					details->contactPoints[0] = vertexesObj1[parallelPoints[0]->vertexIndex()];
-					details->type = SpCollisionType::PointFace;
-					return;
-				}
-
-				if (parallelPointsLength == TWO_UINT) // edge-face contact
-				{
-					details->contactPoints[0] = vertexesObj1[parallelPoints[0]->vertexIndex()];
-					details->contactPoints[1] = vertexesObj1[parallelPoints[1]->vertexIndex()];
 					details->type = SpCollisionType::EdgeFace;
+					details->contactPointsLength = TWO_UINT;
+					transformObj1->transform(vertexesObj1[contactPointIndex], &details->contactPoints[0]);
+					transformObj1->transform(vertexesObj1[parallelPoints[0]->vertexIndex()], &details->contactPoints[1]);
 					return;
 				}
 
 				if (parallelPointsLength > TWO_UINT) // face-face contact
 				{
 					details->type = SpCollisionType::FaceFace;
+					details->contactPointsLength = parallelPointsLength;
+
 					for (sp_uint i = 0; i < parallelPointsLength; i++)
-						details->contactPoints[i] = vertexesObj1[parallelPoints[i]->vertexIndex()];
+						transformObj1->transform(vertexesObj1[parallelPoints[i]->vertexIndex()], &details->contactPoints[i]);
 					return;
 				}
 			}

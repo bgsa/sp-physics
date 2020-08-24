@@ -99,8 +99,8 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void orientation(const Quat& newOrientation)
 		{
-			_previousOrientation = _orientation;
 			_orientation = newOrientation;
+			_previousOrientation = newOrientation;
 		}
 
 		/// <summary>

@@ -34,17 +34,15 @@ namespace NAMESPACE_PHYSICS
 
 	Quat Quat::createRotate(sp_float angle, const Vec3& axis)
 	{
-		sp_float halfAngle = (angle / TWO_FLOAT);
+		sp_float halfAngle = angle * HALF_FLOAT;
 		sp_float sinHalfAngle = sinf(halfAngle);
 		sp_float cosineHalfAngle = cosf(halfAngle);
 
-		Vec3 positionNomralized = axis.normalize();
-
 		return Quat(
 			cosineHalfAngle,
-			sinHalfAngle * positionNomralized.x,
-			sinHalfAngle * positionNomralized.y,
-			sinHalfAngle * positionNomralized.z
+			sinHalfAngle * axis.x,
+			sinHalfAngle * axis.y,
+			sinHalfAngle * axis.z
 		);
 	}
 

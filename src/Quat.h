@@ -252,7 +252,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3 rotate(const Vec3& point) const;
 
 		/// <summary>
-		/// Craete a rotation unit quaternion bases on angle (in radians) and directional vector provided
+		/// Create a rotation unit quaternion bases on angle (in radians) and directional vector provided
 		/// </summary>
 		API_INTERFACE static Quat createRotate(sp_float angle, const Vec3& axis);
 
@@ -262,8 +262,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static Quat createRotationAxisX(sp_float angle)
 		{
 			return Quat(
-				std::cosf(angle / TWO_FLOAT),
-				std::sinf(angle / TWO_FLOAT),
+				std::cosf(angle * HALF_FLOAT),
+				std::sinf(angle * HALF_FLOAT),
 				ZERO_FLOAT,
 				ZERO_FLOAT
 			);
@@ -275,9 +275,9 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static Quat createRotationAxisY(sp_float angle)
 		{
 			return Quat(
-				std::cosf(angle / TWO_FLOAT),
+				std::cosf(angle * HALF_FLOAT),
 				ZERO_FLOAT,
-				std::sinf(angle / TWO_FLOAT),
+				std::sinf(angle * HALF_FLOAT),
 				ZERO_FLOAT
 			);
 		}
