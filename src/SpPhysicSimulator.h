@@ -65,7 +65,7 @@ namespace NAMESPACE_PHYSICS
 		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void handleCollisionResponse(SpCollisionDetails* details);
-		void handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center, const sp_float cor);
+		void handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center);
 
 		void handleCollisionResponseOLD(SpCollisionDetails* details);
 

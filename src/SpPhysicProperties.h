@@ -73,10 +73,10 @@ namespace NAMESPACE_PHYSICS
 			_angularVelocity = Vec3(ZERO_FLOAT);
 			_previousAngularVelocity = _angularVelocity;
 
-			_damping = 0.99f;
-			_angularDamping = 0.35f;
-			_coeficientOfRestitution = 0.9f;
-			_coeficientOfFriction = 0.8f;
+			_damping = 0.95f;
+			_angularDamping = 0.95f;
+			_coeficientOfRestitution = 0.60f;
+			_coeficientOfFriction = 0.80f;
 			_inverseMass = ZERO_FLOAT;
 			_inertialTensorInverse = Mat3::identity();
 		}

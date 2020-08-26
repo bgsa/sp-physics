@@ -161,14 +161,16 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	void SpPhysicSimulator::handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center, const sp_float cor)
+	void SpPhysicSimulator::handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center)
 	{
 		Vec3 rayToContact;
-		
+		sp_float cor = objProperties->coeficientOfRestitution();
+
 		switch (details->type)
 		{
 		case SpCollisionType::PointFace:
-			rayToContact = details->contactPoints[0] - center;
+			rayToContact = (details->contactPoints[0] - center);
+			details->collisionNormal = -rayToContact.normalize();
 			break;
 
 		case SpCollisionType::EdgeFace:
@@ -179,63 +181,122 @@ namespace NAMESPACE_PHYSICS
 		case SpCollisionType::FaceFace:
 			for (sp_uint i = 0u; i < details->contactPointsLength; i++)
 				rayToContact += details->contactPoints[i];
-			rayToContact /= details->contactPointsLength;
+			rayToContact /= (sp_float)details->contactPointsLength;
 			rayToContact -= center;
 			break;
 
 		default:
 			sp_assert(false, "NotImplementedException");
 		}
-		
-		sp_float numerator = (-(1.0f + cor) * (-objProperties->velocity()).dot(details->collisionNormal));
 
-		Vec3 d2 = (objProperties->inertialTensorInverse() * rayToContact.cross(details->collisionNormal))
-					.cross(rayToContact);
+		// TODO: PARA EDGE-EDGE, a normal é o CROSS das duas EDGES !!!
+		Vec3 relativeVelocity = objProperties->velocity() + objProperties->angularVelocity().cross(rayToContact);
+		
+		sp_float j = -(ONE_FLOAT + cor) * relativeVelocity.dot(details->collisionNormal);
+		sp_float denominator = objProperties->massInverse() + details->collisionNormal.dot(
+			(objProperties->inertialTensorInverse() * rayToContact.cross(details->collisionNormal)).cross(rayToContact)
+		);
+
+		if (j != ZERO_FLOAT)
+		{
+			j = j / denominator;
+
+			if (details->contactPointsLength == 2)
+				j *= 0.90f;
+			else if (details->contactPointsLength > 2)
+				j *= 0.80f;
+		}
+		
+		const Vec3 impulse = details->collisionNormal * j;
+
+		objProperties->_velocity = objProperties->velocity() + impulse * objProperties->massInverse();
+		objProperties->_angularVelocity = objProperties->angularVelocity() + objProperties->inertialTensorInverse() * rayToContact.cross(impulse);
+
+		/*  old response
+		switch (details->type)
+		{
+		case SpCollisionType::PointFace:
+			rayToContact = (details->contactPoints[0] - center);
+			break;
+
+		case SpCollisionType::EdgeFace:
+			rayToContact = (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
+			rayToContact = (rayToContact - center);
+			break;
+
+		case SpCollisionType::FaceFace:
+			for (sp_uint i = 0u; i < details->contactPointsLength; i++)
+				rayToContact += details->contactPoints[i];
+			rayToContact /= details->contactPointsLength;
+			rayToContact = (rayToContact - center);
+			break;
+
+		default:
+			sp_assert(false, "NotImplementedException");
+		}
+		
+		const Vec3 relativeVelocity = -(objProperties->velocity() + objProperties->angularVelocity().cross(rayToContact));
+
+		sp_float numerator = -(1.0f + cor) * relativeVelocity.dot(details->collisionNormal);
+
+		//Vec3 d2 = (objProperties->inertialTensorInverse() * rayToContact.cross(details->collisionNormal))
+		//			.cross(rayToContact);
+
+		Vec3 d2 = rayToContact.cross(objProperties->inertialTensorInverse() * details->collisionNormal.cross(rayToContact));
 
 		sp_float denominator = objProperties->massInverse() + details->collisionNormal.dot(d2);
 
-		const sp_float j = denominator == ZERO_FLOAT ? ZERO_FLOAT
-			: numerator / denominator;
+		sp_float j = (denominator == ZERO_FLOAT) 
+			? ZERO_FLOAT
+			: (numerator / denominator);
+
+		if (j != ZERO_FLOAT)
+			if (details->contactPointsLength == 2)
+				j *= 0.85f;
+			else if (details->contactPointsLength > 2)
+				j *= 0.70f;
 
 		const Vec3 impulse = details->collisionNormal * j;
 
 		objProperties->_velocity = objProperties->velocity() - impulse * objProperties->massInverse();
 		objProperties->_angularVelocity = objProperties->angularVelocity() - objProperties->inertialTensorInverse() * rayToContact.cross(impulse);
+		*/
+
+		// calculate friction ...
+		Vec3 tangent = relativeVelocity - (details->collisionNormal * relativeVelocity.dot(details->collisionNormal));
 		
-		/*
-			// calculate friction ...
-			Vec3 tangent = relativeVel - (collisionNormal * relativeVel.dot(collisionNormal));
+		if (tangent.isCloseEnough(ZERO_FLOAT))
+			return;
 
-			if (isCloseEnough((tangent.x + tangent.y + tangent.z), ZERO_FLOAT))
-				return;
+		tangent = tangent.normalize();
+		
+		sp_float numerator = -relativeVelocity.dot(tangent);
+		Vec3 d2 = (objProperties->inertialTensorInverse() * tangent.cross(rayToContact)).cross(rayToContact);
+		denominator = objProperties->massInverse() + tangent.dot(d2);
 
-			tangent = tangent.normalize();
-			numerator = -relativeVel.dot(tangent);
-			d2 = (obj1Properties->inertialTensorInverse() * tangent.cross(rayToContact)).cross(rayToContact);
-			denominator = obj1Properties->massInverse() + tangent.dot(d2);
+		if (isCloseEnough(denominator, ZERO_FLOAT))
+			return;
 
-			if (denominator == 0.0f)
-				return;
+		sp_float jt = numerator / denominator;
 
-			sp_float jt = numerator / denominator;
+		// TODO DIVIDIR O JT por CONTACT POINTS !!!!!!
 
-			if (isCloseEnough(jt, 0.0f))
-				return;
+		if (isCloseEnough(jt, ZERO_FLOAT))
+			return;
 
-			sp_float friction = sqrtf(obj1Properties->coeficientOfFriction() * obj2Properties->coeficientOfFriction());
-			if (jt > j * friction) {
-				jt = j * friction;
-			}
-			else if (jt < -j * friction) {
+		sp_float friction = objProperties->coeficientOfFriction();
+		if (jt > j * friction)
+			jt = j * friction;
+		else 
+			if (jt < -j * friction)
 				jt = -j * friction;
-			}
 
-			Vec3 tangentImpuse = tangent * jt;
+		Vec3 tangentImpuse = tangent * jt;
 
-			obj1Properties->_velocity = obj1Properties->velocity() - tangentImpuse * obj1Properties->massInverse();
-			obj1Properties->_angularVelocity = obj1Properties->angularVelocity() - obj1Properties->inertialTensorInverse() * rayToContact.cross(tangentImpuse);
-			*/
-
+		objProperties->_velocity = objProperties->velocity() - tangentImpuse * objProperties->massInverse();
+		objProperties->_angularVelocity = objProperties->angularVelocity() 
+			- objProperties->inertialTensorInverse() * rayToContact.cross(tangentImpuse);
+			
 		objProperties->_acceleration = ZERO_FLOAT;
 		objProperties->_force = ZERO_FLOAT;
 		objProperties->_torque = ZERO_FLOAT;
@@ -287,21 +348,20 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
 		SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
 
-		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
-
 		if (obj1Properties->isStatic())
 		{
 			const Vec3 center = _transforms[details->objIndex2].position;
-			handleCollisionResponseWithStatic(details, obj2Properties, center, cor);
+			handleCollisionResponseWithStatic(details, obj2Properties, center);
 		}
 		else if (obj2Properties->isStatic())
 		{
 			const Vec3 center = _transforms[details->objIndex1].position;
-			handleCollisionResponseWithStatic(details, obj1Properties, center, cor);
+			handleCollisionResponseWithStatic(details, obj1Properties, center);
 		}
 		else
 		{
 			const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
+			const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
 
 			//const Vec3 centerObj1 = _boundingVolumes[details->objIndex1].centerOfBoundingVolume();
 			//const Vec3 centerObj2 = _boundingVolumes[details->objIndex2].centerOfBoundingVolume();
