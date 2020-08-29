@@ -95,7 +95,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Find intersection of line against another one
 		///</summary>
-		API_INTERFACE void intersection(const Line3D& line2, Vec3* point) const;
+		API_INTERFACE void intersection(const Line3D& line2, Vec3* point, const sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
 		/// Find intersection of line against triangle
@@ -140,6 +140,14 @@ namespace NAMESPACE_PHYSICS
 		/// Get the closest point in the SEGMENT of line, given an arbitrary point
 		///</summary>
 		API_INTERFACE Vec3 closestPointOnTheLine(const Vec3& target) const;
+
+		///<summary>
+		/// Find the cross-product with two lines
+		///</summary>
+		API_INTERFACE void cross(const Line3D& otherLine, Vec3* output) const
+		{
+			output[0] = (point2 - point1).cross(otherLine.point2 - otherLine.point1);
+		}
 
 	};
 

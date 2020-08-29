@@ -2433,9 +2433,6 @@
     <ClCompile Include="src\SweepAndPrune.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SweepAndPruneKdop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SystemOfLinearEquations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -3109,6 +3106,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SpVertexEdges.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpCollisionDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -5819,9 +5819,6 @@
     <ClInclude Include="src\SweepAndPrune.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SweepAndPruneKdop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SystemOfLinearEquations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6453,6 +6450,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpCollisionDetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

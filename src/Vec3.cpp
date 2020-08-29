@@ -189,17 +189,6 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	Vec3 Vec3::cross(const Vec3& vector) const
-	{
-		Vec3 result = Vec3(
-			y * vector.z - vector.y * z,
-			-x * vector.z + vector.x * z,
-			x * vector.y - vector.x * y
-		);
-
-		return result;
-	}
-	
 	sp_float Vec3::dot(const Vec3& vector) const
 	{
 		return x * vector.x + y * vector.y + z * vector.z;

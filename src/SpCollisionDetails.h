@@ -11,8 +11,9 @@ namespace NAMESPACE_PHYSICS
 	{
 		None = 0,
 		PointFace = 1,
-		EdgeFace = 2,
-		FaceFace = 3
+		EdgeFace  = 2,
+		FaceFace  = 3,
+		EdgeEdge  = 4
 	};
 
 	class SpCollisionDetails

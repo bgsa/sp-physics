@@ -148,6 +148,16 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE Vec3 closestPointOnThePlane(const Vec3 &target) const;
 
+		/// <summary>
+		/// Check if the point parameter is back or front from the plane face
+		/// </summary>
+		/// <param name="point">Arbitrary point</param>
+		/// <returns>True if the point is back-face, otherwise False</returns>
+		API_INTERFACE inline sp_bool isBackFace(const Vec3& point) const
+		{
+			return distance(point) < ZERO_FLOAT;
+		}
+
 	};
 
 }

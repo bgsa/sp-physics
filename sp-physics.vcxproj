@@ -215,6 +215,7 @@
     <ClCompile Include="src\Plane3D.cpp" />
     <ClCompile Include="src\Quat.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
+    <ClCompile Include="src\SpCollisionDetector.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpMesh.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
@@ -271,6 +272,7 @@
     <ClInclude Include="src\OBB.h" />
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
+    <ClInclude Include="src\SpCollisionDetector.h" />
     <ClInclude Include="src\SpCollisionFeatures.h" />
     <ClInclude Include="src\SpCollisionResponseGPU.h" />
     <ClInclude Include="src\SpMesh.h" />

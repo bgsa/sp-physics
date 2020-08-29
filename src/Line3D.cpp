@@ -66,27 +66,30 @@ namespace NAMESPACE_PHYSICS
 		return (ZERO_FLOAT <= ac && ac <= ab);
 	}
 
-	void Line3D::intersection(const Line3D& line2, Vec3* point) const
+	void Line3D::intersection(const Line3D& line2, Vec3* point, const sp_float _epsilon) const
 	{
-		Vec3 da = point2 - point1;
-		Vec3 db = line2.point2 - line2.point1;
-		Vec3 dc = line2.point1 - point1;
-
-		Vec3 dAcrossB = da.cross(db);
-
-		sp_float value = dc.dot(dAcrossB);
-
-		if (value != ZERO_FLOAT)
+		if (isParallel(line2))
 			return;
 
-		sp_float numerador = dc.cross(db).dot(dAcrossB);
-		sp_float denominador = dAcrossB.squaredLength();
+		const Vec3 da = point2 - point1;
+		const Vec3 db = line2.point2 - line2.point1;
+		const Vec3 dc = line2.point1 - point1;
+
+		const Vec3 dAcrossB = da.cross(db);
+
+		const sp_float value = std::fabsf(dc.dot(dAcrossB));
+
+		if (!isCloseEnough(value, ZERO_FLOAT, _epsilon))
+			return;
+		
+		const sp_float numerador = dc.cross(db).dot(dAcrossB);
+		const sp_float denominador = dAcrossB.squaredLength();
 
 		sp_float s = numerador / denominador;
-		sp_float valueSign = (sp_float) sign(s);
+		const sp_float valueSign = (sp_float) sign(s);
 		s = std::fabsf(s);
 
-		if (s >= ZERO_FLOAT && s <= ONE_FLOAT)
+		if (s >= (ZERO_FLOAT - _epsilon * 0.2f) && s <= (ONE_FLOAT + _epsilon * 0.2f))
 			*point = (da * s * valueSign + point1);
 	}
 

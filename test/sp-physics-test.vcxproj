@@ -54,6 +54,7 @@
     <ClCompile Include="src\Mat3Test.cpp" />
     <ClCompile Include="src\Mat4Test.cpp" />
     <ClCompile Include="src\OBBTest.cpp" />
+    <ClCompile Include="src\SpCollisionDetectorTest.cpp" />
     <ClCompile Include="src\SpectrumPhysicsTest.cpp" />
     <ClCompile Include="src\ParticleSystemTest.cpp" />
     <ClCompile Include="src\ParticleTest.cpp" />
@@ -79,6 +80,9 @@
     <ProjectReference Include="..\..\sp-foundation\test\sp-foundation-test.vcxproj">
       <Project>{0f4e90da-b037-4862-ba79-956d02350dc4}</Project>
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
+    <ProjectReference Include="..\..\sp-rendering\sp-rendering.vcxproj">
+      <Project>{c280ab1e-4bf1-4f80-a243-5c63f3038d8e}</Project>
     </ProjectReference>
     <ProjectReference Include="..\sp-physics.vcxproj">
       <Project>{e59b16ca-ee86-41bb-b1b4-e81db09e8561}</Project>
@@ -171,8 +175,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>OPENCL_ENABLED;MSTEST_ENABLED;MAJOR_COLUMN_ORDER;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(SolutionDir)sp-rendering\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OPENGL_ENABLED;OPENCL_ENABLED;MSTEST_ENABLED;MAJOR_COLUMN_ORDER;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -203,16 +207,16 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Config
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(SolutionDir)sp-rendering\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENGL_ENABLED;OPENCL_ENABLED;DEBUG;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)sp-foundation\lib\x86\$(Configuration);$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration);$(SolutionDir)sp-physics\lib\x86\$(Configuration);$(SolutionDir)vendor\lib\x86\$(Configuration);C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\lib\Win32;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGL32.lib;OpenCL.lib;SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)sp-foundation\lib\x86\$(Configuration);$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration);$(SolutionDir)sp-physics\lib\x86\$(Configuration);$(SolutionDir)sp-rendering\lib\x86\$(Configuration);$(SolutionDir)vendor\lib\x86\$(Configuration);C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\lib\Win32;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>OpenGL32.lib;glew32sd.lib;glfw3.lib;OpenCL.lib;SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\$(Configuration)\*" "$(TargetDir)"
@@ -234,7 +238,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Config
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(SolutionDir)sp-rendering\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -263,7 +267,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(SolutionDir)sp-rendering\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

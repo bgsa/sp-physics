@@ -14,8 +14,9 @@
 #include "Ray.h"
 #include "SpThreadPool.h"
 #include "SpCollisionResponseGPU.h"
-#include "SpGpuRenderingFactory.h"
 #include "SpCollisionFeatures.h"
+#include "SpCollisionDetector.h"
+#include "SpGpuRenderingFactory.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -60,8 +61,6 @@ namespace NAMESPACE_PHYSICS
 			SpEventDispatcher::instance()->push(evt);
 		}
 
-		void collisionDetails(SpCollisionDetails* details);
-		
 		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void handleCollisionResponse(SpCollisionDetails* details);
@@ -92,6 +91,7 @@ namespace NAMESPACE_PHYSICS
 		static void handleCollisionCPU(void* collisionParamter);
 		static void handleCollisionGPU(void* collisionParamter);
 
+		
 	public:
 
 		API_INTERFACE static SpPhysicSimulator* instance();
@@ -172,50 +172,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpGpuTextureBuffer* transformsGPU() const
 		{
 			return _transformsGPUBuffer;
-		}
-
-		API_INTERFACE void timeOfCollisionWithObj1Static(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
-		{
-			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-			SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
-			SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(obj2Index)->meshIndex);
-
-			CollisionStatus status = CollisionStatus::OUTSIDE;
-			const sp_float _epsilon = 1.0f;
-			sp_float previousElapsedTime = details->timeStep;
-			sp_float diff = TEN_FLOAT;
-			sp_float elapsedTime = details->timeStep * HALF_FLOAT;
-
-			while ((status != CollisionStatus::INSIDE || diff > _epsilon) && diff > 0.1f)
-			{
-				backToTime(obj2Index);
-				integrate(obj2Index, elapsedTime);
-
-				status = mesh1->collisionStatus(mesh2,
-					simulator->transforms(obj1Index), simulator->transforms(obj2Index)
-					, details);
-				
-				diff = std::fabsf(previousElapsedTime - elapsedTime);
-				previousElapsedTime = elapsedTime;
-
-				if (status == CollisionStatus::OUTSIDE)
-					elapsedTime += (diff * HALF_FLOAT);
-				else
-					elapsedTime -= (diff * HALF_FLOAT);
-			}
-
-			if (status == CollisionStatus::OUTSIDE)
-			{
-				details->ignoreCollision = true;
-				return;
-			}
-				
-			details->timeOfCollision = elapsedTime;		
-		}
-
-		API_INTERFACE void timeOfCollision(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details)
-		{
-			sp_assert(false , "NotImplementedException");
 		}
 
 		API_INTERFACE static void integrateEuler(const sp_uint index, sp_float elapsedTime)
@@ -339,7 +295,6 @@ namespace NAMESPACE_PHYSICS
 		{
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 			SpPhysicProperties* element = &simulator->_physicProperties[index];
-			DOP18* dop = &simulator->_boundingVolumes[index];
 
 			const Vec3 translation = element->previousPosition() - element->position();
 
@@ -347,20 +302,6 @@ namespace NAMESPACE_PHYSICS
 			simulator->transforms(index)->orientation = element->previousOrientation();
 
 			element->rollbackState();
-		}
-
-		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2)
-		{
-			const SpPhysicProperties* obj1Properties = &_physicProperties[objIndex1];
-			const SpPhysicProperties* obj2Properties = &_physicProperties[objIndex2];
-
-			Vec3 lineOfAction = obj2Properties->position() - obj1Properties->position();
-			const Vec3 velocityToObject2 = obj1Properties->velocity() * lineOfAction;
-
-			lineOfAction = obj1Properties->position() - obj2Properties->position();
-			const Vec3 velocityToObject1 = obj2Properties->velocity() * lineOfAction;
-
-			return velocityToObject2 <= ZERO_FLOAT && velocityToObject1 <= ZERO_FLOAT;
 		}
 
 		API_INTERFACE void translate(const sp_uint index, const Vec3& translation) 
@@ -371,6 +312,7 @@ namespace NAMESPACE_PHYSICS
 
 			_boundingVolumes[index].translate(translation);
 			_transforms[index].translate(translation);
+			_physicProperties[index].translate(translation);
 		}
 
 		API_INTERFACE void run();
@@ -394,8 +336,6 @@ namespace NAMESPACE_PHYSICS
 				}
 			}
 		}
-
-		API_INTERFACE void collisionDetailsObj1ToObj2(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details);
 
 		API_INTERFACE void dispose();
 

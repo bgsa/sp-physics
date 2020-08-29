@@ -408,6 +408,16 @@ namespace NAMESPACE_PHYSICS
 			_torque = _previousTorque;
 		}
 
+		/// <summary>
+		/// Translate the position with the translation parameter
+		/// </summary>
+		/// <param name="translation">Translation vector to move forward</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void translate(const Vec3& translation)
+		{
+			_position += translation;
+		}
+
 	};
 
 }

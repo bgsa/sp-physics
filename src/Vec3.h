@@ -120,7 +120,20 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Cross Product - return a perpendicular vector, regards two vectors => u x v
 		/// </summary>
-		API_INTERFACE Vec3 cross(const Vec3& vector) const;
+		API_INTERFACE Vec3 cross(const Vec3& vector) const
+		{
+			Vec3 result;
+			cross(vector, &result);
+
+			return result;
+		}
+
+		API_INTERFACE inline void cross(const Vec3& vector, Vec3* output) const
+		{
+			output[0].x = y * vector.z - vector.y * z;
+			output[0].y = -x * vector.z + vector.x * z;
+			output[0].z = x * vector.y - vector.x * y;
+		}
 
 		/// <summary>
 		/// Dot Product / Scalar Product - between two vectors: A . B

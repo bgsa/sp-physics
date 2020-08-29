@@ -11,6 +11,7 @@
 #include "SpArray.h"
 #include "SpCollisionDetails.h"
 #include "SpPhysicProperties.h"
+#include "SpTransform.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -47,7 +48,29 @@ namespace NAMESPACE_PHYSICS
 		}
 
 	public:
+
+		API_INTERFACE Vec3 vertex() const;
+
+		API_INTERFACE sp_bool isBoundaryEdge(const SpVertexEdges* point2) const;
+
+		API_INTERFACE inline sp_bool operator==(const Vec3& value) const
+		{
+			return vertex() == value;
+		}
+
+		API_INTERFACE inline sp_bool operator==(const SpVertexEdges* value) const
+		{
+			return _vertexIndex == value->_vertexIndex;
+		}
+
+		API_INTERFACE SpVertexEdges* find(const Vec3& vertex, const SpTransform* transform, sp_uint* visitedVertexes, sp_uint* visitedVertexesLength);
+
+		API_INTERFACE inline SpVertexEdges* findNeighbor(const Vec3& value) const;
+
+		API_INTERFACE void facesWith(const Vec3& value, SpPoint3<sp_uint>* output, sp_uint* outputLength) const;
 		
+		API_INTERFACE void facesWith(const SpVertexEdges* edge, SpPoint3<sp_uint>* output, sp_uint* outputLength) const;
+
 		/// <summary>
 		/// Default constructor
 		/// </summary>
@@ -249,10 +272,6 @@ namespace NAMESPACE_PHYSICS
 			allEdges((sp_uint*)edgesIndexes->data(), &edgesLength);
 		}
 
-		API_INTERFACE CollisionStatus collisionStatus(const SpMesh* mesh2,
-			const SpTransform* transform1, const SpTransform* transform2,
-			SpCollisionDetails* details);
-		
 		API_INTERFACE inline SpVertexEdges** vertexEdges() const
 		{
 			return _vertexEdges;
@@ -264,6 +283,14 @@ namespace NAMESPACE_PHYSICS
 				from = _vertexEdges[0];
 
 			return findExtremeVertex(from, orientation, transform);
+		}
+
+		API_INTERFACE inline SpVertexEdges* find(const Vec3& vertex, const SpTransform* transform = nullptr) const
+		{
+			sp_uint visitedVertexes[256];
+			sp_uint visitedVertexesLength = ZERO_UINT;
+
+			return _vertexEdges[0]->find(vertex, transform, visitedVertexes, &visitedVertexesLength);
 		}
 
 	};

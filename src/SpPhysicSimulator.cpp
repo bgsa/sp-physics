@@ -11,6 +11,8 @@ namespace NAMESPACE_PHYSICS
 
 	SpPhysicSimulator::SpPhysicSimulator(sp_uint objectsLength)
 	{
+		sp_assert(instanceGpuRendering != nullptr, "NullPointerException");
+
 		timerToPhysic.start();
 		lastEvent = nullptr;
 		_boundingVolumesGPU = nullptr;
@@ -32,9 +34,10 @@ namespace NAMESPACE_PHYSICS
 			->use()
 			->updateData(sizeof(SpTransform) * objectsLength, _transforms);
 
+		_transformsGPU = gpu->createBufferFromOpenGL(_transformsGPUBuffer);
+
 		const sp_uint outputIndexSize = multiplyBy4(objectsLength) * SIZEOF_UINT;
 
-		_transformsGPU = gpu->createBufferFromOpenGL(_transformsGPUBuffer);
 		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
 		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
 		_collisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
@@ -174,6 +177,11 @@ namespace NAMESPACE_PHYSICS
 			break;
 
 		case SpCollisionType::EdgeFace:
+			rayToContact = (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
+			rayToContact -= center;
+			break;
+
+		case SpCollisionType::EdgeEdge:
 			rayToContact = (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
 			rayToContact -= center;
 			break;
@@ -410,221 +418,33 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	void SpPhysicSimulator::collisionDetailsObj1ToObj2(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details) 
-	{
-		SpMesh* mesh1 = mesh(collisionFeatures(obj1Index)->meshIndex);
-		SpTransform* transformObj1 = transforms(obj1Index);
-		Vec3* vertexesObj1 = mesh1->vertexes->data();
-		SpPoint3<sp_uint>* facesObj1 = mesh1->facesIndexes->data();
-		SpPoint2<sp_uint>* edgesObj1 = mesh1->edgesIndexes->data();
-		const sp_uint facesIndexLengthObj1 = mesh1->facesIndexes->length();
-		const sp_uint edgesLengthObj1 = mesh1->edgesIndexes->length();
-		SpVertexEdges* vertexEdgesObj1 = mesh1->vertexEdges()[0];
-
-		SpMesh* mesh2 = mesh(collisionFeatures(obj2Index)->meshIndex);
-		SpTransform* transformObj2 = transforms(obj2Index);
-		Vec3* vertexesObj2 = mesh2->vertexes->data();
-		SpPoint3<sp_uint>* facesObj2 = mesh2->facesIndexes->data();
-		SpPoint2<sp_uint>* _edgesObj2 = mesh2->edgesIndexes->data();
-		const sp_uint facesIndexLengthObj2 = mesh2->facesIndexes->length();
-		const sp_uint edgesLengthObj2 = mesh2->edgesIndexes->length();
-		SpVertexEdges* vertexEdgesObj2 = mesh2->vertexEdges()[0];
-
-		// for each edge from mesh 1
-		for (sp_uint i = 0; i < edgesLengthObj1; i++)
-		{
-			Vec3 _edgePoint1;
-			Vec3 _edgePoint2;
-			transformObj1->transform(vertexesObj1[edgesObj1[i].x], &_edgePoint1);
-			transformObj1->transform(vertexesObj1[edgesObj1[i].y], &_edgePoint2);
-
-			Line3D _edge(_edgePoint1, _edgePoint2);
-
-			// for each face from mesh 2
-			for (sp_uint j = 0; j < facesIndexLengthObj2; j++)
-			{
-				Vec3 contactPoint, p1, p2, p3;
-				sp_bool hasIntersection;
-				transformObj2->transform(vertexesObj2[facesObj2[j].x], &p1);
-				transformObj2->transform(vertexesObj2[facesObj2[j].y], &p2);
-				transformObj2->transform(vertexesObj2[facesObj2[j].z], &p3);
-
-				const Triangle3D _face(p1, p2, p3);
-				_edge.intersection(_face, &contactPoint, &hasIntersection);
-
-				if (!hasIntersection)
-					continue;
-
-				// check which point of the line crossed the face (back-face)
-				Plane3D faceAsPlane(_face);
-
-				// if point is back-face, ...
-				sp_uint contactPointIndex;
-				if (faceAsPlane.distance(_edge.point1) <= ZERO_FLOAT)
-				{
-					contactPoint = _edge.point1;
-					contactPointIndex = edgesObj1[i].x;
-				}
-				else
-				{
-					contactPoint = _edge.point2;
-					contactPointIndex = edgesObj1[i].y;
-				}
-
-				// pega os ponto paralelos normal a face que colidiu (se houver)
-				SpVertexEdges* parallelPoints[16];
-				sp_uint parallelPointsLength = ZERO_UINT;
-				SpVertexEdges* vertexEdge = vertexEdgesObj1->find(contactPointIndex);
-				vertexEdge->findParallelVertexes(faceAsPlane, *transformObj1, parallelPoints, &parallelPointsLength, contactPointIndex);
-
-				details->extremeVertexObj1 = vertexEdge;
-				details->collisionNormal = faceAsPlane.normalVector;
-				
-				if (parallelPointsLength == ZERO_UINT) // point-face contact
-				{
-					details->type = SpCollisionType::PointFace;
-					details->contactPointsLength = ONE_UINT;
-					transformObj1->transform(vertexesObj1[contactPointIndex], &details->contactPoints[0]);
-					return;
-				}
-
-				if (parallelPointsLength == ONE_UINT) // edge-face contact
-				{
-					details->type = SpCollisionType::EdgeFace;
-					details->contactPointsLength = TWO_UINT;
-					transformObj1->transform(vertexesObj1[contactPointIndex], &details->contactPoints[0]);
-					transformObj1->transform(vertexesObj1[parallelPoints[0]->vertexIndex()], &details->contactPoints[1]);
-					return;
-				}
-
-				if (parallelPointsLength > TWO_UINT) // face-face contact
-				{
-					details->type = SpCollisionType::FaceFace;
-					details->contactPointsLength = parallelPointsLength;
-
-					for (sp_uint i = 0; i < parallelPointsLength; i++)
-						transformObj1->transform(vertexesObj1[parallelPoints[i]->vertexIndex()], &details->contactPoints[i]);
-					return;
-				}
-			}
-		}
-		
-	}
-
-	void SpPhysicSimulator::collisionDetails(SpCollisionDetails* details)
-	{
-		sp_assert(false, "NotImplementedException");
-	}
-
 	void SpPhysicSimulator::handleCollisionCPU(void* threadParameter)
 	{
+		SpCollisionDetector collisionDetector;
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
 		
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
 
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		collisionDetector.filterCollision(details->objIndex1, details->objIndex2, details);
+
 		SpPhysicProperties* obj1Properties = &simulator->_physicProperties[details->objIndex1];
 		SpPhysicProperties* obj2Properties = &simulator->_physicProperties[details->objIndex2];
-
-		const sp_bool isObj1Static = obj1Properties->isStatic();
-		const sp_bool isObj2Static = obj2Properties->isStatic();
-
-		if (isObj1Static && isObj2Static) // if both are static, ...
-		{
-			details->ignoreCollision = true;
-			return;
-		}
-
-		const sp_bool isObj1Resting = obj1Properties->isResting();
-		const sp_bool isObj2Resting = obj2Properties->isResting();
-
-		if (isObj1Resting && isObj2Resting) // both are resting
-		{
-			if (!isObj1Static && !isObj2Static) // both are dynamic, but both are resting, return
-				return;
-
-			simulator->translate(details->objIndex1, obj1Properties->_previousPosition - obj1Properties->_position);
-			obj1Properties->_position = obj1Properties->_previousPosition;
-			obj1Properties->_velocity = Vec3(ZERO_FLOAT);
-			obj1Properties->_angularVelocity = Vec3(ZERO_FLOAT);
-			obj1Properties->_acceleration = Vec3(ZERO_FLOAT);
-
-			simulator->translate(details->objIndex2, obj2Properties->_previousPosition - obj2Properties->_position);
-			obj2Properties->_position = obj2Properties->_previousPosition;
-			obj2Properties->_velocity = Vec3(ZERO_FLOAT);
-			obj2Properties->_angularVelocity = Vec3(ZERO_FLOAT);
-			obj2Properties->_acceleration = Vec3(ZERO_FLOAT);
-
-			details->ignoreCollision = true;
-			return;
-		}
-
-		if (isObj1Static && isObj2Resting)
-		{
-			simulator->translate(details->objIndex2, obj2Properties->_previousPosition - obj2Properties->_position);
-			obj2Properties->_position = obj2Properties->_previousPosition;
-			obj2Properties->_acceleration = Vec3(ZERO_FLOAT);
-			obj2Properties->_angularVelocity = Vec3(ZERO_FLOAT);
-			obj2Properties->_velocity = Vec3(ZERO_FLOAT);
-			
-			details->ignoreCollision = true;
-			return;
-		}
-
-		if (isObj2Static && isObj1Resting)
-		{
-			simulator->translate(details->objIndex1, obj1Properties->_previousPosition - obj1Properties->_position);
-			obj1Properties->_position = obj1Properties->_previousPosition;
-			obj1Properties->_acceleration = Vec3(ZERO_FLOAT);
-			obj1Properties->_angularVelocity = Vec3(ZERO_FLOAT);
-			obj1Properties->_velocity = Vec3(ZERO_FLOAT);
-			
-			details->ignoreCollision = true;
-			return;
-		}
-
-		if (simulator->areMovingAway(details->objIndex1, details->objIndex2)) // if the objects are getting distant
-		{
-			details->ignoreCollision = true;
-			return;
-		}
-
-		//simulator->filterCollisions(details);
-
-		if (isObj1Static || isObj1Resting)
-		{
-			simulator->timeOfCollisionWithObj1Static(details->objIndex1, details->objIndex2, details);
-			
-			//if (details->ignoreCollision)
-				//simulator->timeOfCollisionWithObj1Static(details->objIndex2, details->objIndex1, details);
-		}
-		else
-		{
-			if (isObj2Static || isObj2Resting)
-			{
-				simulator->timeOfCollisionWithObj1Static(details->objIndex2, details->objIndex1, details);
-
-				//if (details->ignoreCollision)
-					//simulator->timeOfCollisionWithObj1Static(details->objIndex1, details->objIndex2, details);
-			}
-			else
-				simulator->timeOfCollision(details->objIndex2, details->objIndex1, details);
-		}
-
-		if (details->ignoreCollision) // if they are not colliding in geometry
-			return;
-
-		// The objects are not static and not resting and not moving away and colliding, handle response...
-		if (isObj1Static || isObj1Resting)
-			simulator->collisionDetailsObj1ToObj2(details->objIndex2, details->objIndex1, details);
-		else
-			if (isObj2Static || isObj2Resting)
-				simulator->collisionDetailsObj1ToObj2(details->objIndex1, details->objIndex2, details);
-			else
-				simulator->collisionDetails(details);
 		
-		if (details->type == SpCollisionType::None || details->contactPointsLength == 0u)
-			char* arr = "ERRO";
+		// The objects are not static and not resting and not moving away and colliding, handle response...
+		if (obj1Properties->isStatic() || obj1Properties->isResting())
+			collisionDetector.collisionDetailsWithObj1Static(details->objIndex1, details->objIndex2, details);
+		else
+			if (obj2Properties->isStatic() || obj2Properties->isResting())
+				collisionDetector.collisionDetailsWithObj1Static(details->objIndex2, details->objIndex1, details);
+			else
+				collisionDetector.collisionDetails(details);
+
+		if (details->ignoreCollision)
+			return;
+
+		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
+		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
 
 		simulator->handleCollisionResponse(details);
 	}
@@ -637,14 +457,15 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
 
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		
+		SpCollisionDetector collisionDetector;
+
 		//simulator->filterCollisions(details);
 		// TODO: fazer;
 
 		if (details->ignoreCollision)
 			return;
 
-		simulator->collisionDetails(details);
+		collisionDetector.collisionDetails(details);
 		simulator->handleCollisionResponse(details);
 	}
 
