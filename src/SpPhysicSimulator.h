@@ -307,12 +307,24 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void translate(const sp_uint index, const Vec3& translation) 
 		{
 			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
-			sp_assert(index != SP_UINT_MAX, "InvalidOperationException");
+			sp_assert(_transforms != nullptr, "InvalidOperationException");
+			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
 			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_boundingVolumes[index].translate(translation);
 			_transforms[index].translate(translation);
 			_physicProperties[index].translate(translation);
+		}
+
+		API_INTERFACE void scale(const sp_uint index, const Vec3& scaleVector)
+		{
+			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
+			sp_assert(_transforms != nullptr, "InvalidOperationException");
+			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
+
+			_boundingVolumes[index].scale(scaleVector);
+			_transforms[index].scale(scaleVector);
 		}
 
 		API_INTERFACE void run();

@@ -21,21 +21,19 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Triangle2D::area() const
 	{
-		sp_float numerator = std::fabsf(point1.x * point2.y + point2.x * point3.y + point3.x * point1.y - point1.y * point2.x - point2.y * point3.x - point3.y * point1.x);
-		sp_float area = numerator / 2.0f;
-
-		return area;
+		// determinant
+		const sp_float numerator = std::fabsf(point1.x * point2.y + point2.x * point3.y + point3.x * point1.y - point1.y * point2.x - point2.y * point3.x - point3.y * point1.x);
+		
+		return numerator * HALF_FLOAT;
 	}
 
 	sp_float Triangle2D::perimeter() const
 	{
-		sp_float term1 = std::sqrtf((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
-		sp_float term2 = std::sqrtf((point2.x - point3.x) * (point2.x - point3.x) + (point2.y - point3.y) * (point2.y - point3.y));
-		sp_float term3 = std::sqrtf((point3.x - point1.x) * (point3.x - point1.x) + (point3.y - point1.y) * (point3.y - point1.y));
+		const sp_float term1 = std::sqrtf((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
+		const sp_float term2 = std::sqrtf((point2.x - point3.x) * (point2.x - point3.x) + (point2.y - point3.y) * (point2.y - point3.y));
+		const sp_float term3 = std::sqrtf((point3.x - point1.x) * (point3.x - point1.x) + (point3.y - point1.y) * (point3.y - point1.y));
 
-		sp_float perimeter = term1 + term2 + term3;
-
-		return perimeter;
+		return term1 + term2 + term3;
 	}
 
 	sp_float Triangle2D::height() const

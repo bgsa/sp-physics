@@ -27,11 +27,11 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void collisionDetails(SpCollisionDetails* details);
 
+		API_INTERFACE void collisionDetailsWithObj1Static(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details);
+
 		API_INTERFACE CollisionStatus collisionStatus(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details);
 
 		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const;
-
-		void collisionDetailsWithObj1Static(const sp_uint obj1Index, const sp_uint obj2Index, SpCollisionDetails* details);
 
 	};
 

@@ -293,6 +293,8 @@ namespace NAMESPACE_PHYSICS
 			return _vertexEdges[0]->find(vertex, transform, visitedVertexes, &visitedVertexesLength);
 		}
 
+		API_INTERFACE sp_bool isInside(const SpMesh* mesh2, const SpTransform* transformObj1, const SpTransform* transformObj2) const;
+
 	};
 
 }

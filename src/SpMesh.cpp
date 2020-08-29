@@ -3,6 +3,35 @@
 
 namespace NAMESPACE_PHYSICS
 {
+
+	sp_bool SpMesh::isInside(const SpMesh* mesh2, const SpTransform* transformObj1, const SpTransform* transformObj2) const
+	{
+		Vec3* verts = this->vertexes->data();
+		SpPoint3<sp_uint>* facesObj2 = mesh2->facesIndexes->data();
+		Vec3* vertsObj2 = mesh2->vertexes->data();
+
+		for (sp_uint i = 0; i < this->vertexes->length(); i++)
+		{
+			Vec3 vertex;
+			transformObj1->transform(verts[i], &vertex);
+
+			for (sp_uint j = 0; j < mesh2->facesIndexes->length(); j++)
+			{
+				Vec3 p1, p2, p3;
+				transformObj2->transform(vertsObj2[facesObj2[j].x], &p1);
+				transformObj2->transform(vertsObj2[facesObj2[j].y], &p2);
+				transformObj2->transform(vertsObj2[facesObj2[j].z], &p3);
+
+				const Plane3D face(p1, p2, p3);
+
+				if ( ! face.isBackFace(vertex) )
+					return false;
+			}
+		}
+
+		return true;
+	}
+
 	Vec3 SpVertexEdges::vertex() const
 	{
 		return mesh->vertexes->data()[_vertexIndex];

@@ -274,14 +274,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Uniform scale the mass of the object
-		/// </summary>
-		API_INTERFACE inline void scale(const sp_float factor)
-		{
-			_inverseMass *= factor;
-		}
-
-		/// <summary>
 		/// Get the velocity of the object
 		/// </summary>
 		API_INTERFACE inline Vec3 velocity() const

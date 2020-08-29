@@ -80,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 			Vec3 barycentricCoord;
 			barycentric(target, &barycentricCoord);
 
-			return barycentricCoord <= (ONE_FLOAT + _epsilon);
+			return barycentricCoord >= (ZERO_FLOAT - _epsilon);
 		}
 
 		/// <summary>

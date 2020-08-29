@@ -196,6 +196,17 @@ namespace NAMESPACE_PHYSICS
 
 		hasCollision = findCollisionEdgeFace(obj2Index, obj1Index, &edge, &face, &contactPoint, &penetratedVertexIndex);
 
+		if (hasCollision)
+			return CollisionStatus::INSIDE;
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(obj2Index)->meshIndex);
+		SpTransform* transformObj1 = simulator->transforms(obj1Index);
+		SpTransform* transformObj2 = simulator->transforms(obj2Index);
+
+		hasCollision = mesh1->isInside(mesh2, transformObj1, transformObj2);
+
 		return hasCollision
 			? CollisionStatus::INSIDE
 			: CollisionStatus::OUTSIDE;
