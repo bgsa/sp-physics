@@ -380,7 +380,98 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE operator sp_float*() const;
 
+		API_INTERFACE friend std::ostream& operator<<(std::ostream& out, class Vec3& vector)
+		{
+			out << vector.x << vector.y << vector.z;
+			return out;
+		}
+		API_INTERFACE inline void toString(std::ostream& out) const
+		{
+			out << "(" << x << ", " << y << ", " << z << ")";
+		}
+
 	};
+
+	/// <summary>
+	/// Normalize the vector
+	/// </summary>
+	/// <param name="vector">Vector to be normalized</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void normalize(Vec3* vector)
+	{
+		//sp_assert(length() != ZERO_FLOAT, "DivisionByZeroException");   // avoid division by zero
+
+		const sp_float len = vector->length();
+
+		if (len == ZERO_FLOAT)
+			vector[0] = Vec3(ZERO_FLOAT);
+
+		const sp_float vectorLengthInverted = ONE_FLOAT / len;
+
+		vector->x *= vectorLengthInverted;
+		vector->y *= vectorLengthInverted;
+		vector->z *= vectorLengthInverted;
+	}
+
+	/// <summary>
+	/// Cross product vector1 x vector2
+	/// </summary>
+	/// <param name="vector1">First vector</param>
+	/// <param name="vector2">Second vector</param>
+	/// <param name="output">Crossed vector (not normalized)</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void cross(const Vec3& vector1, const Vec3& vector2, Vec3* output)
+	{
+		output[0].x = vector1.y * vector2.z - vector2.y * vector1.z;
+		output[0].y = -vector1.x * vector2.z + vector2.x * vector1.z;
+		output[0].z = vector1.x * vector2.y - vector2.x * vector1.y;
+	}
+
+	/// <summary>
+	/// Define if the rays are perpendicular
+	/// </summary>
+	/// <param name="ray1">Normalized Ray 1</param>
+	/// <param name="ray2">Normalized Ray 2</param>
+	/// <param name="_epsilon">Error Margin</param>
+	/// <returns>True if they are perpendicular, or else False</returns>
+	API_INTERFACE inline sp_bool isPerpendicular(const Vec3& ray1, const Vec3& ray2, const sp_float _epsilon = DefaultErrorMargin)
+	{
+		return isCloseEnough(ray1.dot(ray2), ZERO_FLOAT, _epsilon);
+	}
+
+	/// <summary>
+	/// Build normal vector from three ordered vertexes
+	/// </summary>
+	/// <param name="p1">Point 1</param>
+	/// <param name="p2">Point 2</param>
+	/// <param name="p3">Point 3</param>
+	/// <param name="output">Result</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void normal(const Vec3& p1, const Vec3& p2, const Vec3& p3, Vec3* output)
+	{
+		const Vec3 edge1 = p2 - p1;
+		const Vec3 edge2 = p3 - p2;
+
+		cross(edge2, edge1, output);
+		normalize(output);
+	}
+
+	/// <summary>
+	/// Check the value parameter contains in list
+	/// </summary>
+	/// <param name="list">List Of Vec3</param>
+	/// <param name="listLength">Length of List</param>
+	/// <param name="value">Value to be looked up</param>
+	/// <param name="_epsilon">Error margin</param>
+	/// <returns>True if found or else False</returns>
+	API_INTERFACE inline sp_bool contains(const Vec3* list, const sp_uint listLength, const Vec3& value, const sp_float _epsilon = DefaultErrorMargin)
+	{
+		for (sp_uint i = 0; i < listLength; i++)
+			if (list[i].isCloseEnough(value, _epsilon))
+				return true;
+	
+		return false;
+	}
 
 }
 

@@ -8,6 +8,16 @@
 
 namespace NAMESPACE_PHYSICS_TEST
 {
+	static std::mutex locker;
+
+	void TestPhysic::lock()
+	{
+		locker.lock();
+	}
+	void TestPhysic::unlock()
+	{
+		locker.unlock();
+	}
 
 #ifdef MSTEST_ENABLED
 	

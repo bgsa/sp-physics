@@ -59,7 +59,9 @@ namespace NAMESPACE_PHYSICS
 
 	class SpCollisionDetails;
 	class SpMesh;
-	class SpVertexEdges;
+	class SpVertexMesh;
+	class SpEdgeMesh;
+	class SpFaceMesh;
 }
 
 #include "Vec2.h"

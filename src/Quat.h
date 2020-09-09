@@ -139,26 +139,13 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Scale a quaternion
 		/// </summary>
-		API_INTERFACE Quat scale(const sp_float value) const
+		API_INTERFACE inline Quat scale(const sp_float value) const
 		{
 			return Quat(
 				w * value,
 				x * value,
 				y * value,
 				z * value
-			);
-		}
-
-		/// <summary>
-		/// Multiply / Cross Product of quaternions
-		/// </summary>
-		API_INTERFACE Quat multiply(const Quat& quat) const
-		{
-			return Quat(
-				(w * quat.w) - (x * quat.x) - (y * quat.y) - (z * quat.z),
-				(w * quat.x) + (x * quat.w) - (y * quat.z) + (z * quat.y),
-				(w * quat.y) + (x * quat.z) + (y * quat.w) - (z * quat.x),
-				(w * quat.z) - (x * quat.y) + (y * quat.x) + (z * quat.w)
 			);
 		}
 
@@ -226,9 +213,9 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Cross Product of two quaternion
 		/// </summary>
-		API_INTERFACE Quat cross(const Quat& quatB) const
+		API_INTERFACE inline Quat cross(const Quat& quatB) const
 		{
-			return multiply(quatB);
+			return *this * quatB;
 		}
 
 		/// <summary>
@@ -414,7 +401,12 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline Quat operator*(const Quat& quat) const
 		{
-			return multiply(quat);
+			return Quat(
+				(w * quat.w) - (x * quat.x) - (y * quat.y) - (z * quat.z),
+				(w * quat.x) + (x * quat.w) - (y * quat.z) + (z * quat.y),
+				(w * quat.y) + (x * quat.z) + (y * quat.w) - (z * quat.x),
+				(w * quat.z) - (x * quat.y) + (y * quat.x) + (z * quat.w)
+			);
 		}
 
 		/// <summary>
@@ -438,6 +430,19 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Rotate the current quaternion
+		/// </summary>
+		/// <param name="rotation">Rotation quaternion</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void operator*=(const Quat& rotation)
+		{
+			w = (w * rotation.w) - (x * rotation.x) - (y * rotation.y) - (z * rotation.z);
+			x = (w * rotation.x) + (x * rotation.w) - (y * rotation.z) + (z * rotation.y);
+			y = (w * rotation.y) + (x * rotation.z) + (y * rotation.w) - (z * rotation.x);
+			z = (w * rotation.z) - (x * rotation.y) + (y * rotation.x) + (z * rotation.w);
+		}
+
+		/// <summary>
 		/// Divide the quaternion by scalar
 		/// </summary>
 		API_INTERFACE Quat operator/(const sp_float value) const
@@ -458,6 +463,14 @@ namespace NAMESPACE_PHYSICS
 		/// Auto convertion to Vec3
 		/// </summary>
 		API_INTERFACE operator Vec3() const;
+
+		API_INTERFACE inline sp_bool isCloseEnough(const Quat& compare, const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			return std::fabsf(w - compare.w) <= _epsilon
+				&& std::fabsf(x - compare.x) <= _epsilon
+				&& std::fabsf(y - compare.y) <= _epsilon
+				&& std::fabsf(z - compare.z) <= _epsilon;
+		}
 	};
 }
 

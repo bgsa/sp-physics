@@ -17,6 +17,7 @@ namespace NAMESPACE_PHYSICS
 		lastEvent = nullptr;
 		_boundingVolumesGPU = nullptr;
 		_physicPropertiesGPU = nullptr;
+		integrator = sp_mem_new(SpPhysicIntegratorVelocityVerlet)();
 
 		_objectsLength = ZERO_UINT;
 		_objectsLengthAllocated = objectsLength;
@@ -74,379 +75,48 @@ namespace NAMESPACE_PHYSICS
 		return _instance;
 	}
 
-	void SpPhysicSimulator::handleCollisionResponseOLD(SpCollisionDetails* details)
-	{
-		SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
-		SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
-
-		const DOP18 bv1 = _boundingVolumes[details->objIndex1];
-		const DOP18 bv2 = _boundingVolumes[details->objIndex2];
-
-		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
-		const sp_float cof = std::max(obj1Properties->coeficientOfFriction(), obj2Properties->coeficientOfFriction());
-
-		if (obj1Properties->isStatic())
-		{
-			const Vec3 normal = bv1.normal(details->objectIndexPlane1);
-			const Vec3 rayToContact = (details->contactPoints[0] - bv2.centerOfBoundingVolume());
-			const Vec3 pointVelocity = obj2Properties->velocity() + obj2Properties->torque().cross(rayToContact);
-			const Vec3 velocity = pointVelocity.dot(normal);
-
-			const Vec3 parenthesis = rayToContact.cross(obj2Properties->inertialTensorInverse() * (rayToContact.cross(normal)));
-			const sp_float denominator = normal.dot(parenthesis) + obj2Properties->massInverse();
-
-			const Vec3 impulse = (velocity * -(ONE_FLOAT + cor)) / denominator;
-			
-			obj2Properties->_velocity = impulse * rayToContact;
-			obj2Properties->_torque = impulse * rayToContact.cross(normal);
-			obj2Properties->_torque *= obj2Properties->angularDamping();
-
-			obj2Properties->_acceleration = ZERO_FLOAT;
-		}
-		else
-		{
-			if (obj2Properties->isStatic())
-			{
-				const Vec3 normal = bv2.normal(details->objectIndexPlane2);
-				const Vec3 rayToContact = (details->contactPoints[0] - bv1.centerOfBoundingVolume());
-				const Vec3 pointVelocity = obj1Properties->velocity() + obj1Properties->torque().cross(rayToContact);
-				const Vec3 velocity = pointVelocity.dot(normal);
-
-				const Vec3 raCrossN = rayToContact.cross(normal);
-
-				const Vec3 parenthesis = obj1Properties->inertialTensorInverse() * raCrossN.cross(rayToContact);
-				const sp_float denominator = obj1Properties->massInverse() + normal.dot(parenthesis);
-
-				const Vec3 impulse = (velocity * -(ONE_FLOAT + cor)) / denominator;
-
-				obj1Properties->_velocity = -impulse * rayToContact;
-				obj1Properties->_torque = impulse * rayToContact.cross(normal);
-				obj1Properties->_torque *= obj1Properties->angularDamping();
-
-				obj1Properties->_acceleration = ZERO_FLOAT;
-			}
-			else // both are dynamic
-			{
-				const Vec3 normalObj1 = bv1.normal(details->objectIndexPlane1);
-				const Vec3 normalObj2 = bv2.normal(details->objectIndexPlane2);
-
-				const Vec3 normal = normalObj1;
-				const Vec3 rayToContactObj1 = (details->contactPoints[0] - bv1.centerOfBoundingVolume());
-				const Vec3 rayToContactObj2 = (details->contactPoints[0] - bv2.centerOfBoundingVolume());
-				const Vec3 pointVelocityObj1 = obj1Properties->velocity() + obj1Properties->torque().cross(rayToContactObj1);
-				const Vec3 pointVelocityObj2 = obj2Properties->velocity() + obj2Properties->torque().cross(rayToContactObj2);
-				const Vec3 relativeVelocity = normal.dot(pointVelocityObj1 - pointVelocityObj2);
-
-				const Vec3 parenthesisObj1 = obj1Properties->inertialTensorInverse() 
-					* rayToContactObj1.cross(rayToContactObj1.cross(normal));
-
-				const Vec3 parenthesisObj2 = obj2Properties->inertialTensorInverse()
-					* rayToContactObj2.cross(rayToContactObj2.cross(normal));
-
-				const sp_float denominator = obj1Properties->massInverse() + obj2Properties->massInverse()
-					+ normal.dot(parenthesisObj1 + parenthesisObj2);
-
-				const Vec3 impulse = (relativeVelocity * -(ONE_FLOAT + cor)) / denominator;
-
-				obj1Properties->_velocity = -impulse * normal;
-				obj1Properties->_torque = -impulse * rayToContactObj1.cross(normal);
-				obj1Properties->_torque *= obj1Properties->angularDamping();
-				obj1Properties->_acceleration = ZERO_FLOAT;
-
-				obj2Properties->_velocity = impulse * normal;
-				obj2Properties->_torque = impulse * rayToContactObj2.cross(normal);
-				obj2Properties->_torque *= obj2Properties->angularDamping();
-				obj2Properties->_acceleration = ZERO_FLOAT;
-
-				integrate(details->objIndex1, details->timeStep);
-				integrate(details->objIndex2, details->timeStep);
-			}
-		}
-	}
-
-	void SpPhysicSimulator::handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center)
-	{
-		Vec3 rayToContact;
-		sp_float cor = objProperties->coeficientOfRestitution();
-
-		switch (details->type)
-		{
-		case SpCollisionType::PointFace:
-			rayToContact = (details->contactPoints[0] - center);
-			details->collisionNormal = -rayToContact.normalize();
-			break;
-
-		case SpCollisionType::EdgeFace:
-			rayToContact = (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
-			rayToContact -= center;
-			break;
-
-		case SpCollisionType::EdgeEdge:
-			rayToContact = (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
-			rayToContact -= center;
-			break;
-
-		case SpCollisionType::FaceFace:
-			for (sp_uint i = 0u; i < details->contactPointsLength; i++)
-				rayToContact += details->contactPoints[i];
-			rayToContact /= (sp_float)details->contactPointsLength;
-			rayToContact -= center;
-			break;
-
-		default:
-			sp_assert(false, "NotImplementedException");
-		}
-
-		// TODO: PARA EDGE-EDGE, a normal é o CROSS das duas EDGES !!!
-		Vec3 relativeVelocity = objProperties->velocity() + objProperties->angularVelocity().cross(rayToContact);
-		
-		sp_float j = -(ONE_FLOAT + cor) * relativeVelocity.dot(details->collisionNormal);
-		sp_float denominator = objProperties->massInverse() + details->collisionNormal.dot(
-			(objProperties->inertialTensorInverse() * rayToContact.cross(details->collisionNormal)).cross(rayToContact)
-		);
-
-		if (j != ZERO_FLOAT)
-		{
-			j = j / denominator;
-
-			if (details->contactPointsLength == 2)
-				j *= 0.90f;
-			else if (details->contactPointsLength > 2)
-				j *= 0.80f;
-		}
-		
-		const Vec3 impulse = details->collisionNormal * j;
-
-		objProperties->_velocity = objProperties->velocity() + impulse * objProperties->massInverse();
-		objProperties->_angularVelocity = objProperties->angularVelocity() + objProperties->inertialTensorInverse() * rayToContact.cross(impulse);
-
-		/*  old response
-		switch (details->type)
-		{
-		case SpCollisionType::PointFace:
-			rayToContact = (details->contactPoints[0] - center);
-			break;
-
-		case SpCollisionType::EdgeFace:
-			rayToContact = (details->contactPoints[0] + details->contactPoints[1]) * HALF_FLOAT;
-			rayToContact = (rayToContact - center);
-			break;
-
-		case SpCollisionType::FaceFace:
-			for (sp_uint i = 0u; i < details->contactPointsLength; i++)
-				rayToContact += details->contactPoints[i];
-			rayToContact /= details->contactPointsLength;
-			rayToContact = (rayToContact - center);
-			break;
-
-		default:
-			sp_assert(false, "NotImplementedException");
-		}
-		
-		const Vec3 relativeVelocity = -(objProperties->velocity() + objProperties->angularVelocity().cross(rayToContact));
-
-		sp_float numerator = -(1.0f + cor) * relativeVelocity.dot(details->collisionNormal);
-
-		//Vec3 d2 = (objProperties->inertialTensorInverse() * rayToContact.cross(details->collisionNormal))
-		//			.cross(rayToContact);
-
-		Vec3 d2 = rayToContact.cross(objProperties->inertialTensorInverse() * details->collisionNormal.cross(rayToContact));
-
-		sp_float denominator = objProperties->massInverse() + details->collisionNormal.dot(d2);
-
-		sp_float j = (denominator == ZERO_FLOAT) 
-			? ZERO_FLOAT
-			: (numerator / denominator);
-
-		if (j != ZERO_FLOAT)
-			if (details->contactPointsLength == 2)
-				j *= 0.85f;
-			else if (details->contactPointsLength > 2)
-				j *= 0.70f;
-
-		const Vec3 impulse = details->collisionNormal * j;
-
-		objProperties->_velocity = objProperties->velocity() - impulse * objProperties->massInverse();
-		objProperties->_angularVelocity = objProperties->angularVelocity() - objProperties->inertialTensorInverse() * rayToContact.cross(impulse);
-		*/
-
-		// calculate friction ...
-		Vec3 tangent = relativeVelocity - (details->collisionNormal * relativeVelocity.dot(details->collisionNormal));
-		
-		if (tangent.isCloseEnough(ZERO_FLOAT))
-			return;
-
-		tangent = tangent.normalize();
-		
-		sp_float numerator = -relativeVelocity.dot(tangent);
-		Vec3 d2 = (objProperties->inertialTensorInverse() * tangent.cross(rayToContact)).cross(rayToContact);
-		denominator = objProperties->massInverse() + tangent.dot(d2);
-
-		if (isCloseEnough(denominator, ZERO_FLOAT))
-			return;
-
-		sp_float jt = numerator / denominator;
-
-		// TODO DIVIDIR O JT por CONTACT POINTS !!!!!!
-
-		if (isCloseEnough(jt, ZERO_FLOAT))
-			return;
-
-		sp_float friction = objProperties->coeficientOfFriction();
-		if (jt > j * friction)
-			jt = j * friction;
-		else 
-			if (jt < -j * friction)
-				jt = -j * friction;
-
-		Vec3 tangentImpuse = tangent * jt;
-
-		objProperties->_velocity = objProperties->velocity() - tangentImpuse * objProperties->massInverse();
-		objProperties->_angularVelocity = objProperties->angularVelocity() 
-			- objProperties->inertialTensorInverse() * rayToContact.cross(tangentImpuse);
-			
-		objProperties->_acceleration = ZERO_FLOAT;
-		objProperties->_force = ZERO_FLOAT;
-		objProperties->_torque = ZERO_FLOAT;
-		//integrate(details->objIndex2, details->timeStep);
-	}
-
-	void SpPhysicSimulator::addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j)
-	{
-		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
-
-		Vec3 tangent = relativeVel - (collisionNormal * relativeVel.dot(collisionNormal));
-
-		if (isCloseEnough((tangent.x + tangent.y + tangent.z), ZERO_FLOAT))
-			return;
-
-		tangent = tangent.normalize();
-		sp_float numerator = -relativeVel.dot(tangent);
-		Vec3 d2 = (obj1Properties->inertialTensorInverse() * tangent.cross(rayToContactObj1)).cross(rayToContactObj1);
-		Vec3 d3 = (obj2Properties->inertialTensorInverse() * tangent.cross(rayToContactObj2)).cross(rayToContactObj2);
-		sp_float denominator = invMassSum + tangent.dot(d2 + d3);
-
-		if (denominator == 0.0f)
-			return;
-
-		sp_float jt = numerator / denominator;
-
-		if (isCloseEnough(jt, 0.0f))
-			return;
-
-		const sp_float friction = sqrtf(obj1Properties->coeficientOfFriction() * obj2Properties->coeficientOfFriction());
-		if (jt > j * friction) {
-			jt = j * friction;
-		}
-		else if (jt < -j * friction) {
-			jt = -j * friction;
-		}
-
-		const Vec3 tangentImpuse = tangent * jt;
-
-		obj1Properties->_velocity = obj1Properties->velocity() - tangentImpuse * obj1Properties->massInverse();
-		obj1Properties->_angularVelocity = obj1Properties->angularVelocity() - obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(tangentImpuse);
-
-		obj2Properties->_velocity = obj2Properties->velocity() + tangentImpuse * obj2Properties->massInverse();
-		obj2Properties->_angularVelocity = obj2Properties->angularVelocity() + obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(tangentImpuse);
-	}
-
-	void SpPhysicSimulator::handleCollisionResponse(SpCollisionDetails* details)
-	{
-		SpPhysicProperties* obj1Properties = &_physicProperties[details->objIndex1];
-		SpPhysicProperties* obj2Properties = &_physicProperties[details->objIndex2];
-
-		if (obj1Properties->isStatic())
-		{
-			const Vec3 center = _transforms[details->objIndex2].position;
-			handleCollisionResponseWithStatic(details, obj2Properties, center);
-		}
-		else if (obj2Properties->isStatic())
-		{
-			const Vec3 center = _transforms[details->objIndex1].position;
-			handleCollisionResponseWithStatic(details, obj1Properties, center);
-		}
-		else
-		{
-			const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
-			const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
-
-			//const Vec3 centerObj1 = _boundingVolumes[details->objIndex1].centerOfBoundingVolume();
-			//const Vec3 centerObj2 = _boundingVolumes[details->objIndex2].centerOfBoundingVolume();
-			const Vec3 centerObj1 = _transforms[details->objIndex1].position;
-			const Vec3 centerObj2 = _transforms[details->objIndex2].position;
-
-			const Vec3 rayToContactObj1 = (details->contactPoints[0] - centerObj1);
-			const Vec3 rayToContactObj2 = (details->contactPoints[0] - centerObj2);
-
-			const Vec3 collisionNormal = (details->contactPoints[0] - centerObj1).normalize();
-
-			const Vec3 relativeVel = (obj2Properties->velocity() + obj2Properties->angularVelocity().cross(rayToContactObj2))
-				- (obj1Properties->velocity() + obj2Properties->angularVelocity().cross(rayToContactObj1));
-
-			sp_float numerator = (-(1.0f + cor) * relativeVel.dot(collisionNormal));
-
-			Vec3 d2 = (obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(collisionNormal))
-				.cross(rayToContactObj1);
-
-			Vec3 d3 = (obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(collisionNormal))
-				.cross(rayToContactObj2);
-
-			sp_float denominator = invMassSum + collisionNormal.dot(d2 + d3);
-
-			sp_float j = denominator == ZERO_FLOAT ? ZERO_FLOAT
-				: numerator / denominator;
-
-			if (details->contactPointsLength > ZERO_FLOAT && j != ZERO_FLOAT)
-				j /= (sp_float)details->contactPointsLength;
-
-			const Vec3 impulse = collisionNormal * j;
-
-			obj1Properties->_velocity = obj1Properties->velocity() - impulse * obj1Properties->massInverse();
-			obj1Properties->_angularVelocity = obj1Properties->angularVelocity() - obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(impulse);
-
-			obj2Properties->_velocity = obj2Properties->velocity() + impulse * obj2Properties->massInverse();
-			obj2Properties->_angularVelocity = obj2Properties->angularVelocity() + obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(impulse);
-
-			//addFriction(obj1Properties, obj2Properties, relativeVel, collisionNormal , rayToContactObj1, rayToContactObj2, j);
-
-			obj1Properties->_acceleration = ZERO_FLOAT;
-			obj1Properties->_torque = ZERO_FLOAT;
-
-			obj2Properties->_acceleration = ZERO_FLOAT;
-			obj2Properties->_torque = ZERO_FLOAT;
-		}
-	}
-
 	void SpPhysicSimulator::handleCollisionCPU(void* threadParameter)
 	{
 		SpCollisionDetector collisionDetector;
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpCollisionResponse collisionResponse;
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
 		
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
 
-		collisionDetector.filterCollision(details->objIndex1, details->objIndex2, details);
-
-		SpPhysicProperties* obj1Properties = &simulator->_physicProperties[details->objIndex1];
-		SpPhysicProperties* obj2Properties = &simulator->_physicProperties[details->objIndex2];
-		
-		// The objects are not static and not resting and not moving away and colliding, handle response...
-		if (obj1Properties->isStatic() || obj1Properties->isResting())
-			collisionDetector.collisionDetailsWithObj1Static(details->objIndex1, details->objIndex2, details);
-		else
-			if (obj2Properties->isStatic() || obj2Properties->isResting())
-				collisionDetector.collisionDetailsWithObj1Static(details->objIndex2, details->objIndex1, details);
-			else
-				collisionDetector.collisionDetails(details);
-
+		collisionDetector.filterCollision(details);
 		if (details->ignoreCollision)
 			return;
 
-		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
-		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		Vec3 pos = simulator->transforms(1u)->position;
+		std::cout << "collision: ";
+		pos.toString(std::cout);
+		std::cout << END_OF_LINE;
 
-		simulator->handleCollisionResponse(details);
+		Timer t; t.start();
+		collisionDetector.collisionDetails(details);
+		std::cout << "TIME TO CHECK" << t.elapsedTime() << END_OF_LINE;
+
+		std::cout << "END COLLISION HANDLER" << END_OF_LINE;
+
+		if (details->ignoreCollision)
+		{
+			Vec3 pos = simulator->transforms(1u)->position;
+			
+			std::cout << "IGNORANDO COLISAO! ";
+			pos.toString(std::cout);
+			std::cout << END_OF_LINE;
+
+			return;
+		}
+
+		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
+		sp_assert(details->contactPointsLengthObj1 > 0u || details->contactPointsLengthObj2 > 0u, "InvalidOperationException");
+
+		collisionResponse.handleCollisionResponse(details);
+
+		std::cout << "END COLLISION RESPONSE" << END_OF_LINE;
+
 	}
 
 	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
@@ -466,7 +136,9 @@ namespace NAMESPACE_PHYSICS
 			return;
 
 		collisionDetector.collisionDetails(details);
-		simulator->handleCollisionResponse(details);
+
+		SpCollisionResponse collisionResponse;
+		collisionResponse.handleCollisionResponse(details);
 	}
 
 	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
@@ -522,27 +194,36 @@ namespace NAMESPACE_PHYSICS
 		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
 		SpThreadPool* threadPool = SpThreadPool::instance();
 		const sp_float elapsedTime = Timer::physicTimer()->elapsedTime();
+		
 
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
 			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i)]), "MemoryNotInitializedExeption");
-			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i)+1]), "MemoryNotInitializedExeption");
+			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i) + 1]), "MemoryNotInitializedExeption");
 
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
 
+			std::cout << "collision!!! " << detailsArray[i].objIndex1 << " - " << detailsArray[i].objIndex2;
+
+			handleCollisionCPU(&detailsArray[i]);
+			
+			/*
 			//tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
 			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
 			tasks[i].parameter = &detailsArray[i];
 
 			threadPool->schedule(&tasks[i]);
+			*/
 		}
+		/*
 		SpThreadPool::instance()->waitToFinish();
-
+		
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)
 				dispatchEvent(&detailsArray[i]);
+		*/
 
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;

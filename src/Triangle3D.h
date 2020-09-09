@@ -14,30 +14,25 @@ namespace NAMESPACE_PHYSICS
 		Vec3 point2;
 		Vec3 point3;
 
-		Triangle3D()
-		{
-		}
+		API_INTERFACE inline Triangle3D() { }
 
-		Triangle3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
+		API_INTERFACE Triangle3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 		{
 			this->point1 = point1;
 			this->point2 = point2;
 			this->point3 = point3;
 		}
 
-		Triangle3D(sp_float* point1, sp_float* point2, sp_float* point3)
+		API_INTERFACE Triangle3D(sp_float* point1, sp_float* point2, sp_float* point3)
 		{
 			this->point1 = Vec3(point1[0], point1[1], point1[2]);
 			this->point2 = Vec3(point2[0], point2[1], point2[2]);
 			this->point3 = Vec3(point3[0], point3[1], point3[2]);
 		}
 
-		API_INTERFACE void normal(Vec3* output) const
+		API_INTERFACE void normalFace(Vec3* output) const
 		{
-			const Vec3 edge1 = point2 - point1;
-			const Vec3 edge2 = point3 - point1;
-
-			output[0] = edge1.cross(edge2).normalize();
+			normal(point1, point2, point3, output);
 		}
 
 		API_INTERFACE inline void barycentric(const Vec3& point, Vec3* output) const

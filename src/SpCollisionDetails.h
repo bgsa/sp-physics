@@ -21,28 +21,30 @@ namespace NAMESPACE_PHYSICS
 	public:
 		sp_uint objIndex1;
 		sp_uint objIndex2;
-		sp_uint objectIndexPlane1;
-		sp_uint objectIndexPlane2;
-		sp_float timeOfCollision;
 		sp_float timeStep;
-		Vec3 contactPoints[8];
-		sp_uint contactPointsLength;
-		Vec3 collisionNormal;
-		sp_float depth;
 		sp_bool ignoreCollision;
-		
+
 		SpCollisionType type;
+		sp_float timeOfCollision;
+		Vec3 centerContactPoint;
 
-		SpVertexEdges* extremeVertexObj1;
-		SpVertexEdges* extremeVertexObj2;
+		sp_uint vertexIndexObj1;
+		sp_uint vertexIndexObj2;
+		Vec3 collisionNormalObj1;
+		Vec3 collisionNormalObj2;
 
+		Vec3 contactPointsObj1[8];
+		sp_uint contactPointsLengthObj1;
+
+		Vec3 contactPointsObj2[8];
+		sp_uint contactPointsLengthObj2;
+		
 		SpCollisionDetails()
 		{
 			ignoreCollision = false;
-			extremeVertexObj1 = nullptr;
-			extremeVertexObj2 = nullptr;
 			type = SpCollisionType::None;
-			contactPointsLength = ZERO_UINT;
+			contactPointsLengthObj1 = ZERO_UINT;
+			contactPointsLengthObj2 = ZERO_UINT;
 		}
 
 	};

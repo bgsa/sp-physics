@@ -19,9 +19,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline SpTransform()
 		{
-			orientation = Quat::identity();
-			position = Vec3(ZERO_FLOAT);
-			scaleVector = Vec3(ONE_FLOAT);
+			reset();
 		}
 
 		API_INTERFACE inline SpTransform* scale(const Vec3& scaleVector)
@@ -63,6 +61,17 @@ namespace NAMESPACE_PHYSICS
 				* orientation.toMat4()
 				* Mat4::createScale(scaleVector)
 				* Mat4::createTranslate(-initialPosition);
+		}
+
+		/// <summary>
+		/// Reset all values to default
+		/// </summary>
+		/// <returns>void</returns>
+		API_INTERFACE inline void reset()
+		{
+			orientation = Quat::identity();
+			position = Vec3(ZERO_FLOAT);
+			scaleVector = Vec3(ONE_FLOAT);
 		}
 
 	};

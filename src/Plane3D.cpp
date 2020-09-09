@@ -5,23 +5,14 @@ namespace NAMESPACE_PHYSICS
 
 	Plane3D::Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 	{
-		const Vec3 edge1 = point1 - point2;
-		const Vec3 edge2 = point1 - point3;
-
 		point = point1;
-
-		normalVector = Vec3{
-			edge1[1] * edge2[2] - (edge1[2] * edge2[1]),
-			edge1[2] * edge2[0] - (edge1[0] * edge2[2]),
-			edge1[0] * edge2[1] - (edge1[1] * edge2[0])
-		}.normalize();
+		normal(point1, point2, point3, &normalVector);
 	}
-
 
 	Plane3D::Plane3D(const Triangle3D& triangle)
 	{
 		point = triangle.point1;
-		triangle.normal(&normalVector);
+		triangle.normalFace(&normalVector);
 	}
 
 	Plane3D::Plane3D(sp_float a, sp_float b, sp_float c, sp_float d)
@@ -61,16 +52,30 @@ namespace NAMESPACE_PHYSICS
 		if (isParallel(plane))
 			return;
 
-		Vec3 lineDirection = normalVector.cross(plane.normalVector);
+		const Vec3 lineDirection = normalVector.cross(plane.normalVector);
 		
 		// find a point on the line, which is also on both planes
-		sp_float dot = lineDirection.dot(lineDirection);					// V dot V
-		Vec3 u1 = normalVector * plane.getDcomponent();		    // d2 * normalVector
-		Vec3 u2 = plane.normalVector * -getDcomponent();	    //-d1 * plane.normalVector
-		Vec3 point1 = (u1 + u2).cross(lineDirection) / dot;     // (d2*N1-d1*N2) X V / V dot V
+		const sp_float dot = lineDirection.dot(lineDirection);					// V dot V
+		const Vec3 u1 = normalVector * plane.getDcomponent();		    // d2 * normalVector
+		const Vec3 u2 = plane.normalVector * -getDcomponent();	    //-d1 * plane.normalVector
 		
-		line->point1 = point1;
-		line->point2 = point1 + lineDirection; // find another point on the line
+		line->point1 = (u1 + u2).cross(lineDirection) / dot;     // (d2*N1-d1*N2) X V / V dot V
+		line->point2 = line->point1 + lineDirection; // find another point on the line
+	}
+
+	void Plane3D::intersection(const Plane3D& plane, Ray* ray) const
+	{
+		if (isParallel(plane))
+			return;
+
+		ray->direction = normalVector.cross(plane.normalVector);
+
+		// find a point on the line, which is also on both planes
+		const sp_float dot = ray->direction.dot(ray->direction);					// V dot V
+		const Vec3 u1 = normalVector * plane.getDcomponent();		    // d2 * normalVector
+		const Vec3 u2 = plane.normalVector * -getDcomponent();	    //-d1 * plane.normalVector
+		
+		ray->point = (u1 + u2).cross(ray->direction) / dot;     // (d2*N1-d1*N2) X V / V dot V
 	}
 
 	sp_float Plane3D::distance(const Vec3& target) const
@@ -105,6 +110,12 @@ namespace NAMESPACE_PHYSICS
 		sp_float length = normalVector.length() * plane.normalVector.length();
 
 		return angle / length;
+	}
+
+	void Plane3D::project(const Vec3& target, Vec3* output) const
+	{
+		Ray ray(target, -normalVector);
+		intersection(ray, output);
 	}
 
 }

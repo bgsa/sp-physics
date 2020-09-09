@@ -66,10 +66,10 @@ namespace NAMESPACE_PHYSICS
 		return (ZERO_FLOAT <= ac && ac <= ab);
 	}
 
-	void Line3D::intersection(const Line3D& line2, Vec3* point, const sp_float _epsilon) const
+	sp_bool Line3D::intersection(const Line3D& line2, Vec3* point, const sp_float _epsilon) const
 	{
 		if (isParallel(line2))
-			return;
+			return false;
 
 		const Vec3 da = point2 - point1;
 		const Vec3 db = line2.point2 - line2.point1;
@@ -80,17 +80,22 @@ namespace NAMESPACE_PHYSICS
 		const sp_float value = std::fabsf(dc.dot(dAcrossB));
 
 		if (!isCloseEnough(value, ZERO_FLOAT, _epsilon))
-			return;
-		
+			return false;
+
 		const sp_float numerador = dc.cross(db).dot(dAcrossB);
 		const sp_float denominador = dAcrossB.squaredLength();
 
 		sp_float s = numerador / denominador;
-		const sp_float valueSign = (sp_float) sign(s);
+		const sp_float valueSign = (sp_float)sign(s);
 		s = std::fabsf(s);
 
 		if (s >= (ZERO_FLOAT - _epsilon * 0.2f) && s <= (ONE_FLOAT + _epsilon * 0.2f))
+		{
 			*point = (da * s * valueSign + point1);
+			return true;
+		}
+
+		return false;
 	}
 
 	sp_bool Line3D::isParallel(const Line3D& line, const sp_float _epsilon) const
@@ -100,22 +105,22 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Line3D::isPerpendicular(const Line3D& line, const sp_float _epsilon) const
 	{
-		return isCloseEnough(line.direction().dot(direction()), ZERO_FLOAT, _epsilon);
+		return isPerpendicular(line.direction(), _epsilon);
 	}
 
-	void Line3D::intersection(const Triangle3D& triangle, Vec3* point, sp_bool* hasIntersection) const
+	sp_bool Line3D::isPerpendicular(const Vec3& _direction, const sp_float _epsilon) const
+	{
+		return isCloseEnough(_direction.dot(direction()), ZERO_FLOAT, _epsilon);
+	}
+
+	sp_bool Line3D::intersection(const Triangle3D& triangle, Vec3* point) const
 	{
 		Vec3 triangleNormal;
-		triangle.normal(&triangleNormal);
-
-		const Line3D lineTriangleNormal(triangle.point1, triangle.point1 + triangleNormal * TWO_FLOAT);
-	
-		if (isPerpendicular(lineTriangleNormal)) // if the normal plane is perpendicular. there is no way to cross the plane
-		{
-			*hasIntersection = false;
-			*point = Vec3(ZERO_FLOAT);
-			return;
-		}
+		triangle.normalFace(&triangleNormal);
+		
+		// if the normal plane is perpendicular. there is no way to cross the plane
+		if (isPerpendicular(triangleNormal))
+			return false;
 
 		const Plane3D trianglePlane(triangle.point1, triangleNormal);
 
@@ -124,22 +129,14 @@ namespace NAMESPACE_PHYSICS
 
 		// if the this line is completely one side of triangle, no intersection
 		if (sign(distanceToPoint1) == sign(distanceToPoint2)) 
-		{
-			*hasIntersection = false;
-			*point = Vec3(ZERO_FLOAT);
-			return;
-		}
+			return false;
 
 		trianglePlane.intersection(*this, point);
 
 		if (!triangle.isInside(*point))
-		{
-			*hasIntersection = false;
-			*point = Vec3(ZERO_FLOAT);
-			return;
-		}
+			return false;
 
-		* hasIntersection = true;
+		return true;
 	}
 
 	Vec3 Line3D::closestPointOnTheLine(const Vec3& target) const
@@ -391,4 +388,86 @@ namespace NAMESPACE_PHYSICS
 	{
 		return std::sqrtf(squaredDistance(target));
 	}
+
+	void Line3D::closestPoint(const Line3D& other, Vec3* closestPointOnLine1, Vec3* closestPointOnLine2, sp_float* squaredDistance) const
+	{
+		Vec3 d1 = point2 - point1; // Direction vector of segment S1  
+		Vec3 d2 = other.point2 - other.point1; // Direction vector of segment S2  
+		Vec3 r = point1 - other.point1;
+		sp_float a = d1.dot(d1); // Squared length of segment S1, always nonnegative  
+		sp_float e = d2.dot(d2); // Squared length of segment S2, always nonnegative  
+		sp_float f = d2.dot(r);  // Check if either or both segments degenerate into points  
+
+		sp_float s, t;
+		Vec3 c1, c2;
+
+		if (a <= DefaultErrorMargin && e <= DefaultErrorMargin)
+		{
+			// Both segments degenerate into points
+			closestPointOnLine1[0] = point1;
+			closestPointOnLine2[0] = other.point1;
+			squaredDistance[0] = (point1 - other.point1).dot(point1 - other.point1);
+			return;
+		}
+
+		if (a <= DefaultErrorMargin)
+		{
+			// First segment degenerates into a point  
+			s = ZERO_FLOAT;
+			t = f / e;
+
+			// s = 0 => t = (b*s + f) / e = f / e  
+			t = clamp(t, ZERO_FLOAT, ONE_FLOAT);
+		}
+		else
+		{
+			sp_float c = d1.dot(r);
+
+			if (e <= DefaultErrorMargin)
+			{
+				// Second segment degenerates into a point  
+				t = ZERO_FLOAT;
+				s = clamp(-c / a, ZERO_FLOAT, ONE_FLOAT); // t = 0 => s = (b*t - c) / a = -c / a  
+			}
+			else
+			{  // The general nondegenerate case starts here  
+				sp_float b = d1.dot(d2);
+				sp_float denom = a * e - b * b; // Always nonnegative  
+
+				// If segments not parallel, compute closest point on L1 to L2 and  
+				// clamp to segment S1. Else pick arbitrary s (here 0)  
+				if (denom != ZERO_FLOAT)
+					s = clamp((b * f - c * e) / denom, ZERO_FLOAT, ONE_FLOAT);
+				else
+					s = ZERO_FLOAT;
+
+				// Compute point on L2 closest to S1(s) using  
+				// t = Dot((P1 + D1*s) - P2,D2) / Dot(D2,D2) = (b*s + f) / e  
+				t = (b * s + f) / e;
+
+				// If t in [0,1] done. Else clamp t, recompute s for the new value  
+				// of t using s = Dot((P2 + D2*t) - P1,D1) / Dot(D1,D1)= (t*b - c) / a  
+				// and clamp s to [0, 1]  
+				if (t < ZERO_FLOAT)
+				{
+					t = ZERO_FLOAT;
+					s = clamp(-c / a, ZERO_FLOAT, ONE_FLOAT);
+				}
+				else
+					if (t > ONE_FLOAT)
+					{
+						t = ONE_FLOAT;
+						s = clamp((b - c) / a, ZERO_FLOAT, ONE_FLOAT);
+					}
+			}
+		}
+
+		c1 = point1 + d1 * s;
+		c2 = other.point1 + d2 * t;
+
+		closestPointOnLine1[0] = c1;
+		closestPointOnLine2[0] = c2;
+		squaredDistance[0] = (c1 - c2).dot(c1 - c2);
+	}
+
 }

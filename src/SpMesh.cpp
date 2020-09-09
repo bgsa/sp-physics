@@ -4,25 +4,246 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	sp_bool SpMesh::isInside(const SpMesh* mesh2, const SpTransform* transformObj1, const SpTransform* transformObj2) const
+	void SpMesh::vertex(const sp_uint index, Vec3* output) const
 	{
-		Vec3* verts = this->vertexes->data();
-		SpPoint3<sp_uint>* facesObj2 = mesh2->facesIndexes->data();
-		Vec3* vertsObj2 = mesh2->vertexes->data();
+		sp_assert(index < vertexesMesh->length(), "IndexOutOfRangeException");
+		output[0] = vertexesMesh->data()[index]->_value;
+	}
 
-		for (sp_uint i = 0; i < this->vertexes->length(); i++)
+	void SpMesh::vertex(const sp_uint index, const SpTransform& transform, Vec3* output) const
+	{
+		sp_assert(index < vertexesMesh->length(), "IndexOutOfRangeException");
+		transform.transform(vertexesMesh->data()[index]->_value, output);
+	}
+
+	sp_uint SpMesh::vertexLength() const
+	{
+		return vertexesMesh->length();
+	}
+
+	SpVertexMesh* SpMesh::findClosest(const Vec3& point, const SpTransform& transform, SpVertexMesh* from) const
+	{
+		if (from == nullptr)
+			from = vertexesMesh->data()[0];
+
+		return from->findClosest(point, transform);
+	}
+
+	SpVertexMesh* SpMesh::findExtremeVertex(const Vec3& orientation, const SpTransform& transform, SpVertexMesh* from) const
+	{
+		if (from == nullptr)
+			from = vertexesMesh->data()[0];
+
+		return findExtremeVertex(from, orientation, transform);
+	}
+
+	sp_uint SpMesh::findEdge(const sp_uint vertexIndex1, const sp_uint vertexIndex2) const
+	{
+		SpEdgeMesh** _edges = edges->data();
+
+		for (sp_uint i = 0; i < edges->length(); i++)
+			if ((_edges[i]->vertexIndex1 == vertexIndex1 && _edges[i]->vertexIndex2 == vertexIndex2)
+				|| (_edges[i]->vertexIndex1 == vertexIndex2 && _edges[i]->vertexIndex2 == vertexIndex1))
+				return i;
+
+		return SP_UINT_MAX;
+	}
+
+	sp_bool hasTempEdge(sp_uint** mapVertexEdge, sp_uint index, sp_uint value)
+	{
+		for (sp_uint i = 0; i < mapVertexEdge[index][0] + 1; i++)
+			if (mapVertexEdge[index][i + 1] == value)
+				return true;
+
+		return false;
+	}
+	void addTempEdge(sp_uint** mapVertexEdge, sp_uint index, sp_uint value)
+	{
+		mapVertexEdge[index][mapVertexEdge[index][0] + 1] = value;
+		mapVertexEdge[index][0] ++;
+	}
+
+	void SpMesh::init()
+	{
+		if (faces == nullptr || faces->length() == ZERO_UINT)
+			return;
+
+		sp_uint** mapVertexEdge = ALLOC_ARRAY(sp_uint*, vertexLength());
+		for (sp_uint i = 0; i < vertexLength(); i++)
+		{
+			mapVertexEdge[i] = ALLOC_ARRAY(sp_uint, 20);
+			mapVertexEdge[i][0] = ZERO_UINT;
+		}
+
+		edges = sp_mem_new(SpArray<SpEdgeMesh*>)(3u * 6u * faces->length() - 2u);
+		sp_uint edgIndex = ZERO_UINT;
+		for (sp_uint i = 0; i < faces->length(); i++)
+		{
+			SpFaceMesh* face = faces->data()[i];
+			sp_uint* vertexesIndexes = face->vertexesIndexes;
+
+			sp_uint vertexIndex1 = vertexesIndexes[0];
+			sp_uint vertexIndex2 = vertexesIndexes[1];
+			sp_uint vertexIndex3 = vertexesIndexes[2];
+
+			// map vertex-edges
+			if (!hasTempEdge(mapVertexEdge, vertexIndex1, vertexIndex2))
+				addTempEdge(mapVertexEdge, vertexIndex1, vertexIndex2);
+
+			if (!hasTempEdge(mapVertexEdge, vertexIndex2, vertexIndex1))
+				addTempEdge(mapVertexEdge, vertexIndex2, vertexIndex1);
+
+			if (!hasTempEdge(mapVertexEdge, vertexIndex2, vertexIndex3))
+				addTempEdge(mapVertexEdge, vertexIndex2, vertexIndex3);
+
+			if (!hasTempEdge(mapVertexEdge, vertexIndex3, vertexIndex2))
+				addTempEdge(mapVertexEdge, vertexIndex3, vertexIndex2);
+
+			if (!hasTempEdge(mapVertexEdge, vertexIndex3, vertexIndex1))
+				addTempEdge(mapVertexEdge, vertexIndex3, vertexIndex1);
+
+			if (!hasTempEdge(mapVertexEdge, vertexIndex1, vertexIndex3))
+				addTempEdge(mapVertexEdge, vertexIndex1, vertexIndex3);
+
+			// add thi face to vertex
+			vertexesMesh->data()[vertexIndex1]->facesIndexes->add(i);
+			vertexesMesh->data()[vertexIndex2]->facesIndexes->add(i);
+			vertexesMesh->data()[vertexIndex3]->facesIndexes->add(i);
+
+			sp_uint existEdge = findEdge(vertexIndex1, vertexIndex2);
+			if (existEdge == SP_UINT_MAX)
+			{
+				existEdge = findEdge(vertexIndex2, vertexIndex1);
+				if (existEdge == SP_UINT_MAX)
+				{
+					existEdge = edgIndex++;
+
+					SpEdgeMesh* _edge = sp_mem_new(SpEdgeMesh(this, existEdge, vertexIndex1, vertexIndex2, *face));
+					edges->add(_edge);
+					face->edgesIndexes[0] = existEdge;
+				}
+				else
+				{
+					edges->data()[existEdge]->addFace(*face);
+					face->edgesIndexes[0] = existEdge;
+				}
+			}
+			else
+			{
+				edges->data()[existEdge]->addFace(*face);
+				face->edgesIndexes[0] = existEdge;
+			}
+
+			existEdge = findEdge(vertexIndex2, vertexIndex3);
+			if (existEdge == SP_UINT_MAX)
+			{
+				existEdge = findEdge(vertexIndex3, vertexIndex2);
+				if (existEdge == SP_UINT_MAX)
+				{
+					existEdge = edgIndex++;
+					SpEdgeMesh* _edge = sp_mem_new(SpEdgeMesh(this, existEdge, vertexIndex2, vertexIndex3, *face));
+					edges->add(_edge);
+					face->edgesIndexes[1] = existEdge;
+				}
+				else
+				{
+					edges->data()[existEdge]->addFace(*face);
+					face->edgesIndexes[1] = existEdge;
+				}
+			}
+			else
+			{
+				edges->data()[existEdge]->addFace(*face);
+				face->edgesIndexes[1] = existEdge;
+			}
+
+			existEdge = findEdge(vertexIndex3, vertexIndex1);
+			if (existEdge == SP_UINT_MAX)
+			{
+				existEdge = findEdge(vertexIndex1, vertexIndex3);
+				if (existEdge == SP_UINT_MAX)
+				{
+					existEdge = edgIndex++;
+					SpEdgeMesh* _edge = sp_mem_new(SpEdgeMesh(this, existEdge, vertexIndex3, vertexIndex1, *face));
+					edges->add(_edge);
+					face->edgesIndexes[2] = existEdge;
+				}
+				else
+				{
+					edges->data()[existEdge]->addFace(*face);
+					face->edgesIndexes[2] = existEdge;
+				}
+			}
+			else
+			{
+				edges->data()[existEdge]->addFace(*face);
+				face->edgesIndexes[2] = existEdge;
+			}
+		}
+
+		// fill edges with fixed length
+		for (sp_uint i = 0; i < vertexLength(); i++)
+		{
+			SpVertexMesh* vm = vertexesMesh->data()[i];
+			vm->_edgeVertexIndex = sp_mem_new(SpArray<sp_uint>)(mapVertexEdge[i][0]);
+
+			for (sp_uint j = 0; j < mapVertexEdge[i][0]; j++)
+				vm->_edgeVertexIndex->add(mapVertexEdge[i][j + 1]);
+		}
+
+		for (sp_uint i = 0; i < edges->length(); i++)
+			edges->data()[i]->fillAttributes();
+	}
+	
+	SpVertexMesh* SpMesh::findExtremeVertex(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const
+	{
+		const Plane3D plane(transform.position, orientation);
+
+		Vec3 newVertexPosition;
+		vertex(from->index(), transform, &newVertexPosition);
+
+		const sp_float distance = plane.distance(newVertexPosition);
+
+		for (sp_uint i = 0; i < from->edgeVertexIndexLength(); i++)
+		{
+			const sp_uint newIndex = from->edgeVertexIndex(i);
+
+			Vec3 vertexPosition2;
+			vertex(newIndex, transform, &vertexPosition2);
+
+			const sp_float newDistance = plane.distance(vertexPosition2);
+
+			if (newDistance > distance)
+				return findExtremeVertex(vertexesMesh->get(newIndex), orientation, transform);
+		}
+
+		return from;
+	}
+
+	sp_bool SpMesh::containsEdge(sp_uint* edge, sp_uint* vertexesIndexes, sp_uint* length) const
+	{
+		for (sp_uint i = 0; i < *length; i++)
+			if (
+				(vertexesIndexes[multiplyBy2(i)] == edge[0] && vertexesIndexes[multiplyBy2(i) + 1u] == edge[1]) ||
+				(vertexesIndexes[multiplyBy2(i)] == edge[1] && vertexesIndexes[multiplyBy2(i) + 1u] == edge[0]))
+				return true;
+
+		return false;
+	}
+
+	sp_bool SpMesh::isInside(const SpMesh* mesh2, const SpTransform& transformObj1, const SpTransform& transformObj2) const
+	{
+		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
+	
+		for (sp_uint i = 0; i < mesh2->vertexLength(); i++)
 		{
 			Vec3 vertex;
-			transformObj1->transform(verts[i], &vertex);
+			mesh2->vertex(i, transformObj1, &vertex);
 
-			for (sp_uint j = 0; j < mesh2->facesIndexes->length(); j++)
+			for (sp_uint j = 0; j < mesh2->faces->length(); j++)
 			{
-				Vec3 p1, p2, p3;
-				transformObj2->transform(vertsObj2[facesObj2[j].x], &p1);
-				transformObj2->transform(vertsObj2[facesObj2[j].y], &p2);
-				transformObj2->transform(vertsObj2[facesObj2[j].z], &p3);
-
-				const Plane3D face(p1, p2, p3);
+				Plane3D face;
+				allFacesObj2[j]->convert(&face, transformObj2);
 
 				if ( ! face.isBackFace(vertex) )
 					return false;
@@ -30,142 +251,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		return true;
-	}
-
-	Vec3 SpVertexEdges::vertex() const
-	{
-		return mesh->vertexes->data()[_vertexIndex];
-	}
-
-	sp_bool SpVertexEdges::isBoundaryEdge(const SpVertexEdges* point2) const
-	{
-		SpPoint3<sp_uint> tempFaces[2];
-		sp_uint tempFacesLength = ZERO_UINT;
-		facesWith(point2, tempFaces, &tempFacesLength);
-
-		if (tempFacesLength == ONE_UINT)
-			return false;
-
-		Vec3* verts = mesh->vertexes->data();
-
-		Triangle3D face1(
-			verts[tempFaces[0].x],
-			verts[tempFaces[0].y],
-			verts[tempFaces[0].z]
-		);
-
-		Triangle3D face2(
-			verts[tempFaces[1].x],
-			verts[tempFaces[1].y],
-			verts[tempFaces[1].z]
-		);
-
-		Vec3 normalFace1, normalFace2;
-		face1.normal(&normalFace1);
-		face2.normal(&normalFace2);
-
-		return normalFace1.abs() != normalFace2.abs();
-	}
-
-	SpVertexEdges* SpVertexEdges::find(const Vec3& vertex, const SpTransform* transform, sp_uint* visitedVertexes, sp_uint* visitedVertexesLength)
-	{
-		Vec3 value;
-		if (transform == nullptr)
-			value = mesh->vertexes->data()[_vertexIndex];
-		else
-			transform->transform(mesh->vertexes->data()[_vertexIndex], &value);
-
-		if (value == vertex)
-			return this;
-
-		for (SpVectorItem<SpVertexEdges*>* item = _edges->begin(); item != nullptr; item = item->next())
-		{
-			for (sp_uint i = 0u; i < *visitedVertexesLength; i++)
-				if (item->value()->_vertexIndex == visitedVertexes[i])
-					continue;
-
-			SpVertexEdges* _elementFound = item->value()->find(vertex, transform, visitedVertexes, visitedVertexesLength);
-
-			if (_elementFound != nullptr)
-				return _elementFound;
-
-			visitedVertexes[*visitedVertexesLength] = item->value()->_vertexIndex;
-			visitedVertexesLength[0] += ONE_UINT;
-		}
-
-		return nullptr;
-	}
-
-	void SpVertexEdges::facesWith(const SpVertexEdges* edge, SpPoint3<sp_uint>* output, sp_uint* outputLength) const
-	{
-		for (SpVectorItem<SpVertexEdges*>* item = edge->_edges->begin(); item != nullptr; item = item->next())
-		{
-			for (SpVectorItem<SpVertexEdges*>* item2 = item->value()->_edges->begin(); item2 != nullptr; item2 = item2->next())
-			{
-				if (item2->value()->_vertexIndex == _vertexIndex)
-				{
-					output[*outputLength] = SpPoint3<sp_uint>(_vertexIndex, edge->_vertexIndex, item->value()->_vertexIndex);
-					outputLength[0] += ONE_UINT;
-				}
-			}
-		}
-	}
-
-	void SpVertexEdges::facesWith(const Vec3& value, SpPoint3<sp_uint>* output, sp_uint* outputLength) const
-	{
-		SpVertexEdges* firstEdge = findNeighbor(value);
-		facesWith(firstEdge, output, outputLength);
-	}
-
-	SpVertexEdges* SpVertexEdges::findNeighbor(const Vec3& value) const
-	{
-		for (SpVectorItem<SpVertexEdges*>* item = _edges->begin(); item != nullptr; item = item->next())
-			if (item->value() != value)
-				return item->value();
-
-		return nullptr;
-	}
-
-	void SpVertexEdges::findParallelVertexes(const Plane3D& plane, const SpTransform& meshTransform, SpVertexEdges** vertexesOutput,
-		sp_uint* vertexOutputLength, sp_uint ignoreVertexIndex,
-		sp_float _epsilon) const
-	{
-		Vec3* vertexes = mesh->vertexes->data();
-		Vec3 currentVertex = vertexes[_vertexIndex];
-		meshTransform.transform(currentVertex, &currentVertex);
-
-		const sp_float currentDistance = plane.distance(currentVertex);
-
-		for (SpVectorItem<SpVertexEdges*>* item = _edges->begin(); item != nullptr; item = item->next())
-		{
-			if (ignoreVertexIndex == item->value()->_vertexIndex)
-				continue;
-
-			Vec3 newVertex = vertexes[item->value()->_vertexIndex];
-			meshTransform.transform(newVertex, &newVertex);
-
-			// check if this vertex is parallel to currentVertex, given a plane
-			if (isCloseEnough(plane.distance(newVertex), currentDistance, _epsilon))
-			{
-				sp_bool vertexFound = false;
-
-				// check if vertex was already added...
-				for (sp_uint i = 0; i < *vertexOutputLength; i++)
-					if (vertexesOutput[i]->_vertexIndex == item->value()->_vertexIndex)
-					{
-						vertexFound = true;
-						break;
-					}
-
-				if (!vertexFound)
-				{
-					vertexesOutput[*vertexOutputLength] = item->value();
-					*vertexOutputLength = vertexOutputLength[0] + 1u;
-
-					item->value()->findParallelVertexes(plane, meshTransform, vertexesOutput, vertexOutputLength, _vertexIndex, _epsilon);
-				}
-			}
-		}
 	}
 
 }

@@ -100,6 +100,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void intersection(const Plane3D& plane, Line3D* line) const;
 		
 		/// <summary>
+		/// Find the plane intersection
+		/// </summary>
+		/// <param name="plane">Second plane</param>
+		/// <param name="ray">Ray as output</param>
+		/// <returns>void</returns>
+		API_INTERFACE void intersection(const Plane3D& plane, Ray* ray) const;
+
+		/// <summary>
 		/// Get the angle of two planes
 		/// </summary>
 		API_INTERFACE sp_float angle(const Plane3D& plane) const;
@@ -132,7 +140,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isParallel(const Plane3D& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
-			return normalVector.cross(plane.normalVector).isCloseEnough(Vec3(), _epsilon);
+			return normalVector.cross(plane.normalVector).isCloseEnough(ZERO_FLOAT, _epsilon);
 		}
 
 		/// <summary>
@@ -157,6 +165,14 @@ namespace NAMESPACE_PHYSICS
 		{
 			return distance(point) < ZERO_FLOAT;
 		}
+
+		/// <summary>
+		/// Project the target on the plane
+		/// </summary>
+		/// <param name="target">Point to be projected</param>
+		/// <param name="output">Projected point</param>
+		/// <returns>void</returns>
+		API_INTERFACE void project(const Vec3& target, Vec3* output) const;
 
 	};
 

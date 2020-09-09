@@ -17,6 +17,8 @@
 #include "SpCollisionFeatures.h"
 #include "SpCollisionDetector.h"
 #include "SpGpuRenderingFactory.h"
+#include "SpCollisionResponse.h"
+#include "SpPhysicIntegrator.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -36,7 +38,6 @@ namespace NAMESPACE_PHYSICS
 		SpTransform* _transforms;
 		SpCollisionFeatures* _collisionFeatures;
 		SpArray<SpMesh*>* _meshes;
-
 
 		cl_event lastEvent;
 		cl_mem _transformsGPU;
@@ -63,11 +64,6 @@ namespace NAMESPACE_PHYSICS
 
 		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
-		void handleCollisionResponse(SpCollisionDetails* details);
-		void handleCollisionResponseWithStatic(SpCollisionDetails* details, SpPhysicProperties* objProperties, const Vec3& center);
-
-		void handleCollisionResponseOLD(SpCollisionDetails* details);
-
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpu(SweepAndPruneResult* result);
 		void findCollisionsGpuOLD(SweepAndPruneResult* result);
@@ -93,6 +89,7 @@ namespace NAMESPACE_PHYSICS
 
 		
 	public:
+		SpPhysicIntegrator* integrator;
 
 		API_INTERFACE static SpPhysicSimulator* instance();
 
@@ -174,120 +171,6 @@ namespace NAMESPACE_PHYSICS
 			return _transformsGPUBuffer;
 		}
 
-		API_INTERFACE static void integrateEuler(const sp_uint index, sp_float elapsedTime)
-		{
-			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-
-			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
-			sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-			sp_assert(index < simulator->_objectsLength, "IndexOutOfRangeException");
-
-			SpPhysicSettings* settings = SpPhysicSettings::instance();
-			SpPhysicProperties* element = &simulator->_physicProperties[index];
-
-			elapsedTime = elapsedTime * settings->physicVelocity();
-
-			const Vec3 newAcceleration = element->force() * element->massInverse();
-			const Vec3 newVelocity = (element->velocity() +  newAcceleration * elapsedTime)
-											* element->damping();
-			const Vec3 newPosition = element->position() + newVelocity * elapsedTime;
-
-			const Vec3 newAngularAcceleration = element->inertialTensorInverse() * element->torque();
-			const Vec3 newAngularVelocity = (element->angularVelocity() + newAngularAcceleration * elapsedTime)
-											* element->angularDamping();
-			const Quat newOrientation = element->orientation() + Quat(0.0f, newAngularVelocity * elapsedTime);
-
-
-			const Vec3 translation = newPosition - element->position();
-			simulator->translate(index, translation);
-			simulator->_transforms[index].orientation = newOrientation;
-
-			element->_previousAcceleration = element->acceleration();
-			element->_acceleration = newAcceleration;
-
-			element->_previousVelocity = element->velocity();
-			element->_velocity = newVelocity;
-
-			element->_previousPosition = element->position();
-			element->_position = newPosition;
-
-			element->_previousForce = element->force();
-			element->_force = ZERO_FLOAT;
-
-			element->_previousAngularVelocity = element->angularVelocity();
-			element->_angularVelocity = newAngularVelocity;
-
-			element->_previousOrientation = element->orientation();
-			element->_orientation = newOrientation;
-
-			element->_previousTorque = element->torque();
-			element->_torque = ZERO_FLOAT;
-		}
-
-		API_INTERFACE static void integrateVelocityVerlet(const sp_uint index, sp_float elapsedTime)
-		{
-			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-
-			sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
-			sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-			sp_assert(index < simulator->_objectsLength, "IndexOutOfRangeException");
-
-			SpPhysicSettings* settings = SpPhysicSettings::instance();
-			SpPhysicProperties* element = &simulator->_physicProperties[index];
-
-			elapsedTime = elapsedTime * settings->physicVelocity();
-
-			// Velocity Verlet Integration because regards the velocity
-			const Vec3 newPosition = element->position()
-				+ element->velocity() * elapsedTime
-				+ element->acceleration() * (elapsedTime * elapsedTime * HALF_FLOAT);
-
-			const Vec3 newAcceleration = element->force() * element->massInverse();
-
-			Vec3 newVelocity = element->velocity()
-				+ ((element->acceleration() + newAcceleration) * elapsedTime * HALF_FLOAT);
-			newVelocity *= element->damping();
-
-			const Quat newAngularAcceleration = Quat(0.0f, element->inertialTensorInverse() * element->torque());
-			
-			Vec3 newAngularVelocity = element->angularVelocity()
-				+ ((element->torque() + newAngularAcceleration) * elapsedTime * HALF_FLOAT);
-			newAngularVelocity *= element->angularDamping();
-
-			Quat newOrientation = element->orientation() + Quat(0.0f,
-				element->angularVelocity() * elapsedTime
-				+ element->torque() * (elapsedTime * elapsedTime * HALF_FLOAT)
-			);
-
-			element->_orientation = newOrientation.normalize();
-
-			const Vec3 translation = newPosition - element->position();
-			simulator->translate(index, translation);
-			simulator->_transforms[index].orientation = element->orientation();
-
-
-			element->_previousAcceleration = element->acceleration();
-			element->_acceleration = newAcceleration;
-
-			element->_previousVelocity = element->velocity();
-			element->_velocity = newVelocity;
-
-			element->_previousPosition = element->position();
-			element->_position = newPosition;
-
-			element->_previousForce = element->force();
-			element->_force = ZERO_FLOAT;
-
-			element->_previousTorque = element->torque();
-			element->_torque = newAngularAcceleration;
-		}
-
-		API_INTERFACE static void integrate(const sp_uint index, sp_float elapsedTime)
-		{
-			//integrateEuler(index, elapsedTime);
-			integrateVelocityVerlet(index, elapsedTime);
-		}
-
 		/// <summary>
 		/// Back the object to the state before timestep
 		/// </summary>
@@ -296,12 +179,14 @@ namespace NAMESPACE_PHYSICS
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 			SpPhysicProperties* element = &simulator->_physicProperties[index];
 
-			const Vec3 translation = element->previousPosition() - element->position();
-
-			simulator->translate(index, translation);
-			simulator->transforms(index)->orientation = element->previousOrientation();
+			const Vec3 translation = element->previousState.position() - element->currentState.position();
 
 			element->rollbackState();
+			
+			simulator->_transforms[index].position = element->currentState.position();
+			simulator->_transforms[index].orientation = element->currentState.orientation();
+		
+			simulator->_boundingVolumes[index].translate(translation);
 		}
 
 		API_INTERFACE void translate(const sp_uint index, const Vec3& translation) 
@@ -313,7 +198,7 @@ namespace NAMESPACE_PHYSICS
 
 			_boundingVolumes[index].translate(translation);
 			_transforms[index].translate(translation);
-			_physicProperties[index].translate(translation);
+			_physicProperties[index].currentState.translate(translation);
 		}
 
 		API_INTERFACE void scale(const sp_uint index, const Vec3& scaleVector)
@@ -325,6 +210,42 @@ namespace NAMESPACE_PHYSICS
 
 			_boundingVolumes[index].scale(scaleVector);
 			_transforms[index].scale(scaleVector);
+		}
+
+		API_INTERFACE void rotate(const sp_uint index, const Quat& quat)
+		{
+			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
+			sp_assert(_transforms != nullptr, "InvalidOperationException");
+			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
+
+			_transforms[index].orientation *= quat;
+			_physicProperties[index].currentState.orientation(_transforms[index].orientation);
+		}
+
+		API_INTERFACE void position(const sp_uint index, const Vec3& newPosition)
+		{
+			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
+			sp_assert(_transforms != nullptr, "InvalidOperationException");
+			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
+
+			Vec3 diff = _transforms[index].position - newPosition;
+
+			_boundingVolumes[index].translate(diff);
+			_transforms[index].position = newPosition;
+			_physicProperties[index].currentState.position(newPosition);
+		}
+
+		API_INTERFACE void orientation(const sp_uint index, const Quat& newOrientation)
+		{
+			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
+			sp_assert(_transforms != nullptr, "InvalidOperationException");
+			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
+
+			_transforms[index].orientation = newOrientation;
+			_physicProperties[index].currentState.orientation(newOrientation);
 		}
 
 		API_INTERFACE void run();

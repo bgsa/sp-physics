@@ -10,6 +10,16 @@
 
 using namespace NAMESPACE_PHYSICS;
 
+namespace NAMESPACE_PHYSICS_TEST
+{
+	class TestPhysic
+	{
+	public:
+		API_INTERFACE static void lock();
+		API_INTERFACE static void unlock();
+	};
+}
+
 #ifdef MSTEST_ENABLED
 
 	namespace Microsoft

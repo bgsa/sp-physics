@@ -216,10 +216,14 @@
     <ClCompile Include="src\Quat.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\SpCollisionDetector.cpp" />
+    <ClCompile Include="src\SpCollisionResponse.cpp" />
+    <ClCompile Include="src\SpFaceMesh.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpMesh.cpp" />
+    <ClCompile Include="src\SpPhysicIntegrator.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
-    <ClCompile Include="src\SpVertexEdges.cpp" />
+    <ClCompile Include="src\SpVertexMesh.cpp" />
+    <ClCompile Include="src\SpEdgeMesh.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
     <ClCompile Include="src\SystemOfLinearEquations.cpp" />
     <ClCompile Include="src\Triangle2D.cpp" />
@@ -274,7 +278,9 @@
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
     <ClInclude Include="src\SpCollisionFeatures.h" />
+    <ClInclude Include="src\SpCollisionResponse.h" />
     <ClInclude Include="src\SpCollisionResponseGPU.h" />
+    <ClInclude Include="src\SpFaceMesh.h" />
     <ClInclude Include="src\SpMesh.h" />
     <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />
@@ -289,6 +295,7 @@
     <ClInclude Include="src\SpGpuTextureBuffer.h" />
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\SpInertiaTensor.h" />
+    <ClInclude Include="src\SpPhysicIntegrator.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
     <ClInclude Include="src\SpPhysicObjectList.h" />
     <ClInclude Include="src\SpPhysicProperties.h" />
@@ -296,6 +303,8 @@
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />
     <ClInclude Include="src\SpTransform.h" />
+    <ClInclude Include="src\SpVertexMesh.h" />
+    <ClInclude Include="src\SpEdgeMesh.h" />
     <ClInclude Include="src\SweepAndPrune.h" />
     <ClInclude Include="src\SystemOfLinearEquations.h" />
     <ClInclude Include="src\Triangle2D.h" />

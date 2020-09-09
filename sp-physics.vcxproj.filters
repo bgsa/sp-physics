@@ -2592,9 +2592,6 @@
     <ClCompile Include="src\SweepAndPrune.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SweepAndPruneKdop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SystemOfLinearEquations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -3063,9 +3060,6 @@
     <ClCompile Include="src\SweepAndPrune.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SweepAndPruneKdop.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Triangle2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -3105,10 +3099,22 @@
     <ClCompile Include="src\SpMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SpVertexEdges.cpp">
+    <ClCompile Include="src\SpCollisionDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SpCollisionDetector.cpp">
+    <ClCompile Include="src\SpVertexMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpFaceMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpEdgeMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpCollisionResponse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpPhysicIntegrator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -6359,9 +6365,6 @@
     <ClInclude Include="src\SweepAndPrune.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SweepAndPruneKdop.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SystemOfLinearEquations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6453,6 +6456,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpCollisionDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpVertexMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpEdgeMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpFaceMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpCollisionResponse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpPhysicIntegrator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -87,6 +87,14 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>True if they are penpendicular or else false</returns>
 		API_INTERFACE sp_bool isPerpendicular(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const;
 
+		/// <summary>
+		/// Check if this line is perpendicular with a normal vector
+		/// </summary>
+		/// <param name="direction">Normal vector</param>
+		/// <param name="_epsilon">Error Margin</param>
+		/// <returns>True if they are penpendicular or else false</returns>
+		API_INTERFACE sp_bool isPerpendicular(const Vec3& direction, const sp_float _epsilon = DefaultErrorMargin) const;
+
 		///<summary>
 		/// Check the ray has intersection with the sphere
 		///</summary>
@@ -95,8 +103,8 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Find intersection of line against another one
 		///</summary>
-		API_INTERFACE void intersection(const Line3D& line2, Vec3* point, const sp_float _epsilon = DefaultErrorMargin) const;
-
+		API_INTERFACE sp_bool intersection(const Line3D& line2, Vec3* point, const sp_float _epsilon = DefaultErrorMargin) const;
+		
 		/// <summary>
 		/// Find intersection of line against triangle
 		/// </summary>
@@ -104,7 +112,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="point">Intersection point</param>
 		/// <param name="hasIntersection">True if has intersection or else False</param>
 		/// <returns>void</returns>
-		API_INTERFACE void intersection(const Triangle3D& triangle, Vec3* point, sp_bool* hasIntersection) const;
+		API_INTERFACE sp_bool intersection(const Triangle3D& triangle, Vec3* point) const;
 
 		///<summary>
 		/// Find intersection of line against a phere
@@ -148,6 +156,8 @@ namespace NAMESPACE_PHYSICS
 		{
 			output[0] = (point2 - point1).cross(otherLine.point2 - otherLine.point1);
 		}
+
+		API_INTERFACE void closestPoint(const Line3D& other, Vec3* closestPointOnLine1, Vec3* closestPointOnLine2, sp_float* squaredDistance) const;
 
 	};
 
