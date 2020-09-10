@@ -2,6 +2,7 @@
 #define SP_PHYSIC_INTEGRATOR_HEADER
 
 #include "SpectrumPhysics.h"
+#include "SpLogger.h"
 
 namespace NAMESPACE_PHYSICS
 {

@@ -87,31 +87,25 @@ namespace NAMESPACE_PHYSICS
 		if (details->ignoreCollision)
 			return;
 
-		/*
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		Vec3 pos = simulator->transforms(1u)->position;
 		std::cout << "collision: ";
 		pos.toString(std::cout);
 		std::cout << END_OF_LINE;
-		*/
 
-		//Timer t; t.start(); t.update();
+		Timer t; t.start(); t.update();
 		collisionDetector.collisionDetails(details);
 		
-		/*
 		std::cout << "TIME TO CHECK" << t.elapsedTime() << END_OF_LINE;
 		std::cout << "END COLLISION HANDLER" << END_OF_LINE;
-		*/
-
+		
 		if (details->ignoreCollision)
 		{
-			/*
 			Vec3 pos = simulator->transforms(1u)->position;
 			
 			std::cout << "IGNORANDO COLISAO! ";
 			pos.toString(std::cout);
 			std::cout << END_OF_LINE;
-			*/
 			return;
 		}
 

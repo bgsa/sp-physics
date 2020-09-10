@@ -48,15 +48,20 @@ namespace NAMESPACE_PHYSICS
 		simulator->transforms(index)->position = newPosition;
 		simulator->transforms(index)->orientation = newOrientation;
 
-		/*
 		if (index == 1u)
 		{
-			std::cout << "new position: ";
-			newPosition.toString(std::cout);
-			std::cout << "    integration: " << element->integratedTime() << "   -   " << elapsedTime;
-			std::cout << END_OF_LINE;
+			Vec3 pos = element->currentState.position();
+
+			sp_log_info1s("old position: ");
+			sp_log_info3f(pos.x, pos.y, pos.z);
+			sp_log_info1s(" new position: ");
+			sp_log_info3f(newPosition.x, newPosition.y, newPosition.z);
+			sp_log_info1s(" integration: ");
+			sp_log_info1f(element->integratedTime());
+			sp_log_info1s("  -  ");
+			sp_log_info1f(elapsedTime);
+			sp_log_newline();
 		}
-		*/
 
 		// update physic properties state
 		element->previousState._acceleration = element->currentState.acceleration();
