@@ -112,15 +112,6 @@ namespace NAMESPACE_PHYSICS
 			z -= vector.z
 			);
 	}
-
-	Vec3 Vec3::multiply(const Vec3& vector) const
-	{
-		return Vec3(
-			x * vector.x,
-			y * vector.y,
-			z * vector.z
-			);
-	}
 	
 	void Vec3::scale(sp_float scale)
 	{
@@ -189,67 +180,14 @@ namespace NAMESPACE_PHYSICS
 			);
 	}
 
-	sp_float Vec3::dot(const Vec3& vector) const
-	{
-		return x * vector.x + y * vector.y + z * vector.z;
-	}
-
 	sp_float Vec3::angle(const Vec3& vectorB) const
 	{
 		return dot(vectorB) / (length() * vectorB.length());
 	}
 
-	Vec3 Vec3::normalize() const
-	{
-		//sp_assert(length() != T(0));   // avoid division by zero
-		const sp_float len = length();
-
-		if (len == 0.0f)
-			return Vec3(0.0f);
-
-		const sp_float vectorLengthInverted = 1.0f / len;
-
-		return Vec3 {
-			x * vectorLengthInverted,
-			y * vectorLengthInverted,
-			z * vectorLengthInverted
-		};
-	}
-
-	sp_float Vec3::squaredDistance(const Vec3& vector) const
-	{
-		return
-			((x - vector.x) * (x - vector.x)) +
-			((y - vector.y) * (y - vector.y)) +
-			((z - vector.z) * (z - vector.z));
-	}
-	
-	sp_float Vec3::distance(const Vec3& vector) const
-	{
-		return std::sqrtf(
-			((x - vector.x) * (x - vector.x)) +
-			((y - vector.y) * (y - vector.y)) +
-			((z - vector.z) * (z - vector.z))
-		);
-	}
-	
 	sp_float Vec3::signedDistance(const Vec3& point) const
 	{
 		return (*this - point).dot(point);
-	}
-
-	Vec3 Vec3::fractional()
-	{
-		return Vec3 {
-			x - floorf(x),
-			y - floorf(y),
-			z - floorf(z)
-		};
-	}
-
-	Vec3 Vec3::clone()
-	{
-		return Vec3(x, y, z);
 	}
 
 	Vec3 Vec3::operator/(const sp_float value) const
@@ -290,7 +228,11 @@ namespace NAMESPACE_PHYSICS
 
 	Vec3 Vec3::operator*(const Vec3& vector) const
 	{
-		return multiply(vector);
+		return Vec3(
+			x * vector.x,
+			y * vector.y,
+			z * vector.z
+		);
 	}
 	
 	Vec3 Vec3::operator+(const Vec3& vector) const

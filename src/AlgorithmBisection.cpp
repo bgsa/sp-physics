@@ -2,18 +2,16 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	T AlgorithmBisection<T>::solve(T intervalA, T intervalB, T functor(T), int maxOfInteration)
+
+	sp_float AlgorithmBisection::solve(sp_float intervalA, sp_float intervalB, sp_float functor(sp_float), sp_int maxOfInteration)
 	{
-		const T closesTo = T(0);
-		
-		T midPoint = intervalA + ((intervalB - intervalA) * T(0.5));
-		T valueMidPoint = functor(midPoint);
-		T valueA = functor(intervalA);
+		sp_float midPoint = intervalA + ((intervalB - intervalA) * HALF_FLOAT);
+		sp_float valueMidPoint = functor(midPoint);
+		sp_float valueA = functor(intervalA);
 		
 		while (maxOfInteration != 0)
 		{
-			if (isCloseEnough(valueMidPoint, closesTo))
+			if (isCloseEnough(valueMidPoint, ZERO_FLOAT))
 				return midPoint;
 
 			if (sign(valueA) * sign(valueMidPoint) > 0)
@@ -24,26 +22,20 @@ namespace NAMESPACE_PHYSICS
 			else
 				intervalB = midPoint;
 
-			midPoint = intervalA + ((intervalB - intervalA) * T(0.5));
+			midPoint = intervalA + ((intervalB - intervalA) * HALF_FLOAT);
 			valueMidPoint = functor(midPoint);
 
 			maxOfInteration--;
 		}
 
-		return T(NAN);
+		return NAN;
 	}
 
-	template <typename T>
-	int AlgorithmBisection<T>::maxNumberOfIteration()
+	sp_int AlgorithmBisection::maxNumberOfIteration()
 	{
-		const double log2 = log10(2);
-		const double v = log10(DefaultErrorMargin);	
-		const int maxIteration = (int) ceil(-v / log2);
-
-		return maxIteration;
+		const sp_double log2 = log10(2);
+		const sp_double v = log10(DefaultErrorMargin);
+		
+		return (sp_int) ceil(-v / log2);
 	}
-
-	template class AlgorithmBisection<int>;
-	template class AlgorithmBisection<float>;
-	template class AlgorithmBisection<double>;
 }

@@ -391,16 +391,15 @@ namespace NAMESPACE_PHYSICS
 
 	void Line3D::closestPoint(const Line3D& other, Vec3* closestPointOnLine1, Vec3* closestPointOnLine2, sp_float* squaredDistance) const
 	{
-		Vec3 d1 = point2 - point1; // Direction vector of segment S1  
-		Vec3 d2 = other.point2 - other.point1; // Direction vector of segment S2  
-		Vec3 r = point1 - other.point1;
-		sp_float a = d1.dot(d1); // Squared length of segment S1, always nonnegative  
-		sp_float e = d2.dot(d2); // Squared length of segment S2, always nonnegative  
-		sp_float f = d2.dot(r);  // Check if either or both segments degenerate into points  
+		const Vec3 d1 = point2 - point1; // Direction vector of segment S1  
+		const Vec3 d2 = other.point2 - other.point1; // Direction vector of segment S2  
+		const Vec3 r = point1 - other.point1;
+		const sp_float a = d1.dot(d1); // Squared length of segment S1, always nonnegative  
+		const sp_float e = d2.dot(d2); // Squared length of segment S2, always nonnegative  
+		const sp_float f = d2.dot(r);  // Check if either or both segments degenerate into points  
 
 		sp_float s, t;
-		Vec3 c1, c2;
-
+		
 		if (a <= DefaultErrorMargin && e <= DefaultErrorMargin)
 		{
 			// Both segments degenerate into points
@@ -462,8 +461,8 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		c1 = point1 + d1 * s;
-		c2 = other.point1 + d2 * t;
+		const Vec3 c1 = point1 + d1 * s;
+		const Vec3 c2 = other.point1 + d2 * t;
 
 		closestPointOnLine1[0] = c1;
 		closestPointOnLine2[0] = c2;

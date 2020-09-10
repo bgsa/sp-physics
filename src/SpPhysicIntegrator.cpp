@@ -48,6 +48,7 @@ namespace NAMESPACE_PHYSICS
 		simulator->transforms(index)->position = newPosition;
 		simulator->transforms(index)->orientation = newOrientation;
 
+		/*
 		if (index == 1u)
 		{
 			std::cout << "new position: ";
@@ -55,6 +56,7 @@ namespace NAMESPACE_PHYSICS
 			std::cout << "    integration: " << element->integratedTime() << "   -   " << elapsedTime;
 			std::cout << END_OF_LINE;
 		}
+		*/
 
 		// update physic properties state
 		element->previousState._acceleration = element->currentState.acceleration();

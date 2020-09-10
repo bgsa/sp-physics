@@ -78,11 +78,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3 subtract(const Vec3& vector);
 
 		/// <summary>
-		/// Multiply each components from current vector to another one
-		/// </summary>
-		API_INTERFACE Vec3 multiply(const Vec3& vector) const;
-
-		/// <summary>
 		/// Scale the vector from a scalar => v * scalar
 		/// </summary>
 		API_INTERFACE void scale(sp_float scale);
@@ -139,7 +134,10 @@ namespace NAMESPACE_PHYSICS
 		/// Dot Product / Scalar Product - between two vectors: A . B
 		/// return u dot v
 		/// </summary>
-		API_INTERFACE sp_float dot(const Vec3& vector) const;
+		API_INTERFACE inline sp_float dot(const Vec3& vector) const
+		{
+			return x * vector.x + y * vector.y + z * vector.z;
+		}
 
 		/// <summary>
 		/// Get the andle in radians between the vectors
@@ -150,7 +148,20 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get a normalized vector
 		/// </summary>
-		API_INTERFACE Vec3 normalize() const;
+		API_INTERFACE inline Vec3 normalize() const
+		{
+			const sp_float len = length();
+
+			sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
+			
+			const sp_float vectorLengthInverted = ONE_FLOAT / len;
+
+			return Vec3{
+				x * vectorLengthInverted,
+				y * vectorLengthInverted,
+				z * vectorLengthInverted
+			};
+		}
 
 		/// <summary>
 		/// Check the orientation of 3 ordered vertexes (left, right or inline)
@@ -165,12 +176,25 @@ namespace NAMESPACE_PHYSICS
 		/// Compute the SQUARED distance from this vector/point to another one
 		/// The difference is the squared root is not applied on the result
 		/// </summary>
-		API_INTERFACE sp_float squaredDistance(const Vec3& vector) const;
+		API_INTERFACE inline sp_float squaredDistance(const Vec3& vector) const
+		{
+			return
+				((x - vector.x) * (x - vector.x)) +
+				((y - vector.y) * (y - vector.y)) +
+				((z - vector.z) * (z - vector.z));
+		}
 
 		/// <summary>
 		/// Calculate the distance (Euclidean) from this vector to another one
 		/// </summary>
-		API_INTERFACE sp_float distance(const Vec3& vector) const;
+		API_INTERFACE inline sp_float distance(const Vec3& vector) const
+		{
+			return std::sqrtf(
+				((x - vector.x) * (x - vector.x)) +
+				((y - vector.y) * (y - vector.y)) +
+				((z - vector.z) * (z - vector.z))
+			);
+		}
 
 		/// <summary>
 		/// Calculate the SIGNED distance (Euclidean) from this vector to another one
@@ -180,7 +204,14 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the fractionals values from the vector (component-wise)
 		/// <summary>
-		API_INTERFACE Vec3 fractional();
+		API_INTERFACE inline Vec3 fractional()
+		{
+			return Vec3{
+				x - floorf(x),
+				y - floorf(y),
+				z - floorf(z)
+			};
+		}
 
 		/// <summary>
 		/// Check if this vector is close to "compare" parameter, given _epsilon
@@ -198,9 +229,16 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Clone the vector to a new instance
+		/// Copy this vector to target
 		/// </summary>
-		API_INTERFACE Vec3 clone();
+		/// <param name="target">Vector to e copied</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void copy(Vec3* target)
+		{
+			target->x = x;
+			target->y = y;
+			target->z = z;
+		}
 
 		/// <summary>
 		/// Sum the value to vector
@@ -392,6 +430,19 @@ namespace NAMESPACE_PHYSICS
 
 	};
 
+	API_INTERFACE inline void sum(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	{
+		output->x = vec1.x + vec2.x;
+		output->y = vec1.y + vec2.y;
+		output->z = vec1.z + vec2.z;
+	}
+	API_INTERFACE inline void multiply(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	{
+		output->x = vec1.x * vec2.x;
+		output->y = vec1.y * vec2.y;
+		output->z = vec1.z * vec2.z;
+	}
+
 	/// <summary>
 	/// Normalize the vector
 	/// </summary>
@@ -399,12 +450,9 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>void</returns>
 	API_INTERFACE inline void normalize(Vec3* vector)
 	{
-		//sp_assert(length() != ZERO_FLOAT, "DivisionByZeroException");   // avoid division by zero
-
 		const sp_float len = vector->length();
 
-		if (len == ZERO_FLOAT)
-			vector[0] = Vec3(ZERO_FLOAT);
+		sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
 
 		const sp_float vectorLengthInverted = ONE_FLOAT / len;
 
@@ -440,7 +488,7 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	/// <summary>
-	/// Build normal vector from three ordered vertexes
+	/// Build normal vector from three ordered vertexes (right-hand rule)
 	/// </summary>
 	/// <param name="p1">Point 1</param>
 	/// <param name="p2">Point 2</param>
@@ -449,7 +497,7 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>void</returns>
 	API_INTERFACE inline void normal(const Vec3& p1, const Vec3& p2, const Vec3& p3, Vec3* output)
 	{
-		const Vec3 edge1 = p2 - p1;
+		const Vec3 edge1 = p2 - p1; // right-hand rule (B-A)x(C-A)
 		const Vec3 edge2 = p3 - p2;
 
 		cross(edge2, edge1, output);

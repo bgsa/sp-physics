@@ -13,7 +13,7 @@ namespace NAMESPACE_PHYSICS
 	void SpMesh::vertex(const sp_uint index, const SpTransform& transform, Vec3* output) const
 	{
 		sp_assert(index < vertexesMesh->length(), "IndexOutOfRangeException");
-		transform.transform(vertexesMesh->data()[index]->_value, output);
+		transform.transform(vertexesMesh->get(index)->_value, output);
 	}
 
 	sp_uint SpMesh::vertexLength() const
@@ -191,8 +191,11 @@ namespace NAMESPACE_PHYSICS
 				vm->_edgeVertexIndex->add(mapVertexEdge[i][j + 1]);
 		}
 
+		for (sp_uint i = 0; i < faces->length(); i++)
+			faces->get(i)->fillAttributes();
+
 		for (sp_uint i = 0; i < edges->length(); i++)
-			edges->data()[i]->fillAttributes();
+			edges->get(i)->fillAttributes();
 	}
 	
 	SpVertexMesh* SpMesh::findExtremeVertex(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const
@@ -234,13 +237,14 @@ namespace NAMESPACE_PHYSICS
 	sp_bool SpMesh::isInside(const SpMesh* mesh2, const SpTransform& transformObj1, const SpTransform& transformObj2) const
 	{
 		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
-	
-		for (sp_uint i = 0; i < mesh2->vertexLength(); i++)
+		const sp_uint facesLengthObj2 = mesh2->faces->length();
+
+		for (sp_uint i = 0; i < vertexLength(); i++)
 		{
 			Vec3 vertex;
-			mesh2->vertex(i, transformObj1, &vertex);
+			this->vertex(i, transformObj1, &vertex);
 
-			for (sp_uint j = 0; j < mesh2->faces->length(); j++)
+			for (sp_uint j = 0; j < facesLengthObj2; j++)
 			{
 				Plane3D face;
 				allFacesObj2[j]->convert(&face, transformObj2);

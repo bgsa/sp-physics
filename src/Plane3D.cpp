@@ -7,12 +7,14 @@ namespace NAMESPACE_PHYSICS
 	{
 		point = point1;
 		normal(point1, point2, point3, &normalVector);
+		this->distanceFromOrigin = normalVector.dot(point);
 	}
 
 	Plane3D::Plane3D(const Triangle3D& triangle)
 	{
 		point = triangle.point1;
 		triangle.normalFace(&normalVector);
+		this->distanceFromOrigin = normalVector.dot(point);
 	}
 
 	Plane3D::Plane3D(sp_float a, sp_float b, sp_float c, sp_float d)
@@ -24,6 +26,7 @@ namespace NAMESPACE_PHYSICS
 			);
 
 		normalVector = Vec3(a, b, c).normalize();
+		this->distanceFromOrigin = normalVector.dot(point);
 	}
 
 	void Plane3D::intersection(const Line3D& line, Vec3* contactPoint) const
@@ -80,12 +83,13 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Plane3D::distance(const Vec3& target) const
 	{
-		Vec3 rayToTarget = target - point;
-
-		sp_float numerator = normalVector.dot(rayToTarget);
+		/*
+		sp_float numerator = normalVector.dot(target - point);
 		sp_float length = normalVector.length();
 
 		return numerator / length;
+		*/
+		return (normalVector.dot(target) - distanceFromOrigin) / normalVector.dot(normalVector);
 	}
 
 	sp_float Plane3D::distance(const Plane3D& plane) const

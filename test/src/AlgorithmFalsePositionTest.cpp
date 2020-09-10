@@ -14,13 +14,13 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(AlgorithmFalsePosition_solve_Test);
+		SP_TEST_METHOD_DEF(solve);
 
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, AlgorithmFalsePosition_solve_Test)
+	SP_TEST_METHOD(CLASS_NAME, solve)
 	{
-		AlgorithmFalsePosition<float> algorithm;
+		AlgorithmFalsePosition algorithm;
 		float result = algorithm.solve(0.5f, float(PI/4.0f), funcFalsePosition);
 
 		Assert::IsTrue(isCloseEnough(result, 0.7390f), L"Wrong value.", LINE_INFO());

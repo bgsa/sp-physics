@@ -12,11 +12,8 @@ namespace NAMESPACE_PHYSICS
 			_isBoundaryEdge = true;
 		else
 		{
-			Vec3 firstNormalFace;
-			allFaces[faces[0]]->normalVector(&firstNormalFace);
-
-			Vec3 secondNormalFace;
-			allFaces[faces[1]]->normalVector(&secondNormalFace);
+			const Vec3 firstNormalFace = allFaces[faces[0]]->faceNormal;
+			const Vec3 secondNormalFace = allFaces[faces[1]]->faceNormal;
 
 			_isBoundaryEdge = !firstNormalFace.isCloseEnough(secondNormalFace);
 		}

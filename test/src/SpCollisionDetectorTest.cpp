@@ -68,6 +68,10 @@ namespace NAMESPACE_PHYSICS_TEST
 			details.objIndex1 = ZERO_UINT;
 			details.objIndex2 = ONE_UINT;
 			details.timeStep = 30.0f;
+			details.type = SpCollisionType::None;
+			details.vertexIndexObj1 = SP_UINT_MAX;
+			details.vertexIndexObj2 = SP_UINT_MAX;
+			details.ignoreCollision = false;
 			
 			return details;
 		}
@@ -132,48 +136,49 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		simulator->translate(0u, Vec3(1.0f, 0.0f, 0.0f));
-		simulator->translate(1u, Vec3(0.0f, 0.0f, 0.0f));
+		Vec3 contactPoint;
+		sp_bool searchOnObj1;
 
 		details = newCollisionDetails();
-		CollisionStatus result = collisionDetector.collisionStatus(&details);
+		simulator->translate(0u, Vec3(1.0f, 0.0f, 0.0f));
+		CollisionStatus result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
 
+		resetObject(0u);
 		details = newCollisionDetails();
-		simulator->translate(0u, Vec3(1.5f, 0.0f, 0.0f));
-		result = collisionDetector.collisionStatus(&details);
+		simulator->translate(0u, Vec3(2.5f, 0.0f, 0.0f));
+		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &details);
 		Assert::IsTrue(result == CollisionStatus::OUTSIDE, L"Wrong value.", LINE_INFO());
 
+		resetObject(0u);
 		details = newCollisionDetails();
 		simulator->translate(0u, Vec3(-1.5f, 2.0f, 0.0f));
-		result = collisionDetector.collisionStatus(&details);
+		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
 
+		resetObject(0u);
 		details = newCollisionDetails();
-		simulator->translate(0u, Vec3(0.0f, 0.2f, 0.0f));
-		result = collisionDetector.collisionStatus(&details);
+		simulator->translate(0u, Vec3(0.0f, 2.2f, 0.0f));
+		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &details);
 		Assert::IsTrue(result == CollisionStatus::OUTSIDE, L"Wrong value.", LINE_INFO());
 
+		resetObject(0u);
 		details = newCollisionDetails();
-		simulator->translate(0u, Vec3(0.0f, -2.2f, 2.0f));
-		result = collisionDetector.collisionStatus(&details);
+		simulator->translate(0u, Vec3(0.0f, 0.0f, 2.0f));
+		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &details);
+		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
+
+		resetObject(0u);
+		details = newCollisionDetails();
+		simulator->translate(0u, Vec3(0.0f, 0.0f, 0.2f));
+		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
 
 		details = newCollisionDetails();
-		simulator->translate(0u, Vec3(0.0f, 0.0f, -0.2f));
-		result = collisionDetector.collisionStatus(&details);
-		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
-
-		details = newCollisionDetails();
-		simulator->translate(0u, Vec3(-1.0f, 0.0f, -1.8f));
+		resetObject(0u);
 		simulator->scale(0u, Vec3(0.2f, 0.2f, 0.2f));
-		simulator->translate(0u, Vec3(0.5f, 0.5f, 0.5f));
-		result = collisionDetector.collisionStatus(&details);
+		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
-
-		simulator->translate(0u, -simulator->transforms(0u)->position);
-		simulator->translate(1u, -simulator->transforms(1u)->position);
-		simulator->transforms(0u)->scaleVector = Vec3(1.0f);
 
 		TestPhysic::unlock();
 	}

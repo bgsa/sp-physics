@@ -12,61 +12,32 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Vec3_x_Test);
 		SP_TEST_METHOD_DEF(Vec3_y_Test);
 		SP_TEST_METHOD_DEF(Vec3_z_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_getValues_Test);
-		
 		SP_TEST_METHOD_DEF(Vec3_length_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_abs_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_squared_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_add_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_subtract_Test);
-
-		SP_TEST_METHOD_DEF(Vec3_multiplyVector_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_scale_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_cross_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_dot_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_tripleProduct_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_angle_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_normalize_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_distance_Test);
-
-		SP_TEST_METHOD_DEF(Vec3_clone_Test);
-
+		SP_TEST_METHOD_DEF(copy);
 		SP_TEST_METHOD_DEF(Vec3_operatorMultiplyScalar_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorMultiplyVector_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorPlusVector_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorPlusScalar_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorMinus_vector_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorMinus_prefix_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorMinusScalar_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorEqualVector_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorEqualScalar_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorNotEqual_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorIndex_Test);
-
 		SP_TEST_METHOD_DEF(Vec3_operatorDireferent_value_Test);
-
 	};
 
 
@@ -164,18 +135,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_multiplyVector_Test)
-	{
-		Vec3 vector = { 2.0f, 3.0f, 4.0f };
-		Vec3 vector2 = { 5.0f, 6.0f, -7.0f };
-		Vec3 expected = { 10.0f, 18.0f, -28.0f };
-
-		Vec3 result = vector.multiply(vector2);
-
-		for (int i = 0; i < VEC3_LENGTH; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
-	}
-
 	SP_TEST_METHOD(CLASS_NAME, Vec3_scale_Test)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
@@ -256,11 +215,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected, result, L"Value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_clone_Test)
+	SP_TEST_METHOD(CLASS_NAME, copy)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
-
-		Vec3 result = vector.clone();
+		Vec3 result;
+		vector.copy(&result);
 
 		for (int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(vector[i], result[i], L"Wrong value", LINE_INFO());

@@ -34,6 +34,8 @@ namespace NAMESPACE_PHYSICS
 
 	Quat Quat::createRotate(sp_float angle, const Vec3& axis)
 	{
+		sp_assert(axis <= ONE_FLOAT, "InvalidArgumentException");
+
 		sp_float halfAngle = angle * HALF_FLOAT;
 		sp_float sinHalfAngle = sinf(halfAngle);
 		sp_float cosineHalfAngle = cosf(halfAngle);
@@ -44,11 +46,6 @@ namespace NAMESPACE_PHYSICS
 			sinHalfAngle * axis.y,
 			sinHalfAngle * axis.z
 		);
-	}
-
-	Vec3 Quat::rotate(const Vec3& point) const
-	{
-		return (conjugate() * (Quat(point) * (*this))).toVec3();
 	}
 
 	Quat Quat::slerp(const Quat& quatB, sp_float t) const
@@ -320,6 +317,53 @@ namespace NAMESPACE_PHYSICS
 	Quat::operator Vec3() const
 	{
 		return Vec3(x, y, z);
+	}
+
+	Vec3 Quat::rotate(const Vec3& point) const
+	{
+		return (conjugate() * (Quat(point) * (*this))).toVec3();
+	}
+
+	void multiply(const Vec3& vector, const Quat& quat, Quat* output)
+	{
+		output->w = quat.w - (vector.x * quat.x) - (vector.y * quat.y) - (vector.z * quat.z);
+		output->x = quat.x + (vector.x * quat.w) - (vector.y * quat.z) + (vector.z * quat.y);
+		output->y = quat.y + (vector.x * quat.z) + (vector.y * quat.w) - (vector.z * quat.x);
+		output->z = quat.z - (vector.x * quat.y) + (vector.y * quat.x) + (vector.z * quat.w);
+	}
+	void multiply(const Quat& quat1, const Quat& quat2, Vec3* output)
+	{
+		output->x = (quat1.w * quat2.x) + (quat1.x * quat2.w) - (quat1.y * quat2.z) + (quat1.z * quat2.y);
+		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x);
+		output->z = (quat1.w * quat2.z) - (quat1.x * quat2.y) + (quat1.y * quat2.x) + (quat1.z * quat2.w);
+	}
+	void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3 sumVector, Vec3* output)
+	{
+		output->x = (quat1.w * quat2.x) + (quat1.x * quat2.w) - (quat1.y * quat2.z) + (quat1.z * quat2.y) + sumVector.x;
+		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x) + sumVector.y;
+		output->z = (quat1.w * quat2.z) - (quat1.x * quat2.y) + (quat1.y * quat2.x) + (quat1.z * quat2.w) + sumVector.z;
+	}
+
+	void rotate(const Quat& rotation, const Vec3& point, Vec3* output)
+	{
+		Quat conjugated;
+		conjugate(rotation, &conjugated);
+
+		Quat q1;
+		multiply(point, rotation, &q1);
+
+		multiply(conjugated, q1, output);
+	}
+
+	void rotateAndTranslate(const Quat& rotation, const Vec3& point, const Vec3& translation, Vec3* output)
+	{
+		Quat conjugated;
+		conjugate(rotation, &conjugated);
+
+		Quat q1;
+		multiply(point, rotation, &q1);
+
+		multiplyAndSum(conjugated, q1, translation, output);
 	}
 
 }

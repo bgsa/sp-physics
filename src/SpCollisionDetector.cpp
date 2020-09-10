@@ -73,19 +73,21 @@ namespace NAMESPACE_PHYSICS
 			details->ignoreCollision = true;
 	}
 
-	sp_bool SpCollisionDetector::findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, sp_uint* vertexIndexObj1, sp_uint* vertexIndexObj2, SpCollisionDetails* details)
+	sp_bool SpCollisionDetector::findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, sp_uint* vertexIndexObj1, Vec3* contactPoint, SpCollisionDetails* details)
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
 		SpEdgeMesh** edges = mesh1->edges->data();
 		SpTransform transformObj1 = *simulator->transforms(obj1Index);
+		const sp_uint edgesLengthObj1 = mesh1->edges->length();
 
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(obj2Index)->meshIndex);
-		SpFaceMesh** facesObj2 = mesh2->faces->data();
+		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
 		SpTransform transformObj2 = *simulator->transforms(obj2Index);
+		const sp_uint facesLengthObj2 = mesh2->faces->length();
 
 		// for each edge from mesh 1
-		for (sp_uint i = 0; i < mesh1->edges->length(); i++)
+		for (sp_uint i = 0; i < edgesLengthObj1; i++)
 		{
 			if (!edges[i]->isBoundaryEdge())// check it is a boundary edge. if false, ignore
 				continue;
@@ -94,28 +96,21 @@ namespace NAMESPACE_PHYSICS
 			edges[i]->convert(&edge, transformObj1);
 
 			// for each face from mesh 2
-			for (sp_uint j = 0; j < mesh2->faces->length(); j++)
+			for (sp_uint j = 0; j < facesLengthObj2; j++)
 			{
-				Vec3 contactPoint;
-
-				sp_bool hasIntersection = 
-					edges[i]->intersection(*facesObj2[j], &contactPoint, transformObj1, transformObj2);
-
-				if (!hasIntersection)
+				Triangle3D face;
+				allFacesObj2[j]->convert(&face, transformObj2);
+			
+				if (!edge.intersection(face, contactPoint))
 					continue;
 				
-				/* commented ?!?!?!?!
-				if (facesObj2[j]->isBackFace(transformObj1->position, *transformObj2))
-					continue;
-					*/
-
 				// check which point crossed the face
-				if (facesObj2[j]->isBackFace(edge.point1, transformObj2))
+				Plane3D plane(face);
+
+				if (plane.isBackFace(edge.point1))
 					vertexIndexObj1[0] = edges[i]->vertexIndex1;
 				else
 					vertexIndexObj1[0] = edges[i]->vertexIndex2;
-
-				vertexIndexObj2[0] = mesh2->findClosest(contactPoint, transformObj2)->index();
 
 				return true;
 			}
@@ -124,17 +119,23 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	CollisionStatus SpCollisionDetector::collisionStatus(SpCollisionDetails* details)
+	CollisionStatus SpCollisionDetector::collisionStatus(Vec3* contactPoint, sp_bool* searchOnObj1, SpCollisionDetails* details)
 	{
-		sp_bool hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, &details->vertexIndexObj2, details);
+		sp_bool hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, contactPoint, details);
+		
+		if (hasCollision)
+		{
+			searchOnObj1[0] = false;
+			return CollisionStatus::INSIDE;
+		}
+
+		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, contactPoint, details);
 
 		if (hasCollision)
+		{
+			searchOnObj1[0] = true;
 			return CollisionStatus::INSIDE;
-
-		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, &details->vertexIndexObj1, details);
-
-		if (hasCollision)
-			return CollisionStatus::INSIDE;
+		}
 
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
@@ -143,6 +144,11 @@ namespace NAMESPACE_PHYSICS
 		SpTransform* transformObj2 = simulator->transforms(details->objIndex2);
 
 		hasCollision = mesh1->isInside(mesh2, *transformObj1, *transformObj2);
+
+		if (hasCollision)
+			return CollisionStatus::INSIDE;
+
+		hasCollision = mesh2->isInside(mesh1, *transformObj2, *transformObj1);
 
 		return hasCollision
 			? CollisionStatus::INSIDE
@@ -158,7 +164,9 @@ namespace NAMESPACE_PHYSICS
 		sp_float diff = TEN_FLOAT;
 		sp_float elapsedTime = details->timeStep * HALF_FLOAT;
 		sp_float wasInsideAt = ZERO_FLOAT;
-
+		Vec3 contactPoint;
+		sp_bool searchOnObj1;
+		
 		while ((status != CollisionStatus::INSIDE || diff > _epsilon) && diff > 0.01f)
 		{
 			simulator->backToTime(details->objIndex1);
@@ -167,7 +175,7 @@ namespace NAMESPACE_PHYSICS
 			simulator->backToTime(details->objIndex2);
 			simulator->integrator->execute(details->objIndex2, elapsedTime);
 
-			status = collisionStatus(details);
+			status = collisionStatus(&contactPoint, &searchOnObj1, details);
 
 			diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
@@ -197,7 +205,20 @@ namespace NAMESPACE_PHYSICS
 			simulator->backToTime(details->objIndex2);
 			simulator->integrator->execute(details->objIndex2, elapsedTime);
 
-			collisionStatus(details);
+			collisionStatus(&contactPoint, &searchOnObj1, details);
+		}
+
+		if (searchOnObj1)
+		{
+			const sp_uint meshIndex = simulator->collisionFeatures(details->objIndex1)->meshIndex;
+			SpMesh* mesh = simulator->mesh(meshIndex);
+			details->vertexIndexObj1 = mesh->findClosest(contactPoint, *simulator->transforms(details->objIndex1))->index();
+		}
+		else
+		{
+			const sp_uint meshIndex = simulator->collisionFeatures(details->objIndex2)->meshIndex;
+			SpMesh* mesh = simulator->mesh(meshIndex);
+			details->vertexIndexObj2 = mesh->findClosest(contactPoint, *simulator->transforms(details->objIndex2))->index();
 		}
 
 		simulator->physicProperties(details->objIndex1)->integratedTime(elapsedTime);
@@ -425,8 +446,13 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
+		sp_assert(intersectionPointsLength > 2u, "InvalidOperationException");
+
 		details->type = SpCollisionType::FaceFace;
-		allFacesObj1[facesIndexesMesh1[0]]->normalVector(&details->collisionNormalObj1);
+		//allFacesObj1[facesIndexesMesh1[0]]->normalVector(&details->collisionNormalObj1);
+		//details->collisionNormalObj1 = allFacesObj1[facesIndexesMesh1[0]]->faceNormal;
+		rotate(transform1.orientation, allFacesObj1[facesIndexesMesh1[0]]->faceNormal, &details->collisionNormalObj1);
+
 		details->collisionNormalObj2 = -details->collisionNormalObj1;
 
 		for (sp_uint i = 0; i < intersectionPointsLength; i++)
@@ -463,7 +489,7 @@ namespace NAMESPACE_PHYSICS
 					continue;
 
 				const sp_float distancePoint1 = face1.distance(edge2.point1);
-
+				
 				if (!isCloseEnough(std::fabsf(distancePoint1), ZERO_FLOAT, 0.1f))
 					continue;
 
@@ -490,9 +516,11 @@ namespace NAMESPACE_PHYSICS
 
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->data()[details->vertexIndexObj1];
+		const sp_uint edgesLengthObj1 = vertexMeshObj1->edgeVertexIndexLength();
 
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		SpVertexMesh* vertexMeshObj2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];
+		const sp_uint edgesLengthObj2 = vertexMeshObj2->edgeVertexIndexLength();
 
 		sp_float smallestDistance = SP_FLOAT_MAX;
 
@@ -502,11 +530,11 @@ namespace NAMESPACE_PHYSICS
 		Line3D line2;
 		transform2.transform(vertexMeshObj2->value(), &line2.point1);
 
-		for (sp_uint i = 0; i < vertexMeshObj1->edgeVertexIndexLength(); i++)
+		for (sp_uint i = 0; i < edgesLengthObj1; i++)
 		{
 			mesh1->vertex(vertexMeshObj1->edgeVertexIndex(i), transform1, &line1.point2);
 
-			for (sp_uint j = 0; j < vertexMeshObj2->edgeVertexIndexLength(); j++)
+			for (sp_uint j = 0; j < edgesLengthObj2; j++)
 			{
 				mesh2->vertex(vertexMeshObj2->edgeVertexIndex(j), transform2, &line2.point2);
 				
@@ -514,37 +542,33 @@ namespace NAMESPACE_PHYSICS
 				sp_float sqDistance;
 				line1.closestPoint(line2, &p1, &p2, &sqDistance);
 
-				// if the contact is far away, discard
-				if (!isCloseEnough(std::fabsf(sqDistance), ZERO_FLOAT, 0.1f))
+				// if the distance is greater or the contact is far away, discard
+				if (sqDistance >= smallestDistance || 
+					!isCloseEnough(std::fabsf(sqDistance), ZERO_FLOAT, 0.1f))
 					continue;
 
-				if (sqDistance < smallestDistance)
+				smallestDistance = sqDistance;
+				
+				if (isCloseEnough(smallestDistance, ZERO_FLOAT))
 				{
-					smallestDistance = sqDistance;
-					sp_uint edgeVertexIndexObj1 = vertexMeshObj1->edgeVertexIndex(i);
-					sp_uint edgeVertexIndexObj2 = vertexMeshObj2->edgeVertexIndex(j);
+					details->type = SpCollisionType::EdgeEdge;
 
-					if (isCloseEnough(smallestDistance, ZERO_FLOAT))
-					{
-						details->type = SpCollisionType::EdgeEdge;
+					details->contactPointsLengthObj1 = 2u;
+					details->contactPointsObj1[0] = line1.point1;
+					details->contactPointsObj1[1] = line1.point2;
 
-						details->contactPointsLengthObj1 = 2u;
-						details->contactPointsObj1[0] = line1.point1;
-						details->contactPointsObj1[1] = line1.point2;
+					details->contactPointsLengthObj2 = 2u;
+					details->contactPointsObj2[0] = line2.point1;
+					details->contactPointsObj2[1] = line2.point2;
 
-						details->contactPointsLengthObj2 = 2u;
-						details->contactPointsObj2[0] = line2.point1;
-						details->contactPointsObj2[1] = line2.point2;
+					details->centerContactPoint = p1;
 
-						details->centerContactPoint = p1;
+					line1.cross(line2, &details->collisionNormalObj1);
+					normalize(&details->collisionNormalObj1);
 
-						line1.cross(line2, &details->collisionNormalObj1);
-						normalize(&details->collisionNormalObj1);
+					details->collisionNormalObj2 = -details->collisionNormalObj1;
 
-						details->collisionNormalObj2 = -details->collisionNormalObj1;
-
-						return true;
-					}
+					return true;
 				}
 			}
 		}

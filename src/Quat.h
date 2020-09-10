@@ -236,7 +236,7 @@ namespace NAMESPACE_PHYSICS
 		/// This quaternion is the rotation axis
 		/// Returns the point rotated
 		/// </summary>
-		API_INTERFACE Vec3 rotate(const Vec3& point) const;
+		API_INTERFACE inline Vec3 rotate(const Vec3& point) const;
 
 		/// <summary>
 		/// Create a rotation unit quaternion bases on angle (in radians) and directional vector provided
@@ -472,6 +472,29 @@ namespace NAMESPACE_PHYSICS
 				&& std::fabsf(z - compare.z) <= _epsilon;
 		}
 	};
+
+	API_INTERFACE inline void conjugate(const Quat& quaternion, Quat* output)
+	{
+		output->w = quaternion.w;
+		output->x = -quaternion.x;
+		output->y = -quaternion.y;
+		output->z = -quaternion.z;
+	}
+
+	API_INTERFACE inline void multiply(const Quat& quat1, const Quat& quat2, Quat* output)
+	{
+		output->w = (quat1.w * quat2.w) - (quat1.x * quat2.x) - (quat1.y * quat2.y) - (quat1.z * quat2.z);
+		output->x = (quat1.w * quat2.x) + (quat1.x * quat2.w) - (quat1.y * quat2.z) + (quat1.z * quat2.y);
+		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x);
+		output->z = (quat1.w * quat2.z) - (quat1.x * quat2.y) + (quat1.y * quat2.x) + (quat1.z * quat2.w);
+	}	
+	API_INTERFACE void multiply(const Quat& quat1, const Quat& quat2, Vec3* output);
+	API_INTERFACE void multiply(const Vec3& vector, const Quat& quat, Quat* output);
+	API_INTERFACE void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3 sumVector, Vec3* output);
+
+	API_INTERFACE void rotate(const Quat& rotation, const Vec3& point, Vec3* output);
+	API_INTERFACE void rotateAndTranslate(const Quat& rotation, const Vec3& point, const Vec3& translation, Vec3* output);
+
 }
 
 #endif // QUAT_HEADER

@@ -29,7 +29,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Quat_dot_Test);
 		SP_TEST_METHOD_DEF(Quat_inverse_Test);
 		SP_TEST_METHOD_DEF(Quat_toVec3_Test);
-		SP_TEST_METHOD_DEF(Quat_createRotate_Test);
+		SP_TEST_METHOD_DEF(createRotate);
 		SP_TEST_METHOD_DEF(rotate);
 		SP_TEST_METHOD_DEF(toMat3);
 		SP_TEST_METHOD_DEF(toEulerAngles);
@@ -277,16 +277,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		}			
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Quat_createRotate_Test)
+	SP_TEST_METHOD(CLASS_NAME, createRotate)
 	{
-		Vec3 axis(2.0, 5.0f, 3.0f);
+		Vec3 axis(1.0f, 0.0f, 1.0f);
+		normalize(&axis);
 		SP_CONSTEXPR sp_float angle = degreesToRadians(60.0f);
 
 		Quat result = Quat::createRotate(angle, axis);
-		Quat expected(0.866025388f, 0.162221417f, 0.405553550f, 0.243332133f);
+		Quat expected(0.866f, 0.3535f, 0.0f, 0.3535f);
 
 		for (sp_int i = 0; i < QUAT_LENGTH; i++)
-			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(expected[i], result[i], 0.009f), L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, rotate)

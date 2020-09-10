@@ -14,24 +14,24 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(AlgorithmBisection_solve_Test);
+		SP_TEST_METHOD_DEF(solve);
 
-		SP_TEST_METHOD_DEF(AlgorithmBisection_maxNumberOfIteration_Test);
+		SP_TEST_METHOD_DEF(maxNumberOfIteration);
 
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, AlgorithmBisection_solve_Test)
+	SP_TEST_METHOD(CLASS_NAME, solve)
 	{
-		AlgorithmBisection<float> algorithm;
-		float result = algorithm.solve(1.0f, 2.0f, funcBisection);
+		AlgorithmBisection algorithm;
+		sp_float result = algorithm.solve(1.0f, 2.0f, funcBisection);
 		
 		Assert::IsTrue(isCloseEnough(result, 1.3652f), L"Wrong value.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, AlgorithmBisection_maxNumberOfIteration_Test)
+	SP_TEST_METHOD(CLASS_NAME, maxNumberOfIteration)
 	{
-		AlgorithmBisection<float> algorithm;
-		int result = algorithm.maxNumberOfIteration();
+		AlgorithmBisection algorithm;
+		sp_int result = algorithm.maxNumberOfIteration();
 
 		Assert::AreEqual(result, 14, L"Wrong value.", LINE_INFO());
 	}

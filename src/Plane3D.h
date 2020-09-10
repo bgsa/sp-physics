@@ -13,13 +13,15 @@ namespace NAMESPACE_PHYSICS
 	{
 
 	public:
-		Vec3 point;
 		Vec3 normalVector;
+		sp_float distanceFromOrigin;
+		Vec3 point;
 
 		API_INTERFACE Plane3D()
 		{
 			point = Vec3(0.0f);
 			normalVector = Vec3(0.0f, 1.0f, 0.0f);
+			distanceFromOrigin = normalVector.dot(point);
 		}
 
 		/// <summary>
@@ -27,8 +29,11 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE Plane3D(const Vec3& point, const Vec3& normal)
 		{
+			sp_assert(isCloseEnough(normal.length(), ONE_FLOAT, 0.009f), "InvalidArgumentException");
+
 			this->point = point;
 			this->normalVector = normal;
+			this->distanceFromOrigin = normalVector.dot(point);
 		}
 
 		/// <summary>

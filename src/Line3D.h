@@ -154,7 +154,7 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE void cross(const Line3D& otherLine, Vec3* output) const
 		{
-			output[0] = (point2 - point1).cross(otherLine.point2 - otherLine.point1);
+			(point2 - point1).cross(otherLine.point2 - otherLine.point1, output);
 		}
 
 		API_INTERFACE void closestPoint(const Line3D& other, Vec3* closestPointOnLine1, Vec3* closestPointOnLine2, sp_float* squaredDistance) const;

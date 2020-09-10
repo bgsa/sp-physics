@@ -18,8 +18,7 @@ namespace NAMESPACE_PHYSICS
 		void timeOfCollision(SpCollisionDetails* details);
 
 		sp_bool findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, 
-			sp_uint* vertexIndexObj1, sp_uint* vertexIndexObj2, 
-			SpCollisionDetails* details);
+			sp_uint* vertexIndexObj1, Vec3* contactPoint, SpCollisionDetails* details);
 
 		sp_bool isFaceFaceCollision(SpCollisionDetails* details) const;
 
@@ -50,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void filterCollision(SpCollisionDetails* details) const;
 
-		API_INTERFACE CollisionStatus collisionStatus(SpCollisionDetails* details);
+		API_INTERFACE CollisionStatus collisionStatus(Vec3* contactPoint, sp_bool* searchOnObj1, SpCollisionDetails* details);
 
 		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const;
 

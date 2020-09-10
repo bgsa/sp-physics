@@ -19,6 +19,17 @@ namespace NAMESPACE_PHYSICS
 		this->vertexesIndexes[2] = vertexesIndexes3;
 	}
 
+	void SpFaceMesh::fillAttributes()
+	{
+		SpVertexMesh** vertexes = mesh->vertexesMesh->data();
+
+		normal(
+			vertexes[vertexesIndexes[0]]->value(),
+			vertexes[vertexesIndexes[1]]->value(),
+			vertexes[vertexesIndexes[2]]->value(),
+			&faceNormal);
+	}
+
 	SpEdgeMesh* SpFaceMesh::edges(const sp_uint index) const
 	{
 		sp_assert(index < 3u, "IndexOutOfRangeException");
@@ -35,13 +46,9 @@ namespace NAMESPACE_PHYSICS
 
 	void SpFaceMesh::convert(Plane3D* plane, const SpTransform& transform) const
 	{
-		Vec3 p2, p3;
-
 		mesh->vertex(vertexesIndexes[0], transform, &plane->point);
-		mesh->vertex(vertexesIndexes[1], transform, &p2);
-		mesh->vertex(vertexesIndexes[2], transform, &p3);
-
-		normal(plane->point, p2, p3, &plane->normalVector);
+		rotate(transform.orientation, faceNormal, &plane->normalVector);
+		plane->distanceFromOrigin = plane->normalVector.dot(plane->point);
 	}
 
 	void SpFaceMesh::convert(Triangle3D* triangle, const SpTransform& transform) const
@@ -53,42 +60,13 @@ namespace NAMESPACE_PHYSICS
 
 	void SpFaceMesh::convert(Line3D lines[3], const SpTransform& transform) const
 	{
-		Vec3 p1, p2, p3;
+		mesh->vertex(vertexesIndexes[0], transform, &lines[0].point1);
+		mesh->vertex(vertexesIndexes[1], transform, &lines[0].point2);
+		mesh->vertex(vertexesIndexes[2], transform, &lines[1].point2);
 
-		mesh->vertex(vertexesIndexes[0], transform, &p1);
-		mesh->vertex(vertexesIndexes[1], transform, &p2);
-		mesh->vertex(vertexesIndexes[2], transform, &p3);
-
-		lines[0].point1 = p1;
-		lines[0].point2 = p2;
-
-		lines[1].point1 = p2;
-		lines[1].point2 = p3;
-
-		lines[2].point1 = p3;
-		lines[2].point2 = p1;
-	}
-
-	void SpFaceMesh::normalVector(Vec3* normalVector) const
-	{
-		SpVertexMesh** vertexes = mesh->vertexesMesh->data();
-
-		normal(
-			vertexes[vertexesIndexes[0]]->value(),
-			vertexes[vertexesIndexes[1]]->value(),
-			vertexes[vertexesIndexes[2]]->value(),
-			normalVector);	
-	}
-
-	void SpFaceMesh::normalVector(Vec3* normalVector, const SpTransform& transform) const
-	{
-		Vec3 p1, p2, p3;
-
-		mesh->vertex(vertexesIndexes[0], transform, &p1);
-		mesh->vertex(vertexesIndexes[1], transform, &p2);
-		mesh->vertex(vertexesIndexes[2], transform, &p3);
-
-		normal(p1, p2, p3, normalVector);
+		lines[1].point1 = lines[0].point2;
+		lines[2].point1 = lines[1].point2;
+		lines[2].point2 = lines[0].point1;
 	}
 
 	sp_bool SpFaceMesh::isBackFace(const Vec3& point, const SpTransform& transformFace) const

@@ -12,10 +12,11 @@ namespace NAMESPACE_PHYSICS
 	private:
 		SpMesh* mesh;
 		sp_uint _index;
-
+		
 	public:
 		sp_uint vertexesIndexes[3];
 		sp_uint edgesIndexes[3];
+		Vec3 faceNormal;
 
 		API_INTERFACE inline sp_uint index() const
 		{
@@ -28,13 +29,12 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE SpFaceMesh(SpMesh* mesh, sp_uint index, sp_uint edgesIndexes1, sp_uint edgesIndexes2, sp_uint edgesIndexes3);
 
+		API_INTERFACE void fillAttributes();
+
 		API_INTERFACE void convert(Plane3D* plane, const SpTransform& transorm) const;
 		API_INTERFACE void convert(Triangle3D* triangle, const SpTransform& transorm) const;
 		API_INTERFACE void convert(Line3D lines[3], const SpTransform& transorm) const;
 		API_INTERFACE void convert(Vec3* vertexes, const SpTransform& transorm) const;
-
-		API_INTERFACE void normalVector(Vec3* normalVector) const;
-		API_INTERFACE void normalVector(Vec3* normalVector, const SpTransform& transform) const;
 
 		API_INTERFACE SpEdgeMesh* edges(const sp_uint index) const;
 
