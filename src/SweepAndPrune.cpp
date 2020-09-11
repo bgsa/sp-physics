@@ -230,10 +230,10 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint len = 512u;
 		sp_uint* buffer = ALLOC_ARRAY(sp_uint, len);
 		lastEvent = gpu->commandManager->readBuffer(radixSorting->output, 4 * len, buffer, ONE_UINT, &lastEvent);
-		std::cout << "BEGIN SORT" << END_OF_LINE;
+		sp_log_info1s("BEGIN SORT"); sp_log_newline();
 		for (size_t i = 0; i < len; i++)
-			std::cout << aabbs[buffer[i]].minPoint.x << END_OF_LINE;
-		std::cout << "END SORT" << END_OF_LINE;
+			<< aabbs[buffer[i]].minPoint.x << END_OF_LINE;
+		sp_log_info1s("END SORT"); sp_log_newline();
 		ALLOC_RELEASE(buffer);
 		*/
 

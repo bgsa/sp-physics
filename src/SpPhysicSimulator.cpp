@@ -89,23 +89,26 @@ namespace NAMESPACE_PHYSICS
 
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		Vec3 pos = simulator->transforms(1u)->position;
-		std::cout << "collision: ";
-		pos.toString(std::cout);
-		std::cout << END_OF_LINE;
+
+		sp_log_info1s("collision: ");
+		sp_log_info3f(pos.x, pos.y, pos.z);
+		sp_log_newline();
 
 		Timer t; t.start(); t.update();
 		collisionDetector.collisionDetails(details);
-		
-		std::cout << "TIME TO CHECK" << t.elapsedTime() << END_OF_LINE;
-		std::cout << "END COLLISION HANDLER" << END_OF_LINE;
-		
+
+		sp_log_info1s("TIME TO CHECK ");
+		sp_log_info1f(t.elapsedTime());
+		sp_log_newline();
+		sp_log_info1s("END COLLISION HANDLER");
+		sp_log_newline();
+
 		if (details->ignoreCollision)
 		{
 			Vec3 pos = simulator->transforms(1u)->position;
-			
-			std::cout << "IGNORANDO COLISAO! ";
-			pos.toString(std::cout);
-			std::cout << END_OF_LINE;
+			sp_log_info1s("IGNORANDO COLISAO! ");
+			sp_log_info3f(pos.x, pos.y, pos.z);
+			sp_log_newline();
 			return;
 		}
 
@@ -114,8 +117,7 @@ namespace NAMESPACE_PHYSICS
 
 		collisionResponse.handleCollisionResponse(details);
 
-		std::cout << "END COLLISION RESPONSE" << END_OF_LINE;
-
+		sp_log_info1s("END COLLISION RESPONSE"); sp_log_newline();
 	}
 
 	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
