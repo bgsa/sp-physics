@@ -192,19 +192,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		createMeshes();
 
-		resetObject(0u);
-		resetObject(1u);
-
 		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
 		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
 
 		SpCollisionDetails details = newCollisionDetails();
+		resetObject(0u);
+		resetObject(1u);
 		propertiesObj1->mass(ZERO_FLOAT);
 		propertiesObj2->mass(ZERO_FLOAT);
 		collisionDetector.filterCollision(&details);
 		Assert::IsTrue(details.ignoreCollision, L"Wrong value.", LINE_INFO());
 
 		details = newCollisionDetails();
+		resetObject(0u);
+		resetObject(1u);
 		propertiesObj1->mass(8.0f);
 		propertiesObj1->currentState.position(Vec3(10.0f, 0.0f, 0.0f));
 		propertiesObj1->previousState.position(Vec3(10.0f, 0.0f, 0.0f));
@@ -215,6 +216,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.ignoreCollision, L"Wrong value.", LINE_INFO());
 
 		details = newCollisionDetails();
+		resetObject(0u);
+		resetObject(1u);
 		propertiesObj1->mass(ZERO_FLOAT);
 		propertiesObj1->currentState.position(ZERO_FLOAT);
 		propertiesObj1->previousState.position(ZERO_FLOAT);
@@ -224,7 +227,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		collisionDetector.filterCollision(&details);
 		Assert::IsTrue(details.ignoreCollision, L"Wrong value.", LINE_INFO());
 
-		details.ignoreCollision = false;
+		details = newCollisionDetails();
+		resetObject(0u);
+		resetObject(1u);
 		propertiesObj1->mass(8.0f);
 		propertiesObj2->mass(8.0f);
 		collisionDetector.filterCollision(&details);
@@ -237,13 +242,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		propertiesObj2->currentState.velocity(Vec3(1.0f, 0.0f, 0.0f));
 		collisionDetector.filterCollision(&details);
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-
-		propertiesObj1->mass(0.8f);
-		propertiesObj1->currentState.position(Vec3());
-		propertiesObj1->currentState.velocity(Vec3());
-		propertiesObj2->mass(0.8f);
-		propertiesObj2->currentState.position(Vec3());
-		propertiesObj2->currentState.velocity(Vec3());
 
 		TestPhysic::unlock();
 	}

@@ -3,7 +3,6 @@
 #ifndef GPU_FIND_MIN_MAX_TEST_HEADER
 #define GPU_FIND_MIN_MAX_TEST_HEADER
 
-#include "Log.hpp"
 #include "SpectrumPhysicsTest.h"
 #include "Randomizer.h"
 #include <GpuFindMinMax.h>

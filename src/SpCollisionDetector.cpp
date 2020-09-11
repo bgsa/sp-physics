@@ -68,9 +68,6 @@ namespace NAMESPACE_PHYSICS
 			details->ignoreCollision = true;
 			return;
 		}
-
-		if (areMovingAway(details->objIndex1, details->objIndex2)) // if the objects are getting distant
-			details->ignoreCollision = true;
 	}
 
 	sp_bool SpCollisionDetector::findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, sp_uint* vertexIndexObj1, Vec3* contactPoint, SpCollisionDetails* details)

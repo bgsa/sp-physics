@@ -253,11 +253,17 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isResting() const
 		{
+#define NO_MOVING currentState._position.isCloseEnough(previousState._position, restingEpsilon)
+#define NO_ACCELERATION (currentState._acceleration.isCloseEnough(ZERO_FLOAT) || currentState._acceleration.isCloseEnough(restingAcceleration(), restingEpsilon))
+#define NO_ANG_VELOCITY currentState._angularVelocity.isCloseEnough(ZERO_FLOAT)
+
 			const sp_float restingEpsilon = SpPhysicSettings::instance()->restingVelocityEpsilon();
-			
-			return
-				currentState._position.isCloseEnough(previousState._position, restingEpsilon) &&
-				currentState._acceleration.isCloseEnough(restingAcceleration(), restingEpsilon);
+
+			return NO_MOVING && NO_ACCELERATION && NO_ANG_VELOCITY;
+
+#undef NO_ANG_VELOCITY
+#undef NO_ACCELERATION
+#undef NO_MOVING
 		}
 
 		/// <summary>

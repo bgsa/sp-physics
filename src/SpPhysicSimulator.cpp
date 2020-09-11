@@ -87,37 +87,15 @@ namespace NAMESPACE_PHYSICS
 		if (details->ignoreCollision)
 			return;
 
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		Vec3 pos = simulator->transforms(1u)->position;
-
-		sp_log_info1s("collision: ");
-		sp_log_info3f(pos.x, pos.y, pos.z);
-		sp_log_newline();
-
-		Timer t; t.start(); t.update();
 		collisionDetector.collisionDetails(details);
 
-		sp_log_info1s("TIME TO CHECK ");
-		sp_log_info1f(t.elapsedTime());
-		sp_log_newline();
-		sp_log_info1s("END COLLISION HANDLER");
-		sp_log_newline();
-
 		if (details->ignoreCollision)
-		{
-			Vec3 pos = simulator->transforms(1u)->position;
-			sp_log_info1s("IGNORANDO COLISAO! ");
-			sp_log_info3f(pos.x, pos.y, pos.z);
-			sp_log_newline();
 			return;
-		}
 
 		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
 		sp_assert(details->contactPointsLengthObj1 > 0u || details->contactPointsLengthObj2 > 0u, "InvalidOperationException");
 
 		collisionResponse.handleCollisionResponse(details);
-
-		sp_log_info1s("END COLLISION RESPONSE"); sp_log_newline();
 	}
 
 	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
@@ -196,7 +174,6 @@ namespace NAMESPACE_PHYSICS
 		SpThreadPool* threadPool = SpThreadPool::instance();
 		const sp_float elapsedTime = Timer::physicTimer()->elapsedTime();
 		
-
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
 			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i)]), "MemoryNotInitializedExeption");

@@ -24,6 +24,10 @@ namespace NAMESPACE_PHYSICS_TEST
 	TEST_MODULE_INITIALIZE(ModuleInitialize)
 	{
 		StackMemoryAllocator::main()->init(ONE_MEGABYTE * 512);
+
+		SpLogMsTestProvider* logProvider = ALLOC_NEW(SpLogMsTestProvider);
+		SpLogger::init(logProvider);
+
 		NAMESPACE_RENDERING::SpOpenGL::initOffScreenRendering();
 		NAMESPACE_RENDERING::SpGpuRenderingFactoryOpenGL::init();
 		GpuContext::init();
@@ -35,6 +39,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		StackMemoryAllocator::main()->release();
 		NAMESPACE_RENDERING::SpOpenGL::dispose();
+		SpLogger::dispose();
 	}
 
 #endif // MSTEST_ENABLED

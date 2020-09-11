@@ -92,7 +92,7 @@ namespace NAMESPACE_PHYSICS
 				extensionName += extensionsAsArray[i];
 		}
 
-		ALLOC_RELEASE(profileAsArray);;
+		ALLOC_RELEASE(profileAsArray);
 	}
 
 	sp_uint GpuDevice::getThreadLength(sp_uint inputLength)
