@@ -139,6 +139,14 @@ namespace NAMESPACE_PHYSICS
 		{
 			return _torque;
 		}
+		
+		/// <summary>
+		/// Set the torque of the object
+		/// </summary>
+		API_INTERFACE inline void torque(const Vec3& newTorque)
+		{
+			_torque = newTorque;
+		}
 
 		/// <summary>
 		/// Translate the position with the translation parameter

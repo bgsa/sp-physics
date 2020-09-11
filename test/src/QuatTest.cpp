@@ -214,18 +214,19 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Quat_normalize_Test)
 	{
 		Quat quat(2.0f, 5.0f, 1.0f, 6.0f);
-		Quat result = quat.normalize();
+		normalize(&quat);
+
 		Quat expected(0.246182978f, 0.615457416f, 0.123091489f, 0.738548934f);
 
 		for (sp_int i = 0; i < QUAT_LENGTH; i++)
-		Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong value", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(quat[i], expected[i]), L"Wrong value", LINE_INFO());
 
 		quat = Quat(-5.0f, 6.0f, -7.0f, 8.0f);
-		result = quat.normalize();
+		normalize(&quat);
 		expected = Quat(-0.37905f, 0.45486f, -0.53067f, 0.60648f);
 
 		for (sp_int i = 0; i < QUAT_LENGTH; i++)
-			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong value", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(quat[i], expected[i]), L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Quat_conjugate_Test)
@@ -332,9 +333,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, toEulerAngles)
 	{
 		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
-		Quat quat2 = quat.normalize();
+		normalize(&quat);
 
-		Vec3 result = quat2.toEulerAngles();
+		Vec3 result = quat.toEulerAngles();
 		Vec3 expected = Vec3(2.677945f, 0.4755543f, -1.1071487f);
 
 		for (sp_int i = 0; i < VEC3_LENGTH; i++)
@@ -343,7 +344,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, angle)
 	{
-		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f).normalize();
+		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
+		normalize(&quat);
 
 		sp_float result = quat.angle();
 
@@ -352,7 +354,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, axis)
 	{
-		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f).normalize();
+		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
+		normalize(&quat);
 
 		Vec3 result = quat.axis();
 		Vec3 expected = Vec3(0.816496611f, 0.571547627f, 0.0816496611f);

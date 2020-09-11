@@ -158,26 +158,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Craete a new Quaternion Normalized
-		/// </summary>
-		API_INTERFACE inline Quat normalize() const
-		{
-			const sp_float magnitude = length();
-
-			if (magnitude == ZERO_FLOAT)
-				return Quat(ZERO_FLOAT);
-
-			const sp_float temp = ONE_FLOAT / magnitude;
-
-			return Quat(
-				w * temp,
-				x * temp,
-				y * temp,
-				z * temp
-			);
-		}
-
-		/// <summary>
 		/// Craete a new Quaternion Conjugated
 		/// </summary>
 		API_INTERFACE inline Quat conjugate() const
@@ -472,6 +452,20 @@ namespace NAMESPACE_PHYSICS
 				&& std::fabsf(z - compare.z) <= _epsilon;
 		}
 	};
+
+	API_INTERFACE inline void normalize(Quat* quat)
+	{
+		sp_float magnitude = quat->length();
+
+		sp_assert(magnitude != ZERO_FLOAT, "InvalidArgumentException");
+
+		magnitude = ONE_FLOAT / magnitude;
+
+		quat->w *= magnitude;
+		quat->x *= magnitude;
+		quat->y *= magnitude;
+		quat->z *= magnitude;
+	}
 
 	API_INTERFACE inline void conjugate(const Quat& quaternion, Quat* output)
 	{
