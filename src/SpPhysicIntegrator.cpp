@@ -16,33 +16,35 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicProperties* element = simulator->physicProperties(index);
 
 		const sp_float newElapsedTime =  (elapsedTime - element->integratedTime()) * settings->physicVelocity();
-	
+		const sp_float halfElapsedTime = newElapsedTime * HALF_FLOAT;
+
 		// Velocity Verlet Integration because regards the velocity
 		const Vec3 newPosition = element->currentState.position()
 			+ element->currentState.velocity() * newElapsedTime
-			+ element->currentState.acceleration() * newElapsedTime * newElapsedTime * HALF_FLOAT;
+			+ element->currentState.acceleration() * newElapsedTime * halfElapsedTime;
 
 		const Vec3 newAcceleration = element->currentState.force() * element->massInverse();
 
-		Vec3 newVelocity = element->currentState.velocity()
-			+ (element->currentState.acceleration() + newAcceleration) * newElapsedTime * HALF_FLOAT;
-		newVelocity *= element->damping();
+		const Vec3 newVelocity
+			= (element->currentState.velocity()
+			+ (element->currentState.acceleration() + newAcceleration) * halfElapsedTime
+			  ) * element->damping();
 
-		const Quat newAngularAcceleration = Quat(0.0f, element->inertialTensorInverse() * element->currentState.torque());
+		const Quat newAngularAcceleration(0.0f, element->inertialTensorInverse() * element->currentState.torque());
 
-		Vec3 newAngularVelocity = element->currentState.angularVelocity()
-			+ ((element->currentState.torque() + newAngularAcceleration) * newElapsedTime * HALF_FLOAT);
-		newAngularVelocity *= element->angularDamping();
+		const Vec3 newAngularVelocity 
+			= (element->currentState.angularVelocity()
+			+ ((element->currentState.torque() + newAngularAcceleration) * halfElapsedTime)
+			  ) * element->angularDamping();
 
-		Quat newOrientation = element->currentState.orientation() + Quat(0.0f,
-			element->currentState.angularVelocity() * newElapsedTime
-			+ element->currentState.torque() * (newElapsedTime * newElapsedTime * HALF_FLOAT)
-		);
-		newOrientation = newOrientation.normalize();
+		Quat newOrientation 
+			= element->currentState.orientation() 
+			+ Quat(ZERO_FLOAT, element->currentState.angularVelocity() * newElapsedTime
+				+ element->currentState.torque() * newElapsedTime * halfElapsedTime);
+		normalize(&newOrientation);
 
 		// update/sync bounding volume
-		const Vec3 translation = newPosition - element->currentState.position();
-		simulator->boundingVolumes(index)->translate(translation);
+		simulator->boundingVolumes(index)->translate(newPosition - element->currentState.position());
 
 		// update/sync transform
 		simulator->transforms(index)->position = newPosition;

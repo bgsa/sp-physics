@@ -131,7 +131,8 @@ namespace NAMESPACE_PHYSICS
 		if (sign(distanceToPoint1) == sign(distanceToPoint2)) 
 			return false;
 
-		trianglePlane.intersection(*this, point);
+		if (!trianglePlane.intersection(*this, point))
+			return false;
 
 		if (!triangle.isInside(*point))
 			return false;
