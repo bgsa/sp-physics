@@ -62,14 +62,12 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the equation of the plane
 		/// </summary>
-		API_INTERFACE inline Vec4 equation() const
+		API_INTERFACE inline void equation(Vec4* vector) const
 		{
-			return Vec4(
-				normalVector[0],
-				normalVector[1],
-				normalVector[2],
-				getDcomponent()
-			);
+			vector->x = normalVector[0];
+			vector->y = normalVector[1];
+			vector->z = normalVector[2];
+			vector->w = distanceFromOrigin;
 		}
 
 		/// <summary>
@@ -82,7 +80,8 @@ namespace NAMESPACE_PHYSICS
 			if (isCloseEnough(angle, 0.0f))
 				return;
 
-			Vec4 planeEquation = equation();
+			Vec4 planeEquation;
+			equation(&planeEquation);
 
 			sp_float numerator = -(planeEquation[0] * ray.point[0] + planeEquation[1] * ray.point[1] + planeEquation[2] * ray.point[2] + planeEquation[3]);
 			sp_float denominator = planeEquation[0] * ray.direction[0] + planeEquation[1] * ray.direction[1] + planeEquation[2] * ray.direction[2];
@@ -97,20 +96,20 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Test if the line cross the plane
 		/// </summary>
-		API_INTERFACE void intersection(const Line3D& line, Vec3* contactPoint) const;
+		API_INTERFACE sp_bool intersection(const Line3D& line, Vec3* contactPoint) const;
 
 		/// <summary>
 		/// Get the line intersection between the planes
 		/// </summary>
-		API_INTERFACE void intersection(const Plane3D& plane, Line3D* line) const;
-		
+		API_INTERFACE sp_bool intersection(const Plane3D& plane, Line3D* line) const;
+
 		/// <summary>
 		/// Find the plane intersection
 		/// </summary>
 		/// <param name="plane">Second plane</param>
 		/// <param name="ray">Ray as output</param>
 		/// <returns>void</returns>
-		API_INTERFACE void intersection(const Plane3D& plane, Ray* ray) const;
+		API_INTERFACE sp_bool intersection(const Plane3D& plane, Ray* ray) const;
 
 		/// <summary>
 		/// Get the angle of two planes
@@ -160,6 +159,14 @@ namespace NAMESPACE_PHYSICS
 		/// Given an arbitrary point, find the closest point on the plane
 		/// </summary>
 		API_INTERFACE Vec3 closestPointOnThePlane(const Vec3 &target) const;
+
+		/// <summary>
+		/// Find the closest point on the line
+		/// </summary>
+		/// <param name="line"></param>
+		/// <param name="closest"></param>
+		/// <returns></returns>
+		API_INTERFACE void closestPoint(const Line3D& line, Vec3* closest) const;
 
 		/// <summary>
 		/// Check if the point parameter is back or front from the plane face

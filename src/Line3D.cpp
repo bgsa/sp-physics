@@ -1,4 +1,5 @@
 #include "Line3D.h"
+#include "Vec3.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -68,32 +69,12 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Line3D::intersection(const Line3D& line2, Vec3* point, const sp_float _epsilon) const
 	{
-		if (isParallel(line2))
-			return false;
+		Vec3 p2;
+		sp_float sqDistance;
+		closestPoint(line2, point, &p2, &sqDistance);
 
-		const Vec3 da = point2 - point1;
-		const Vec3 db = line2.point2 - line2.point1;
-		const Vec3 dc = line2.point1 - point1;
-
-		const Vec3 dAcrossB = da.cross(db);
-
-		const sp_float value = std::fabsf(dc.dot(dAcrossB));
-
-		if (!isCloseEnough(value, ZERO_FLOAT, _epsilon))
-			return false;
-
-		const sp_float numerador = dc.cross(db).dot(dAcrossB);
-		const sp_float denominador = dAcrossB.squaredLength();
-
-		sp_float s = numerador / denominador;
-		const sp_float valueSign = (sp_float)sign(s);
-		s = std::fabsf(s);
-
-		if (s >= (ZERO_FLOAT - _epsilon * 0.2f) && s <= (ONE_FLOAT + _epsilon * 0.2f))
-		{
-			*point = (da * s * valueSign + point1);
+		if (isCloseEnough(sqDistance, ZERO_FLOAT, _epsilon))
 			return true;
-		}
 
 		return false;
 	}

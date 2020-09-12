@@ -33,18 +33,14 @@ namespace NAMESPACE_PHYSICS
 		Vec3 collisionNormalObj1;
 		Vec3 collisionNormalObj2;
 
-		Vec3 contactPointsObj1[8];
-		sp_uint contactPointsLengthObj1;
+		Vec3 contactPoints[8];
+		sp_uint contactPointsLength;
 
-		Vec3 contactPointsObj2[8];
-		sp_uint contactPointsLengthObj2;
-		
 		SpCollisionDetails()
 		{
 			ignoreCollision = false;
 			type = SpCollisionType::None;
-			contactPointsLengthObj1 = ZERO_UINT;
-			contactPointsLengthObj2 = ZERO_UINT;
+			contactPointsLength = ZERO_UINT;
 		}
 
 	};

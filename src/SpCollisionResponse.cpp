@@ -93,8 +93,8 @@ namespace NAMESPACE_PHYSICS
 			sp_float j = denominator == ZERO_FLOAT ? ZERO_FLOAT
 				: numerator / denominator;
 
-			if (details->contactPointsLengthObj1 > ZERO_FLOAT && j != ZERO_FLOAT)
-				j /= (sp_float)details->contactPointsLengthObj1;
+			if (details->contactPointsLength > ZERO_FLOAT && j != ZERO_FLOAT)
+				j /= (sp_float)details->contactPointsLength;
 
 			const Vec3 impulse = collisionNormal * j;
 

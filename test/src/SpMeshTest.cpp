@@ -81,7 +81,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			facesIndexes[35] = SpPoint3<sp_uint>(7, 6, 15);
 			facesIndexes[36] = SpPoint3<sp_uint>(14, 13, 21);
 			facesIndexes[37] = SpPoint3<sp_uint>(21, 23, 14);
-			facesIndexes[38] = SpPoint3<sp_uint>(3, 3, 17);
+			facesIndexes[38] = SpPoint3<sp_uint>(3, 2, 17);
 			facesIndexes[39] = SpPoint3<sp_uint>(17, 20, 3);
 			facesIndexes[40] = SpPoint3<sp_uint>(24, 23, 21);
 			facesIndexes[41] = SpPoint3<sp_uint>(21, 22, 24);

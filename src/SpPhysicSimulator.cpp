@@ -93,7 +93,7 @@ namespace NAMESPACE_PHYSICS
 			return;
 
 		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
-		sp_assert(details->contactPointsLengthObj1 > 0u || details->contactPointsLengthObj2 > 0u, "InvalidOperationException");
+		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
 
 		collisionResponse.handleCollisionResponse(details);
 	}

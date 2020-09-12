@@ -7,94 +7,106 @@ namespace NAMESPACE_PHYSICS
 	{
 		point = point1;
 		normal(point1, point2, point3, &normalVector);
-		this->distanceFromOrigin = normalVector.dot(point);
+		distanceFromOrigin = normalVector.dot(point);
 	}
 
 	Plane3D::Plane3D(const Triangle3D& triangle)
 	{
 		point = triangle.point1;
 		triangle.normalFace(&normalVector);
-		this->distanceFromOrigin = normalVector.dot(point);
+		distanceFromOrigin = normalVector.dot(point);
 	}
 
 	Plane3D::Plane3D(sp_float a, sp_float b, sp_float c, sp_float d)
 	{
-		point = Vec3(
-			0.0f,
-			0.0f,
-			-d / c
-			);
+		point = Vec3(ZERO_FLOAT, ZERO_FLOAT, -d / c);
 
 		normalVector = Vec3(a, b, c).normalize();
-		this->distanceFromOrigin = normalVector.dot(point);
+		distanceFromOrigin = normalVector.dot(point);
 	}
 
-	void Plane3D::intersection(const Line3D& line, Vec3* contactPoint) const
+	sp_bool Plane3D::intersection(const Line3D& line, Vec3* contactPoint) const
 	{
-		Vec3 lineAsVector = line.point2 - line.point1;
-
-		sp_float angle = normalVector.dot(lineAsVector);
+		const Vec3 lineAsVector = line.point2 - line.point1;
+		const sp_float angle = normalVector.dot(lineAsVector);
 
 		if (isCloseEnough(angle, ZERO_FLOAT))
-			return;
+			return false;
 
-		Vec4 planeEquation = equation();
+		const sp_float t = (normalVector.dot(line.point1) + distanceFromOrigin) / angle;
 
-		sp_float numerator = -(planeEquation[0] * line.point1[0] + planeEquation[1] * line.point1[1] + planeEquation[2] * line.point1[2] + planeEquation[3]);
-		sp_float denominator = planeEquation[0] * lineAsVector[0] + planeEquation[1] * lineAsVector[1] + planeEquation[2] * lineAsVector[2];
-
-		sp_float t = numerator / denominator;
+		if (t < ZERO_FLOAT || t > ONE_FLOAT)
+			return false;
 
 		contactPoint->x = line.point1[0] + lineAsVector[0] * t;
 		contactPoint->y = line.point1[1] + lineAsVector[1] * t;
 		contactPoint->z = line.point1[2] + lineAsVector[2] * t;
+	
+		return true;
 	}
 
-	void Plane3D::intersection(const Plane3D& plane, Line3D* line) const
+	void Plane3D::closestPoint(const Line3D& line, Vec3* closest) const
 	{
-		if (isParallel(plane))
-			return;
+		const Vec3 lineAsVector = line.point2 - line.point1;
 
-		const Vec3 lineDirection = normalVector.cross(plane.normalVector);
-		
-		// find a point on the line, which is also on both planes
-		const sp_float dot = lineDirection.dot(lineDirection);					// V dot V
-		const Vec3 u1 = normalVector * plane.getDcomponent();		    // d2 * normalVector
-		const Vec3 u2 = plane.normalVector * -getDcomponent();	    //-d1 * plane.normalVector
-		
-		line->point1 = (u1 + u2).cross(lineDirection) / dot;     // (d2*N1-d1*N2) X V / V dot V
-		line->point2 = line->point1 + lineDirection; // find another point on the line
+		const sp_float t
+			= -(normalVector[0] * line.point1[0] + normalVector[1] * line.point1[1] + normalVector[2] * line.point1[2] + distanceFromOrigin)
+			/ normalVector[0] * lineAsVector[0] + normalVector[1] * lineAsVector[1] + normalVector[2] * lineAsVector[2];
+
+		closest->x = line.point1[0] + lineAsVector[0] * t;
+		closest->y = line.point1[1] + lineAsVector[1] * t;
+		closest->z = line.point1[2] + lineAsVector[2] * t;
 	}
 
-	void Plane3D::intersection(const Plane3D& plane, Ray* ray) const
+	sp_bool Plane3D::intersection(const Plane3D& plane, Line3D* line) const
 	{
-		if (isParallel(plane))
-			return;
+		// Compute direction of intersection line  
+		Vec3 lineDirection;
+		cross(normalVector, plane.normalVector, &lineDirection);
 
-		ray->direction = normalVector.cross(plane.normalVector);
+		// If d is (near) zero, the planes are parallel (and separated)  
+		// or coincident, so they’re not considered intersecting  
+		const sp_float denom = lineDirection.dot(lineDirection);
 
-		// find a point on the line, which is also on both planes
-		const sp_float dot = ray->direction.dot(ray->direction);					// V dot V
-		const Vec3 u1 = normalVector * plane.getDcomponent();		    // d2 * normalVector
-		const Vec3 u2 = plane.normalVector * -getDcomponent();	    //-d1 * plane.normalVector
+		if (denom < DefaultErrorMargin)
+			return false;
+
+		// Compute point on intersection line  
+		cross(plane.normalVector * distanceFromOrigin - distanceFromOrigin * plane.distanceFromOrigin, lineDirection, &line->point1);
+		line->point1 /= denom;
+		line->point2 = line->point1 + lineDirection;
+
+		return true;
+	}
+
+	sp_bool Plane3D::intersection(const Plane3D& plane, Ray* ray) const
+	{
+		// Compute direction of intersection line  
+		cross(normalVector, plane.normalVector, &ray->direction);
+
+		// If d is (near) zero, the planes are parallel (and separated)  
+		// or coincident, so they’re not considered intersecting  
+		const sp_float denom = ray->direction.dot(ray->direction);
+
+		if (denom < DefaultErrorMargin)
+			return false;
+
+		// Compute point on intersection line  
+		cross(plane.normalVector * distanceFromOrigin - distanceFromOrigin * plane.distanceFromOrigin, ray->direction, &ray->point);
+		ray->point /= denom;
 		
-		ray->point = (u1 + u2).cross(ray->direction) / dot;     // (d2*N1-d1*N2) X V / V dot V
+		return true;
 	}
 
 	sp_float Plane3D::distance(const Vec3& target) const
 	{
-		/*
-		sp_float numerator = normalVector.dot(target - point);
-		sp_float length = normalVector.length();
-
-		return numerator / length;
-		*/
 		return (normalVector.dot(target) - distanceFromOrigin) / normalVector.dot(normalVector);
 	}
 
 	sp_float Plane3D::distance(const Plane3D& plane) const
 	{
-		Vec4 eq = equation();
+		Vec4 eq;
+		equation(&eq);
 
 		return std::fabsf(eq.w - plane.getDcomponent())
 				/ std::sqrtf(eq.x * eq.x + eq.y * eq.y + eq.z * eq.z);

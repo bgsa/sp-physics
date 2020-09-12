@@ -257,4 +257,11 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
+
+	void SpMesh::convert(Vec3* vertexes, const SpTransform& transform) const
+	{
+		for (sp_uint i = 0; i < vertexLength(); i++)
+			vertex(i, transform, &vertexes[i]);
+	}
+
 }
