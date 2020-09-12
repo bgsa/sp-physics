@@ -33,15 +33,26 @@ namespace NAMESPACE_PHYSICS
 		if (isCloseEnough(angle, ZERO_FLOAT))
 			return false;
 
-		const sp_float t = (normalVector.dot(line.point1) + distanceFromOrigin) / angle;
+		sp_float t = (normalVector.dot(line.point1) + distanceFromOrigin) / angle;
 
-		if (t < ZERO_FLOAT || t > ONE_FLOAT)
-			return false;
+		if (t >= ZERO_FLOAT || t <= ONE_FLOAT)
+		{
+			contactPoint->x = line.point1[0] + lineAsVector[0] * t;
+			contactPoint->y = line.point1[1] + lineAsVector[1] * t;
+			contactPoint->z = line.point1[2] + lineAsVector[2] * t;
+			return true;
+		}
 
-		contactPoint->x = line.point1[0] + lineAsVector[0] * t;
-		contactPoint->y = line.point1[1] + lineAsVector[1] * t;
-		contactPoint->z = line.point1[2] + lineAsVector[2] * t;
-	
+		t = (normalVector.dot(line.point2) + distanceFromOrigin) / angle;
+
+		if (t >= ZERO_FLOAT || t <= ONE_FLOAT)
+		{
+			contactPoint->x = line.point2.x - lineAsVector.x * t;
+			contactPoint->y = line.point2.y - lineAsVector.y * t;
+			contactPoint->z = line.point2.z - lineAsVector.z * t;
+			return true;
+		}
+		
 		return true;
 	}
 

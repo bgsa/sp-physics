@@ -75,7 +75,7 @@ namespace NAMESPACE_PHYSICS
 			const Vec3 rayToContactObj2 = (details->centerContactPoint - centerObj2);
 
 			//const Vec3 collisionNormal = (details->contactPointsObj1[0] - centerObj1).normalize();
-			const Vec3 collisionNormal = details->collisionNormalObj1;
+			const Vec3 collisionNormal = details->collisionNormalObj2;
 
 			const Vec3 relativeVel = (obj2Properties->currentState.velocity() + obj2Properties->currentState.angularVelocity().cross(rayToContactObj2))
 				- (obj1Properties->currentState.velocity() + obj2Properties->currentState.angularVelocity().cross(rayToContactObj1));

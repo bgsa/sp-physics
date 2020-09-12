@@ -83,6 +83,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test1);
 		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test2);
 		//SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test3);
+		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test4);
 		SP_TEST_METHOD_DEF(collisionDetails_EdgeFace_Test1);
 		SP_TEST_METHOD_DEF(collisionDetails_EdgeEdge_Test1);
 		SP_TEST_METHOD_DEF(collisionDetails_VertexFace_Test1);
@@ -396,6 +397,52 @@ namespace NAMESPACE_PHYSICS_TEST
 		TestPhysic::unlock();
 	}
 	*/
+
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_Test4)
+	{
+		TestPhysic::lock();
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpCollisionDetector collisionDetector;
+		SpCollisionDetails details;
+
+		createMeshes();
+
+		resetObject(0u);
+		resetObject(1u);
+
+		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
+		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+
+		details = newCollisionDetails();
+
+		propertiesObj1->mass(ZERO_FLOAT); // static object
+		simulator->transforms(0u)->scaleVector = Vec3(100.0f, 1.0f, 100.0f);
+
+		simulator->transforms(1u)->position = Vec3(0.0f, 4.0f, 0.0f);
+		propertiesObj1->currentState.position(Vec3(0.0f, 4.0f, 0.0f));
+		propertiesObj2->previousState.position(Vec3(0.0f, 4.0f, 0.0f));
+		propertiesObj2->currentState.velocity(Vec3(0.0f, -20.0f, 0.0f));
+		propertiesObj2->previousState.velocity(Vec3(0.0f, -20.0f, 0.0f));
+
+		collisionDetector.collisionDetails(&details);
+
+		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(0.0f, 1.0f, 0.0f)), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(0.0f, -1.0f, 0.0f)), L"Wrong value.", LINE_INFO());
+
+		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, -1.0f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, -1.0f, 1.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[2].isCloseEnough(Vec3(1.0f, 1.0f, 1.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[3].isCloseEnough(Vec3(1.0f, 1.0f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
+
+		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, collisionDetails_EdgeFace_Test1)
 	{
