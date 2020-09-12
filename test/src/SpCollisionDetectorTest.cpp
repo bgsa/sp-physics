@@ -115,11 +115,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		Assert::IsFalse(result, L"Wrong value.", LINE_INFO());
 
-		simulator->physicProperties(0u)->currentState.position(Vec3());
-		simulator->physicProperties(0u)->currentState.velocity(Vec3());
-		simulator->physicProperties(1u)->currentState.position(Vec3());
-		simulator->physicProperties(1u)->currentState.velocity(Vec3());
-
 		TestPhysic::unlock();
 	}
 
@@ -137,42 +132,47 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(1u);
 
 		Vec3 contactPoint;
-		sp_bool searchOnObj1;
-		sp_uint edgeIndex, faceIndex;
+		SpCollisionDetectorCache cache;
 
 		details = newCollisionDetails();
 		simulator->translate(0u, Vec3(1.0f, 0.0f, 0.0f));
-		CollisionStatus result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, &details);
+		CollisionStatus result = collisionDetector.collisionStatus(&contactPoint, &cache, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
 
 		resetObject(0u);
 		details = newCollisionDetails();
 		simulator->translate(0u, Vec3(2.5f, 0.0f, 0.0f));
-		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, &details);
+		cache.clear();
+		result = collisionDetector.collisionStatus(&contactPoint, &cache, &details);
 		Assert::IsTrue(result == CollisionStatus::OUTSIDE, L"Wrong value.", LINE_INFO());
 
 		resetObject(0u);
 		details = newCollisionDetails();
 		simulator->translate(0u, Vec3(-1.5f, 2.0f, 0.0f));
-		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, &details);
+		cache.clear();
+		result = collisionDetector.collisionStatus(&contactPoint, &cache, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
 
 		resetObject(0u);
 		details = newCollisionDetails();
 		simulator->translate(0u, Vec3(0.0f, 2.2f, 0.0f));
-		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, &details);
+		cache.clear();
+		result = collisionDetector.collisionStatus(&contactPoint, &cache, &details);
 		Assert::IsTrue(result == CollisionStatus::OUTSIDE, L"Wrong value.", LINE_INFO());
 
 		resetObject(0u);
 		details = newCollisionDetails();
+		cache.clear(); 
 		simulator->translate(0u, Vec3(0.0f, 0.0f, 2.0f));
-		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, &details);
+		cache.clear();
+		result = collisionDetector.collisionStatus(&contactPoint, &cache, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
 
 		resetObject(0u);
 		details = newCollisionDetails();
+		cache.clear();
 		simulator->translate(0u, Vec3(0.0f, 0.0f, 0.2f));
-		result = collisionDetector.collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, &details);
+		result = collisionDetector.collisionStatus(&contactPoint, &cache, &details);
 		Assert::IsTrue(result == CollisionStatus::INSIDE, L"Wrong value.", LINE_INFO());
 		 
 		/* check the object is inside the other

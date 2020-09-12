@@ -9,6 +9,31 @@
 
 namespace NAMESPACE_PHYSICS
 {
+	class SpCollisionDetectorCache
+	{
+	public:
+		sp_uint edgeIndex;
+		sp_uint faceIndex;
+		sp_bool searchOnObj1;
+
+		API_INTERFACE SpCollisionDetectorCache()
+		{
+			clear();
+		}
+
+		API_INTERFACE inline void clear()
+		{
+			edgeIndex = ZERO_UINT;
+			faceIndex = ZERO_UINT;
+			searchOnObj1 = false;
+		}
+
+		API_INTERFACE inline sp_bool hasCache() const
+		{
+			return edgeIndex != SP_UINT_MAX;
+		}
+	};
+
 	class SpCollisionDetector
 	{
 	private:
@@ -44,8 +69,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_bool fillCollisionDetailsEdgeEdge(const Line3D& edge, SpVertexMesh* vertex, const SpTransform& vertexTransform, sp_uint* edgeIndexOutput, const sp_float _epsilon = DefaultErrorMargin);
 
-		sp_bool intersectionEdgeObj1(sp_uint edgeIndex, sp_uint faceIndex, Vec3* contactPoint, SpCollisionDetails* details);
-		sp_bool intersectionEdgeObj2(sp_uint edgeIndex, sp_uint faceIndex, Vec3* contactPoint, SpCollisionDetails* details);
+		sp_bool collisionStatusCache(SpCollisionDetectorCache* cache, Vec3* contactPoint, SpCollisionDetails* details);
 
 	public:
 
@@ -53,7 +77,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void filterCollision(SpCollisionDetails* details) const;
 
-		API_INTERFACE CollisionStatus collisionStatus(Vec3* contactPoint, sp_bool* searchOnObj1, sp_uint* edgeIndex, sp_uint* faceIndex, SpCollisionDetails* details);
+		API_INTERFACE CollisionStatus collisionStatus(Vec3* contactPoint, SpCollisionDetectorCache* cache, SpCollisionDetails* details);
 
 		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const;
 

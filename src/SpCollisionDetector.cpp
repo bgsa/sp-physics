@@ -142,67 +142,50 @@ namespace NAMESPACE_PHYSICS
 
 		return false;
 	}
-
-	sp_bool SpCollisionDetector::intersectionEdgeObj1(sp_uint edgeIndex, sp_uint faceIndex, Vec3* contactPoint, SpCollisionDetails* details)
-	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
-		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
-
-		return mesh1->edges->get(edgeIndex)->intersection(
-				*mesh2->faces->get(faceIndex),
-				contactPoint,
-				*simulator->transforms(details->objIndex1),
-				*simulator->transforms(details->objIndex2)
-			);
-	}
 	
-	sp_bool SpCollisionDetector::intersectionEdgeObj2(sp_uint edgeIndex, sp_uint faceIndex, Vec3* contactPoint, SpCollisionDetails* details)
+	sp_bool SpCollisionDetector::collisionStatusCache(SpCollisionDetectorCache* cache, Vec3* contactPoint, SpCollisionDetails* details)
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
-		return mesh2->edges->get(edgeIndex)->intersection(
-			*mesh1->faces->get(faceIndex),
+		if (cache->searchOnObj1)
+			return mesh2->edges->get(cache->edgeIndex)->intersection(
+				*mesh1->faces->get(cache->faceIndex),
+				contactPoint,
+				*simulator->transforms(details->objIndex2),
+				*simulator->transforms(details->objIndex1)
+			);
+
+		return mesh1->edges->get(cache->edgeIndex)->intersection(
+			*mesh2->faces->get(cache->faceIndex),
 			contactPoint,
-			*simulator->transforms(details->objIndex2),
-			*simulator->transforms(details->objIndex1)
+			*simulator->transforms(details->objIndex1),
+			*simulator->transforms(details->objIndex2)
 		);
 	}
 
-	CollisionStatus SpCollisionDetector::collisionStatus(Vec3* contactPoint, sp_bool* searchOnObj1, sp_uint* edgeIndex, sp_uint* faceIndex, SpCollisionDetails* details)
+	CollisionStatus SpCollisionDetector::collisionStatus(Vec3* contactPoint, SpCollisionDetectorCache* cache, SpCollisionDetails* details)
 	{
-		sp_bool hasCollision;
-
-		/*
-		if (edgeIndex[0] != SP_UINT_MAX)
-		{
-			// check if the edge-face keep in contact,
-			// if false, search on general collisionStatus
-			if (searchOnObj1)
-				hasCollision = intersectionEdgeObj2(edgeIndex[0], faceIndex[0], contactPoint, details);
-			else
-				hasCollision = intersectionEdgeObj1(edgeIndex[0], faceIndex[0], contactPoint, details);
-		
-			if (hasCollision)
+		// check if the edge-face keep in contact,
+		// if false, search on general collisionStatus
+		if (cache->hasCache())
+			if (collisionStatusCache(cache, contactPoint, details))
 				return CollisionStatus::INSIDE;
-		}
-		*/
 
-		hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, contactPoint, edgeIndex, faceIndex, details);
+		sp_bool hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, contactPoint, &cache->edgeIndex, &cache->faceIndex, details);
 		
 		if (hasCollision)
 		{
-			searchOnObj1[0] = false;
+			cache->searchOnObj1 = false;
 			return CollisionStatus::INSIDE;
 		}
 
-		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, contactPoint, edgeIndex, faceIndex, details);
+		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, contactPoint, &cache->edgeIndex, &cache->faceIndex, details);
 
 		if (hasCollision)
 		{
-			searchOnObj1[0] = true;
+			cache->searchOnObj1 = true;
 			return CollisionStatus::INSIDE;
 		}
 
@@ -236,9 +219,8 @@ namespace NAMESPACE_PHYSICS
 		sp_float elapsedTime = details->timeStep * HALF_FLOAT;
 		sp_float wasInsideAt = ZERO_FLOAT;
 		Vec3 contactPoint;
-		sp_bool searchOnObj1;
-		sp_uint edgeIndex = SP_UINT_MAX, faceIndex = SP_UINT_MAX;
-		
+		SpCollisionDetectorCache cache;
+
 		while ((status != CollisionStatus::INSIDE || diff > _epsilon) && diff > 0.01f)
 		{
 			simulator->backToTime(details->objIndex1);
@@ -247,7 +229,7 @@ namespace NAMESPACE_PHYSICS
 			simulator->backToTime(details->objIndex2);
 			simulator->integrator->execute(details->objIndex2, elapsedTime);
 
-			status = collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, details);
+			status = collisionStatus(&contactPoint, &cache, details);
 
 			diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
@@ -277,10 +259,10 @@ namespace NAMESPACE_PHYSICS
 			simulator->backToTime(details->objIndex2);
 			simulator->integrator->execute(details->objIndex2, elapsedTime);
 
-			collisionStatus(&contactPoint, &searchOnObj1, &edgeIndex, &faceIndex, details);
+			collisionStatus(&contactPoint, &cache, details);
 		}
 
-		if (searchOnObj1)
+		if (cache.searchOnObj1)
 		{
 			const sp_uint meshIndex = simulator->collisionFeatures(details->objIndex1)->meshIndex;
 			SpMesh* mesh = simulator->mesh(meshIndex);
