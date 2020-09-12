@@ -39,17 +39,20 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the direction of line
 		///</summary>
-		API_INTERFACE Vec3 direction() const;
+		API_INTERFACE inline void direction(Vec3* output) const
+		{
+			NAMESPACE_PHYSICS::normalize(point2 - point1, output);
+		}
 
 		///<summary>
 		/// Get the SQUARED distance from SEGMENT of line and an arbitrary point
 		///</summary>
-		API_INTERFACE float squaredDistance(const Vec3& target) const;
+		API_INTERFACE sp_float squaredDistance(const Vec3& target) const;
 
 		///<summary>
 		/// Get the SQUARED distance from SEGMENT of line and an arbitrary point
 		///</summary>
-		API_INTERFACE float distance(const Vec3& target) const;
+		API_INTERFACE sp_float distance(const Vec3& target) const;
 
 		///<summary>
 		///Returns the center of the segment of line
@@ -77,7 +80,17 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="line">Line Segment</param>
 		/// <param name="_epsilon">Error Margin</param>
 		/// <returns>True if they are parallel or else false</returns>
-		API_INTERFACE sp_bool isParallel(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const;
+		API_INTERFACE sp_bool isParallel(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			Vec3 direction1, direction2;
+			direction(&direction1);
+			line.direction(&direction2);
+
+			Vec3 crossedVector;
+			NAMESPACE_PHYSICS::cross(direction2, direction1, &crossedVector);
+
+			return crossedVector.isCloseEnough(ZERO_FLOAT, _epsilon);
+		}
 		
 		/// <summary>
 		/// Check if the lines are perpendicular
@@ -85,7 +98,13 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="line">Line Segment</param>
 		/// <param name="_epsilon">Error Margin</param>
 		/// <returns>True if they are penpendicular or else false</returns>
-		API_INTERFACE sp_bool isPerpendicular(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const;
+		API_INTERFACE sp_bool isPerpendicular(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			Vec3 _direction;
+			line.direction(&_direction);
+
+			return isPerpendicular(_direction, _epsilon);
+		}
 
 		/// <summary>
 		/// Check if this line is perpendicular with a normal vector
@@ -93,7 +112,13 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="direction">Normal vector</param>
 		/// <param name="_epsilon">Error Margin</param>
 		/// <returns>True if they are penpendicular or else false</returns>
-		API_INTERFACE sp_bool isPerpendicular(const Vec3& direction, const sp_float _epsilon = DefaultErrorMargin) const;
+		API_INTERFACE sp_bool isPerpendicular(const Vec3& _direction, const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			Vec3 _direction2;
+			direction(&_direction2);
+
+			return isCloseEnough(_direction.dot(_direction2), ZERO_FLOAT, _epsilon);
+		}
 
 		///<summary>
 		/// Check the ray has intersection with the sphere

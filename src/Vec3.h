@@ -436,6 +436,12 @@ namespace NAMESPACE_PHYSICS
 		output->y = vec1.y + vec2.y;
 		output->z = vec1.z + vec2.z;
 	}
+	API_INTERFACE inline void diff(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	{
+		output->x = vec1.x - vec2.x;
+		output->y = vec1.y - vec2.y;
+		output->z = vec1.z - vec2.z;
+	}
 	API_INTERFACE inline void multiply(const Vec3& vec1, const Vec3& vec2, Vec3* output)
 	{
 		output->x = vec1.x * vec2.x;
@@ -459,6 +465,25 @@ namespace NAMESPACE_PHYSICS
 		vector->x *= vectorLengthInverted;
 		vector->y *= vectorLengthInverted;
 		vector->z *= vectorLengthInverted;
+	}
+
+	/// <summary>
+	/// Normalize the vector
+	/// </summary>
+	/// <param name="input">Vector to be normalized</param>
+	/// <param name="output">Normalized vector</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void normalize(const Vec3& input, Vec3* output)
+	{
+		const sp_float len = input.length();
+
+		sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
+
+		const sp_float vectorLengthInverted = ONE_FLOAT / len;
+
+		output->x = input.x * vectorLengthInverted;
+		output->y = input.y * vectorLengthInverted;
+		output->z = input.z * vectorLengthInverted;
 	}
 
 	/// <summary>
@@ -497,10 +522,8 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>void</returns>
 	API_INTERFACE inline void normal(const Vec3& p1, const Vec3& p2, const Vec3& p3, Vec3* output)
 	{
-		const Vec3 edge1 = p2 - p1; // right-hand rule (B-A)x(C-A)
-		const Vec3 edge2 = p3 - p2;
-
-		cross(edge2, edge1, output);
+		// right-hand rule (B-A)x(C-A)
+		cross(p3 - p2, p2 - p1, output);
 		normalize(output);
 	}
 

@@ -29,11 +29,6 @@ namespace NAMESPACE_PHYSICS
 		this->point2 = Vec3(point2[0], point2[1], point2[2]);
 	}
 
-	Vec3 Line3D::direction() const
-	{
-		return (point2 - point1).normalize();
-	}
-
 	Vec3 Line3D::centerOfSegment() const
 	{
 		return (point1 + point2) * 0.5f;
@@ -77,21 +72,6 @@ namespace NAMESPACE_PHYSICS
 			return true;
 
 		return false;
-	}
-
-	sp_bool Line3D::isParallel(const Line3D& line, const sp_float _epsilon) const
-	{
-		return line.direction().cross(direction()).isCloseEnough(_epsilon);
-	}
-
-	sp_bool Line3D::isPerpendicular(const Line3D& line, const sp_float _epsilon) const
-	{
-		return isPerpendicular(line.direction(), _epsilon);
-	}
-
-	sp_bool Line3D::isPerpendicular(const Vec3& _direction, const sp_float _epsilon) const
-	{
-		return isCloseEnough(_direction.dot(direction()), ZERO_FLOAT, _epsilon);
 	}
 
 	sp_bool Line3D::intersection(const Triangle3D& triangle, Vec3* point) const
@@ -198,20 +178,22 @@ namespace NAMESPACE_PHYSICS
 
 	DetailedCollisionStatus Line3D::findIntersectionOnRay(const Sphere& sphere) const
 	{
-		Vec3 lineDirection = direction();
+		Vec3 lineDirection;
 		Vec3 point1ToSphere = point1 - sphere.center;
+
+		direction(&lineDirection);
 
 		sp_float b = point1ToSphere.dot(lineDirection);
 		sp_float c = point1ToSphere.dot(point1ToSphere) - (sphere.ray * sphere.ray);
 		
 		// Exit if r�s origin outside sphere (c > 0) and ray pointing away from sphere (b > 0) 
-		if (c > 0.0f && b > 0.0f)
+		if (c > ZERO_FLOAT && b > ZERO_FLOAT)
 			return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 		
 		sp_float discriminant = b * b - c;    // d = b^2 - c
 		
 		// A negative discriminant corresponds to ray missing sphere 
-		if (discriminant < 0.0f) // the quadratic equation has not real root
+		if (discriminant < ZERO_FLOAT) // the quadratic equation has not real root
 			return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 
 		sp_float sqrtDisctiminant = sqrtf(discriminant);
@@ -258,7 +240,8 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_float tmin = ZERO_FLOAT;
 		sp_float tmax = SP_FLOAT_MAX;
-		Vec3 lineDirection = direction();
+		Vec3 lineDirection;
+		direction(&lineDirection);
 
 		// For all three slabs (planes on AABB)
 		for (int i = 0; i < 3; i++) 
