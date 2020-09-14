@@ -8,13 +8,14 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
-		SP_TEST_METHOD_DEF(barycentric_Test);
-		SP_TEST_METHOD_DEF(edges_Test);
-		SP_TEST_METHOD_DEF(project_Test);
-		SP_TEST_METHOD_DEF(isInside_Test);
+		SP_TEST_METHOD_DEF(barycentric);
+		SP_TEST_METHOD_DEF(convert_lines);
+		SP_TEST_METHOD_DEF(project);
+		SP_TEST_METHOD_DEF(isInside_1);
+		SP_TEST_METHOD_DEF(isInside_2);
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, barycentric_Test)
+	SP_TEST_METHOD(CLASS_NAME, barycentric)
 	{
 		Triangle3D triangle = Triangle3D(
 			Vec3(0.0f, 0.0f, 0.0f),
@@ -37,7 +38,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::IsTrue(isCloseEnough(p[i], point[i]), L"Wrong value.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, edges_Test)
+	SP_TEST_METHOD(CLASS_NAME, convert_lines)
 	{
 		const Vec3 point1 = Vec3(0.0f, 0.0f, 0.0f);
 		const Vec3 point2 = Vec3(10.0f, 0.0f, 0.0f);
@@ -45,14 +46,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		Triangle3D triangle = Triangle3D(point1, point2, point3);
 		
 		Line3D result[3];
-		triangle.edges(result);
+		triangle.convert(result);
 
 		Assert::IsTrue(result[0].point1 == point1 && result[0].point2 == point2, L"Wrong value.");
 		Assert::IsTrue(result[1].point1 == point2 && result[1].point2 == point3, L"Wrong value.");
 		Assert::IsTrue(result[2].point1 == point3 && result[2].point2 == point1, L"Wrong value.");
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, project_Test)
+	SP_TEST_METHOD(CLASS_NAME, project)
 	{
 		const Vec3 point1 (0.0f, 0.0f, 0.0f);
 		const Vec3 point2 (10.0f, 0.0f, 0.0f);
@@ -73,7 +74,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(expected == result, L"Wrong value.");
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, isInside_Test)
+	SP_TEST_METHOD(CLASS_NAME, isInside_1)
 	{
 		const Vec3 point1(0.0f, 0.0f, 0.0f);
 		const Vec3 point2(10.0f, 0.0f, 0.0f);
@@ -87,6 +88,20 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		target = Vec3(-3.0f, 1.0f, 0.0f);
 		result = triangle.isInside(target);
+
+		Assert::IsFalse(result, L"Wrong value.");
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, isInside_2)
+	{
+		Triangle3D triangle(
+			Vec3(1.4f, 1.0f, 0.0f),
+			Vec3(1.4f, -1.0f, 0.0f),
+			Vec3(0.0f, -1.0f, 1.4f)
+		);
+
+		Vec3 target(1.83f, 0.0f, 1.25f);
+		sp_bool result = triangle.isInside(target);
 
 		Assert::IsFalse(result, L"Wrong value.");
 	}

@@ -7,6 +7,27 @@
 
 namespace NAMESPACE_PHYSICS
 {
+
+	/// <summary>
+	/// Compute the area of triangle ABC
+	/// </summary>
+	/// <param name="a">Point A</param>
+	/// <param name="b">Point B</param>
+	/// <param name="c">Point C</param>
+	/// <returns>Total area</returns>
+	API_INTERFACE inline sp_float area(const Vec3& a, const Vec3& b, const Vec3& c)
+	{
+		Vec3 ab, ca;
+
+		diff(b, a, &ab);
+		diff(c, a, &ca);
+
+		Vec3 temp;
+		cross(ab, ca, &temp);
+
+		return temp.length() * HALF_FLOAT;
+	}
+
 	class Triangle3D
 	{
 	public:
@@ -16,23 +37,28 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline Triangle3D() { }
 
-		API_INTERFACE Triangle3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
+		API_INTERFACE inline Triangle3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 		{
 			this->point1 = point1;
 			this->point2 = point2;
 			this->point3 = point3;
 		}
 
-		API_INTERFACE Triangle3D(sp_float* point1, sp_float* point2, sp_float* point3)
+		API_INTERFACE inline Triangle3D(sp_float* point1, sp_float* point2, sp_float* point3)
 		{
 			this->point1 = Vec3(point1[0], point1[1], point1[2]);
 			this->point2 = Vec3(point2[0], point2[1], point2[2]);
 			this->point3 = Vec3(point3[0], point3[1], point3[2]);
 		}
 
-		API_INTERFACE void normalFace(Vec3* output) const
+		API_INTERFACE inline void normalFace(Vec3* output) const
 		{
 			normal(point1, point2, point3, output);
+		}
+
+		API_INTERFACE inline sp_float area() const
+		{
+			return NAMESPACE_PHYSICS::area(point1, point2, point3);
 		}
 
 		API_INTERFACE inline void barycentric(const Vec3& point, Vec3* output) const
@@ -61,7 +87,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="line"></param>
 		/// <returns>void</returns>
-		API_INTERFACE void edges(Line3D* lines) const;
+		API_INTERFACE void convert(Line3D* lines) const;
 
 		/// <summary>
 		/// Check if the target is Inside the triangle/face
@@ -70,13 +96,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="target">Arbitrary point</param>
 		/// <param name="_epsilon">Error margin</param>
 		/// <returns>True if the point relies on triangle</returns>
-		API_INTERFACE inline sp_bool isInside(const Vec3& target, const sp_float _epsilon = DefaultErrorMargin) const
-		{
-			Vec3 barycentricCoord;
-			barycentric(target, &barycentricCoord);
-
-			return barycentricCoord >= (ZERO_FLOAT - _epsilon);
-		}
+		API_INTERFACE sp_bool isInside(const Vec3& target, const sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
 		/// Project the point (target parameter) in the triangle
@@ -84,7 +104,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="target">Arbitraty point</param>
 		/// <param name="output">Projected point</param>
 		/// <returns>Output parameter</returns>
-		API_INTERFACE inline void project(const Vec3& target, Vec3* output) const;
+		API_INTERFACE void project(const Vec3& target, Vec3* output) const;
 
 		/* not working ....   taken from book collision detection 
 		API_INTERFACE inline Vec3 closestPoint(const Vec3& target) const

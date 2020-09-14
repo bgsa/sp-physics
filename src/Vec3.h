@@ -501,6 +501,20 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	/// <summary>
+	/// Scalar triple product = (AxB).C
+	/// </summary>
+	/// <param name="a">First vector</param>
+	/// <param name="b">Second vector</param>
+	/// <param name="c">Third vector</param>
+	/// <returns>Value</returns>
+	API_INTERFACE inline sp_float scalarTriple(const Vec3& a, const Vec3& b, const Vec3& c)
+	{
+		Vec3 temp;
+		cross(a, b, &temp);
+		return temp.dot(c);
+	}
+
+	/// <summary>
 	/// Define if the rays are perpendicular
 	/// </summary>
 	/// <param name="ray1">Normalized Ray 1</param>

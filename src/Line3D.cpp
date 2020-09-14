@@ -74,8 +74,39 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	sp_bool Line3D::intersection(const Triangle3D& triangle, Vec3* point) const
+	sp_bool Line3D::intersection(const Triangle3D& triangle, Vec3* point, const sp_float _epsilon) const
 	{
+		/*
+		Vec3 pq = point2 - point1;
+		Vec3 pa = triangle.point1 - point1;
+		Vec3 pb = triangle.point2 - point1;
+		Vec3 pc = triangle.point3 - point1;
+
+		// Test if pq is inside the edges bc, ca and ab. Done by testing  
+		// that the signed tetrahedral volumes, computed using scalar triple  
+		// products, are all positive  
+		point->x = ScalarTriple(pq, pc, pb);
+		if (point->x < ZERO_FLOAT)
+			return false;
+
+		point->y = ScalarTriple(pq, pa, pc);
+		if (point->y < ZERO_FLOAT)
+			return false;
+
+		point->z = ScalarTriple(pq, pb, pa);
+		if (point->z < ZERO_FLOAT)
+			return false;
+
+		// Compute the barycentric coordinates (u, v, w) determining the  
+		// intersection point r, r = u*a + v*b + w*c  
+		const sp_float denom = ONE_FLOAT / (u + v + w);
+		point->x *= denom;
+		point->x *= denom;
+		point->x *= denom;
+
+		return true;
+		*/
+
 		Vec3 triangleNormal;
 		triangle.normalFace(&triangleNormal);
 		
@@ -95,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 		if (!trianglePlane.intersection(*this, point))
 			return false;
 
-		if (!triangle.isInside(*point))
+		if (!triangle.isInside(*point, _epsilon))
 			return false;
 
 		return true;

@@ -52,6 +52,8 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		API_INTERFACE void convert(Line3D* line, const SpTransform& transform) const;
+		
+		API_INTERFACE void convert(Ray* ray, const SpTransform& transform) const;
 
 		API_INTERFACE inline sp_bool isBoundaryEdge() const
 		{

@@ -281,15 +281,15 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f)), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f)), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, -1.0f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, -1.0f, 1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[2].isCloseEnough(Vec3(1.0f, 1.0f, 1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[3].isCloseEnough(Vec3(1.0f, 1.0f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, -1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, -1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[2].isCloseEnough(Vec3(1.0f, 1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[3].isCloseEnough(Vec3(1.0f, 1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
-		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -325,19 +325,15 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f)), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f)), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, -0.5f, 0.5f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, 1.0f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[2].isCloseEnough(Vec3(1.0f, 1.0f, 0.5f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[3].isCloseEnough(Vec3(1.0f, -0.5f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, 1.0f, -1.0f ), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, -0.5f, 0.5f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[2].isCloseEnough(Vec3(1.0f, 1.0f, 0.5f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[3].isCloseEnough(Vec3(1.0f, -0.5f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
-		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.25f, -0.25f), 0.009f), L"Wrong value", LINE_INFO());
-
-		propertiesObj2->previousState.velocity(Vec3(ZERO_FLOAT));
-		propertiesObj2->currentState.velocity(Vec3(ZERO_FLOAT));
-		simulator->position(1u, Vec3(ZERO_FLOAT));
+		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.25f, -0.25f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -431,15 +427,15 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(0.0f, 1.0f, 0.0f)), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(0.0f, -1.0f, 0.0f)), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(0.0f, 1.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(0.0f, -1.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, -1.0f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, -1.0f, 1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[2].isCloseEnough(Vec3(1.0f, 1.0f, 1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[3].isCloseEnough(Vec3(1.0f, 1.0f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, 1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(-1.0f, 1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[2].isCloseEnough(Vec3(1.0f, 1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[3].isCloseEnough(Vec3(-1.0f, 1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
-		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(0.0f, 1.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -478,17 +474,15 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.type == SpCollisionType::EdgeFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
-		
-		Assert::IsTrue(details.contactPointsLength == 2u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.contactPointsLength == 2u, L"Wrong value.", LINE_INFO());
-	
-		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, 0.5f, -1.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, 0.5f, 0.5f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.5f, -0.25f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPointsLength == 2u, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.0f, 0.5f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[1].isCloseEnough(Vec3(1.0f, 0.5f, 0.5f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+
+		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.0f, 0.5f, -0.25f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -535,12 +529,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::EdgeEdge, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 
 		Assert::IsTrue(details.contactPointsLength == 1u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.414214f, 0.0f, 0.0f), 0.009f), L"Wrong value", LINE_INFO());
-		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.413911f, 0.0f, 0.0f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(1.414214f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.centerContactPoint.isCloseEnough(Vec3(1.413911f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -580,10 +574,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::PointFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 1u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj1.isCloseEnough(Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.collisionNormalObj2.isCloseEnough(Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(0.9f, -0.127f, 0.127f), 0.009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(details.contactPoints[0].isCloseEnough(Vec3(0.9f, -0.127f, 0.127f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		
 		TestPhysic::unlock();
 	}

@@ -34,6 +34,16 @@ namespace NAMESPACE_PHYSICS
 		mesh->vertex(vertexIndex2, transform, &line->point2);
 	}
 
+	void SpEdgeMesh::convert(Ray* ray, const SpTransform& transform) const
+	{
+		mesh->vertex(vertexIndex1, transform, &ray->point);
+		mesh->vertex(vertexIndex2, transform, &ray->direction);
+
+		diff(ray->direction, ray->point, &ray->direction);
+		
+		normalize(&ray->direction);
+	}
+
 	void SpEdgeMesh::addFace(const SpFaceMesh& face)
 	{
 		if (faces.length() > ZERO_UINT && faces[0] == face.index())

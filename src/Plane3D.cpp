@@ -35,25 +35,23 @@ namespace NAMESPACE_PHYSICS
 
 		sp_float t = (normalVector.dot(line.point1) + distanceFromOrigin) / angle;
 
-		if (t >= ZERO_FLOAT || t <= ONE_FLOAT)
+		if (t > ZERO_FLOAT && t <= ONE_FLOAT)
 		{
-			contactPoint->x = line.point1[0] + lineAsVector[0] * t;
-			contactPoint->y = line.point1[1] + lineAsVector[1] * t;
-			contactPoint->z = line.point1[2] + lineAsVector[2] * t;
+			contactPoint->x = line.point1.x + lineAsVector.x * t;
+			contactPoint->y = line.point1.y + lineAsVector.y * t;
+			contactPoint->z = line.point1.z + lineAsVector.z * t;
 			return true;
 		}
 
-		t = (normalVector.dot(line.point2) + distanceFromOrigin) / angle;
-
-		if (t >= ZERO_FLOAT || t <= ONE_FLOAT)
+		if (t >= -ONE_FLOAT && t <= ZERO_FLOAT)
 		{
-			contactPoint->x = line.point2.x - lineAsVector.x * t;
-			contactPoint->y = line.point2.y - lineAsVector.y * t;
-			contactPoint->z = line.point2.z - lineAsVector.z * t;
+			contactPoint->x = line.point2.x + lineAsVector.x * t;
+			contactPoint->y = line.point2.y + lineAsVector.y * t;
+			contactPoint->z = line.point2.z + lineAsVector.z * t;
 			return true;
 		}
 		
-		return true;
+		return false;
 	}
 
 	void Plane3D::closestPoint(const Line3D& line, Vec3* closest) const

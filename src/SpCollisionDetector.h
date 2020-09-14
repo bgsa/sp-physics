@@ -23,8 +23,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void clear()
 		{
-			edgeIndex = ZERO_UINT;
-			faceIndex = ZERO_UINT;
+			edgeIndex = SP_UINT_MAX;
+			faceIndex = SP_UINT_MAX;
 			searchOnObj1 = false;
 		}
 

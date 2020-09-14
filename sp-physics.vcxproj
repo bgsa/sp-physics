@@ -214,6 +214,7 @@
     <ClCompile Include="src\ParticleSystem.cpp" />
     <ClCompile Include="src\Plane3D.cpp" />
     <ClCompile Include="src\Quat.cpp" />
+    <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\SpCollisionDetector.cpp" />
     <ClCompile Include="src\SpCollisionResponse.cpp" />

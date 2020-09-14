@@ -3,6 +3,12 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	SpEdgeMesh* SpVertexMesh::findEdges(const sp_uint vertexIndex) const
+	{
+		const sp_uint edgeIndex = _mesh->findEdge(_index, _edgeVertexIndex->get(vertexIndex));
+		return _mesh->edges->get(edgeIndex);
+	}
+
 	void SpVertexMesh::findFacesFromIndexes(Triangle3D* outputFaces, sp_uint* facesLength, const SpTransform* transform) const
 	{
 		facesLength[0] = ZERO_UINT;

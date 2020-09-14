@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_assert(index < 3u, "IndexOutOfRangeException");
 
-		return mesh->edges->data()[edgesIndexes[index]];
+		return mesh->edges->get(edgesIndexes[index]);
 	}
 
 	void SpFaceMesh::convert(Vec3* vertexes, const SpTransform& transform) const
@@ -120,7 +120,7 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	sp_bool SpFaceMesh::isInside(const Vec3& vertex, const SpTransform& transformFace, const sp_float _epsilon ) const
+	sp_bool SpFaceMesh::isInside(const Vec3& vertex, const SpTransform& transformFace, const sp_float _epsilon) const
 	{
 		Triangle3D triangle;
 		this->convert(&triangle, transformFace);

@@ -35,10 +35,23 @@ namespace NAMESPACE_PHYSICS
 		{
 			return _edgeVertexIndex->length();
 		}
-		API_INTERFACE inline sp_uint edgeVertexIndex(const sp_uint index) const
+		
+		/// <summary>
+		/// Get the global edge index, given a vertex index
+		/// </summary>
+		/// <param name="vertexIndex">Local Vertex Index</param>
+		/// <returns>Global Vertex Index</returns>
+		API_INTERFACE inline sp_uint edgeVertexIndex(const sp_uint vertexIndex) const
 		{
-			return _edgeVertexIndex->data()[index];
+			return _edgeVertexIndex->get(vertexIndex);
 		}
+		
+		/// <summary>
+		/// Get the Edge Object, given a vertex index
+		/// </summary>
+		/// <param name="vertexIndex">Local Vertex Index</param>
+		/// <returns>Edge Object</returns>
+		API_INTERFACE inline SpEdgeMesh* findEdges(const sp_uint vertexIndex) const;
 
 		API_INTERFACE inline sp_uint faceIndexLength() const
 		{

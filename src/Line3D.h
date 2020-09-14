@@ -135,9 +135,10 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="triangle">Target</param>
 		/// <param name="point">Intersection point</param>
+		/// <param name="_epsilon">Error margin</param>
 		/// <param name="hasIntersection">True if has intersection or else False</param>
 		/// <returns>void</returns>
-		API_INTERFACE sp_bool intersection(const Triangle3D& triangle, Vec3* point) const;
+		API_INTERFACE sp_bool intersection(const Triangle3D& triangle, Vec3* point, const sp_float _epsilon = DefaultErrorMargin) const;
 
 		///<summary>
 		/// Find intersection of line against a phere

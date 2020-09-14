@@ -18,6 +18,8 @@ using namespace NAMESPACE_FOUNDATION;
 
 namespace NAMESPACE_PHYSICS
 {
+#define ERROR_MARGIN_PHYSIC 0.02f
+
 	enum class CollisionStatus { OUTSIDE, INLINE, INSIDE };
 
 	class Vec2;
