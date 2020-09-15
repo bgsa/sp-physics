@@ -84,6 +84,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_float t = numerator / angle;
 
 			contactPoint[0] = ray.point + ray.direction * t;
+			return true;
 		}
 
 		/// <summary>

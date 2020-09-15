@@ -727,14 +727,6 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		sp_char text1[4000];
-		Maple::convert(*mesh1, transform1, "mesh1", "red", text1);
-		sp_char text2[4000];
-		Maple::convert(*mesh2, transform2, "mesh2", "blue", text2);
-		sp_char t[200];
-		sp_uint a = ZERO_UINT;
-		Maple::display("mesh1", "mesh2", t, &a);
-
 		if (isCloseEnough(smallestDistance, ZERO_FLOAT, 0.009f))
 		{
 			details->type = SpCollisionType::EdgeEdge;
@@ -742,7 +734,6 @@ namespace NAMESPACE_PHYSICS
 			details->contactPoints[0] = contact;
 			details->centerContactPoint = contact;
 
-			//lines[0]->cross(*lines[1], &details->collisionNormalObj1);
 			normalize(&details->collisionNormalObj1);
 			details->collisionNormalObj2 = -details->collisionNormalObj1;
 
