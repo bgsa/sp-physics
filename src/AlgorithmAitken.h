@@ -5,7 +5,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
 	class AlgorithmAitken
 	{
 	public:
@@ -16,7 +15,7 @@ namespace NAMESPACE_PHYSICS
 		/// Find all values where x = y in the functions
 		/// If the functions is optiomize using Newton concepts, it finds Zeros in function efficiently
 		///</summary>
-		API_INTERFACE T solve(T approximation, T functor(T), int maxOfInteration = 100);
+		API_INTERFACE sp_float solve(sp_float approximation, sp_float functor(sp_float), sp_int maxOfInteration = 100);
 
 	};
 }

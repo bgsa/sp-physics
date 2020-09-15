@@ -13,10 +13,10 @@ namespace NAMESPACE_PHYSICS
 			sp_int maxi = i;
 			
 			for (sp_int k = i + 1; k < m; ++k)
-				if (abs(matrix[k * rowSize + j]) > abs(matrix[maxi * rowSize + j]))
+				if (fabsf(matrix[k * rowSize + j]) > fabsf(matrix[maxi * rowSize + j]))
 					maxi = k;
 
-			if (matrix[maxi * rowSize + j] != 0.0f)
+			if (matrix[maxi * rowSize + j] != ZERO_FLOAT)
 			{
 				if (i != maxi)
 					for (sp_int k = 0; k < rowSize; k++)

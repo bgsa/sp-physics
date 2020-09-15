@@ -62,31 +62,34 @@ namespace NAMESPACE_PHYSICS
 	Sphere::Sphere(const Vec3 &point1, const Vec3 &point2)
 	{
 		Line3D line = Line3D(point1, point2);
-		this->center = line.centerOfSegment();
-		this->ray = line.lengthOfSegment() / 2.0f;
+		line.center(&center);
+		ray = line.lengthOfSegment() * HALF_FLOAT;
 	}
 
 	Sphere::Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3)
 	{
 		Vec3 ac = point3 - point1;
 		Vec3 ab = point2 - point1;
-		Vec3 abXac = ab.cross(ac);
+		Vec3 abXac, temp1, temp2;
+		cross(ab, ac, &abXac);
+		cross(abXac, ab, &temp1);
+		cross(ac, abXac, &temp2);
 
 		// this is the vector from a TO the circumsphere center
-		Vec3 toCircumsphereCenter = (abXac.cross(ab) * ac.squaredLength() + ac.cross(abXac) * ab.squaredLength()) / (2.0f*abXac.squaredLength());
+		const Vec3 toCircumsphereCenter = (temp1 * ac.squaredLength() + temp2 *ab.squaredLength()) / (TWO_FLOAT * abXac.squaredLength());
 		
 		// The 3 space coords of the circumsphere center then:
-		this->center = point1 + toCircumsphereCenter; // now this is the actual 3space location
-		this->ray = toCircumsphereCenter.length();
+		center = point1 + toCircumsphereCenter; // now this is the actual 3space location
+		ray = toCircumsphereCenter.length();
 	}
 
 	Sphere::Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3, const Vec3 &point4)
 	{
 		Mat4 m = Mat4(
-			Vec4(point1, 1.0f),
-			Vec4(point2, 1.0f),
-			Vec4(point3, 1.0f),
-			Vec4(point4, 1.0f)
+			Vec4(point1, ONE_FLOAT),
+			Vec4(point2, ONE_FLOAT),
+			Vec4(point3, ONE_FLOAT),
+			Vec4(point4, ONE_FLOAT)
 			);
 
 		sp_float invertedDeterminant = 1.0f / m.determinant();

@@ -15,7 +15,7 @@ namespace NAMESPACE_PHYSICS
 			const Vec3 firstNormalFace = allFaces[faces[0]]->faceNormal;
 			const Vec3 secondNormalFace = allFaces[faces[1]]->faceNormal;
 
-			_isBoundaryEdge = !firstNormalFace.isCloseEnough(secondNormalFace);
+			_isBoundaryEdge = !isCloseEnough(firstNormalFace, secondNormalFace);
 		}
 	}
 

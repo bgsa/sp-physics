@@ -13,14 +13,23 @@ namespace NAMESPACE_PHYSICS
 			return;
 
 		tangent = tangent.normalize();
-		sp_float numerator = -relativeVel.dot(tangent);
-		Vec3 d2 = (obj1Properties->inertialTensorInverse() * tangent.cross(rayToContactObj1)).cross(rayToContactObj1);
-		Vec3 d3 = (obj2Properties->inertialTensorInverse() * tangent.cross(rayToContactObj2)).cross(rayToContactObj2);
+
+		Vec3 temp1, temp2;
+		cross(tangent, rayToContactObj1, &temp1);
+		cross(tangent, rayToContactObj2, &temp2);
+
+		Vec3 d2;
+		cross(obj1Properties->inertialTensorInverse() * temp1, rayToContactObj1, &d2);
+		
+		Vec3 d3;
+		cross(obj2Properties->inertialTensorInverse() * temp2, rayToContactObj2, &d3);
+		
 		sp_float denominator = invMassSum + tangent.dot(d2 + d3);
 
-		if (denominator == 0.0f)
+		if (denominator == ZERO_FLOAT)
 			return;
 
+		const sp_float numerator = -relativeVel.dot(tangent);
 		sp_float jt = numerator / denominator;
 
 		if (isCloseEnough(jt, 0.0f))
@@ -36,11 +45,14 @@ namespace NAMESPACE_PHYSICS
 
 		const Vec3 tangentImpuse = tangent * jt;
 
+		cross(rayToContactObj1, tangentImpuse, &temp1);
+		cross(rayToContactObj2, tangentImpuse, &temp2);
+
 		obj1Properties->currentState._velocity = obj1Properties->currentState.velocity() - tangentImpuse * obj1Properties->massInverse();
-		obj1Properties->currentState._angularVelocity = obj1Properties->currentState.angularVelocity() - obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(tangentImpuse);
+		obj1Properties->currentState._angularVelocity = obj1Properties->currentState.angularVelocity() - obj1Properties->inertialTensorInverse() * temp1;
 
 		obj2Properties->currentState._velocity = obj2Properties->currentState.velocity() + tangentImpuse * obj2Properties->massInverse();
-		obj2Properties->currentState._angularVelocity = obj2Properties->currentState.angularVelocity() + obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(tangentImpuse);
+		obj2Properties->currentState._angularVelocity = obj2Properties->currentState.angularVelocity() + obj2Properties->inertialTensorInverse() * temp2;
 	}
 
 	void SpCollisionResponse::handleCollisionResponse(SpCollisionDetails* details)
@@ -77,20 +89,29 @@ namespace NAMESPACE_PHYSICS
 			//const Vec3 collisionNormal = (details->contactPointsObj1[0] - centerObj1).normalize();
 			const Vec3 collisionNormal = details->collisionNormalObj2;
 
-			const Vec3 relativeVel = (obj2Properties->currentState.velocity() + obj2Properties->currentState.angularVelocity().cross(rayToContactObj2))
-				- (obj1Properties->currentState.velocity() + obj2Properties->currentState.angularVelocity().cross(rayToContactObj1));
+
+			Vec3 temp1, temp2;
+			cross(obj2Properties->currentState.angularVelocity(), rayToContactObj1, &temp1);
+			cross(obj2Properties->currentState.angularVelocity(), rayToContactObj2, &temp2);
+
+			const Vec3 relativeVel = (obj2Properties->currentState.velocity() + temp2)
+				- (obj1Properties->currentState.velocity() + temp1);
 
 			sp_float numerator = (-(1.0f + cor) * relativeVel.dot(collisionNormal));
 
-			Vec3 d2 = (obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(collisionNormal))
-				.cross(rayToContactObj1);
+			cross(rayToContactObj1, collisionNormal, &temp1);
+			cross(rayToContactObj2, collisionNormal, &temp2);
 
-			Vec3 d3 = (obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(collisionNormal))
-				.cross(rayToContactObj2);
+			Vec3 d2;
+			cross(obj1Properties->inertialTensorInverse() * temp1, rayToContactObj1, &d2);
+
+			Vec3 d3;
+			cross(obj2Properties->inertialTensorInverse() * temp2, rayToContactObj2, &d3);
 
 			sp_float denominator = invMassSum + collisionNormal.dot(d2 + d3);
 
-			sp_float j = denominator == ZERO_FLOAT ? ZERO_FLOAT
+			sp_float j = denominator == ZERO_FLOAT 
+				? ZERO_FLOAT
 				: numerator / denominator;
 
 			if (details->contactPointsLength > ZERO_FLOAT && j != ZERO_FLOAT)
@@ -98,11 +119,14 @@ namespace NAMESPACE_PHYSICS
 
 			const Vec3 impulse = collisionNormal * j;
 
+			cross(rayToContactObj1, -impulse, &temp1);
+			cross(rayToContactObj2, impulse, &temp2);
+
 			obj1Properties->currentState._velocity = -impulse * obj1Properties->massInverse();
-			obj1Properties->currentState._angularVelocity = obj1Properties->inertialTensorInverse() * rayToContactObj1.cross(-impulse);
+			obj1Properties->currentState._angularVelocity = obj1Properties->inertialTensorInverse() * temp1;
 
 			obj2Properties->currentState._velocity = impulse * obj2Properties->massInverse();
-			obj2Properties->currentState._angularVelocity = obj2Properties->inertialTensorInverse() * rayToContactObj2.cross(impulse);
+			obj2Properties->currentState._angularVelocity = obj2Properties->inertialTensorInverse() * temp2;
 
 			//addFriction(obj1Properties, obj2Properties, relativeVel, collisionNormal , rayToContactObj1, rayToContactObj2, j);
 

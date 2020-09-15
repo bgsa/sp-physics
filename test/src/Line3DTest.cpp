@@ -11,7 +11,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(Line3D_centerOfSegment_Test1);
+		SP_TEST_METHOD_DEF(centerOfSegment);
 		SP_TEST_METHOD_DEF(Line3D_lengthOfSegment_Test1);
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test1);
 		SP_TEST_METHOD_DEF(Line3D_hasIntersectionOnSegment_AABB_Test2);
@@ -90,11 +90,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsFalse(result, L"Wrong value");
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Line3D_centerOfSegment_Test1)
+	SP_TEST_METHOD(CLASS_NAME, centerOfSegment)
 	{
 		Line3D line = Line3D(Vec3{ 2.0f, 2.0f, 2.0f }, Vec3{ 4.0f, 4.0f, 2.0f });
 
-		Vec3 center = line.centerOfSegment();
+		Vec3 center;
+		line.center(&center);
 		Vec3 expected = Vec3(3.0f, 3.0f, 2.0f);
 
 		for (int i = 0; i < 3; i++)

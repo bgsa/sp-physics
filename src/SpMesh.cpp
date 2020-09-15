@@ -186,16 +186,25 @@ namespace NAMESPACE_PHYSICS
 		{
 			SpVertexMesh* vm = vertexesMesh->data()[i];
 			vm->_edgeVertexIndex = sp_mem_new(SpArray<sp_uint>)(mapVertexEdge[i][0]);
+			vm->_edges = sp_mem_new(SpArray<sp_uint>)(mapVertexEdge[i][0]);
 
 			for (sp_uint j = 0; j < mapVertexEdge[i][0]; j++)
+			{
+				sp_uint edgIndex = findEdge(vm->_index, mapVertexEdge[i][j + 1]);
+
 				vm->_edgeVertexIndex->add(mapVertexEdge[i][j + 1]);
+				vm->_edges->add(edgIndex);
+			}
 		}
 
 		for (sp_uint i = 0; i < faces->length(); i++)
 			faces->get(i)->fillAttributes();
 
 		for (sp_uint i = 0; i < edges->length(); i++)
-			edges->get(i)->fillAttributes();
+		{
+			SpEdgeMesh* _edge = edges->get(i);
+			_edge->fillAttributes();
+		}
 	}
 	
 	SpVertexMesh* SpMesh::findExtremeVertex(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const
@@ -207,7 +216,7 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float distance = plane.distance(newVertexPosition);
 
-		for (sp_uint i = 0; i < from->edgeVertexIndexLength(); i++)
+		for (sp_uint i = 0; i < from->edgeLength(); i++)
 		{
 			const sp_uint newIndex = from->edgeVertexIndex(i);
 

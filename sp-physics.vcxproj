@@ -282,6 +282,7 @@
     <ClInclude Include="src\SpCollisionResponse.h" />
     <ClInclude Include="src\SpCollisionResponseGPU.h" />
     <ClInclude Include="src\SpFaceMesh.h" />
+    <ClInclude Include="src\SpMapleExporter.h" />
     <ClInclude Include="src\SpMesh.h" />
     <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />

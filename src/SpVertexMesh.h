@@ -19,6 +19,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _index;
 		Vec3 _value;
 		SpMesh* _mesh;
+		SpArray<sp_uint>* _edges;
 		SpArray<sp_uint>* _edgeVertexIndex;
 		SpArray<sp_uint>* facesIndexes;
 
@@ -31,11 +32,18 @@ namespace NAMESPACE_PHYSICS
 			return _mesh;
 		}
 
-		API_INTERFACE inline sp_uint edgeVertexIndexLength() const
+		API_INTERFACE inline sp_uint edgeLength() const
 		{
-			return _edgeVertexIndex->length();
+			return _edges->length();
 		}
-		
+
+		/// <summary>
+		/// Get the Edge Object, given a local edge index
+		/// </summary>
+		/// <param name="localEdgeIndex">Local Edge Index</param>
+		/// <returns>Edge Object</returns>
+		API_INTERFACE inline SpEdgeMesh* edges(const sp_uint localEdgeIndex) const;
+
 		/// <summary>
 		/// Get the global edge index, given a vertex index
 		/// </summary>

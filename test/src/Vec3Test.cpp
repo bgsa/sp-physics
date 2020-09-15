@@ -9,20 +9,19 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 		
-		SP_TEST_METHOD_DEF(Vec3_x_Test);
-		SP_TEST_METHOD_DEF(Vec3_y_Test);
-		SP_TEST_METHOD_DEF(Vec3_z_Test);
-		SP_TEST_METHOD_DEF(Vec3_getValues_Test);
-		SP_TEST_METHOD_DEF(Vec3_length_Test);
-		SP_TEST_METHOD_DEF(Vec3_abs_Test);
-		SP_TEST_METHOD_DEF(Vec3_squared_Test);
-		SP_TEST_METHOD_DEF(Vec3_add_Test);
-		SP_TEST_METHOD_DEF(Vec3_subtract_Test);
-		SP_TEST_METHOD_DEF(Vec3_scale_Test);
-		SP_TEST_METHOD_DEF(Vec3_cross_Test);
+		SP_TEST_METHOD_DEF(x);
+		SP_TEST_METHOD_DEF(y);
+		SP_TEST_METHOD_DEF(z);
+		SP_TEST_METHOD_DEF(length);
+		SP_TEST_METHOD_DEF(abs);
+		SP_TEST_METHOD_DEF(squaredLength);
+		SP_TEST_METHOD_DEF(add);
+		SP_TEST_METHOD_DEF(diff);
+		SP_TEST_METHOD_DEF(scale);
+		SP_TEST_METHOD_DEF(cross);
 		SP_TEST_METHOD_DEF(Vec3_dot_Test);
-		SP_TEST_METHOD_DEF(Vec3_tripleProduct_Test);
-		SP_TEST_METHOD_DEF(Vec3_angle_Test);
+		SP_TEST_METHOD_DEF(scalarTriple);
+		SP_TEST_METHOD_DEF(angle);
 		SP_TEST_METHOD_DEF(Vec3_normalize_Test);
 		SP_TEST_METHOD_DEF(Vec3_distance_Test);
 		SP_TEST_METHOD_DEF(copy);
@@ -41,16 +40,16 @@ namespace NAMESPACE_PHYSICS_TEST
 	};
 
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_x_Test)
+	SP_TEST_METHOD(CLASS_NAME, x)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
-		float expected = 2.0f;
+		sp_float expected = 2.0f;
 
-		float result = vector.x;
+		sp_float result = vector.x;
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}
-	SP_TEST_METHOD(CLASS_NAME, Vec3_y_Test)
+	SP_TEST_METHOD(CLASS_NAME, y)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		float expected = 5.0f;
@@ -59,7 +58,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}
-	SP_TEST_METHOD(CLASS_NAME, Vec3_z_Test)
+	SP_TEST_METHOD(CLASS_NAME, z)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		float expected = -9.0f;
@@ -69,18 +68,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_getValues_Test)
-	{
-		Vec3 vector = { 2.0f, 5.0f, -9.0f };
-		float expected[3] = { 2.0f, 5.0f, -9.0f };
-
-		float* result = vector.getValues();
-
-		for (size_t i = 0; i < VEC3_LENGTH; i++)
-			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, Vec3_length_Test)
+	SP_TEST_METHOD(CLASS_NAME, length)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 
@@ -91,17 +79,22 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}	
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_abs_Test)
+	SP_TEST_METHOD(CLASS_NAME, abs)
 	{
-		Vec3 vector = { -2.0f, -5.0f, -9.0f };
-		Vec3 result = vector.abs();
+		Vec3 vector = { -2.0f, -5.0f, 9.0f };
+		NAMESPACE_PHYSICS::abs(&vector);
 		Vec3 expected = { 2.0f, 5.0f, 9.0f };
 
 		for (int i = 0; i < VEC3_LENGTH; i++)
-			Assert::AreEqual(expected[i], result[i], L"Length value wrong.", LINE_INFO());
+			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
+	
+		vector = { 2.0f, -5.0f, -9.0f };
+		NAMESPACE_PHYSICS::abs(vector, &vector);
+		for (int i = 0; i < VEC3_LENGTH; i++)
+			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_squared_Test)
+	SP_TEST_METHOD(CLASS_NAME, squaredLength)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		float expected = 4.0f + 25.0f + 81.0f;
@@ -111,7 +104,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_add_Test)
+	SP_TEST_METHOD(CLASS_NAME, add)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		Vec3 vector2 = { 1.0f, 2.0f, 3.0f };
@@ -123,19 +116,20 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_subtract_Test)
+	SP_TEST_METHOD(CLASS_NAME, diff)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		Vec3 vector2 = { 1.0f, 2.0f, 3.0f };
-		float expected[3] = { 1.0f, 3.0f, -12.0f };
+		sp_float expected[3] = { 1.0f, 3.0f, -12.0f };
 
-		vector.subtract(vector2);
+		Vec3 result;
+		NAMESPACE_PHYSICS::diff(vector, vector2, &result);
 
 		for (int i = 0; i < VEC3_LENGTH; i++)
-			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
+			Assert::AreEqual(expected[i], result[i], L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_scale_Test)
+	SP_TEST_METHOD(CLASS_NAME, scale)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		float expected[3] = { 6.0f, 15.0f, -27.0f };
@@ -146,15 +140,15 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_cross_Test)
+	SP_TEST_METHOD(CLASS_NAME, cross)
 	{
-		Vec3 vector = { 2.0f, 3.0f, 4.0f };
-		Vec3 vector2 = { 5.0f, 6.0f, 7.0f };
-		Vec3 expected = { -3.0f, 6.0f, -3.0f };
-
-		Vec3 result = vector.cross(vector2);
-
-		for (int i = 0; i < VEC3_LENGTH; i++)
+		Vec3 vector = { 1.0f, 0.0f, 0.0f };
+		Vec3 vector2 = { 0.0f, 0.0f, 1.0f };
+		Vec3 expected = { 0.0f, 1.0f, 0.0f };
+		Vec3 result;
+		
+		NAMESPACE_PHYSICS::cross(vector, vector2, &result);
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
@@ -162,26 +156,26 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		Vec3 vector2 = { 4.0f, -2.0f, 3.0f };
-		float expected = -29.0f;
+		sp_float expected = -29.0f;
 
-		float result = vector.dot(vector2);
+		sp_float result = vector.dot(vector2);
 
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_tripleProduct_Test)
+	SP_TEST_METHOD(CLASS_NAME, scalarTriple)
 	{
 		Vec3 vector1 = { 10.0f, 0.0f, 0.0f };
 		Vec3 vector2 = { 0.0f, 0.0f, 10.0f };
 		Vec3 vector3 = { 0.0f, 10.0f, 0.0f };
-		float expected = -1000.0f;
+		sp_float expected = 1000.0f;
 
-		float result = vector1.tripleProduct(vector2, vector3);
+		sp_float result = NAMESPACE_PHYSICS::scalarTriple(vector1, vector2, vector3);
 
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_angle_Test)
+	SP_TEST_METHOD(CLASS_NAME, angle)
 	{
 		Vec3 vector = { 3.0f, 4.0f, 0.0f };
 		Vec3 vector2 = { 4.0f, 4.0f, 2.0f };
@@ -208,9 +202,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		Vec3 vector2 = { 1.0f, 2.0f, 3.0f };
-		float expected = 12.4096737f;
+		sp_float expected = 12.4096737f;
 
-		float result = vector.distance(vector2);
+		sp_float result = vector.distance(vector2);
 
 		Assert::AreEqual(expected, result, L"Value wrong.", LINE_INFO());
 	}

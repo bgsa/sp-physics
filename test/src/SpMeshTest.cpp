@@ -104,7 +104,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		for (sp_uint i = 0; i < mesh.vertexLength(); i++)
 		{
-			const sp_uint edgesLength = mesh.vertexesMesh->get(i)->edgeVertexIndexLength();
+			const sp_uint edgesLength = mesh.vertexesMesh->get(i)->edgeLength();
 			Assert::IsTrue(edgesLength >= 4 || edgesLength <= 7, L"Wrong value");
 		}
 	}

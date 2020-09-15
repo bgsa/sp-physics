@@ -3,6 +3,11 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	SpEdgeMesh* SpVertexMesh::edges(const sp_uint localEdgeIndex) const
+	{
+		return _mesh->edges->get(_edges->get(localEdgeIndex));
+	}
+
 	SpEdgeMesh* SpVertexMesh::findEdges(const sp_uint vertexIndex) const
 	{
 		const sp_uint edgeIndex = _mesh->findEdge(_index, _edgeVertexIndex->get(vertexIndex));
@@ -40,7 +45,7 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float distance = currentVertex.squaredDistance(point);
 
-		for (sp_uint i = 0; i < edgeVertexIndexLength(); i++)
+		for (sp_uint i = 0; i < edgeLength(); i++)
 		{
 			const sp_uint index = edgeVertexIndex(i);
 
@@ -75,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float distance = plane.distance(currentVertex);
 
-		for (sp_uint i = 0; i < edgeVertexIndexLength(); i++)
+		for (sp_uint i = 0; i < edgeLength(); i++)
 		{
 			const sp_uint vertexIndex = edgeVertexIndex(i);
 			_mesh->vertex(vertexIndex, meshTransform, &currentVertex);
@@ -165,7 +170,9 @@ namespace NAMESPACE_PHYSICS
 				allFacesMesh2[facesVertex2[j]]->convert(&plane2, meshTransform2);
 
 				// faces should be parallel and opposite normals (front-face agains front-face)
-				if (plane1.isParallel(plane2, _epsilon) && (plane1.normalVector - plane2.normalVector) != ZERO_FLOAT)
+				if (plane1.isParallel(plane2, _epsilon) 
+					&& (plane1.normalVector - plane2.normalVector) != ZERO_FLOAT
+					&& isCloseEnough(plane1.distance(plane2),ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 				{
 					if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh1, facesIndexesMesh1Length[0], facesVertex1[i]))
 					{

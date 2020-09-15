@@ -16,6 +16,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(equation_Test2);
 		SP_TEST_METHOD_DEF(equation_Test3);
 		SP_TEST_METHOD_DEF(intersection_line);
+		SP_TEST_METHOD_DEF(intersection_ray);
 		SP_TEST_METHOD_DEF(intersection_plane);
 		SP_TEST_METHOD_DEF(angle_Test1);
 		SP_TEST_METHOD_DEF(angle_Test2);
@@ -26,9 +27,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(distance_plane_Test1);
 		SP_TEST_METHOD_DEF(closestPointOnThePlane_point_Test1);
 		SP_TEST_METHOD_DEF(constructor_equation_Test);
-		SP_TEST_METHOD_DEF(orientation_Test1);
-		SP_TEST_METHOD_DEF(orientation_Test2);
-		SP_TEST_METHOD_DEF(orientation_Test3);
+		SP_TEST_METHOD_DEF(orientation1);
+		SP_TEST_METHOD_DEF(orientation2);
+		SP_TEST_METHOD_DEF(orientation3);
 		SP_TEST_METHOD_DEF(isParallel_Test1);
 		SP_TEST_METHOD_DEF(isParallel_Test2);
 		SP_TEST_METHOD_DEF(isParallel_Test3);
@@ -36,6 +37,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(isPerpendicular_Test2);
 	};
 
+	SP_TEST_METHOD(CLASS_NAME, intersection_ray)
+	{
+		Ray r(Vec3(1.019f, -1.0f, -1.0f), Vec3(0.0f, -0.0f, -1.0f));
+		Plane3D plane(Vec3(-1.0f, -1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f));
+
+		Vec3 contact;
+		sp_bool result = plane.intersection(r, &contact);
+		
+		Assert::IsTrue(result);
+		Assert::IsTrue(isCloseEnough(Vec3(1.019, -1.0f, 1.0f), contact, ERROR_MARGIN_PHYSIC));
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, contructorWithThreePoints_Test)
 	{
@@ -43,13 +55,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = { 10.0f, 0.0f, 0.0f };
 		Vec3 point3 = { 0.0f, 10.0f, 0.0f };
 		
-		Vec3 normalVectorExpected = Vec3(0.0f, 0.0f, -1.0f);
+		Vec3 normalVectorExpected = Vec3(0.0f, 0.0f, 1.0f);
 
 		Plane3D plane = Plane3D(point1, point2, point3);
 
-		Asserts::isCloseEnough(plane.normalVector[0], normalVectorExpected[0], 0.0009f, L"Wrong value", LINE_INFO());
-		Asserts::isCloseEnough(plane.normalVector[1], normalVectorExpected[1], 0.0009f, L"Wrong value", LINE_INFO());
-		Asserts::isCloseEnough(plane.normalVector[2], normalVectorExpected[2], 0.0009f, L"Wrong value", LINE_INFO());
+		Asserts::isCloseEnough(plane.normalVector[0], normalVectorExpected[0], ERROR_MARGIN_PHYSIC, L"Wrong value", LINE_INFO());
+		Asserts::isCloseEnough(plane.normalVector[1], normalVectorExpected[1], ERROR_MARGIN_PHYSIC, L"Wrong value", LINE_INFO());
+		Asserts::isCloseEnough(plane.normalVector[2], normalVectorExpected[2], ERROR_MARGIN_PHYSIC, L"Wrong value", LINE_INFO());
 
 		Assert::AreEqual(point1.x, plane.point.x, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(point1.y, plane.point.y, L"Wrong value.", LINE_INFO());
@@ -62,7 +74,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = { 0.0f, 1.0f, 2.0f };
 		Vec3 point3 = { -1.0f, -1.0f, 3.0f };
 
-		Vec4 expected = Vec4(-0.824163377f, 0.137360558f, -0.549442232f, -0.961523890f);
+		Vec4 expected = Vec4(0.8241f, -0.1373f, 0.5494f, 0.96152f);
 
 		Plane3D plane = Plane3D(point1, point2, point3);
 		Vec4 components;
@@ -94,7 +106,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = { 2.0f, 0.0f, -1.0f };
 		Vec3 point3 = { 3.0f, -2.0f, -1.0f };
 
-		Vec4 expected = Vec4(0.894427180f, 0.447213590f, 0.0f, 1.78885436f);
+		Vec4 expected = Vec4(-0.8944f, -0.4472f, 0.0f, -1.7888f);
 
 		Plane3D plane = Plane3D(point1, point2, point3);
 		Vec4 components;
@@ -120,7 +132,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_bool result = plane.intersection(line, &contact);
 		Vec3 expected(-0.5f, 1.0f, 1.0f);
 		Assert::IsTrue(result, L"Wrong value");
-		Assert::IsTrue(contact.isCloseEnough(expected, 0.01f), L"Wrong value");
+		Assert::IsTrue(isCloseEnough(contact, expected, 0.01f), L"Wrong value");
 
 		plane = Plane3D(
 			Vec3(-1.0f, -1.0f, -1.0f),
@@ -130,7 +142,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		result = plane.intersection(line, &contact);
 		expected = Vec3(-0.5f, 1.0f, -1.0f);
 		Assert::IsTrue(result, L"Wrong value");
-		Assert::IsTrue(contact.isCloseEnough(expected, 0.01f), L"Wrong value");
+		Assert::IsTrue(isCloseEnough(contact, expected, 0.01f), L"Wrong value");
 
 
 		line = Line3D(Vec3(), Vec3{ 4.0f, 0.0f, 0.0f });
@@ -142,13 +154,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		expected = Vec3(1.0f, 0.0f, 0.0f);
 		result = plane.intersection(line, &contact);
 		Assert::IsTrue(result, L"There should be an intersection", LINE_INFO());
-		Assert::IsTrue(expected.isCloseEnough(contact, 0.0009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(expected, contact, 0.0009f), L"Wrong value", LINE_INFO());
 
 		line.point2.y = 10.0f;
 		expected.y = 2.5f;
 		result = plane.intersection(line, &contact);
 		Assert::IsTrue(result, L"There should be an intersection", LINE_INFO());
-		Assert::IsTrue(expected.isCloseEnough(contact, 0.0009f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(expected, contact, 0.0009f), L"Wrong value", LINE_INFO());
 
 		line.point2.y = 0.0f;
 		line.point2.x = 0.5f;
@@ -287,7 +299,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, orientation_Test1)
+	SP_TEST_METHOD(CLASS_NAME, orientation1)
 	{
 		Vec3 point1 = Vec3(0.0f, 0.0f, 0.0f);
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
@@ -298,10 +310,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_float result = plane.orientation(targetPoint);
 
-		Assert::IsTrue(result < ZERO_FLOAT, L"Wrong value", LINE_INFO());
+		Assert::IsTrue(result > ZERO_FLOAT, L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, orientation_Test2)
+	SP_TEST_METHOD(CLASS_NAME, orientation2)
 	{
 		Vec3 point1 = Vec3(0.0f, 0.0f, 0.0f);
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
@@ -312,10 +324,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_float result = plane.orientation(targetPoint);
 
-		Assert::IsTrue(result > ZERO_FLOAT, L"Wrong value", LINE_INFO());
+		Assert::IsTrue(result < ZERO_FLOAT, L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, orientation_Test3)
+	SP_TEST_METHOD(CLASS_NAME, orientation3)
 	{
 		Vec3 point1 = Vec3(0.0f, 0.0f, 0.0f);
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);

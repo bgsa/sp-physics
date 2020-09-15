@@ -251,8 +251,9 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void addImpulseAngular(const Vec3& point, const Vec3& force)
 		{
-			//_torque += (point - _position).cross(force);
-			const Vec3 torqueTemp = (point - currentState._position).cross(force);
+			Vec3 torqueTemp;
+			cross((point - currentState._position), force, &torqueTemp);
+
 			currentState._angularVelocity += _inertialTensorInverse * torqueTemp;
 		}
 
@@ -261,9 +262,9 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isResting() const
 		{
-#define NO_MOVING currentState._position.isCloseEnough(previousState._position, restingEpsilon)
-#define NO_ACCELERATION (currentState._acceleration.isCloseEnough(ZERO_FLOAT) || currentState._acceleration.isCloseEnough(restingAcceleration(), restingEpsilon))
-#define NO_ANG_VELOCITY currentState._angularVelocity.isCloseEnough(ZERO_FLOAT)
+#define NO_MOVING isCloseEnough(currentState._position, previousState._position, restingEpsilon)
+#define NO_ACCELERATION (isCloseEnough(currentState._acceleration, ZERO_FLOAT) || isCloseEnough(currentState._acceleration, restingAcceleration(), restingEpsilon))
+#define NO_ANG_VELOCITY isCloseEnough(currentState._angularVelocity, ZERO_FLOAT)
 
 			const sp_float restingEpsilon = SpPhysicSettings::instance()->restingVelocityEpsilon();
 

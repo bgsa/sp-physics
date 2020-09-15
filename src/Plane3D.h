@@ -64,33 +64,26 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void equation(Vec4* vector) const
 		{
-			vector->x = normalVector[0];
-			vector->y = normalVector[1];
-			vector->z = normalVector[2];
+			vector->x = normalVector.x;
+			vector->y = normalVector.y;
+			vector->z = normalVector.z;
 			vector->w = distanceFromOrigin;
 		}
 
 		/// <summary>
 		/// Test if the ray cross the plane
 		/// </summary>
-		API_INTERFACE inline void intersection(const Ray& ray, Vec3* contactPoint) const
+		API_INTERFACE inline sp_bool intersection(const Ray& ray, Vec3* contactPoint) const
 		{
-			sp_float angle = normalVector.dot(ray.direction);
+			const sp_float angle = normalVector.dot(ray.direction);
 
-			if (isCloseEnough(angle, 0.0f))
-				return;
+			if (isCloseEnough(angle, ZERO_FLOAT))
+				return false;
 
-			Vec4 planeEquation;
-			equation(&planeEquation);
+			const sp_float numerator = distanceFromOrigin - normalVector.dot(ray.point);
+			const sp_float t = numerator / angle;
 
-			sp_float numerator = -(planeEquation[0] * ray.point[0] + planeEquation[1] * ray.point[1] + planeEquation[2] * ray.point[2] + planeEquation[3]);
-			sp_float denominator = planeEquation[0] * ray.direction[0] + planeEquation[1] * ray.direction[1] + planeEquation[2] * ray.direction[2];
-
-			sp_float t = numerator / denominator;
-
-			contactPoint->x = ray.point[0] + ray.direction[0] * t;
-			contactPoint->y = ray.point[1] + ray.direction[1] * t;
-			contactPoint->z = ray.point[2] + ray.direction[2] * t;
+			contactPoint[0] = ray.point + ray.direction * t;
 		}
 
 		/// <summary>
@@ -144,7 +137,9 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isParallel(const Plane3D& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
-			return normalVector.cross(plane.normalVector).isCloseEnough(ZERO_FLOAT, _epsilon);
+			Vec3 temp;
+			cross(normalVector, plane.normalVector, &temp);
+			return isCloseEnough(temp, ZERO_FLOAT, _epsilon);
 		}
 
 		/// <summary>

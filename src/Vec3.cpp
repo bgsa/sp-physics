@@ -28,30 +28,6 @@ namespace NAMESPACE_PHYSICS
 		z = z;
 	}
 	
-	sp_float* Vec3::getValues()
-	{
-		return (sp_float*)(this);
-	}
-
-	Vec3 Vec3::abs() const
-	{
-		return Vec3(
-			std::fabsf(x),
-			std::fabsf(y),
-			std::fabsf(z)
-		);
-	}
-	
-	sp_float Vec3::squaredLength() const
-	{
-		return (x * x) + (y * y) + (z * z);
-	}
-	
-	sp_float Vec3::length() const
-	{
-		return std::sqrtf(squaredLength());
-	}
-
 	sp_float Vec3::orientation(const Vec3& vertex1, const Vec3& vertex2) const
 	{
 		const Vec3 ray1 = (vertex1 - *this);
@@ -91,11 +67,6 @@ namespace NAMESPACE_PHYSICS
 
 		return value;
 	}
-
-	sp_float Vec3::tripleProduct(const Vec3 &v, const Vec3 &u) const
-	{
-		return cross(v).dot(u);
-	}
 	
 	void Vec3::add(const Vec3& vector)
 	{
@@ -118,16 +89,6 @@ namespace NAMESPACE_PHYSICS
 		x *= scale;
 		y *= scale;
 		z *= scale;
-	}
-
-	Vec3 Vec3::rotate(sp_float angle, const Vec3& axis)
-	{
-		sp_float cosAngle = cosf(angle);
-		sp_float sinAngle = sinf(angle);
-
-		Vec3 result = (operator*(cosAngle)) + (axis.cross(*this) * sinAngle) + (axis * dot(axis)) * (ONE_FLOAT - cosAngle);
-
-		return result;
 	}
 	
 	Vec3 Vec3::rotateX(sp_float angle)

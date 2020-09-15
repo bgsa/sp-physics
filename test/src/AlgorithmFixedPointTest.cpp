@@ -18,16 +18,16 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(AlgorithmFixedPoint_solve_Test);
+		SP_TEST_METHOD_DEF(solve);
 
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, AlgorithmFixedPoint_solve_Test)
+	SP_TEST_METHOD(CLASS_NAME, solve)
 	{
-		AlgorithmFixedPoint<float> algorithm;
-		const float initialApproximation = 1.5f;
+		AlgorithmFixedPoint algorithm;
+		const sp_float initialApproximation = 1.5f;
 
-		float result = algorithm.solve(initialApproximation, funcFixedPoint);
+		sp_float result = algorithm.solve(initialApproximation, funcFixedPoint);
 
 		Assert::IsTrue(isCloseEnough(result, 1.3652f), L"Wrong value.", LINE_INFO());
 	}

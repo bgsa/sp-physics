@@ -2,12 +2,11 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	T AlgorithmFixedPoint<T>::solve(T approximation, T functor(T), int maxOfInteration)
+	sp_float AlgorithmFixedPoint::solve(sp_float approximation, sp_float functor(sp_float), sp_int maxOfInteration)
 	{	
 		while (maxOfInteration != 0)
 		{
-			T newApproximation = functor(approximation);
+			sp_float newApproximation = functor(approximation);
 
 			if (isCloseEnough(newApproximation, approximation))
 				return newApproximation;
@@ -17,10 +16,7 @@ namespace NAMESPACE_PHYSICS
 			maxOfInteration--;
 		}
 
-		return T(NAN);
+		return NAN;
 	}
 
-	template class AlgorithmFixedPoint<int>;
-	template class AlgorithmFixedPoint<float>;
-	template class AlgorithmFixedPoint<double>;
 }

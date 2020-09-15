@@ -33,24 +33,14 @@ namespace NAMESPACE_PHYSICS
 		if (isCloseEnough(angle, ZERO_FLOAT))
 			return false;
 
-		sp_float t = (normalVector.dot(line.point1) + distanceFromOrigin) / angle;
+		const sp_float t = (distanceFromOrigin - normalVector.dot(line.point1)) / angle;
 
-		if (t > ZERO_FLOAT && t <= ONE_FLOAT)
+		if (t >= ZERO_FLOAT && t <= ONE_FLOAT)
 		{
-			contactPoint->x = line.point1.x + lineAsVector.x * t;
-			contactPoint->y = line.point1.y + lineAsVector.y * t;
-			contactPoint->z = line.point1.z + lineAsVector.z * t;
+			contactPoint[0] = line.point1 + lineAsVector * t;
 			return true;
 		}
 
-		if (t >= -ONE_FLOAT && t <= ZERO_FLOAT)
-		{
-			contactPoint->x = line.point2.x + lineAsVector.x * t;
-			contactPoint->y = line.point2.y + lineAsVector.y * t;
-			contactPoint->z = line.point2.z + lineAsVector.z * t;
-			return true;
-		}
-		
 		return false;
 	}
 
@@ -71,7 +61,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		// Compute direction of intersection line  
 		Vec3 lineDirection;
-		cross(normalVector, plane.normalVector, &lineDirection);
+		cross(plane.normalVector, normalVector, &lineDirection);
 
 		// If d is (near) zero, the planes are parallel (and separated)  
 		// or coincident, so they’re not considered intersecting  
@@ -114,11 +104,15 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Plane3D::distance(const Plane3D& plane) const
 	{
-		Vec4 eq;
-		equation(&eq);
+		Vec3 projectedPoint;
+		project(plane.point, &projectedPoint);
 
-		return std::fabsf(eq.w - plane.getDcomponent())
-				/ std::sqrtf(eq.x * eq.x + eq.y * eq.y + eq.z * eq.z);
+		return plane.point.distance(projectedPoint);
+		
+		/* It does not work when (distanceFromOrigin - plane.distanceFromOrigin) = 0
+		return std::fabsf(distanceFromOrigin - plane.distanceFromOrigin)
+				/ std::sqrtf(point.x * point.x + point.y * point.y + point.z * point.z);
+		*/
 	}
 
 	Vec3 Plane3D::closestPointOnThePlane(const Vec3 &target) const

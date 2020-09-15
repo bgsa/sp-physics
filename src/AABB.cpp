@@ -37,12 +37,12 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float AABB::squaredDistance(const Vec3& target)
 	{
-		float result = 0.0f;
+		sp_float result = 0.0f;
 
 		// For each axis count any excess distance outside box extents 
-		for (int axis = 0; axis < 3; axis++)
+		for (sp_int axis = 0; axis < 3; axis++)
 		{
-			float v = target[axis];
+			sp_float v = target[axis];
 
 			if (v < minPoint[axis])
 				result += (minPoint[axis] - v) * (minPoint[axis] - v);
@@ -95,18 +95,18 @@ namespace NAMESPACE_PHYSICS
 	CollisionStatus AABB::collisionStatus(const Plane3D& plane)
 	{
 		Vec3 centerPoint = center(); 
-		float d = plane.getDcomponent();
+		sp_float d = plane.getDcomponent();
 		Vec3 halfDistanceFromCenter = maxPoint - centerPoint;
 
 		// Compute the projection interval radius of AABB onto L(t) = center + t * normalPlane
-		double r = 
+		sp_double r =
 			halfDistanceFromCenter.x * std::abs(plane.normalVector.x)
 			+ halfDistanceFromCenter.y * std::abs(plane.normalVector.y)
 			+ halfDistanceFromCenter.z * std::abs(plane.normalVector.z);
 		
-		double distanceFromAABB2Plane = std::abs(plane.normalVector.dot(centerPoint) + d);
+		sp_double distanceFromAABB2Plane = std::abs(plane.normalVector.dot(centerPoint) + d);
 		
-		if (isCloseEnough(distanceFromAABB2Plane, r))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(distanceFromAABB2Plane, r))
 			return CollisionStatus::INLINE;
 
 		// it has intersection when distance falls within [-r,+r] interval 	
@@ -119,8 +119,8 @@ namespace NAMESPACE_PHYSICS
 
 	CollisionStatus AABB::collisionStatus(const Sphere& sphere)
 	{
-		float distanceToSphere = squaredDistance(sphere.center);
-		float squaredRay = sphere.ray * sphere.ray;
+		sp_float distanceToSphere = squaredDistance(sphere.center);
+		sp_float squaredRay = sphere.ray * sphere.ray;
 		
 		if (isCloseEnough(distanceToSphere, squaredRay))
 			return CollisionStatus::INLINE;
@@ -135,9 +135,9 @@ namespace NAMESPACE_PHYSICS
 	{
 		Vec3 result;
 
-		for (int axis = 0; axis < 3; axis++)
+		for (sp_int axis = 0; axis < 3; axis++)
 		{
-			float v = target[axis];
+			sp_float v = target[axis];
 					
 			v = std::max(v, minPoint[axis]);
 			v = std::min(v, maxPoint[axis]);
@@ -155,7 +155,7 @@ namespace NAMESPACE_PHYSICS
 
 	AABB AABB::buildFrom(const Vec3List& pointList)
 	{
-		int* indexes = pointList.findExtremePointsAlongAxisXYZ();
+		sp_int* indexes = pointList.findExtremePointsAlongAxisXYZ();
 
 		return AABB(
 			Vec3(
@@ -249,8 +249,8 @@ namespace NAMESPACE_PHYSICS
 
 	sp_size AABB::operator()(const AABB& aabb) const
 	{
-		float hash = 1.0f;
-		const float constant = 3.0f;
+		sp_float hash = 1.0f;
+		const sp_float constant = 3.0f;
 
 		hash = constant * hash + aabb.minPoint.x;
 		hash = constant * hash + aabb.minPoint.y;

@@ -23,10 +23,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AlgorithmAitken_solve_Test)
 	{
-		AlgorithmAitken<float> algorithm;
-		const float initialApproximation = 1.5f;
+		AlgorithmAitken algorithm;
+		const sp_float initialApproximation = 1.5f;
 
-		float result = algorithm.solve(initialApproximation, funcAitken);
+		sp_float result = algorithm.solve(initialApproximation, funcAitken);
 
 		Assert::IsTrue(isCloseEnough(result, 1.3652f), L"Wrong value.", LINE_INFO());
 	}

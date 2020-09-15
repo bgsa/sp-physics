@@ -16,10 +16,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		}
 	#endif
 
-		template<typename T>
-		static void isCloseEnough(T value1, T value2, T epslon, const wchar_t* message, const char* filename, const char* functionName, const int line)
+		static void isCloseEnough(const Vec3& value, const Vec3& compare, sp_float epsilon, const wchar_t* message = L"Error", const __LineInfo* lineInfo = nullptr)
 		{
+			sp_bool result = NAMESPACE_PHYSICS::isCloseEnough(value, compare, epsilon);
 
+			Assert::IsTrue(result, message, lineInfo);
 		}
 
 	};

@@ -57,7 +57,10 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Returns the center of the segment of line
 		///</summary>
-		API_INTERFACE Vec3 centerOfSegment() const;
+		API_INTERFACE void center(Vec3* output) const
+		{
+			output[0] = (point1 + point2) * HALF_FLOAT;
+		}
 
 		///<summary>
 		///Returns the center of the segment of line
@@ -89,7 +92,7 @@ namespace NAMESPACE_PHYSICS
 			Vec3 crossedVector;
 			NAMESPACE_PHYSICS::cross(direction2, direction1, &crossedVector);
 
-			return crossedVector.isCloseEnough(ZERO_FLOAT, _epsilon);
+			return isCloseEnough(crossedVector, ZERO_FLOAT, _epsilon);
 		}
 		
 		/// <summary>

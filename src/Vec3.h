@@ -32,24 +32,20 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec3(Vec2 vector2D, sp_float z);
 		
 		/// <summary>
-		/// Get the component values in the vector
-		/// </summary>
-		API_INTERFACE sp_float* getValues();
-
-		/// <summary>
-		/// Get the absolute value from each component
-		/// </summary>
-		API_INTERFACE Vec3 abs() const;
-
-		/// <summary>
 		/// Get the squared of the vector. It means the Vector Pow2 -> x^2 + y^2 + z^2
 		/// </summary>
-		API_INTERFACE sp_float squaredLength() const;
+		API_INTERFACE inline sp_float squaredLength() const
+		{
+			return (x * x) + (y * y) + (z * z);
+		}
 
 		/// <summary>
 		/// Get the length / norma from the vector -> ||v||
 		/// </summary>
-		API_INTERFACE sp_float length() const;
+		API_INTERFACE inline sp_float length() const
+		{
+			return sqrtf(squaredLength());
+		}
 
 		/// <summary>
 		/// Get the maximun value in the vector
@@ -60,12 +56,6 @@ namespace NAMESPACE_PHYSICS
 		/// Get the min value in the vector
 		/// </summary>
 		API_INTERFACE sp_float minimum() const;
-
-		/// <summary>
-		/// Get the scalar triple product: (u x v) . w
-		/// It also give the volume of parallelepiped
-		/// </summary>
-		API_INTERFACE sp_float tripleProduct(const Vec3 &v, const Vec3 &u) const;
 
 		/// <summary>
 		/// Add a vector from current vector
@@ -81,11 +71,6 @@ namespace NAMESPACE_PHYSICS
 		/// Scale the vector from a scalar => v * scalar
 		/// </summary>
 		API_INTERFACE void scale(sp_float scale);
-
-		/// <summary>
-		/// Rotate the vector over a given axis and angle
-		/// </summary>
-		API_INTERFACE Vec3 rotate(sp_float angle, const Vec3& axis);
 
 		/// <summary>
 		/// Rotate the vector on X axis, given an angle
@@ -111,24 +96,6 @@ namespace NAMESPACE_PHYSICS
 		/// Rotate the vector on Z axis, given an angle and the reference point (rotate around this point)
 		/// </summary>
 		API_INTERFACE Vec3 rotateZ(sp_float angle, const Vec3& referencePoint);
-
-		/// <summary>
-		/// Cross Product - return a perpendicular vector, regards two vectors => u x v
-		/// </summary>
-		API_INTERFACE Vec3 cross(const Vec3& vector) const
-		{
-			Vec3 result;
-			cross(vector, &result);
-
-			return result;
-		}
-
-		API_INTERFACE inline void cross(const Vec3& vector, Vec3* output) const
-		{
-			output[0].x = y * vector.z - vector.y * z;
-			output[0].y = -x * vector.z + vector.x * z;
-			output[0].z = x * vector.y - vector.x * y;
-		}
 
 		/// <summary>
 		/// Dot Product / Scalar Product - between two vectors: A . B
@@ -211,21 +178,6 @@ namespace NAMESPACE_PHYSICS
 				y - floorf(y),
 				z - floorf(z)
 			};
-		}
-
-		/// <summary>
-		/// Check if this vector is close to "compare" parameter, given _epsilon
-		/// </summary>
-		/// <param name="compare">Value to compare</param>
-		/// <param name="_epsilon">Error margin</param>
-		/// <returns></returns>
-		API_INTERFACE inline sp_bool isCloseEnough(const Vec3& compare, const sp_float _epsilon = DefaultErrorMargin) const
-		{
-			const Vec3 diff = (*this - compare).abs();
-
-			return diff.x <= _epsilon 
-				&& diff.y <= _epsilon
-				&& diff.z <= _epsilon;
 		}
 
 		/// <summary>
@@ -430,7 +382,21 @@ namespace NAMESPACE_PHYSICS
 
 	};
 
-	API_INTERFACE inline void sum(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	API_INTERFACE inline void abs(Vec3* vec)
+	{
+		vec->x = std::fabsf(vec->x);
+		vec->y = std::fabsf(vec->y);
+		vec->z = std::fabsf(vec->z);
+	}
+
+	API_INTERFACE inline void abs(const Vec3& input, Vec3* output)
+	{
+		output->x = std::fabsf(input.x);
+		output->y = std::fabsf(input.y);
+		output->z = std::fabsf(input.z);
+	}
+
+	API_INTERFACE inline void add(const Vec3& vec1, const Vec3& vec2, Vec3* output)
 	{
 		output->x = vec1.x + vec2.x;
 		output->y = vec1.y + vec2.y;
@@ -447,6 +413,23 @@ namespace NAMESPACE_PHYSICS
 		output->x = vec1.x * vec2.x;
 		output->y = vec1.y * vec2.y;
 		output->z = vec1.z * vec2.z;
+	}
+
+	/// <summary>
+	/// Check if this vector is close to "compare" parameter, given _epsilon
+	/// </summary>
+	/// <param name="compare">Value to compare</param>
+	/// <param name="_epsilon">Error margin</param>
+	/// <returns></returns>
+	API_INTERFACE inline sp_bool isCloseEnough(const Vec3& vector, const Vec3& compare, const sp_float _epsilon = DefaultErrorMargin)
+	{
+		Vec3 difff;
+		diff(vector, compare, &difff);
+		abs(&difff);
+
+		return difff.x <= _epsilon
+			&& difff.y <= _epsilon
+			&& difff.z <= _epsilon;
 	}
 
 	/// <summary>
@@ -495,9 +478,28 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>void</returns>
 	API_INTERFACE inline void cross(const Vec3& vector1, const Vec3& vector2, Vec3* output)
 	{
-		output[0].x = vector1.y * vector2.z - vector2.y * vector1.z;
-		output[0].y = -vector1.x * vector2.z + vector2.x * vector1.z;
-		output[0].z = vector1.x * vector2.y - vector2.x * vector1.y;
+		output[0].x = vector2.y * vector1.z - vector1.y * vector2.z;
+		output[0].y = -vector2.x * vector1.z + vector1.x * vector2.z;
+		output[0].z = vector2.x * vector1.y - vector1.x * vector2.y;
+	}
+
+	/// <summary>
+	/// Rotate the vector over a given axis and angle
+	/// </summary>
+	/// <param name="point">Point to be rotated</param>
+	/// <param name="angle">Angle in radians</param>
+	/// <param name="axis">Axis to rotate</param>
+	/// <param name="output">Point rotated</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void rotate(const Vec3& point, sp_float angle, const Vec3& axis, Vec3* output)
+	{
+		sp_float cosAngle = cosf(angle);
+		sp_float sinAngle = sinf(angle);
+
+		Vec3 temp;
+		cross(axis, point, &temp);
+
+		output[0] = (point * cosAngle) + (temp * sinAngle) + (axis * point.dot(axis)) * (ONE_FLOAT - cosAngle);
 	}
 
 	/// <summary>
@@ -552,7 +554,7 @@ namespace NAMESPACE_PHYSICS
 	API_INTERFACE inline sp_bool contains(const Vec3* list, const sp_uint listLength, const Vec3& value, const sp_float _epsilon = DefaultErrorMargin)
 	{
 		for (sp_uint i = 0; i < listLength; i++)
-			if (list[i].isCloseEnough(value, _epsilon))
+			if (isCloseEnough(list[i], value, _epsilon))
 				return true;
 	
 		return false;

@@ -2,21 +2,20 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	T AlgorithmAitken<T>::solve(T approximation, T functor(T), int maxOfInteration)
+	sp_float AlgorithmAitken::solve(sp_float approximation, sp_float functor(sp_float), sp_int maxOfInteration)
 	{
 		while (maxOfInteration != 0)
 		{
-			T newAproximation = functor(approximation);
-			T newAproximation1 = functor(newAproximation);
-			T newAproximation2 = functor(newAproximation1);
+			sp_float newAproximation = functor(approximation);
+			sp_float newAproximation1 = functor(newAproximation);
+			sp_float newAproximation2 = functor(newAproximation1);
 
-			double divisor = newAproximation2 - 2.0 * newAproximation1 + newAproximation;
+			sp_double divisor = newAproximation2 - 2.0 * newAproximation1 + newAproximation;
 
-			if (divisor == 0.0)
+			if (divisor == ZERO_DOUBLE)
 				return newAproximation2;
 
-			newAproximation = T(newAproximation - std::pow(newAproximation1 - newAproximation, 2.0) / divisor);
+			newAproximation = newAproximation - std::pow(newAproximation1 - newAproximation, TWO_FLOAT) / divisor;
 
 			if (isCloseEnough(newAproximation, approximation))
 				return newAproximation;
@@ -26,10 +25,6 @@ namespace NAMESPACE_PHYSICS
 			maxOfInteration--;
 		}
 
-		return T(SP_NOT_A_NUMBER);
+		return SP_NOT_A_NUMBER;
 	}
-
-	template class AlgorithmAitken<int>;
-	template class AlgorithmAitken<float>;
-	template class AlgorithmAitken<double>;
 }

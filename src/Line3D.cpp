@@ -29,11 +29,6 @@ namespace NAMESPACE_PHYSICS
 		this->point2 = Vec3(point2[0], point2[1], point2[2]);
 	}
 
-	Vec3 Line3D::centerOfSegment() const
-	{
-		return (point1 + point2) * 0.5f;
-	}
-
 	sp_float Line3D::lengthOfSegment() const
 	{
 		return point1.distance(point2);
@@ -41,16 +36,23 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Line3D::isOnLine(const Vec3& point, const sp_float _epsilon) const
 	{
-		return (point2 - point1).cross(point).isCloseEnough(ZERO_FLOAT, _epsilon);
+		Vec3 dif;
+		diff(point2, point1, &dif);
+
+		Vec3 temp;
+		NAMESPACE_PHYSICS::cross(dif, point, &temp);
+
+		return isCloseEnough(temp, ZERO_FLOAT, _epsilon);
 	}
 
 	sp_bool Line3D::isOnSegment(const Vec3& point) const
 	{
 		Vec3 lineDirection = point2 - point1;
 
-		sp_bool isOnTheLine = lineDirection.cross(point) == ZERO_FLOAT;
+		Vec3 crossedVector;
+		NAMESPACE_PHYSICS::cross(lineDirection, point, &crossedVector);
 
-		if (!isOnTheLine)
+		if (crossedVector != ZERO_FLOAT)
 			return false;
 		
 		sp_float ab = lineDirection.dot(lineDirection);

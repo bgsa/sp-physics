@@ -106,11 +106,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		response.handleCollisionResponse(&details);
 
-		Assert::IsTrue(propertiesObj2->currentState.velocity().isCloseEnough(Vec3(7.6f, 0.0f, 0.0f), 0.009f) , L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(propertiesObj2->previousState.velocity().isCloseEnough(Vec3(-20.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(propertiesObj2->currentState.velocity(), Vec3(7.6f, 0.0f, 0.0f), 0.009f) , L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(propertiesObj2->previousState.velocity(), Vec3(-20.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
 		
-		Assert::IsTrue(propertiesObj2->currentState.angularVelocity().isCloseEnough(Vec3(0.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(propertiesObj2->previousState.angularVelocity().isCloseEnough(Vec3(0.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(propertiesObj2->currentState.angularVelocity(), Vec3(0.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(propertiesObj2->previousState.angularVelocity(), Vec3(0.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
 		
 		Assert::IsTrue(propertiesObj2->currentState.orientation().isCloseEnough(Quat(1.0f, Vec3()), 0.009f), L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(propertiesObj2->previousState.orientation().isCloseEnough(Quat(1.0f, Vec3()), 0.009f), L"Wrong value.", LINE_INFO());
