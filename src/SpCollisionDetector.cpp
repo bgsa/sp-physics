@@ -452,42 +452,42 @@ namespace NAMESPACE_PHYSICS
 				Triangle3D triangleFace2;
 				face2->convert(&triangleFace2, transform2);
 
-				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point1, 0.009f)
+				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point1, ERROR_MARGIN_PHYSIC)
 					&& triangleFace1.isInside(triangleFace2.point1, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace2.point1;
 					vertexIndexesObj2[vertexIndexesObj2Length++] = face2->vertexesIndexes[0];
 				}
 
-				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point2, 0.009f)
+				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point2, ERROR_MARGIN_PHYSIC)
 					&& triangleFace1.isInside(triangleFace2.point2, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace2.point2;
 					vertexIndexesObj2[vertexIndexesObj2Length++] = face2->vertexesIndexes[1];
 				}
 
-				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point3, 0.009f)
+				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point3, ERROR_MARGIN_PHYSIC)
 					&& triangleFace1.isInside(triangleFace2.point3, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace2.point3;
 					vertexIndexesObj2[vertexIndexesObj2Length++] = face2->vertexesIndexes[2];
 				}
 
-				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point1, 0.009f)
+				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point1, ERROR_MARGIN_PHYSIC)
 					&& triangleFace2.isInside(triangleFace1.point1, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace1.point1;
 					vertexIndexesObj1[vertexIndexesObj1Length++] = face1->vertexesIndexes[0];
 				}
 
-				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point2, 0.009f)
+				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point2, ERROR_MARGIN_PHYSIC)
 					&& triangleFace2.isInside(triangleFace1.point2, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace1.point2;
 					vertexIndexesObj1[vertexIndexesObj1Length++] = face1->vertexesIndexes[1];
 				}
 
-				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point3, 0.009f)
+				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point3, ERROR_MARGIN_PHYSIC)
 					&& triangleFace2.isInside(triangleFace1.point3, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace1.point3;

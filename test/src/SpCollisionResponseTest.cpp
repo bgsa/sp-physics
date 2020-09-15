@@ -96,7 +96,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 
-		simulator->transforms(1u)->position = Vec3(1.5f, 0.0f, 0.0f);
+		simulator->transforms(1u)->position = Vec3(5.0f, 0.0f, 0.0f);
 		propertiesObj2->currentState.position(Vec3(5.0f, 0.0f, 0.0f));
 		propertiesObj2->previousState.position(Vec3(5.0f, 0.0f, 0.0f));
 		propertiesObj2->currentState.velocity(Vec3(-20.0f, 0.0f, 0.0f));
