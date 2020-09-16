@@ -195,10 +195,7 @@ namespace NAMESPACE_PHYSICS
 
 		inline Vec3 restingAcceleration() const
 		{
-			const Vec3 gravityForce = SpPhysicSettings::instance()->gravityForce();
-			const Vec3 restingAcceleration = gravityForce * massInverse();
-
-			return restingAcceleration;
+			return SpPhysicSettings::instance()->gravityForce() * massInverse();
 		}
 
 	public:
@@ -264,7 +261,7 @@ namespace NAMESPACE_PHYSICS
 		{
 #define NO_MOVING isCloseEnough(currentState._position, previousState._position, restingEpsilon)
 #define NO_ACCELERATION (isCloseEnough(currentState._acceleration, ZERO_FLOAT) || isCloseEnough(currentState._acceleration, restingAcceleration(), restingEpsilon))
-#define NO_ANG_VELOCITY isCloseEnough(currentState._angularVelocity, ZERO_FLOAT)
+#define NO_ANG_VELOCITY isCloseEnough(currentState._angularVelocity, ZERO_FLOAT, restingEpsilon)
 
 			const sp_float restingEpsilon = SpPhysicSettings::instance()->restingVelocityEpsilon();
 
