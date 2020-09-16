@@ -420,7 +420,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint facesIndexesMesh2[10];
 		sp_uint facesIndexesMesh2Length = ZERO_UINT;
 
-		vertex1->findParallelFaces(vertex2, transform1, transform2, facesIndexesMesh1, &facesIndexesMesh1Length , facesIndexesMesh2, &facesIndexesMesh2Length, 0.2f);
+		vertex1->findParallelFaces(vertex2, transform1, transform2, facesIndexesMesh1, &facesIndexesMesh1Length , facesIndexesMesh2, &facesIndexesMesh2Length, 0.1f);
 
 		if (facesIndexesMesh1Length == ZERO_UINT || facesIndexesMesh2Length == ZERO_UINT)
 			return false;
@@ -857,7 +857,7 @@ namespace NAMESPACE_PHYSICS
 			sp_uint parallelFacesIndexes[MAX_PARALLEL_FACES];
 			sp_uint parallelFacesIndexesLength = ZERO_UINT;
 
-			vertexMeshObj1->findParallelFaces(faceAsPlane, transformObj1, parallelFacesIndexes, &parallelFacesIndexesLength, 0.2f);
+			vertexMeshObj1->findParallelFaces(faceAsPlane, transformObj1, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
 
 			sp_assert(parallelFacesIndexesLength <= MAX_PARALLEL_FACES, "IndexOutOfRangeException");
 
@@ -950,7 +950,7 @@ namespace NAMESPACE_PHYSICS
 			sp_uint parallelFacesIndexesLength = ZERO_UINT;
 
 			// find all parallel faces
-			vertexMeshObj2->findParallelFaces(faceAsPlane, transformObj2, parallelFacesIndexes, &parallelFacesIndexesLength, 0.2f);
+			vertexMeshObj2->findParallelFaces(faceAsPlane, transformObj2, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
 
 			Vec3 contacts[2];
 			sp_uint contactsLength = ZERO_UINT;
