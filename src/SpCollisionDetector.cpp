@@ -104,21 +104,6 @@ namespace NAMESPACE_PHYSICS
 			// for each face from mesh 2
 			for (sp_uint j = 0; j < facesLengthObj2; j++)
 			{
-				/*
-				sp_bool continue1 = false, continue2 = false;
-
-				Plane3D plane1;
-				allFacesObj2[j]->convert(&plane1, transformObj2);
-
-				if (!plane1.intersection(edge, contactPoint))
-					continue1 = true;
-
-				Triangle3D face1;
-				allFacesObj2[j]->convert(&face1, transformObj2);
-				if (!face1.isInside(*contactPoint, 0.009f))
-					continue1 = true;
-					*/
-
 				Triangle3D face;
 				allFacesObj2[j]->convert(&face, transformObj2);
 
@@ -421,6 +406,9 @@ namespace NAMESPACE_PHYSICS
 		sp_uint facesIndexesMesh2Length = ZERO_UINT;
 
 		vertex1->findParallelFaces(vertex2, transform1, transform2, facesIndexesMesh1, &facesIndexesMesh1Length , facesIndexesMesh2, &facesIndexesMesh2Length, 0.1f);
+
+		sp_assert(facesIndexesMesh1Length < 10, "IndexOutOfRangeException");
+		sp_assert(facesIndexesMesh2Length < 10, "IndexOutOfRangeException");
 
 		if (facesIndexesMesh1Length == ZERO_UINT || facesIndexesMesh2Length == ZERO_UINT)
 			return false;
@@ -853,13 +841,12 @@ namespace NAMESPACE_PHYSICS
 			Plane3D faceAsPlane;
 			faceCollisionObj1->convert(&faceAsPlane, transformObj1);
 
-
 			sp_uint parallelFacesIndexes[MAX_PARALLEL_FACES];
 			sp_uint parallelFacesIndexesLength = ZERO_UINT;
 
 			vertexMeshObj1->findParallelFaces(faceAsPlane, transformObj1, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
 
-			sp_assert(parallelFacesIndexesLength <= MAX_PARALLEL_FACES, "IndexOutOfRangeException");
+			sp_assert(parallelFacesIndexesLength < MAX_PARALLEL_FACES, "IndexOutOfRangeException");
 
 			Vec3 contacts[MAX_CONTACTS];
 			sp_uint contactsLength = ZERO_UINT;
@@ -889,15 +876,17 @@ namespace NAMESPACE_PHYSICS
 
 					if (faceAsTriangle.isInside(edge.point2))
 						contacts[contactsLength++] = edge.point2;
-						
+					
+					sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
+
 					if (contactsLength == 2u)
 						goto break_loops1;
 				}
 			}
-
+			
 		break_loops1:
-			sp_assert(contactsLength == 2u, "InvalidOperationException");
-
+			sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
+			
 			details->type = SpCollisionType::EdgeFace;
 
 			details->contactPointsLength = 2u;
@@ -919,6 +908,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool SpCollisionDetector::isEdgeFaceCollisionObj2(SpCollisionDetails* details) const
 	{
+
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
@@ -936,6 +926,8 @@ namespace NAMESPACE_PHYSICS
 
 		if (isEdgeFaceCollision(vertexMeshObj2, vertexMeshObj1, transformObj2, transformObj1, &faceIndexCollisionObj2, &edgeVertexIndexObj1))
 		{
+#define MAX_PARALLEL_FACES 10u
+#define MAX_CONTACTS 2u
 			SpFaceMesh* faceCollisionObj2 = mesh2->faces->data()[faceIndexCollisionObj2];
 
 			Line3D edge;
@@ -946,13 +938,13 @@ namespace NAMESPACE_PHYSICS
 			Plane3D faceAsPlane;
 			faceCollisionObj2->convert(&faceAsPlane, transformObj2);
 
-			sp_uint parallelFacesIndexes[10];
+			sp_uint parallelFacesIndexes[MAX_PARALLEL_FACES];
 			sp_uint parallelFacesIndexesLength = ZERO_UINT;
 
 			// find all parallel faces
 			vertexMeshObj2->findParallelFaces(faceAsPlane, transformObj2, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
 
-			Vec3 contacts[2];
+			Vec3 contacts[MAX_CONTACTS];
 			sp_uint contactsLength = ZERO_UINT;
 
 			// find which faces this edge cross and get the two contact points
@@ -989,6 +981,8 @@ namespace NAMESPACE_PHYSICS
 			}
 
 		break_loops2:
+			sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
+
 			details->type = SpCollisionType::EdgeFace;
 
 			details->contactPointsLength = 2u;
@@ -1001,6 +995,8 @@ namespace NAMESPACE_PHYSICS
 			details->collisionNormalObj2 = faceAsPlane.normalVector;
 
 			return true;
+#undef MAX_PARALLEL_FACES
+#undef MAX_CONTACTS
 		}
 
 		return false;

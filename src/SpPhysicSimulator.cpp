@@ -178,24 +178,25 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i)]), "MemoryNotInitializedExeption");
 			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i) + 1]), "MemoryNotInitializedExeption");
+			sp_assert(sapResult.indexes[multiplyBy2(i)] < objectsLength(), "IndexOutOfRangeException");
+			sp_assert(sapResult.indexes[multiplyBy2(i) + 1] < objectsLength(), "IndexOutOfRangeException");
 
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
 
-			handleCollisionCPU(&detailsArray[i]);
+			//handleCollisionCPU(&detailsArray[i]);
 			
-			/*
+			// multi-thread
 			//tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
 			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
 			tasks[i].parameter = &detailsArray[i];
 
 			threadPool->schedule(&tasks[i]);
-			*/
 		}
-		/*
 		SpThreadPool::instance()->waitToFinish();
 		
+		/* dispatch collision events
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)
 				dispatchEvent(&detailsArray[i]);

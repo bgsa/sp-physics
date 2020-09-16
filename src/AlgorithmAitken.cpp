@@ -10,9 +10,9 @@ namespace NAMESPACE_PHYSICS
 			sp_float newAproximation1 = functor(newAproximation);
 			sp_float newAproximation2 = functor(newAproximation1);
 
-			sp_double divisor = newAproximation2 - 2.0 * newAproximation1 + newAproximation;
+			sp_float divisor = newAproximation2 - (TWO_FLOAT * newAproximation1) + newAproximation;
 
-			if (divisor == ZERO_DOUBLE)
+			if (divisor == ZERO_FLOAT)
 				return newAproximation2;
 
 			newAproximation = newAproximation - std::pow(newAproximation1 - newAproximation, TWO_FLOAT) / divisor;
