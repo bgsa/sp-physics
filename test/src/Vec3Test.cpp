@@ -19,11 +19,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(diff);
 		SP_TEST_METHOD_DEF(scale);
 		SP_TEST_METHOD_DEF(cross);
-		SP_TEST_METHOD_DEF(Vec3_dot_Test);
+		SP_TEST_METHOD_DEF(normal);
+		SP_TEST_METHOD_DEF(dot);
 		SP_TEST_METHOD_DEF(scalarTriple);
 		SP_TEST_METHOD_DEF(angle);
-		SP_TEST_METHOD_DEF(Vec3_normalize_Test);
-		SP_TEST_METHOD_DEF(Vec3_distance_Test);
+		SP_TEST_METHOD_DEF(normalize);
+		SP_TEST_METHOD_DEF(distance);
 		SP_TEST_METHOD_DEF(copy);
 		SP_TEST_METHOD_DEF(Vec3_operatorMultiplyScalar_Test);
 		SP_TEST_METHOD_DEF(Vec3_operatorMultiplyVector_Test);
@@ -72,10 +73,16 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 
-		float expected = sqrt(110.0f);
+		PerformanceCounter counter;
+		counter.start();
+		sp_float result;
+		
+		for (sp_uint i = 0; i < 100000; i++)
+			result = NAMESPACE_PHYSICS::length(vector);
 
-		float result = vector.length();
+		sp_longlong elapsedTime = counter.diff();
 
+		const sp_float expected = sqrt(110.0f);
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}	
 
@@ -147,18 +154,51 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 expected = { 0.0f, 1.0f, 0.0f };
 		Vec3 result;
 		
-		NAMESPACE_PHYSICS::cross(vector, vector2, &result);
+		PerformanceCounter counter;
+		counter.start();
+		for (sp_uint i = 0; i < 100000; i++)
+			NAMESPACE_PHYSICS::cross(vector, vector2, &result);
+		sp_longlong t = counter.diff();
+
 		for (sp_int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_dot_Test)
+	SP_TEST_METHOD(CLASS_NAME, normal)
+	{
+		Vec3 vec1(-1.0f, 0.0f, 0.0f);
+		Vec3 vec2(1.0f, 0.0f, 0.0f);
+		Vec3 vec3(0.0f, 1.0f, 0.0f);
+		Vec3 expected(0.0f, 0.0f, 1.0f);
+		Vec3 result;
+
+		PerformanceCounter counter;
+		counter.start();
+
+		for (sp_uint i = 0; i < 100000; i++)
+			NAMESPACE_PHYSICS::normal(vec1, vec2, vec3, &result);
+		
+		sp_longlong elapsedTime = counter.diff();
+
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i], 0.009f), L"Wrong value.", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, dot)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		Vec3 vector2 = { 4.0f, -2.0f, 3.0f };
 		sp_float expected = -29.0f;
+		sp_float result;
 
-		sp_float result = vector.dot(vector2);
+		PerformanceCounter counter;
+		counter.start();
+
+		for (sp_uint i = 0; i < 100000; i++)
+			result = vector.dot(vector2);
+			//result = NAMESPACE_PHYSICS::dot(vector, vector2);
+
+		sp_longlong elapsedTime = counter.diff();
 
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}
@@ -187,24 +227,38 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected, result, L"Value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_normalize_Test)
+	SP_TEST_METHOD(CLASS_NAME, normalize)
 	{
 		Vec3 vector = { 3.0f, 1.0f, 2.0f };
 		Vec3 expected = { 0.801783681f, 0.267261237f, 0.534522474f };
-		
-		Vec3 result = vector.normalize();
+		Vec3 result;
+
+		PerformanceCounter counter;
+		counter.start();
+
+		for (sp_uint i = 0; i < 100000; i++)
+			NAMESPACE_PHYSICS::normalize(vector, &result);
+
+		sp_longlong elapsedTime = counter.diff();
 
 		for (int i = 0; i < VEC3_LENGTH; i++)
-			Assert::AreEqual(expected[i], result[i], L"Value wrong.", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(expected[i], result[i], 0.009f), L"Value wrong.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Vec3_distance_Test)
+	SP_TEST_METHOD(CLASS_NAME, distance)
 	{
 		Vec3 vector = { 2.0f, 5.0f, -9.0f };
 		Vec3 vector2 = { 1.0f, 2.0f, 3.0f };
 		sp_float expected = 12.4096737f;
+		sp_float result;
 
-		sp_float result = vector.distance(vector2);
+		PerformanceCounter counter;
+		counter.start();
+
+		for (sp_uint i = 0; i < 100000; i++)
+			result = NAMESPACE_PHYSICS::distance(vector, vector2);
+
+		sp_longlong elapsedTime = counter.diff();
 
 		Assert::AreEqual(expected, result, L"Value wrong.", LINE_INFO());
 	}

@@ -21,7 +21,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		point = Vec3(ZERO_FLOAT, ZERO_FLOAT, -d / c);
 
-		normalVector = Vec3(a, b, c).normalize();
+		normalize(Vec3(a, b, c), &normalVector);
 		distanceFromOrigin = normalVector.dot(point);
 	}
 
@@ -107,7 +107,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 projectedPoint;
 		project(plane.point, &projectedPoint);
 
-		return plane.point.distance(projectedPoint);
+		return NAMESPACE_PHYSICS::distance(plane.point, projectedPoint);
 		
 		/* It does not work when (distanceFromOrigin - plane.distanceFromOrigin) = 0
 		return std::fabsf(distanceFromOrigin - plane.distanceFromOrigin)
@@ -126,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 	sp_float Plane3D::angle(const Plane3D& plane) const
 	{
 		sp_float angle = normalVector.dot(plane.normalVector);
-		sp_float length = normalVector.length() * plane.normalVector.length();
+		sp_float length = NAMESPACE_PHYSICS::length(normalVector) * NAMESPACE_PHYSICS::length(plane.normalVector);
 
 		return angle / length;
 	}

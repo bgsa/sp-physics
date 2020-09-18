@@ -42,32 +42,6 @@ namespace NAMESPACE_PHYSICS
 		return m.determinant();
 	}
 	
-	sp_float Vec3::maximum() const
-	{
-		sp_float value = x;
-
-		if (y > value)
-			value = y;
-
-		if (z > value)
-			value = z;
-
-		return value;
-	}
-
-	sp_float Vec3::minimum() const
-	{
-		sp_float value = x;
-
-		if (y < value)
-			value = y;
-
-		if (z < value)
-			value = z;
-
-		return value;
-	}
-	
 	void Vec3::add(const Vec3& vector)
 	{
 		x += vector.x;
@@ -143,7 +117,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Vec3::angle(const Vec3& vectorB) const
 	{
-		return dot(vectorB) / (length() * vectorB.length());
+		return dot(vectorB) / (length(*this) * length(vectorB));
 	}
 
 	sp_float Vec3::signedDistance(const Vec3& point) const
@@ -211,7 +185,6 @@ namespace NAMESPACE_PHYSICS
 		y += vector.y;
 		z += vector.z;
 	}
-
 	
 	Vec3 Vec3::operator+(const sp_float value) const
 	{
@@ -258,9 +231,9 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Vec3::operator==(const Vec3& vector) const
 	{
-		return x == vector.x
-			&& y == vector.y
-			&& z == vector.z;
+		return isCloseEnough(x, vector.x)
+			&& isCloseEnough(y, vector.y)
+			&& isCloseEnough(z, vector.z);
 	}
 
 	sp_bool Vec3::operator==(const sp_float value) const

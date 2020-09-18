@@ -31,7 +31,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Line3D::lengthOfSegment() const
 	{
-		return point1.distance(point2);
+		return NAMESPACE_PHYSICS::distance(point1, point2);
 	}
 
 	sp_bool Line3D::isOnLine(const Vec3& point, const sp_float _epsilon) const
@@ -198,7 +198,9 @@ namespace NAMESPACE_PHYSICS
 
 	void Line3D::intersectionOnRay(const Plane3D& plane, Vec3* point) const
 	{
-		Vec3 lineDirection = (point2 - point1).normalize();
+		Vec3 lineDirection;
+		normalize(point2 - point1, &lineDirection);
+
 		sp_float d = plane.getDcomponent();
 
 		// Ray = Point1 + t . lineDirection

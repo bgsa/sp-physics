@@ -25,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 temp;
 		cross(ab, ca, &temp);
 
-		return temp.length() * HALF_FLOAT;
+		return length(temp) * HALF_FLOAT;
 	}
 
 	class Triangle3D

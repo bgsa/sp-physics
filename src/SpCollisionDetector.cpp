@@ -196,6 +196,10 @@ namespace NAMESPACE_PHYSICS
 	void SpCollisionDetector::timeOfCollision(SpCollisionDetails* details)
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+
+		sp_assert(details->objIndex1 < simulator->objectsLength(), "InvalidArgumentException");
+		sp_assert(details->objIndex2 < simulator->objectsLength(), "InvalidArgumentException");
+
 		CollisionStatus status = CollisionStatus::OUTSIDE;
 		const sp_float _epsilon = 0.1f;
 		sp_float previousElapsedTime = details->timeStep;
@@ -214,6 +218,13 @@ namespace NAMESPACE_PHYSICS
 			simulator->integrator->execute(details->objIndex2, elapsedTime);
 
 			status = collisionStatus(&contactPoint, &cache, details);
+
+			// TODO: REMOVER!
+			if (details->objIndex1 > simulator->objectsLength())
+				int a = 1;
+			if (details->objIndex2 > simulator->objectsLength())
+				int a = 1;
+			
 
 			diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
@@ -262,6 +273,9 @@ namespace NAMESPACE_PHYSICS
 		simulator->physicProperties(details->objIndex1)->integratedTime(elapsedTime);
 		simulator->physicProperties(details->objIndex2)->integratedTime(elapsedTime);
 		details->timeOfCollision = elapsedTime;
+
+		sp_assert(details->objIndex1 < simulator->objectsLength(), "InvalidArgumentException");
+		sp_assert(details->objIndex2 < simulator->objectsLength(), "InvalidArgumentException");
 	}
 
 	void SpCollisionDetector::collisionDetails(SpCollisionDetails* details)
@@ -366,8 +380,19 @@ namespace NAMESPACE_PHYSICS
 		if (isEdgeEdgeCollision(details))
 			return;
 
-		isVertexFaceCollision(details);
+		if (isVertexFaceCollision(details))
+			return;
 	
+		// TODO: REMOVER!!
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		sp_char text1[8000];
+		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red", text1);
+		sp_char text2[8000];
+		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue", text2);
+		sp_char display[300];
+		sp_uint v = ZERO_UINT;
+		Maple::display("mesh1", "mesh2", display, &v);
+
 		sp_assert(details->ignoreCollision == false, "ApplicationException");
 		sp_assert(details->type != SpCollisionType::None, "ApplicationException");
 	}
@@ -389,6 +414,9 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool SpCollisionDetector::isFaceFaceCollision(SpCollisionDetails* details) const
 	{
+#define MAX_INTERSECTION_POINTS 12
+#define MIN_INTERSECTION_POINTS 2
+#define MAX_PARALLEL_FACES 10
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		
 		const SpTransform transform1 = *simulator->transforms(details->objIndex1);
@@ -400,15 +428,15 @@ namespace NAMESPACE_PHYSICS
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		SpVertexMesh* vertex2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];
 		
-		sp_uint facesIndexesMesh1[10];
+		sp_uint facesIndexesMesh1[MAX_PARALLEL_FACES];
 		sp_uint facesIndexesMesh1Length = ZERO_UINT;
-		sp_uint facesIndexesMesh2[10];
+		sp_uint facesIndexesMesh2[MAX_PARALLEL_FACES];
 		sp_uint facesIndexesMesh2Length = ZERO_UINT;
 
-		vertex1->findParallelFaces(vertex2, transform1, transform2, facesIndexesMesh1, &facesIndexesMesh1Length , facesIndexesMesh2, &facesIndexesMesh2Length, 0.1f);
+		vertex1->findParallelFaces(vertex2, transform1, transform2, facesIndexesMesh1, &facesIndexesMesh1Length , facesIndexesMesh2, &facesIndexesMesh2Length, 0.02f);
 
-		sp_assert(facesIndexesMesh1Length < 10, "IndexOutOfRangeException");
-		sp_assert(facesIndexesMesh2Length < 10, "IndexOutOfRangeException");
+		sp_assert(facesIndexesMesh1Length < MAX_PARALLEL_FACES, "IndexOutOfRangeException");
+		sp_assert(facesIndexesMesh2Length < MAX_PARALLEL_FACES, "IndexOutOfRangeException");
 
 		if (facesIndexesMesh1Length == ZERO_UINT || facesIndexesMesh2Length == ZERO_UINT)
 			return false;
@@ -419,12 +447,12 @@ namespace NAMESPACE_PHYSICS
 		SpFaceMesh** allFacesObj2 = vertex2->mesh()->faces->data();
 		SpEdgeMesh** allEdgesObj2 = mesh2->edges->data();
 
-		Vec3 intersectionPoints[12];
+		Vec3 intersectionPoints[MAX_INTERSECTION_POINTS];
 		sp_uint intersectionPointsLength = ZERO_UINT;
 
-		sp_uint vertexIndexesObj1[12];
+		sp_uint vertexIndexesObj1[MAX_INTERSECTION_POINTS];
 		sp_uint vertexIndexesObj1Length = ZERO_UINT;
-		sp_uint vertexIndexesObj2[12];
+		sp_uint vertexIndexesObj2[MAX_INTERSECTION_POINTS];
 		sp_uint vertexIndexesObj2Length = ZERO_UINT;
 
 		// find points that is inside the face
@@ -447,12 +475,22 @@ namespace NAMESPACE_PHYSICS
 					vertexIndexesObj2[vertexIndexesObj2Length++] = face2->vertexesIndexes[0];
 				}
 
+
+				// TODO: REMOVER!
+				if (intersectionPointsLength > MAX_INTERSECTION_POINTS)
+					int aad = 1;
+
+
 				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point2, ERROR_MARGIN_PHYSIC)
 					&& triangleFace1.isInside(triangleFace2.point2, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace2.point2;
 					vertexIndexesObj2[vertexIndexesObj2Length++] = face2->vertexesIndexes[1];
 				}
+
+				// TODO: REMOVER!
+				if (intersectionPointsLength > MAX_INTERSECTION_POINTS)
+					int aad = 1;
 
 				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace2.point3, ERROR_MARGIN_PHYSIC)
 					&& triangleFace1.isInside(triangleFace2.point3, ERROR_MARGIN_PHYSIC))
@@ -461,12 +499,24 @@ namespace NAMESPACE_PHYSICS
 					vertexIndexesObj2[vertexIndexesObj2Length++] = face2->vertexesIndexes[2];
 				}
 
+
+				// TODO: REMOVER!
+				if (intersectionPointsLength > MAX_INTERSECTION_POINTS)
+					int aad = 1;
+
+
 				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point1, ERROR_MARGIN_PHYSIC)
 					&& triangleFace2.isInside(triangleFace1.point1, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace1.point1;
 					vertexIndexesObj1[vertexIndexesObj1Length++] = face1->vertexesIndexes[0];
 				}
+
+
+				// TODO: REMOVER!
+				if (intersectionPointsLength > MAX_INTERSECTION_POINTS)
+					int aad = 1;
+
 
 				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point2, ERROR_MARGIN_PHYSIC)
 					&& triangleFace2.isInside(triangleFace1.point2, ERROR_MARGIN_PHYSIC))
@@ -475,18 +525,30 @@ namespace NAMESPACE_PHYSICS
 					vertexIndexesObj1[vertexIndexesObj1Length++] = face1->vertexesIndexes[1];
 				}
 
+
+				// TODO: REMOVER!
+				if (intersectionPointsLength > MAX_INTERSECTION_POINTS)
+					int aad = 1;
+
+
 				if (!contains(intersectionPoints, intersectionPointsLength, triangleFace1.point3, ERROR_MARGIN_PHYSIC)
 					&& triangleFace2.isInside(triangleFace1.point3, ERROR_MARGIN_PHYSIC))
 				{
 					intersectionPoints[intersectionPointsLength++] = triangleFace1.point3;
 					vertexIndexesObj1[vertexIndexesObj1Length++] = face1->vertexesIndexes[2];
 				}
+
+				// TODO: REMOVER!
+				if (intersectionPointsLength > MAX_INTERSECTION_POINTS)
+					int aad = 1;
+
+
 			}
 		}
 
-		sp_assert(intersectionPointsLength< 12u, "IndexOutOfRangeException");
-		sp_assert(vertexIndexesObj1Length < 12u, "IndexOutOfRangeException");
-		sp_assert(vertexIndexesObj2Length < 12u, "IndexOutOfRangeException");
+		sp_assert(intersectionPointsLength< MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
+		sp_assert(vertexIndexesObj1Length < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
+		sp_assert(vertexIndexesObj2Length < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
 
 		// for all edge from inside vertexes ...
 		for (sp_uint i = 0; i < vertexIndexesObj1Length; i++)
@@ -529,9 +591,15 @@ namespace NAMESPACE_PHYSICS
 
 						// if the edge intersect on the plane, get the intersection point
 						Vec3 contact;
-						if (ray1.intersection(ray2, &contact, 0.2f))
-							if (!contains(intersectionPoints, intersectionPointsLength, contact, 0.02f))
+						if (ray1.intersection(ray2, &contact, ERROR_MARGIN_PHYSIC))
+							if (!contains(intersectionPoints, intersectionPointsLength, contact, ERROR_MARGIN_PHYSIC))
 								intersectionPoints[intersectionPointsLength++] = contact;
+
+
+						// TODO: REMOVER!
+						if (intersectionPointsLength > MAX_INTERSECTION_POINTS)
+							int aad = 1;
+
 					}
 				}
 			}
@@ -603,8 +671,8 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 		*/
-		sp_assert(intersectionPointsLength > 2u, "InvalidOperationException");
-		sp_assert(intersectionPointsLength < 12u, "IndexOutOfRangeException");
+		sp_assert(intersectionPointsLength > MIN_INTERSECTION_POINTS, "InvalidOperationException");
+		sp_assert(intersectionPointsLength < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
 
 		details->type = SpCollisionType::FaceFace;
 		rotate(transform1.orientation, allFacesObj1[facesIndexesMesh1[0]]->faceNormal, &details->collisionNormalObj1);
@@ -619,6 +687,9 @@ namespace NAMESPACE_PHYSICS
 		details->centerContactPoint /= (sp_float)intersectionPointsLength;
 
 		return true;
+#undef MAX_INTERSECTION_POINTS
+#undef MIN_INTERSECTION_POINTS
+#undef MAX_PARALLEL_FACES
 	}
 
 	sp_bool SpCollisionDetector::isEdgeFaceCollision(SpVertexMesh* vertex1, SpVertexMesh* vertex2, const SpTransform& transform1, const SpTransform& transform2, sp_uint* faceIndexObj1, sp_uint* vertexIndexObj2) const

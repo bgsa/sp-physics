@@ -80,17 +80,31 @@ namespace NAMESPACE_PHYSICS
 		SpCollisionDetector collisionDetector;
 		SpCollisionResponse collisionResponse;
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
-		
+		const sp_uint maxObjectsLength = SpPhysicSimulator::instance()->objectsLength();
+
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
+		sp_assert(details->objIndex1 < maxObjectsLength, "InvalidArgumentException");
+		sp_assert(details->objIndex2 < maxObjectsLength, "InvalidArgumentException");
 
 		collisionDetector.filterCollision(details);
 		if (details->ignoreCollision)
+		{
+			// TODO: REMOVER
+			sp_log_info1s("FILTRADA!!"); sp_log_newline();
 			return;
+		}
+
+		// TODO: REMOVER
+		sp_log_info1s("NAO FILTRADA!!"); sp_log_newline();
 
 		collisionDetector.collisionDetails(details);
 
 		if (details->ignoreCollision)
+		{
+			// TODO: REMOVER
+			sp_log_info1s("FILTRADA 222222222222222222222222!!"); sp_log_newline();
 			return;
+		}
 
 		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
 		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
@@ -185,9 +199,6 @@ namespace NAMESPACE_PHYSICS
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
 
-			//handleCollisionCPU(&detailsArray[i]);
-			
-			// multi-thread
 			//tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
 			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
 			tasks[i].parameter = &detailsArray[i];

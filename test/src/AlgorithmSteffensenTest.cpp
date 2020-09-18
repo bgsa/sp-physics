@@ -5,7 +5,7 @@
 
 namespace NAMESPACE_PHYSICS_TEST
 {
-	float funcSteffensen(float x)
+	sp_float funcSteffensen(sp_float x)
 	{
 		//return powf(x, 3) + 4 * pow(x, 2) - 10;
 
@@ -16,14 +16,14 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(AlgorithmSteffensen_solve_Test);
+		SP_TEST_METHOD_DEF(solve);
 
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, AlgorithmSteffensen_solve_Test)
+	SP_TEST_METHOD(CLASS_NAME, solve)
 	{
-		AlgorithmSteffensen<float> algorithm;
-		float result = algorithm.solve(1.5f, funcSteffensen);
+		AlgorithmSteffensen algorithm;
+		sp_float result = algorithm.solve(1.5f, funcSteffensen);
 
 		Assert::IsTrue(isCloseEnough(result, 1.3652f), L"Wrong value.", LINE_INFO());
 	}

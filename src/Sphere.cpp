@@ -80,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 		
 		// The 3 space coords of the circumsphere center then:
 		center = point1 + toCircumsphereCenter; // now this is the actual 3space location
-		ray = toCircumsphereCenter.length();
+		ray = length(toCircumsphereCenter);
 	}
 
 	Sphere::Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3, const Vec3 &point4)
@@ -152,7 +152,7 @@ namespace NAMESPACE_PHYSICS
 
 	CollisionStatus Sphere::collisionStatus(const Vec3 &point)  const
 	{
-		sp_float distanceToPoint = center.distance(point);
+		sp_float distanceToPoint = distance(center, point);
 		
 		if (isCloseEnough(distanceToPoint, ray))
 			return CollisionStatus::INLINE;

@@ -2,20 +2,20 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	T AlgorithmSteffensen<T>::solve(T approximation, T functor(T), int maxOfInteration)
+
+	sp_float AlgorithmSteffensen::solve(sp_float approximation, sp_float functor(sp_float), sp_int maxOfInteration)
 	{
-		while (maxOfInteration != 0)
+		while (maxOfInteration != ZERO_INT)
 		{
-			T aproximation1 = functor(approximation);
-			T aproximation2 = functor(aproximation1);
+			sp_float aproximation1 = functor(approximation);
+			sp_float aproximation2 = functor(aproximation1);
 
-			T divisor = (aproximation2 - (2 * aproximation1) + approximation);
+			sp_float divisor = (aproximation2 - (TWO_FLOAT * aproximation1) + approximation);
 
-			if (divisor == T(0))
+			if (divisor == ZERO_FLOAT)
 				return aproximation2;
 
-			T newAproximation = T(approximation - std::pow(aproximation1 - approximation, 2) / divisor);
+			sp_float newAproximation = (sp_float) (approximation - ((aproximation1 - approximation) * (aproximation1 - approximation)) / divisor);
 
 			if (isCloseEnough(newAproximation, approximation))
 				return approximation;
@@ -25,10 +25,7 @@ namespace NAMESPACE_PHYSICS
 			maxOfInteration--;
 		}
 
-		return T(SP_NOT_A_NUMBER);
+		return SP_NOT_A_NUMBER;
 	}
 
-	template class AlgorithmSteffensen<int>;
-	template class AlgorithmSteffensen<float>;
-	template class AlgorithmSteffensen<double>;
 }

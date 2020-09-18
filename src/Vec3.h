@@ -8,6 +8,69 @@ namespace NAMESPACE_PHYSICS
 #define VEC3_LENGTH (3)
 #define VEC3_SIZE   (VEC3_LENGTH * SIZEOF_FLOAT)
 
+
+#ifdef SSE_ENABLED
+
+	#define sp_vec3_sqrt_sse(vec3_sse) _mm_sqrt_ss(vec3_sse)
+
+#endif
+
+#ifdef AVX_ENABLED
+
+	#define sp_vec3_convert_simd(v) _mm_set_ps(ZERO_FLOAT, v.z, v.y, v.x)
+	#define sp_vec3_convert_ref_simd(v) _mm_set_ps(ZERO_FLOAT, v->z, v->y, v->x)
+
+	#define sp_vec3_add_simd(vec3_simd1, vec3_simd2) _mm_add_ps(vec3_simd1, vec3_simd2)
+
+	// result = (vec3_simd.x + vec3_simd.y + vec3_simd.z)
+	#define sp_vec3_add_vertical_simd(vec3_simd, vec3_simd_output) \
+		vec3_simd_output = _mm_hadd_ps(vec3_simd, vec3_simd); \
+		vec3_simd_output = _mm_hadd_ps(vec3_simd_output, vec3_simd_output)
+	
+	#define sp_vec3_sub_simd(vec3_simd1, vec3_simd2) _mm_sub_ps(vec3_simd1, vec3_simd2)
+
+	#define sp_vec3_sqrt_simd(vec3_simd) _mm_sqrt_ps(vec3_simd)
+	#define sp_vec3_rsqrt_simd(vec3_simd) _mm_rsqrt_ps(vec3_simd)
+
+	#define sp_vec3_dot_simd(vec3_simd1, vec3_simd2) _mm_dp_ps(vec3_simd1, vec3_simd2, 0xff)
+
+	#define sp_vec3_mult_simd(vec3_simd1, vec3_simd2) _mm_mul_ps(vec3_simd1, vec3_simd2)
+
+	#define sp_vec3_shuflle_simd(vec3_simd1, vec3_simd2, mask1, mask2, mask3, mask4) _mm_shuffle_ps(vec3_simd1, vec3_simd2, _MM_SHUFFLE(mask1, mask2, mask3, mask4))
+
+	#define sp_vec3_length_simd(vec3_simd_input, vec3_simd_output) \
+		__m128 v1 = sp_vec3_convert_simd(vec3_simd_input); \
+		v1 = sp_vec3_dot_simd(v1, v1); \
+		vec3_simd_output = sp_vec3_sqrt_simd(v1)
+
+	#define sp_vec3_cross_simd(vec3_simd1, vec3_simd2, vec3_simd_output) \
+		const __m128 swp0 = sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 0, 2, 1); \
+		const __m128 swp1 = sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 1, 0, 2); \
+		const __m128 swp2 = sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 0, 2, 1); \
+		const __m128 swp3 = sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 1, 0, 2); \
+		const __m128 mul0 = sp_vec3_mult_simd(swp0, swp3); \
+		const __m128 mul1 = sp_vec3_mult_simd(swp1, swp2); \
+		vec3_simd_output = sp_vec3_sub_simd(mul0, mul1)
+
+	#define sp_vec3_normalize_simd(vec3_simd, vec3_simd_output)     \
+		const __m128 vDot = sp_vec3_dot_simd(vec3_simd, vec3_simd); \
+		const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot);    \
+		vec3_simd_output = sp_vec3_mult_simd(vec3_simd, vDotSquaredRoot)
+
+	#define sp_vec3_normal_simd(vec3_simd1, vec3_simd2, vec3_simd3, vec3_simd_output) \
+		const __m128 line1 = sp_vec3_sub_simd(vec3_simd3, vec3_simd2); \
+		const __m128 line2 = sp_vec3_sub_simd(vec3_simd2, vec3_simd1); \
+		sp_vec3_cross_simd(line1, line2, const __m128 crossedVec);     \
+		sp_vec3_normalize_simd(crossedVec, vec3_simd_output)
+
+	#define sp_vec3_distance_simd(vec3_simd1, vec3_simd2, vec3_simd_output) \
+		__m128 tempDist = sp_vec3_sub_simd(vec3_simd1, vec3_simd2); \
+		__m128 rDist = sp_vec3_mult_simd(tempDist, tempDist); \
+		sp_vec3_add_vertical_simd(rDist, rDist); \
+		vec3_simd_output = sp_vec3_sqrt_sse(rDist)
+
+#endif
+
 	class Vec3
 	{
 	public:
@@ -40,22 +103,36 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get the length / norma from the vector -> ||v||
-		/// </summary>
-		API_INTERFACE inline sp_float length() const
-		{
-			return sqrtf(squaredLength());
-		}
-
-		/// <summary>
 		/// Get the maximun value in the vector
 		/// </summary>
-		API_INTERFACE sp_float maximum() const;
+		API_INTERFACE inline sp_float maximum() const
+		{
+			sp_float value = x;
+
+			if (y > value)
+				value = y;
+
+			if (z > value)
+				value = z;
+
+			return value;
+		}
 
 		/// <summary>
 		/// Get the min value in the vector
 		/// </summary>
-		API_INTERFACE sp_float minimum() const;
+		API_INTERFACE inline sp_float minimum() const
+		{
+			sp_float value = x;
+
+			if (y < value)
+				value = y;
+
+			if (z < value)
+				value = z;
+
+			return value;
+		}
 
 		/// <summary>
 		/// Add a vector from current vector
@@ -113,24 +190,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_float angle(const Vec3& vectorB) const;
 
 		/// <summary>
-		/// Get a normalized vector
-		/// </summary>
-		API_INTERFACE inline Vec3 normalize() const
-		{
-			const sp_float len = length();
-
-			sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
-			
-			const sp_float vectorLengthInverted = ONE_FLOAT / len;
-
-			return Vec3{
-				x * vectorLengthInverted,
-				y * vectorLengthInverted,
-				z * vectorLengthInverted
-			};
-		}
-
-		/// <summary>
 		/// Check the orientation of 3 ordered vertexes (left, right or inline)
 		/// Z-axis is inverted due to right-hand rule
 		/// Returns Zero if the vertexes are (close) inline. 
@@ -149,18 +208,6 @@ namespace NAMESPACE_PHYSICS
 				((x - vector.x) * (x - vector.x)) +
 				((y - vector.y) * (y - vector.y)) +
 				((z - vector.z) * (z - vector.z));
-		}
-
-		/// <summary>
-		/// Calculate the distance (Euclidean) from this vector to another one
-		/// </summary>
-		API_INTERFACE inline sp_float distance(const Vec3& vector) const
-		{
-			return std::sqrtf(
-				((x - vector.x) * (x - vector.x)) +
-				((y - vector.y) * (y - vector.y)) +
-				((z - vector.z) * (z - vector.z))
-			);
 		}
 
 		/// <summary>
@@ -402,12 +449,14 @@ namespace NAMESPACE_PHYSICS
 		output->y = vec1.y + vec2.y;
 		output->z = vec1.z + vec2.z;
 	}
+	
 	API_INTERFACE inline void diff(const Vec3& vec1, const Vec3& vec2, Vec3* output)
 	{
 		output->x = vec1.x - vec2.x;
 		output->y = vec1.y - vec2.y;
 		output->z = vec1.z - vec2.z;
 	}
+	
 	API_INTERFACE inline void multiply(const Vec3& vec1, const Vec3& vec2, Vec3* output)
 	{
 		output->x = vec1.x * vec2.x;
@@ -433,13 +482,38 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	/// <summary>
+	/// Get the length of the vector
+	/// </summary>
+	/// <param name="vector">Vector</param>
+	/// <returns>Length of the vector</returns>
+	API_INTERFACE inline sp_float length(const Vec3& vector)
+	{
+#ifdef AVX_ENABLED
+		sp_vec3_length_simd(vector, const __m128 result);
+		return result.m128_f32[0];
+#else
+		return sqrtf(vector.squaredLength());
+#endif
+	}
+
+	/// <summary>
 	/// Normalize the vector
 	/// </summary>
 	/// <param name="vector">Vector to be normalized</param>
 	/// <returns>void</returns>
 	API_INTERFACE inline void normalize(Vec3* vector)
 	{
-		const sp_float len = vector->length();
+#ifdef AVX_ENABLED
+		const __m128 v = sp_vec3_convert_ref_simd(vector); // convert
+		const __m128 vDot = sp_vec3_dot_simd(v, v); // dot
+		const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot); // root reverse
+		const sp_float* result = sp_vec3_mult_simd(v, vDotSquaredRoot).m128_f32;
+		
+		vector->x = result[0];
+		vector->y = result[1];
+		vector->z = result[2];
+#else
+		const sp_float len = length(*vector);
 
 		sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
 
@@ -448,6 +522,7 @@ namespace NAMESPACE_PHYSICS
 		vector->x *= vectorLengthInverted;
 		vector->y *= vectorLengthInverted;
 		vector->z *= vectorLengthInverted;
+#endif
 	}
 
 	/// <summary>
@@ -458,15 +533,47 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>void</returns>
 	API_INTERFACE inline void normalize(const Vec3& input, Vec3* output)
 	{
-		const sp_float len = input.length();
+#ifdef AVX_ENABLED
+		const __m128 v = sp_vec3_convert_simd(input);
+		const __m128 vDot = sp_vec3_dot_simd(v, v); // dot
+		const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot); // root
+		const sp_float* result = sp_vec3_mult_simd(v, vDotSquaredRoot).m128_f32;
 
-		sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
+		output->x = result[0];
+		output->y = result[1];
+		output->z = result[2];
+#else
+		const sp_float len = NAMESPACE_PHYSICS::length(input);
+
+		//sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
 
 		const sp_float vectorLengthInverted = ONE_FLOAT / len;
 
 		output->x = input.x * vectorLengthInverted;
 		output->y = input.y * vectorLengthInverted;
 		output->z = input.z * vectorLengthInverted;
+#endif
+	}
+
+	/// <summary>
+	/// Calculate the distance (Euclidean) from this vector to another one
+	/// </summary>
+	API_INTERFACE inline sp_float distance(const Vec3& vector1, const Vec3& vector2)
+	{
+#ifdef AVX_ENABLED
+		const __m128 v1 = sp_vec3_convert_simd(vector1);
+		const __m128 v2 = sp_vec3_convert_simd(vector2);
+		
+		sp_vec3_distance_simd(v2, v1, const __m128 result);
+		
+		return result.m128_f32[0];
+#else
+		return std::sqrtf(
+			((vector2.x - vector1.x) * (vector2.x - vector1.x)) +
+			((vector2.y - vector1.y) * (vector2.y - vector1.y)) +
+			((vector2.z - vector1.z) * (vector2.z - vector1.z))
+		);
+#endif
 	}
 
 	/// <summary>
@@ -478,9 +585,9 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>void</returns>
 	API_INTERFACE inline void cross(const Vec3& vector1, const Vec3& vector2, Vec3* output)
 	{
-		output[0].x = vector2.y * vector1.z - vector1.y * vector2.z;
-		output[0].y = -vector2.x * vector1.z + vector1.x * vector2.z;
-		output[0].z = vector2.x * vector1.y - vector1.x * vector2.y;
+		output->x = vector2.y * vector1.z - vector1.y * vector2.z;
+		output->y = -vector2.x * vector1.z + vector1.x * vector2.z;
+		output->z = vector2.x * vector1.y - vector1.x * vector2.y;
 	}
 
 	/// <summary>
@@ -538,9 +645,22 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>void</returns>
 	API_INTERFACE inline void normal(const Vec3& p1, const Vec3& p2, const Vec3& p3, Vec3* output)
 	{
+#ifdef AVX_ENABLED
+		const __m128 v1_simd = sp_vec3_convert_simd(p1);
+		const __m128 v2_simd = sp_vec3_convert_simd(p2);
+		const __m128 v3_simd = sp_vec3_convert_simd(p3);
+
+		sp_vec3_normal_simd(v1_simd, v2_simd, v3_simd, const __m128 result);
+
+		const sp_float* r = result.m128_f32;
+		output->x = r[0];
+		output->y = r[1];
+		output->z = r[2];
+#else
 		// right-hand rule (B-A)x(C-A)
 		cross(p3 - p2, p2 - p1, output);
 		normalize(output);
+#endif
 	}
 
 	/// <summary>

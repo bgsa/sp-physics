@@ -7,6 +7,14 @@
 
 namespace NAMESPACE_PHYSICS
 {
+
+#ifdef AVX_ENABLED
+
+#define sp_transform_transform()
+
+#endif
+
+
 	class SpTransform
 	{
 	public:

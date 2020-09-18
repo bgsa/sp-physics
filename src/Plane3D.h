@@ -29,7 +29,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE Plane3D(const Vec3& point, const Vec3& normal)
 		{
-			sp_assert(isCloseEnough(normal.length(), ONE_FLOAT, 0.009f), "InvalidArgumentException");
+			sp_assert(isCloseEnough(length(normal), ONE_FLOAT, 0.009f), "InvalidArgumentException");
 
 			this->point = point;
 			this->normalVector = normal;

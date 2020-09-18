@@ -15,6 +15,9 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSettings* settings = SpPhysicSettings::instance();
 		SpPhysicProperties* element = simulator->physicProperties(index);
 
+		if (element->isStatic())
+			return;
+
 		const sp_float newElapsedTime =  (elapsedTime - element->integratedTime()) * settings->physicVelocity();
 		const sp_float halfElapsedTime = newElapsedTime * HALF_FLOAT;
 
@@ -30,7 +33,7 @@ namespace NAMESPACE_PHYSICS
 			+ (element->currentState.acceleration() + newAcceleration) * halfElapsedTime
 			  ) * element->damping();
 
-		const Quat newAngularAcceleration(0.0f, element->inertialTensorInverse() * element->currentState.torque());
+		const Quat newAngularAcceleration(ZERO_FLOAT, element->inertialTensorInverse() * element->currentState.torque());
 
 		const Vec3 newAngularVelocity 
 			= (element->currentState.angularVelocity()
@@ -49,6 +52,16 @@ namespace NAMESPACE_PHYSICS
 		// update/sync transform
 		simulator->transforms(index)->position = newPosition;
 		simulator->transforms(index)->orientation = newOrientation;
+
+		// TODO: REMOVER
+		sp_log_info1s("PREVIOUS POS: ");
+		sp_log_info3f(element->currentState._position.x, element->currentState._position.y, element->currentState._position.z);
+		sp_log_info1s("    NEW POS: ");
+		sp_log_info3f(newPosition.x, newPosition.y, newPosition.z);
+		sp_log_info1s("    TIME STEP: ");
+		sp_log_info1f(elapsedTime);
+		sp_log_newline();
+
 
 		// update physic properties state
 		element->previousState._acceleration = element->currentState.acceleration();

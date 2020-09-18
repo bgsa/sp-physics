@@ -46,7 +46,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_bool result = plane.intersection(r, &contact);
 		
 		Assert::IsTrue(result);
-		Assert::IsTrue(isCloseEnough(Vec3(1.019, -1.0f, 1.0f), contact, ERROR_MARGIN_PHYSIC));
+		Assert::IsTrue(isCloseEnough(Vec3(1.019f, -1.0f, 1.0f), contact, ERROR_MARGIN_PHYSIC));
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, contructorWithThreePoints_Test)
@@ -170,8 +170,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, angle_Test1)
 	{
-		Plane3D plane1 = Plane3D(Vec3(1.0f, 1.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f).normalize());
-		Plane3D plane2 = Plane3D(Vec3(1.0f, 1.0f, 1.0f), Vec3(1.0f, -2.0f, 3.0f).normalize());
+		Plane3D plane1;
+		plane1.point = Vec3(1.0f, 1.0f, 1.0f);
+		normalize(plane1.point, &plane1.normalVector);
+
+		Plane3D plane2;
+		plane2.point = Vec3(1.0f, 1.0f, 1.0f);
+		normalize(Vec3(1.0f, -2.0f, 3.0f), &plane2.normalVector);
 
 		Vec4 a, b;
 		plane1.equation(&a);
@@ -180,7 +185,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float expected = 0.308606714f;
 		sp_float result = plane1.angle(plane2);
 
-		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(expected, result), L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, angle_Test2)
@@ -191,7 +196,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float expected = 0.6998542122f;
 		sp_float result = plane1.angle(plane2);
 
-		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(expected, result), L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, distance_point_Test1)
@@ -235,7 +240,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), normal);
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);
 
-		sp_float expected = 7.07106781f;
+		sp_float expected = 7.07304478;
 		sp_float result = plane.distance(point);
 
 		Assert::IsTrue(isCloseEnough(expected, result), L"Wrong value", LINE_INFO());
@@ -270,25 +275,25 @@ namespace NAMESPACE_PHYSICS_TEST
 		Plane3D plane = Plane3D(1.0f, 5.0f, 3.0f, 13.0f);
 		Vec3 point = Vec3(2.0f, 4.0f, 1.0f);
 
-		float expected = 6.42317247f;
+		float expected = 6.4241f;
 		float result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 
 		plane = Plane3D(2.0f, -2.0f, 5.0f, 8.0f);
 		point = Vec3(4.0f, -4.0f, 3.0f);
-		expected = 6.78902864f;
+		expected = 6.7904f;
 		result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 
 		plane = Plane3D(2.0f, -2.0f, -1.0f, 3.0f);
 		point = Vec3(2.0f, -1.0f, 2.0f);			
-		expected = 2.33333325f;
+		expected = 2.3339f;
 		result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 
 		plane = Plane3D(1.0f, 1.0f, 1.0f, 0.0f);
 		point = Vec3(3.0f, -1.0f, 4.0f);
-		expected = 3.46410179f;
+		expected = 3.4645f;
 		result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 

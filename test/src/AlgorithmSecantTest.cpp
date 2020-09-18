@@ -5,23 +5,23 @@
 
 namespace NAMESPACE_PHYSICS_TEST
 {
-	float funcSecant(float x)
+	sp_float funcSecant(sp_float x)
 	{
-		return std::cos(x) - x;
+		return std::cosf(x) - x;
 	}
 
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
 
-		SP_TEST_METHOD_DEF(AlgorithmSecant_solve_Test);
+		SP_TEST_METHOD_DEF(solve);
 
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, AlgorithmSecant_solve_Test)
+	SP_TEST_METHOD(CLASS_NAME, solve)
 	{
-		AlgorithmSecant<float> algorithm;
-		float result = algorithm.solve(0.5f, float(PI / 4), funcSecant);
+		AlgorithmSecant algorithm;
+		sp_float result = algorithm.solve(HALF_FLOAT, sp_float(PI / 4), funcSecant);
 
 		Assert::IsTrue(isCloseEnough(result, 0.7390f), L"Wrong value.", LINE_INFO());
 	}
