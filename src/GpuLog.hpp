@@ -58,7 +58,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static void handleRuntimeError(int errorCode)
 		{
 			std::string runtimeError = runtimeErrorMessage(errorCode);
-			assert(errorCode == CL_SUCCESS);
+			sp_assert(errorCode == CL_SUCCESS, runtimeError.c_str());
 		}
 
 		///<summary>
@@ -67,7 +67,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static void handleCompileError(int errorCode)
 		{
 			std::string compileError = compileErrorMessage(errorCode);
-			assert(errorCode == CL_SUCCESS);
+			sp_assert(errorCode == CL_SUCCESS, compileError.c_str());
 		}
 
 		///<summary>

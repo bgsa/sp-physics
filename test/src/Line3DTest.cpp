@@ -380,19 +380,16 @@ namespace NAMESPACE_PHYSICS_TEST
 		Sphere sphere = Sphere(Vec3(0.0f, 0.0f, 0.0f), 10.0f);
 		Line3D line = Line3D(Vec3{ -20.0f, 0.0f, 0.0f }, Vec3{ -12.0f, 0.0f, 0.0f });
 
-		Vec3 expectedPoint1 = { -10.0f, 0.0f, 0.0f };
-		Vec3 expectedPoint2 = {  10.0f, 0.0f, 0.0f };
+		Vec3 expectedPoint1(-10.0f, 0.0f, 0.0f);
+		Vec3 expectedPoint2(10.0f, 0.0f, 0.0f);
 
 		DetailedCollisionStatus result = line.findIntersectionOnRay(sphere);
 
 		Assert::IsTrue(result.status == CollisionStatus::INSIDE, L"There should be 2 intersection points.", LINE_INFO());
 		Assert::AreEqual(result.pointsCount, TWO_UINT, L"There should be 2 intersection points.", LINE_INFO());
 
-		for (int i = 0; i < 3; i++)
-		{
-			Assert::AreEqual(expectedPoint1[i], result.points[0][i], L"Wrong value.", LINE_INFO());
-			Assert::AreEqual(expectedPoint2[i], result.points[1][i], L"Wrong value.", LINE_INFO());
-		}
+		Assert::IsTrue(isCloseEnough(expectedPoint1, result.points[0], 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(expectedPoint2, result.points[1], 0.009f), L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Line3D_findIntersectionOnRay_sphere_Test2)
@@ -406,9 +403,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::IsTrue(result.status == CollisionStatus::INLINE, L"There should be 1 intersection points (tangent).", LINE_INFO());
 		Assert::AreEqual(result.pointsCount, 1u, L"There should be 2 intersection points.", LINE_INFO());
-
-		for (int i = 0; i < 3; i++)
-			Assert::AreEqual(expectedPoint1[i], result.points[0][i], L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(expectedPoint1, result.points[0], 0.009f), L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Line3D_findIntersectionOnRay_sphere_Test3)

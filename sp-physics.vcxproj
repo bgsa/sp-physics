@@ -304,6 +304,7 @@
     <ClInclude Include="src\SpPhysicSettings.h" />
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />
+    <ClInclude Include="src\SpSIMD.h" />
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SpVertexMesh.h" />
     <ClInclude Include="src\SpEdgeMesh.h" />

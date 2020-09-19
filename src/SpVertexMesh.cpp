@@ -207,7 +207,7 @@ namespace NAMESPACE_PHYSICS
 						if (vertexIndex != _index)
 							allVertexesMesh2[vertexIndex]->findParallelFaces(plane2, meshTransform2, facesIndexesMesh2, facesIndexesMesh2Length, _epsilon);
 
-						vertexIndex = allFacesMesh2[facesVertex2[i]]->vertexesIndexes[2];
+						vertexIndex = allFacesMesh2[facesVertex2[j]]->vertexesIndexes[2];
 						if (vertexIndex != _index)
 							allVertexesMesh2[vertexIndex]->findParallelFaces(plane2, meshTransform2, facesIndexesMesh2, facesIndexesMesh2Length, _epsilon);
 					}

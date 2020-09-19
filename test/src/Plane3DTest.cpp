@@ -240,7 +240,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), normal);
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);
 
-		sp_float expected = 7.07304478;
+		sp_float expected = 7.0730f;
 		sp_float result = plane.distance(point);
 
 		Assert::IsTrue(isCloseEnough(expected, result), L"Wrong value", LINE_INFO());

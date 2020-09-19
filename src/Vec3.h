@@ -2,74 +2,12 @@
 #define VEC3_HEADER
 
 #include "SpectrumPhysics.h"
+#include "SpSIMD.h"
 
 namespace NAMESPACE_PHYSICS
 {
 #define VEC3_LENGTH (3)
 #define VEC3_SIZE   (VEC3_LENGTH * SIZEOF_FLOAT)
-
-
-#ifdef SSE_ENABLED
-
-	#define sp_vec3_sqrt_sse(vec3_sse) _mm_sqrt_ss(vec3_sse)
-
-#endif
-
-#ifdef AVX_ENABLED
-
-	#define sp_vec3_convert_simd(v) _mm_set_ps(ZERO_FLOAT, v.z, v.y, v.x)
-	#define sp_vec3_convert_ref_simd(v) _mm_set_ps(ZERO_FLOAT, v->z, v->y, v->x)
-
-	#define sp_vec3_add_simd(vec3_simd1, vec3_simd2) _mm_add_ps(vec3_simd1, vec3_simd2)
-
-	// result = (vec3_simd.x + vec3_simd.y + vec3_simd.z)
-	#define sp_vec3_add_vertical_simd(vec3_simd, vec3_simd_output) \
-		vec3_simd_output = _mm_hadd_ps(vec3_simd, vec3_simd); \
-		vec3_simd_output = _mm_hadd_ps(vec3_simd_output, vec3_simd_output)
-	
-	#define sp_vec3_sub_simd(vec3_simd1, vec3_simd2) _mm_sub_ps(vec3_simd1, vec3_simd2)
-
-	#define sp_vec3_sqrt_simd(vec3_simd) _mm_sqrt_ps(vec3_simd)
-	#define sp_vec3_rsqrt_simd(vec3_simd) _mm_rsqrt_ps(vec3_simd)
-
-	#define sp_vec3_dot_simd(vec3_simd1, vec3_simd2) _mm_dp_ps(vec3_simd1, vec3_simd2, 0xff)
-
-	#define sp_vec3_mult_simd(vec3_simd1, vec3_simd2) _mm_mul_ps(vec3_simd1, vec3_simd2)
-
-	#define sp_vec3_shuflle_simd(vec3_simd1, vec3_simd2, mask1, mask2, mask3, mask4) _mm_shuffle_ps(vec3_simd1, vec3_simd2, _MM_SHUFFLE(mask1, mask2, mask3, mask4))
-
-	#define sp_vec3_length_simd(vec3_simd_input, vec3_simd_output) \
-		__m128 v1 = sp_vec3_convert_simd(vec3_simd_input); \
-		v1 = sp_vec3_dot_simd(v1, v1); \
-		vec3_simd_output = sp_vec3_sqrt_simd(v1)
-
-	#define sp_vec3_cross_simd(vec3_simd1, vec3_simd2, vec3_simd_output) \
-		const __m128 swp0 = sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 0, 2, 1); \
-		const __m128 swp1 = sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 1, 0, 2); \
-		const __m128 swp2 = sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 0, 2, 1); \
-		const __m128 swp3 = sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 1, 0, 2); \
-		const __m128 mul0 = sp_vec3_mult_simd(swp0, swp3); \
-		const __m128 mul1 = sp_vec3_mult_simd(swp1, swp2); \
-		vec3_simd_output = sp_vec3_sub_simd(mul0, mul1)
-
-	#define sp_vec3_normalize_simd(vec3_simd, vec3_simd_output)     \
-		const __m128 vDot = sp_vec3_dot_simd(vec3_simd, vec3_simd); \
-		const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot);    \
-		vec3_simd_output = sp_vec3_mult_simd(vec3_simd, vDotSquaredRoot)
-
-	#define sp_vec3_normal_simd(vec3_simd1, vec3_simd2, vec3_simd3, vec3_simd_output) \
-		const __m128 line1 = sp_vec3_sub_simd(vec3_simd3, vec3_simd2); \
-		const __m128 line2 = sp_vec3_sub_simd(vec3_simd2, vec3_simd1); \
-		sp_vec3_cross_simd(line1, line2, const __m128 crossedVec);     \
-		sp_vec3_normalize_simd(crossedVec, vec3_simd_output)
-
-	#define sp_vec3_distance_simd(vec3_simd1, vec3_simd2, vec3_simd_output) \
-		__m128 tempDist = sp_vec3_sub_simd(vec3_simd1, vec3_simd2); \
-		__m128 rDist = sp_vec3_mult_simd(tempDist, tempDist); \
-		sp_vec3_add_vertical_simd(rDist, rDist); \
-		vec3_simd_output = sp_vec3_sqrt_sse(rDist)
-
-#endif
 
 	class Vec3
 	{

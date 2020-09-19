@@ -52,7 +52,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint colorLength = strlen(colorName);
 			std::memcpy(&output[*index], colorName, colorLength);
 			index[0] += colorLength;
-			sp_char* text = ", thickness = 2, scaling = unconstrained, axes = boxed, labels = [axisX, axisY, axisZ], orientation = [90, 195, -190]):";
+			sp_char* text = ", thickness = 2, scaling = constrained, axes = boxed, labels = [axisX, axisY, axisZ], orientation = [90, 195, -190]):";
 			std::memcpy(&output[*index], text, strlen(text));
 			index[0] += strlen(text);
 

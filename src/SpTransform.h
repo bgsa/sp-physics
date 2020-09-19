@@ -10,7 +10,7 @@ namespace NAMESPACE_PHYSICS
 
 #ifdef AVX_ENABLED
 
-#define sp_transform_transform()
+#define sp_transform_transform(vec3_simd)
 
 #endif
 

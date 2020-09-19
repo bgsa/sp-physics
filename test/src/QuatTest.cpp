@@ -21,11 +21,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Quat_sum_Index_Test);
 		SP_TEST_METHOD_DEF(Quat_subtract_Index_Test);
 		SP_TEST_METHOD_DEF(Quat_scale_Test);
-		SP_TEST_METHOD_DEF(Quat_multiply_Test);
+		SP_TEST_METHOD_DEF(multiply_1);
 		SP_TEST_METHOD_DEF(Quat_multiply_Test2);
 		SP_TEST_METHOD_DEF(Quat_length_Test);
 		SP_TEST_METHOD_DEF(Quat_normalize_Test);
-		SP_TEST_METHOD_DEF(Quat_conjugate_Test);
+		SP_TEST_METHOD_DEF(conjugate);
 		SP_TEST_METHOD_DEF(Quat_dot_Test);
 		SP_TEST_METHOD_DEF(Quat_inverse_Test);
 		SP_TEST_METHOD_DEF(Quat_toVec3_Test);
@@ -168,12 +168,20 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected[3], quat[3], L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Quat_multiply_Test)
+	SP_TEST_METHOD(CLASS_NAME, multiply_1)
 	{
 		Quat quat1(0.0f, 1.0f, 1.0f, 0.0f);
 		Quat quat2(2.0f, 3.0f, 5.0f, 7.0f);
-		Quat result = quat1 * quat2;
 		Quat expected(-8.0f, -5.0f, 9.0f, -2.0f);
+		Quat result;
+
+		PerformanceCounter counter;
+		counter.start();
+
+		for (sp_uint i = 0; i < 100000; i++)
+			NAMESPACE_PHYSICS::multiply(quat1, quat2, &result);
+
+		sp_longlong elapsedTime = counter.diff();
 
 		Assert::AreEqual(expected.w, result.w, L"Wrong value", LINE_INFO());
 		Assert::AreEqual(expected.x, result.x, L"Wrong value", LINE_INFO());
@@ -229,10 +237,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::IsTrue(isCloseEnough(quat[i], expected[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Quat_conjugate_Test)
+	SP_TEST_METHOD(CLASS_NAME, conjugate)
 	{
 		Quat quat(2.0f, 5.0f, 1.0f, 6.0f);
-		Quat result = quat.conjugate();
+		Quat result;
+		NAMESPACE_PHYSICS::conjugate(quat, &result);
 		Quat expected(2.0f, -5.0f, -1.0f, -6.0f);
 
 		Assert::AreEqual(expected[0], result[0], L"Wrong value", LINE_INFO());

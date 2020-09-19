@@ -6479,6 +6479,9 @@
     <ClInclude Include="src\SpMapleExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SpSIMD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

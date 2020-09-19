@@ -2,6 +2,7 @@
 #define QUAT_HEADER
 
 #include "SpectrumPhysics.h"
+#include "SpSIMD.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -158,14 +159,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Craete a new Quaternion Conjugated
-		/// </summary>
-		API_INTERFACE inline Quat conjugate() const
-		{
-			return Quat(w, -x, -y, -z);
-		}
-
-		/// <summary>
 		/// Get the angle from this quaternion
 		/// </summary>
 		API_INTERFACE inline sp_float angle() const
@@ -202,14 +195,7 @@ namespace NAMESPACE_PHYSICS
 		/// Craete a Inversed Quaternion
 		/// Return a quaternion that if multiplied by current quaternion results in value 1 ot the current quternion ifs length/norm is zero
 		/// </summary>
-		API_INTERFACE inline Quat inverse() const
-		{
-			const sp_float magnitude = (x * x + y * y + z * z + w * w);
-
-			sp_assert(magnitude != ZERO_FLOAT, "InvalidOperationException");
-
-			return conjugate().scale(ONE_FLOAT / magnitude);
-		}
+		API_INTERFACE inline Quat inverse() const;
 
 		/// <summary>
 		/// Rotate the point provided by this quaternion axis
@@ -453,6 +439,17 @@ namespace NAMESPACE_PHYSICS
 		}
 	};
 
+	API_INTERFACE inline void multiply(const Quat& quat1, const Quat& quat2, Quat* output)
+	{
+		output->w = (quat1.w * quat2.w) - (quat1.x * quat2.x) - (quat1.y * quat2.y) - (quat1.z * quat2.z);
+		output->x = (quat1.w * quat2.x) + (quat1.x * quat2.w) - (quat1.y * quat2.z) + (quat1.z * quat2.y);
+		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x);
+		output->z = (quat1.w * quat2.z) - (quat1.x * quat2.y) + (quat1.y * quat2.x) + (quat1.z * quat2.w);
+	}
+	API_INTERFACE void multiply(const Quat& quat1, const Quat& quat2, Vec3* output);
+	API_INTERFACE void multiply(const Vec3& vector, const Quat& quat, Quat* output);
+	API_INTERFACE void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3 sumVector, Vec3* output);
+
 	API_INTERFACE inline void normalize(Quat* quat)
 	{
 		sp_float magnitude = quat->length();
@@ -466,25 +463,20 @@ namespace NAMESPACE_PHYSICS
 		quat->y *= magnitude;
 		quat->z *= magnitude;
 	}
-
-	API_INTERFACE inline void conjugate(const Quat& quaternion, Quat* output)
+	
+	/// <summary>
+	/// Create a conjugated quaternion
+	/// </summary>
+	/// <param name="input">Quaterion</param>
+	/// <param name="output">Result</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void conjugate(const Quat& input, Quat* output)
 	{
-		output->w = quaternion.w;
-		output->x = -quaternion.x;
-		output->y = -quaternion.y;
-		output->z = -quaternion.z;
+		output->w = input.w;
+		output->x = -input.x;
+		output->y = -input.y;
+		output->z = -input.z;
 	}
-
-	API_INTERFACE inline void multiply(const Quat& quat1, const Quat& quat2, Quat* output)
-	{
-		output->w = (quat1.w * quat2.w) - (quat1.x * quat2.x) - (quat1.y * quat2.y) - (quat1.z * quat2.z);
-		output->x = (quat1.w * quat2.x) + (quat1.x * quat2.w) - (quat1.y * quat2.z) + (quat1.z * quat2.y);
-		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x);
-		output->z = (quat1.w * quat2.z) - (quat1.x * quat2.y) + (quat1.y * quat2.x) + (quat1.z * quat2.w);
-	}	
-	API_INTERFACE void multiply(const Quat& quat1, const Quat& quat2, Vec3* output);
-	API_INTERFACE void multiply(const Vec3& vector, const Quat& quat, Quat* output);
-	API_INTERFACE void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3 sumVector, Vec3* output);
 
 	API_INTERFACE void rotate(const Quat& rotation, const Vec3& point, Vec3* output);
 	API_INTERFACE void rotateAndTranslate(const Quat& rotation, const Vec3& point, const Vec3& translation, Vec3* output);

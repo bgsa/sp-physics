@@ -3,6 +3,18 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	Quat Quat::inverse() const
+	{
+		const sp_float magnitude = (x * x + y * y + z * z + w * w);
+
+		sp_assert(magnitude != ZERO_FLOAT, "InvalidOperationException");
+
+		Quat temp;
+		conjugate(*this, &temp);
+
+		return temp.scale(ONE_FLOAT / magnitude);
+	}
+
 	Quat::Quat(const Vec3& vector)
 	{
 		w = ONE_FLOAT;
@@ -321,7 +333,10 @@ namespace NAMESPACE_PHYSICS
 
 	Vec3 Quat::rotate(const Vec3& point) const
 	{
-		return (conjugate() * (Quat(point) * (*this))).toVec3();
+		Quat conjugated;
+		conjugate(*this, &conjugated);
+
+		return (conjugated * (Quat(point) * (*this))).toVec3();
 	}
 
 	void multiply(const Vec3& vector, const Quat& quat, Quat* output)

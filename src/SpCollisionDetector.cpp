@@ -392,7 +392,7 @@ namespace NAMESPACE_PHYSICS
 		sp_char display[300];
 		sp_uint v = ZERO_UINT;
 		Maple::display("mesh1", "mesh2", display, &v);
-
+	
 		sp_assert(details->ignoreCollision == false, "ApplicationException");
 		sp_assert(details->type != SpCollisionType::None, "ApplicationException");
 	}
@@ -592,7 +592,7 @@ namespace NAMESPACE_PHYSICS
 						// if the edge intersect on the plane, get the intersection point
 						Vec3 contact;
 						if (ray1.intersection(ray2, &contact, ERROR_MARGIN_PHYSIC))
-							if (!contains(intersectionPoints, intersectionPointsLength, contact, ERROR_MARGIN_PHYSIC))
+							if (!contains(intersectionPoints, intersectionPointsLength, contact, 0.09f))
 								intersectionPoints[intersectionPointsLength++] = contact;
 
 
@@ -604,6 +604,10 @@ namespace NAMESPACE_PHYSICS
 				}
 			}
 		}
+
+		// TODO: REMOER ???
+		if (intersectionPointsLength < 3u)
+			return false;
 
 		/*
 		for (sp_uint i = 0; i < facesIndexesMesh1Length; i++) // for each parallel face from mesh 1
@@ -939,13 +943,16 @@ namespace NAMESPACE_PHYSICS
 					if (!edgeMesh->isBoundaryEdge())
 						continue;
 
-					if (lines[j].intersection(edge, &contacts[contactsLength], 0.2f))
+					if (lines[j].intersection(edge, &contacts[contactsLength], 0.2f)
+						&& !contains(contacts, contactsLength, contacts[contactsLength], 0.2f))
 						contactsLength++;
 
-					if (faceAsTriangle.isInside(edge.point1, ERROR_MARGIN_PHYSIC))
+					if (faceAsTriangle.isInside(edge.point1, ERROR_MARGIN_PHYSIC)
+						&& !contains(contacts, contactsLength, edge.point1, 0.2f))
 						contacts[contactsLength++] = edge.point1;
 
-					if (faceAsTriangle.isInside(edge.point2))
+					if (faceAsTriangle.isInside(edge.point2)
+						&& !contains(contacts, contactsLength, edge.point2, 0.2f))
 						contacts[contactsLength++] = edge.point2;
 					
 					sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
