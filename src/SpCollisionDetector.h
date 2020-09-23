@@ -6,6 +6,7 @@
 #include "SpThreadPool.h"
 #include "SpPhysicSimulator.h"
 #include "SpCollisionFeatures.h"
+#include "SpArray.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -15,6 +16,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint edgeIndex;
 		sp_uint faceIndex;
 		sp_bool searchOnObj1;
+		sp_float distance;
 
 		API_INTERFACE SpCollisionDetectorCache()
 		{
@@ -44,7 +46,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_bool findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, 
 			sp_uint* vertexIndexObj1, Vec3* contactPoint,
-			sp_uint* edgeIndex, sp_uint* faceIndex, SpCollisionDetails* details);
+			SpCollisionDetectorCache* cache, SpCollisionDetails* details);
 
 		sp_bool isFaceFaceCollision(SpCollisionDetails* details) const;
 

@@ -10,10 +10,11 @@ namespace NAMESPACE_PHYSICS
 	enum class SpCollisionType
 	{
 		None = 0,
-		PointFace = 1,
+		VertexFace = 1,
 		EdgeFace  = 2,
 		FaceFace  = 3,
-		EdgeEdge  = 4
+		EdgeEdge  = 4,
+		VertexEdge = 5
 	};
 
 	class SpCollisionDetails

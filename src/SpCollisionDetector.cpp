@@ -79,7 +79,7 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	sp_bool SpCollisionDetector::findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, sp_uint* vertexIndexObj1, Vec3* contactPoint, sp_uint* edgeIndex, sp_uint* faceIndex, SpCollisionDetails* details)
+	sp_bool SpCollisionDetector::findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, sp_uint* vertexIndexObj1, Vec3* contactPoint, SpCollisionDetectorCache* cache, SpCollisionDetails* details)
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
@@ -107,18 +107,23 @@ namespace NAMESPACE_PHYSICS
 				Triangle3D face;
 				allFacesObj2[j]->convert(&face, transformObj2);
 
-				if (!edge.intersection(face, contactPoint, 0.02f))
+				if (!edge.intersection(face, contactPoint, DefaultErrorMargin))
 					continue;
 
 				// check which point crossed the face
 				Plane3D plane(face);
-				if (plane.isBackFace(edge.point1))
+				cache->distance = plane.distance(edge.point1);
+
+				if (cache->distance < ZERO_FLOAT || isCloseEnough(cache->distance, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 					vertexIndexObj1[0] = edges[i]->vertexIndex1;
 				else
+				{
+					cache->distance = plane.distance(edge.point2);
 					vertexIndexObj1[0] = edges[i]->vertexIndex2;
+				}
 
-				edgeIndex[0] = i;
-				faceIndex[0] = j;
+				cache->edgeIndex = i;
+				cache->faceIndex = j;
 
 				return true;
 			}
@@ -134,19 +139,50 @@ namespace NAMESPACE_PHYSICS
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
 		if (cache->searchOnObj1)
-			return mesh2->edges->get(cache->edgeIndex)->intersection(
-				*mesh1->faces->get(cache->faceIndex),
-				contactPoint,
-				*simulator->transforms(details->objIndex2),
-				*simulator->transforms(details->objIndex1)
-			);
+		{
+			Line3D line;
+			mesh2->edges->get(cache->edgeIndex)->convert(&line, *simulator->transforms(details->objIndex2));
 
-		return mesh1->edges->get(cache->edgeIndex)->intersection(
-			*mesh2->faces->get(cache->faceIndex),
-			contactPoint,
-			*simulator->transforms(details->objIndex1),
-			*simulator->transforms(details->objIndex2)
-		);
+			Triangle3D triangle;
+			mesh1->faces->get(cache->faceIndex)->convert(&triangle, *simulator->transforms(details->objIndex1));
+
+			sp_bool hasIntersection = line.intersection(triangle, contactPoint, DefaultErrorMargin);
+
+			if (hasIntersection)
+			{
+				Plane3D p(triangle);
+				cache->distance = p.distance(line.point1);
+
+				if (cache->distance > ZERO_FLOAT)
+					cache->distance = p.distance(line.point2);
+
+				return true;
+			}
+
+			return false;
+		}
+
+		Line3D line;
+		mesh1->edges->get(cache->edgeIndex)->convert(&line, *simulator->transforms(details->objIndex1));
+
+		Triangle3D triangle;
+		mesh2->faces->get(cache->faceIndex)->convert(&triangle, *simulator->transforms(details->objIndex2));
+
+		sp_bool hasIntersection = line.intersection(triangle, contactPoint, DefaultErrorMargin);
+
+		if (hasIntersection)
+		{
+			Plane3D p(triangle);
+			cache->distance = p.distance(line.point1);
+
+			if (cache->distance > ZERO_FLOAT)
+				cache->distance = p.distance(line.point2);
+
+			return true;
+		}
+
+		return false;
+
 	}
 
 	CollisionStatus SpCollisionDetector::collisionStatus(Vec3* contactPoint, SpCollisionDetectorCache* cache, SpCollisionDetails* details)
@@ -157,7 +193,7 @@ namespace NAMESPACE_PHYSICS
 			if (collisionStatusCache(cache, contactPoint, details))
 				return CollisionStatus::INSIDE;
 
-		sp_bool hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, contactPoint, &cache->edgeIndex, &cache->faceIndex, details);
+		sp_bool hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, contactPoint, cache, details);
 		
 		if (hasCollision)
 		{
@@ -165,7 +201,7 @@ namespace NAMESPACE_PHYSICS
 			return CollisionStatus::INSIDE;
 		}
 
-		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, contactPoint, &cache->edgeIndex, &cache->faceIndex, details);
+		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, contactPoint, cache, details);
 
 		if (hasCollision)
 		{
@@ -219,13 +255,6 @@ namespace NAMESPACE_PHYSICS
 
 			status = collisionStatus(&contactPoint, &cache, details);
 
-			// TODO: REMOVER!
-			if (details->objIndex1 > simulator->objectsLength())
-				int a = 1;
-			if (details->objIndex2 > simulator->objectsLength())
-				int a = 1;
-			
-
 			diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
 
@@ -238,36 +267,42 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		if (status == CollisionStatus::OUTSIDE && wasInsideAt == ZERO_FLOAT)
+		if (status == CollisionStatus::OUTSIDE)
 		{
-			details->ignoreCollision = true;
-			return;
+			if (wasInsideAt == ZERO_FLOAT) 
+			{
+				details->ignoreCollision = true;
+				return;
+			}
+
+			if (wasInsideAt != ZERO_FLOAT)
+			{
+				elapsedTime = wasInsideAt;
+
+				simulator->backToTime(details->objIndex1);
+				simulator->integrator->execute(details->objIndex1, elapsedTime);
+
+				simulator->backToTime(details->objIndex2);
+				simulator->integrator->execute(details->objIndex2, elapsedTime);
+
+				collisionStatus(&contactPoint, &cache, details);
+			}
 		}
 
-		if (status == CollisionStatus::OUTSIDE && wasInsideAt != ZERO_FLOAT)
-		{
-			elapsedTime = wasInsideAt;
-
-			simulator->backToTime(details->objIndex1);
-			simulator->integrator->execute(details->objIndex1, elapsedTime);
-
-			simulator->backToTime(details->objIndex2);
-			simulator->integrator->execute(details->objIndex2, elapsedTime);
-
-			collisionStatus(&contactPoint, &cache, details);
-		}
+		const sp_uint meshIndex1 = simulator->collisionFeatures(details->objIndex1)->meshIndex;
+		const sp_uint meshIndex2 = simulator->collisionFeatures(details->objIndex2)->meshIndex;
+		SpMesh* mesh1 = simulator->mesh(meshIndex1);
+		SpMesh* mesh2 = simulator->mesh(meshIndex2);
 
 		if (cache.searchOnObj1)
 		{
-			const sp_uint meshIndex = simulator->collisionFeatures(details->objIndex1)->meshIndex;
-			SpMesh* mesh = simulator->mesh(meshIndex);
-			details->vertexIndexObj1 = mesh->findClosest(contactPoint, *simulator->transforms(details->objIndex1))->index();
+			details->vertexIndexObj1 = mesh1->findClosest(contactPoint, *simulator->transforms(details->objIndex1))->index();
+			details->vertexIndexObj2 = mesh2->vertexesMesh->get(details->vertexIndexObj2)->findClosest(contactPoint, *simulator->transforms(details->objIndex2))->index();
 		}
 		else
 		{
-			const sp_uint meshIndex = simulator->collisionFeatures(details->objIndex2)->meshIndex;
-			SpMesh* mesh = simulator->mesh(meshIndex);
-			details->vertexIndexObj2 = mesh->findClosest(contactPoint, *simulator->transforms(details->objIndex2))->index();
+			details->vertexIndexObj2 = mesh2->findClosest(contactPoint, *simulator->transforms(details->objIndex2))->index();
+			details->vertexIndexObj1 = mesh1->vertexesMesh->get(details->vertexIndexObj1)->findClosest(contactPoint, *simulator->transforms(details->objIndex1))->index();
 		}
 
 		simulator->physicProperties(details->objIndex1)->integratedTime(elapsedTime);
@@ -385,13 +420,11 @@ namespace NAMESPACE_PHYSICS
 	
 		// TODO: REMOVER!!
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		sp_char text1[8000];
-		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red", text1);
-		sp_char text2[8000];
-		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue", text2);
-		sp_char display[300];
-		sp_uint v = ZERO_UINT;
-		Maple::display("mesh1", "mesh2", display, &v);
+		sp_char text[16000];
+		sp_uint index = ZERO_UINT;
+		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red", text, &index);
+		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue", text, &index);
+		Maple::display("mesh1", "mesh2", text, &index);
 	
 		sp_assert(details->ignoreCollision == false, "ApplicationException");
 		sp_assert(details->type != SpCollisionType::None, "ApplicationException");
@@ -433,7 +466,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint facesIndexesMesh2[MAX_PARALLEL_FACES];
 		sp_uint facesIndexesMesh2Length = ZERO_UINT;
 
-		vertex1->findParallelFaces(vertex2, transform1, transform2, facesIndexesMesh1, &facesIndexesMesh1Length , facesIndexesMesh2, &facesIndexesMesh2Length, 0.02f);
+		vertex1->findParallelFaces(vertex2, transform1, transform2, facesIndexesMesh1, &facesIndexesMesh1Length , facesIndexesMesh2, &facesIndexesMesh2Length, ERROR_MARGIN_PHYSIC);
 
 		sp_assert(facesIndexesMesh1Length < MAX_PARALLEL_FACES, "IndexOutOfRangeException");
 		sp_assert(facesIndexesMesh2Length < MAX_PARALLEL_FACES, "IndexOutOfRangeException");
@@ -546,16 +579,89 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		sp_assert(intersectionPointsLength< MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
-		sp_assert(vertexIndexesObj1Length < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
-		sp_assert(vertexIndexesObj2Length < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
+		sp_assert(intersectionPointsLength < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
+		sp_assert(vertexIndexesObj1Length  < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
+		sp_assert(vertexIndexesObj2Length  < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
+
+		// there is no vertex on face, try edges-edge intersections with faces
+		// get all vertexes from the faces to compare edge-edge intersection to build face-face intersection
+		if (vertexIndexesObj1Length == ZERO_UINT && vertexIndexesObj2Length == ZERO_UINT)
+		{
+			for (sp_uint i = 0; i < facesIndexesMesh1Length; i++)
+			{
+				sp_uint* vertexesFaceIndexes = allFacesObj1[facesIndexesMesh1[i]]->vertexesIndexes;
+			
+				if (!NAMESPACE_FOUNDATION::contains(vertexIndexesObj1, vertexIndexesObj1Length, vertexesFaceIndexes[0]))
+					vertexIndexesObj1[vertexIndexesObj1Length++] = vertexesFaceIndexes[0];
+
+				if (!NAMESPACE_FOUNDATION::contains(vertexIndexesObj1, vertexIndexesObj1Length, vertexesFaceIndexes[1]))
+					vertexIndexesObj1[vertexIndexesObj1Length++] = vertexesFaceIndexes[1];
+
+				if (!NAMESPACE_FOUNDATION::contains(vertexIndexesObj1, vertexIndexesObj1Length, vertexesFaceIndexes[2]))
+					vertexIndexesObj1[vertexIndexesObj1Length++] = vertexesFaceIndexes[2];
+			}
+
+			for (sp_uint i = 0; i < facesIndexesMesh2Length; i++)
+			{
+				sp_uint* vertexesFaceIndexes = allFacesObj2[facesIndexesMesh2[i]]->vertexesIndexes;
+
+				if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh2, vertexIndexesObj2Length, vertexesFaceIndexes[0]))
+					vertexIndexesObj2[vertexIndexesObj2Length++] = vertexesFaceIndexes[0];
+
+				if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh2, vertexIndexesObj2Length, vertexesFaceIndexes[1]))
+					vertexIndexesObj2[vertexIndexesObj2Length++] = vertexesFaceIndexes[1];
+
+				if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh2, vertexIndexesObj2Length, vertexesFaceIndexes[2]))
+					vertexIndexesObj2[vertexIndexesObj2Length++] = vertexesFaceIndexes[2];
+			}
+		}
+		else
+		{
+			// if only one vertex is inside face, ...
+			if (vertexIndexesObj1Length == ZERO_UINT && vertexIndexesObj2Length == ONE_UINT)
+			{
+				for (sp_uint i = 0; i < facesIndexesMesh1Length; i++)
+				{
+					sp_uint* vertexesFaceIndexes = allFacesObj1[facesIndexesMesh1[i]]->vertexesIndexes;
+
+					if (!NAMESPACE_FOUNDATION::contains(vertexIndexesObj1, vertexIndexesObj1Length, vertexesFaceIndexes[0]))
+						vertexIndexesObj1[vertexIndexesObj1Length++] = vertexesFaceIndexes[0];
+
+					if (!NAMESPACE_FOUNDATION::contains(vertexIndexesObj1, vertexIndexesObj1Length, vertexesFaceIndexes[1]))
+						vertexIndexesObj1[vertexIndexesObj1Length++] = vertexesFaceIndexes[1];
+
+					if (!NAMESPACE_FOUNDATION::contains(vertexIndexesObj1, vertexIndexesObj1Length, vertexesFaceIndexes[2]))
+						vertexIndexesObj1[vertexIndexesObj1Length++] = vertexesFaceIndexes[2];
+				}
+			}
+			else // if only one vertex is inside face, ...
+			if (vertexIndexesObj1Length == ONE_UINT && vertexIndexesObj2Length == ZERO_UINT)
+			{
+				for (sp_uint i = 0; i < facesIndexesMesh2Length; i++)
+				{
+					sp_uint* vertexesFaceIndexes = allFacesObj2[facesIndexesMesh2[i]]->vertexesIndexes;
+
+					if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh2, vertexIndexesObj2Length, vertexesFaceIndexes[0]))
+						vertexIndexesObj2[vertexIndexesObj2Length++] = vertexesFaceIndexes[0];
+
+					if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh2, vertexIndexesObj2Length, vertexesFaceIndexes[1]))
+						vertexIndexesObj2[vertexIndexesObj2Length++] = vertexesFaceIndexes[1];
+
+					if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh2, vertexIndexesObj2Length, vertexesFaceIndexes[2]))
+						vertexIndexesObj2[vertexIndexesObj2Length++] = vertexesFaceIndexes[2];
+				}
+			}
+		}
 
 		// for all edge from inside vertexes ...
 		for (sp_uint i = 0; i < vertexIndexesObj1Length; i++)
 		{
 			const SpVertexMesh* vertexI = mesh1->vertexesMesh->get(vertexIndexesObj1[i]);
-			Ray ray1;
-			transform1.transform(vertexI->value(), &ray1.point);
+			//Ray ray1;
+			//transform1.transform(vertexI->value(), &ray1.point);
+
+			Line3D line1;
+			transform1.transform(vertexI->value(), &line1.point1);
 
 			for (sp_uint i2 = 0; i2 < vertexI->edgeLength(); i2++)
 			{
@@ -566,15 +672,20 @@ namespace NAMESPACE_PHYSICS
 				if (!e1->isBoundaryEdge())
 					continue;
 				
-				transform1.transform(vertexI2->value(), &ray1.direction);
-				diff(ray1.direction, ray1.point, &ray1.direction);
-				normalize(&ray1.direction);
+				//transform1.transform(vertexI2->value(), &ray1.direction);
+				//diff(ray1.direction, ray1.point, &ray1.direction);
+				//normalize(&ray1.direction);
+				
+				transform1.transform(vertexI2->value(), &line1.point2);
 
 				for (sp_uint j = 0; j < vertexIndexesObj2Length; j++)
 				{
 					const SpVertexMesh* vertexJ = mesh2->vertexesMesh->get(vertexIndexesObj2[j]);
-					Ray ray2;
-					transform2.transform(vertexJ->value(), &ray2.point);
+					//Ray ray2;
+					//transform2.transform(vertexJ->value(), &ray2.point);
+					
+					Line3D line2;
+					transform2.transform(vertexJ->value(), &line2.point1);
 
 					for (sp_uint j2 = 0; j2 < vertexJ->edgeLength(); j2++)
 					{
@@ -585,13 +696,15 @@ namespace NAMESPACE_PHYSICS
 						if (!e->isBoundaryEdge())
 							continue;
 					
-						transform2.transform(vertexJ2->value(), &ray2.direction);
-						diff(ray2.direction, ray2.point, &ray2.direction);
-						normalize(&ray2.direction);
+						//transform2.transform(vertexJ2->value(), &ray2.direction);
+						//diff(ray2.direction, ray2.point, &ray2.direction);
+						//normalize(&ray2.direction);
+
+						transform2.transform(vertexJ2->value(), &line2.point2);
 
 						// if the edge intersect on the plane, get the intersection point
 						Vec3 contact;
-						if (ray1.intersection(ray2, &contact, ERROR_MARGIN_PHYSIC))
+						if (line1.intersection(line2, &contact, ERROR_MARGIN_PHYSIC))
 							if (!contains(intersectionPoints, intersectionPointsLength, contact, 0.09f))
 								intersectionPoints[intersectionPointsLength++] = contact;
 
@@ -605,78 +718,38 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		// TODO: REMOER ???
-		if (intersectionPointsLength < 3u)
+		if (intersectionPointsLength < 2u)
 			return false;
 
-		/*
-		for (sp_uint i = 0; i < facesIndexesMesh1Length; i++) // for each parallel face from mesh 1
+		if (intersectionPointsLength == 2u)
 		{
-			Triangle3D face1;
-			allFacesObj1[facesIndexesMesh1[i]]->convert(&face1, transform1);
+			details->type = SpCollisionType::EdgeFace;
 
-			sp_uint* edgesIndexesObj1 = allFacesObj1[facesIndexesMesh1[i]]->edgesIndexes;
-			
-			for (sp_uint z = 0; z < 3u; z++) // for each edge from face "i"
-			{
-				SpEdgeMesh* edge1 = allEdgesObj1[edgesIndexesObj1[z]];
+			cross(intersectionPoints[0u], intersectionPoints[1u], &details->collisionNormalObj1);
+			normalize(&details->collisionNormalObj1);
+			details->collisionNormalObj2 = -details->collisionNormalObj1;
 
-				if (!edge1->isBoundaryEdge())
-					continue;
-
-				Line3D line1;
-				edge1->convert(&line1, transform1);
-
-				for (sp_uint j = 0; j < facesIndexesMesh2Length; j++) // for each parallel face from mesh 3
-				{
-					Triangle3D face2;
-					allFacesObj2[facesIndexesMesh2[j]]->convert(&face2, transform2);
-
-					sp_uint* edgesIndexesObj2 = allFacesObj2[facesIndexesMesh2[j]]->edgesIndexes;
-
-					for (sp_uint w = 0; w < 3u; w++) // for each edge from face "j"
-					{
-						SpEdgeMesh* edge2 = allEdgesObj2[edgesIndexesObj2[w]];
-
-						if (!edge2->isBoundaryEdge())
-							continue;
-
-						Line3D line2;
-						edge2->convert(&line2, transform2);
-
-						Vec3 contact;
-						if (line1.intersection(line2, &contact, 0.4f))
-						{
-							// add intersection point if not exists and is inside the faces
-							if (!contains(intersectionPoints, intersectionPointsLength, contact, 0.009f)
-								&& face1.isInside(contact) && face2.isInside(contact))
-								intersectionPoints[intersectionPointsLength++] = contact;
-
-							// check if vertex points from edge 1 is inside the face from mesh2
-							if (!contains(intersectionPoints, intersectionPointsLength, line1.point1, 0.009f)
-								&& face2.isInside(line1.point1))
-								intersectionPoints[intersectionPointsLength++] = line1.point1;
-							else
-								if (!contains(intersectionPoints, intersectionPointsLength, line1.point2, 0.009f)
-									&& face2.isInside(line1.point2))
-									intersectionPoints[intersectionPointsLength++] = line1.point2;
-
-							// check if vertex points from edge 2 is inside the face from mesh1
-							if (face1.isInside(line2.point1)
-								&& !contains(intersectionPoints, intersectionPointsLength, line2.point1, 0.009f))
-								intersectionPoints[intersectionPointsLength++] = line2.point1;
-							else
-								if (face1.isInside(line2.point2)
-									&& !contains(intersectionPoints, intersectionPointsLength, line2.point2, 0.009f))
-									intersectionPoints[intersectionPointsLength++] = line2.point2;
-						}
-					}
-				}
-			}
+			details->contactPointsLength = 2u;
+			details->contactPoints[0u] = intersectionPoints[0u];
+			details->contactPoints[1u] = intersectionPoints[1u];
+			details->centerContactPoint = (intersectionPoints[0u] + intersectionPoints[1u]) * HALF_FLOAT;
+			return true;
 		}
-		*/
+
+		// TODO: REMOER ???
+		if (intersectionPointsLength > 6u)
+		{
+			// TODO: REMOVER!!
+			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+			sp_char text[16000];
+			sp_uint index = ZERO_UINT;
+			Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red", text, &index);
+			Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue", text, &index);
+			Maple::display("mesh1", "mesh2", text, &index);
+			int a = 0;
+		}
+
 		sp_assert(intersectionPointsLength > MIN_INTERSECTION_POINTS, "InvalidOperationException");
-		sp_assert(intersectionPointsLength < MAX_INTERSECTION_POINTS, "IndexOutOfRangeException");
 
 		details->type = SpCollisionType::FaceFace;
 		rotate(transform1.orientation, allFacesObj1[facesIndexesMesh1[0]]->faceNormal, &details->collisionNormalObj1);
@@ -705,30 +778,36 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint i = 0; i < vertex1->faceIndexLength(); i++)
 		{
-			Plane3D face1;
-			vertex1->face(i)->convert(&face1, transform1);
+			Triangle3D face1AsTriangle;
+			vertex1->face(i)->convert(&face1AsTriangle, transform1);
+
+			Plane3D face1AsPlane(face1AsTriangle);
 
 			for (sp_uint j = 0; j < vertex2->edgeLength(); j++)
 			{
 				mesh2->vertex(vertex2->edgeVertexIndex(j), transform2, &edge2.point2);
 
 				// the edge and face normal should be perpendicular for edge-face collision
-				if (!edge2.isPerpendicular(face1.normalVector, 0.1f))
+				if (!edge2.isPerpendicular(face1AsPlane.normalVector, 0.1f))
 					continue;
 
-				const sp_float distancePoint1 = face1.distance(edge2.point1);
+				const sp_float distancePoint1 = fabsf(face1AsPlane.distance(edge2.point1));
 				
-				if (!isCloseEnough(std::fabsf(distancePoint1), ZERO_FLOAT, 0.1f))
+				if (!isCloseEnough(distancePoint1, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 					continue;
 
-				const sp_float distancePoint2 = face1.distance(edge2.point2);
+				const sp_float distancePoint2 = fabsf(face1AsPlane.distance(edge2.point2));
 
-				if (isCloseEnough(distancePoint1, distancePoint2, 0.1f))
-				{
-					faceIndexObj1[0] = vertex1->faceIndex(i);
-					vertexIndexObj2[0] = vertex2->edgeVertexIndex(j);
-					return true;
-				}
+				if (!isCloseEnough(distancePoint1, distancePoint2, ERROR_MARGIN_PHYSIC))
+					continue;
+
+				if (!face1AsTriangle.isInside(edge2.point1, ERROR_MARGIN_PHYSIC) 
+					&& !face1AsTriangle.isInside(edge2.point2, ERROR_MARGIN_PHYSIC))
+					continue;
+
+				faceIndexObj1[0] = vertex1->faceIndex(i);
+				vertexIndexObj2[0] = vertex2->edgeVertexIndex(j);
+				return true;
 			}
 		}
 
@@ -774,15 +853,39 @@ namespace NAMESPACE_PHYSICS
 				line1.closestPoint(line2, &p1, &p2, &sqDistance);
 
 				// if the distance is greater or the contact is far away, discard
-				if (sqDistance >= smallestDistance || 
+				if (sqDistance >= smallestDistance ||
 					!isCloseEnough(std::fabsf(sqDistance), ZERO_FLOAT, 0.4f))
 					continue;
 
 				// if the contact is at extreme of edge, it is vertex-edge collison...
-				if (isCloseEnough(line2.point1, p2, ERROR_MARGIN_PHYSIC) || isCloseEnough(line2.point2, p2, ERROR_MARGIN_PHYSIC))
-					continue;
-				if (isCloseEnough(line1.point1, p1, ERROR_MARGIN_PHYSIC) || isCloseEnough(line1.point2, p1, ERROR_MARGIN_PHYSIC))
-					continue;
+				if (isCloseEnough(sqDistance, ZERO_FLOAT, 0.009f))
+				{
+					if (isCloseEnough(line2.point1, p2, ERROR_MARGIN_PHYSIC) 
+						|| isCloseEnough(line2.point2, p2, ERROR_MARGIN_PHYSIC))
+					{
+						details->type = SpCollisionType::VertexEdge;
+						details->contactPointsLength = 1u;
+						details->contactPoints[0] = p2;
+						details->centerContactPoint = p2;
+						cross(line2.point1, line2.point2, &details->collisionNormalObj1);
+						normalize(&details->collisionNormalObj1);
+						details->collisionNormalObj2 = -details->collisionNormalObj1;
+						return true;
+					}
+
+					if (isCloseEnough(line1.point1, p1, ERROR_MARGIN_PHYSIC) 
+						|| isCloseEnough(line1.point2, p1, ERROR_MARGIN_PHYSIC))
+					{
+						details->type = SpCollisionType::VertexEdge;
+						details->contactPointsLength = 1u;
+						details->contactPoints[0] = p1;
+						details->centerContactPoint = p1;
+						cross(line1.point1, line1.point2, &details->collisionNormalObj1);
+						normalize(&details->collisionNormalObj1);
+						details->collisionNormalObj2 = -details->collisionNormalObj1;
+						return true;
+					}
+				}
 
 				smallestDistance = sqDistance;
 				contact = p1;
@@ -822,6 +925,9 @@ namespace NAMESPACE_PHYSICS
 		SpFaceMesh** facesObj1 = vertexMeshObj1->mesh()->faces->data();
 		SpFaceMesh** facesObj2 = vertexMeshObj2->mesh()->faces->data();
 
+		Line3D line;
+		transformObj2.transform(vertexMeshObj2->value(), &line.point1);
+
 		for (sp_uint i = 0; i < vertexMeshObj1->faceIndexLength(); i++)
 		{
 			Triangle3D triangle;
@@ -829,21 +935,22 @@ namespace NAMESPACE_PHYSICS
 
 			for (sp_uint j = 0; j < vertexMeshObj2->edgeLength(); j++)
 			{
-				Line3D line;
-				transformObj2.transform(vertexMeshObj2->value(), &line.point1);
 				mesh2->vertex(vertexMeshObj2->edgeVertexIndex(j), transformObj2, &line.point2);
 			
-				if (line.intersection(triangle, &details->centerContactPoint))
+				if (line.intersection(triangle, &details->centerContactPoint, ERROR_MARGIN_PHYSIC))
 				{
 					Plane3D faceContact(triangle);
 					
 					details->contactPointsLength = ONE_UINT;
-					if (faceContact.isBackFace(line.point1))
+
+					const sp_float distance = faceContact.distance(line.point1);
+
+					if (distance < ZERO_FLOAT + ERROR_MARGIN_PHYSIC) // if point is back-face, ...
 						details->contactPoints[0] = line.point1;
 					else
 						details->contactPoints[0] = line.point2;
 
-					details->type = SpCollisionType::PointFace;
+					details->type = SpCollisionType::VertexFace;
 					details->collisionNormalObj1 = faceContact.normalVector;
 					details->collisionNormalObj2 = -faceContact.normalVector;
 
@@ -852,6 +959,8 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
+		transformObj1.transform(vertexMeshObj1->value(), &line.point1);
+
 		for (sp_uint i = 0; i < vertexMeshObj2->faceIndexLength(); i++)
 		{
 			Triangle3D triangle;
@@ -859,11 +968,9 @@ namespace NAMESPACE_PHYSICS
 
 			for (sp_uint j = 0; j < vertexMeshObj1->edgeLength(); j++)
 			{
-				Line3D line;
-				transformObj1.transform(vertexMeshObj1->value(), &line.point1);
 				mesh1->vertex(vertexMeshObj1->edgeVertexIndex(j), transformObj1, &line.point2);
 				
-				if (line.intersection(triangle, &details->centerContactPoint))
+				if (line.intersection(triangle, &details->centerContactPoint, ERROR_MARGIN_PHYSIC))
 				{
 					Plane3D faceContact(triangle);
 					
@@ -873,7 +980,7 @@ namespace NAMESPACE_PHYSICS
 					else
 						details->contactPoints[0] = line.point2;
 
-					details->type = SpCollisionType::PointFace;
+					details->type = SpCollisionType::VertexFace;
 					details->collisionNormalObj1 = -faceContact.normalVector;
 					details->collisionNormalObj2 = faceContact.normalVector;
 
@@ -908,10 +1015,9 @@ namespace NAMESPACE_PHYSICS
 #define MAX_CONTACTS 2u
 			SpFaceMesh* faceCollisionObj1 = mesh1->faces->data()[faceIndexCollisionObj1];
 
-			Line3D edge;
-			transformObj2.transform(vertexMeshObj2->value(), &edge.point1);
-			//mesh2->vertex(vertexMeshObj2->edgeVertexIndex(edgeVertexIndexObj2), transformObj2, &edge.point2);
-			mesh2->vertex(edgeVertexIndexObj2, transformObj2, &edge.point2);
+			Line3D edgeObj2;
+			transformObj2.transform(vertexMeshObj2->value(), &edgeObj2.point1);
+			mesh2->vertex(edgeVertexIndexObj2, transformObj2, &edgeObj2.point2);
 
 			Plane3D faceAsPlane;
 			faceCollisionObj1->convert(&faceAsPlane, transformObj1);
@@ -943,27 +1049,43 @@ namespace NAMESPACE_PHYSICS
 					if (!edgeMesh->isBoundaryEdge())
 						continue;
 
-					if (lines[j].intersection(edge, &contacts[contactsLength], 0.2f)
-						&& !contains(contacts, contactsLength, contacts[contactsLength], 0.2f))
+					if (faceAsTriangle.isInside(edgeObj2.point1, ERROR_MARGIN_PHYSIC)
+						&& !contains(contacts, contactsLength, edgeObj2.point1, 0.2f))
+						contacts[contactsLength++] = edgeObj2.point1;
+
+					if (faceAsTriangle.isInside(edgeObj2.point2, ERROR_MARGIN_PHYSIC)
+						&& !contains(contacts, contactsLength, edgeObj2.point2, 0.2f))
+						contacts[contactsLength++] = edgeObj2.point2;
+
+					if (contactsLength == MAX_CONTACTS)
+						goto break_loops1;
+
+					if (lines[j].intersection(edgeObj2, &contacts[contactsLength], 0.2f)
+						&& !contains(contacts, contactsLength, contacts[contactsLength], ERROR_MARGIN_PHYSIC))
 						contactsLength++;
 
-					if (faceAsTriangle.isInside(edge.point1, ERROR_MARGIN_PHYSIC)
-						&& !contains(contacts, contactsLength, edge.point1, 0.2f))
-						contacts[contactsLength++] = edge.point1;
-
-					if (faceAsTriangle.isInside(edge.point2)
-						&& !contains(contacts, contactsLength, edge.point2, 0.2f))
-						contacts[contactsLength++] = edge.point2;
-					
-					sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
-
-					if (contactsLength == 2u)
+					if (contactsLength == MAX_CONTACTS)
 						goto break_loops1;
 				}
 			}
 			
 		break_loops1:
-			sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
+
+			if (contactsLength != MAX_CONTACTS)
+				return false;
+
+			// TODO: REMOVER!!
+			if (contactsLength != 2u)
+			{
+				SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+				sp_char text[16000];
+				sp_uint index = ZERO_UINT;
+				Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red", text, &index);
+				Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue", text, &index);
+				Maple::display("mesh1", "mesh2", text, &index);
+			}
+
+			sp_assert(contactsLength == MAX_CONTACTS, "IndexOutOfRangeException");
 			
 			details->type = SpCollisionType::EdgeFace;
 
@@ -1022,6 +1144,12 @@ namespace NAMESPACE_PHYSICS
 			// find all parallel faces
 			vertexMeshObj2->findParallelFaces(faceAsPlane, transformObj2, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
 
+			// TODO: REMOVER !!!
+			if (parallelFacesIndexesLength > MAX_PARALLEL_FACES)
+				int a = 1;
+
+			sp_assert(parallelFacesIndexesLength < MAX_PARALLEL_FACES, "ApplicationException");
+
 			Vec3 contacts[MAX_CONTACTS];
 			sp_uint contactsLength = ZERO_UINT;
 
@@ -1038,12 +1166,13 @@ namespace NAMESPACE_PHYSICS
 						continue;
 
 					Line3D line;
-					edgeMesh->convert(&line, transformObj1);
+					edgeMesh->convert(&line, transformObj2);
 
-					if (line.intersection(edge, &contacts[contactsLength]))
+					Vec3 contact;
+					if (line.intersection(edge, &contact))
 					{
-						contactsLength++;
-
+						contacts[contactsLength++] = contact;
+						
 						if (face->isInside(edge.point1, transformObj2))
 						{
 							contacts[contactsLength++] = edge.point1;

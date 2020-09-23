@@ -30,6 +30,7 @@ namespace NAMESPACE_PHYSICS
 			index[0] += 9;
 
 			output[*index] = END_OF_LINE;
+			output[*index + 1] = END_OF_STRING;
 			index[0] ++;
 		}
 
@@ -53,10 +54,12 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[*index], colorName, colorLength);
 			index[0] += colorLength;
 			sp_char* text = ", thickness = 2, scaling = constrained, axes = boxed, labels = [axisX, axisY, axisZ], orientation = [90, 195, -190]):";
-			std::memcpy(&output[*index], text, strlen(text));
-			index[0] += strlen(text);
+			sp_uint textLength = strlen(text);
+			std::memcpy(&output[*index], text, textLength);
+			index[0] += textLength;
 
 			output[*index] = END_OF_LINE;
+			output[*index+1] = END_OF_STRING;
 			index[0] ++;
 		}
 
@@ -199,10 +202,9 @@ namespace NAMESPACE_PHYSICS
 			len[0] ++;
 		}
 
-		API_INTERFACE inline void convert(const SpMesh& mesh, const SpTransform& transform, const sp_char* meshName, const sp_char* colorName, sp_char* output)
+		API_INTERFACE inline void convert(const SpMesh& mesh, const SpTransform& transform, const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint* index)
 		{
 			const sp_uint nameLength = strlen(meshName);
-			sp_uint index = 0;
 			sp_uint len;
 			sp_uint temp;
 
@@ -210,56 +212,53 @@ namespace NAMESPACE_PHYSICS
 			{
 				SpFaceMesh* face = mesh.faces->get(i);
 
-				std::memcpy(&output[index], meshName, nameLength);
-				index += nameLength;
+				std::memcpy(&output[*index], meshName, nameLength);
+				index[0] += nameLength;
 
-				std::memcpy(&output[index], "_poly", 5);
-				index += 5;
+				std::memcpy(&output[*index], "_poly", 5);
+				index[0] += 5;
 
-				NAMESPACE_FOUNDATION::convert(i, &output[index], &len);
-				index += len;
+				NAMESPACE_FOUNDATION::convert(i, &output[*index], &len);
+				index[0] += len;
 
-				std::memcpy(&output[index], " := polygon(", 12);
-				index += 12;
+				std::memcpy(&output[*index], " := polygon(", 12);
+				index[0] += 12;
 
-				convert(*face, transform, &output[index], &temp);
-				index += temp;
+				convert(*face, transform, &output[*index], &temp);
+				index[0] += temp;
 
-				std::memcpy(&output[index], ") :", index);
-				index += 3;
-				output[index] = END_OF_LINE;
-				index++;
+				std::memcpy(&output[*index], ") :", 3);
+				index[0] += 3;
+				output[*index] = END_OF_LINE;
+				index[0] ++;
 			}
 
-			std::memcpy(&output[index], meshName, nameLength);
-			index += nameLength;
-			std::memcpy(&output[index], "_list_poly := [ ", 16);
-			index += 16;
+			std::memcpy(&output[*index], meshName, nameLength);
+			index[0] += nameLength;
+			std::memcpy(&output[*index], "_list_poly := [ ", 16);
+			index[0] += 16;
 
 			for (sp_uint i = 0; i < mesh.faces->length(); i++)
 			{
-				std::memcpy(&output[index], meshName, nameLength);
-				index += nameLength;
+				std::memcpy(&output[*index], meshName, nameLength);
+				index[0] += nameLength;
 
-				std::memcpy(&output[index], "_poly", 5);
-				index += 5;
+				std::memcpy(&output[*index], "_poly", 5);
+				index[0] += 5;
 
-				NAMESPACE_FOUNDATION::convert(i, &output[index], &len);
-				index += len;
+				NAMESPACE_FOUNDATION::convert(i, &output[*index], &len);
+				index[0] += len;
 			
-				std::memcpy(&output[index], ", ", 2);
-				index += 2;
+				std::memcpy(&output[*index], ", ", 2);
+				index[0] += 2;
 			}
 
-			index -= 2;
-			std::memcpy(&output[index], "] :", 3);
-			output[index + 3] = END_OF_LINE;
-			index += 4;
+			index[0] -= 2;
+			std::memcpy(&output[*index], "] :", 3);
+			output[*index + 3] = END_OF_LINE;
+			index[0] += 4;
 
-			exportGraphic(meshName, colorName, output, &index);
-
-			output[index] = END_OF_STRING;
-			index ++;
+			exportGraphic(meshName, colorName, output, index);
 		}
 
 	}

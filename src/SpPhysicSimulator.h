@@ -31,8 +31,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_uint _objectsLengthAllocated;
 		sp_uint _objectsLength;
-		sp_uint _collisionFeatureLength;
-
+		
 		DOP18* _boundingVolumes;
 		SpPhysicProperties* _physicProperties;
 		SpTransform* _transforms;
@@ -117,7 +116,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint allocated = _objectsLength;
 			
 			for (sp_uint i = _objectsLength; i < _objectsLength + length; i++)
-				_collisionFeatures[i].meshIndex = _objectsLength;;
+				_collisionFeatures[i].meshIndex = _objectsLength;
 			
 			_objectsLength += length;
 
@@ -154,6 +153,10 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index) const
 		{
 			return &_collisionFeatures[index];
+		}
+		API_INTERFACE inline void collisionFeatures(const sp_uint index, const sp_uint meshIndex)
+		{
+			_collisionFeatures[index].meshIndex = meshIndex;
 		}
 
 		API_INTERFACE inline SpMesh* mesh(const sp_uint index) const

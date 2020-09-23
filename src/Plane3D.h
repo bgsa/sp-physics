@@ -90,7 +90,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Test if the line cross the plane
 		/// </summary>
-		API_INTERFACE sp_bool intersection(const Line3D& line, Vec3* contactPoint) const;
+		API_INTERFACE sp_bool intersection(const Line3D& line, Vec3* contactPoint, const sp_float _epsilon = ERROR_MARGIN_PHYSIC) const;
 
 		/// <summary>
 		/// Get the line intersection between the planes

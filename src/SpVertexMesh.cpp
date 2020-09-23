@@ -172,7 +172,7 @@ namespace NAMESPACE_PHYSICS
 				// faces should be parallel and opposite normals (front-face agains front-face)
 				if (plane1.isParallel(plane2, _epsilon) 
 					&& (plane1.normalVector - plane2.normalVector) != ZERO_FLOAT
-					&& isCloseEnough(plane1.distance(plane2),ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
+					&& isCloseEnough(plane1.distance(plane2), ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 				{
 					if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh1, facesIndexesMesh1Length[0], facesVertex1[i]))
 					{

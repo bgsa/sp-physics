@@ -12,7 +12,44 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	private:
 
-		void createMeshes()
+		void createMeshePlane()
+		{
+			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+
+			const sp_uint vertexesLength = 8u;
+			Vec3 vertexes[vertexesLength] = {
+				Vec3(-1.0f, -1.0f, 1.0f), Vec3(-1.0f, -1.0f, -1.0f),
+				Vec3(-1.0f, 1.0f, -1.0f), Vec3(-1.0f, 1.0f, 1.0f),
+				Vec3(1.0f, -1.0f, 1.0f), Vec3(1.0f, 1.0f, 1.0f),
+				Vec3(1.0f, 1.0f, -1.0f), Vec3(1.0f, -1.0f, -1.0f)
+			};
+
+			const sp_uint facesLength = 12u;
+			SpPoint3<sp_uint> facesIndex[facesLength] = {
+				SpPoint3<sp_uint>(1, 0, 3), SpPoint3<sp_uint>(3, 2, 1), // left faces ok
+				SpPoint3<sp_uint>(4, 7, 6), SpPoint3<sp_uint>(6, 5, 4), // right faces ok
+				SpPoint3<sp_uint>(1, 2, 6), SpPoint3<sp_uint>(6, 7, 1), // back faces ok 
+				SpPoint3<sp_uint>(0, 4, 5), SpPoint3<sp_uint>(5, 3, 0), // front faces ok
+				SpPoint3<sp_uint>(3, 5, 6), SpPoint3<sp_uint>(6, 2, 3), // top face ok
+				SpPoint3<sp_uint>(1, 7, 4), SpPoint3<sp_uint>(4, 0, 1)  // bottom face ok
+			};
+
+			SpMesh* mesh = sp_mem_new(SpMesh)();
+			mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
+			mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(facesLength);
+
+			for (sp_uint i = 0; i < vertexesLength; i++)
+				mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes[i]));
+
+			for (sp_uint i = 0; i < facesLength; i++)
+				mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, i, facesIndex[i].x, facesIndex[i].y, facesIndex[i].z));
+
+			mesh->init();
+
+			SpPhysicSimulator::instance()->mesh(0u, mesh);
+		}
+
+		void createCubeMeshes(const sp_uint index)
 		{
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 			
@@ -34,22 +71,111 @@ namespace NAMESPACE_PHYSICS_TEST
 				SpPoint3<sp_uint>(1, 7, 4), SpPoint3<sp_uint>(4, 0, 1)  // bottom face ok
 			};
 
-			for (sp_uint i = 0; i < 2; i++)
-			{
-				SpMesh* mesh = sp_mem_new(SpMesh)();
-				mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
-				mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(facesLength);
+			SpMesh* mesh = sp_mem_new(SpMesh)();
+			mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
+			mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(facesLength);
 				
-				for (sp_uint i = 0; i < vertexesLength; i++)
-					mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes[i]));
+			for (sp_uint i = 0; i < vertexesLength; i++)
+				mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes[i]));
 
-				for (sp_uint i = 0; i < facesLength; i++)
-					mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, i, facesIndex[i].x, facesIndex[i].y, facesIndex[i].z));
+			for (sp_uint i = 0; i < facesLength; i++)
+				mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, i, facesIndex[i].x, facesIndex[i].y, facesIndex[i].z));
 
-				mesh->init();
+			mesh->init();
 
-				SpPhysicSimulator::instance()->mesh(i, mesh);
-			}
+			simulator->mesh(index, mesh);
+		}
+
+		void createMeshes2(const sp_uint index)
+		{
+			const sp_uint vertexesLength = 24;
+			SpArray<Vec3> vertexes(vertexesLength);
+			vertexes.add({ -0.179303f, -1.000000f, -0.179303f });
+			vertexes.add({ 0.179303f, -1.000000f, -0.179303f });
+			vertexes.add({ 0.179303f, -1.000000f,  0.179303f });
+			vertexes.add({ -0.179303f, -1.000000f,  0.179303f });
+			vertexes.add({ -1.000000f, -0.179303f,  0.179303f });
+			vertexes.add({ -1.000000f,  0.179303f,  0.179303f });
+			vertexes.add({ -1.000000f,  0.179303f, -0.179303f });
+			vertexes.add({ -1.000000f, -0.179303f, -0.179303f });
+			vertexes.add({ 0.179303f, -0.179303f,  1.000000f });
+			vertexes.add({ 0.179303f,  0.179303f,  1.000000f });
+			vertexes.add({ -0.179303f,  0.179303f,  1.000000f });
+			vertexes.add({ -0.179303f, -0.179303f,  1.000000f });
+			vertexes.add({ 0.179303f,  1.000000f, -0.179303f });
+			vertexes.add({ -0.179303f,  1.000000f, -0.179303f });
+			vertexes.add({ -0.179303f,  1.000000f,  0.179303f });
+			vertexes.add({ 0.179303f,  1.000000f,  0.179303f });
+			vertexes.add({ 1.000000f, -0.179303f, -0.179303f });
+			vertexes.add({ 1.000000f,  0.179303f, -0.179303f });
+			vertexes.add({ 1.000000f,  0.179303f,  0.179303f });
+			vertexes.add({ 1.000000f, -0.179303f,  0.179303f });
+			vertexes.add({ 0.179303f,  0.179303f, -1.000000f });
+			vertexes.add({ 0.179303f, -0.179303f, -1.000000f });
+			vertexes.add({ -0.179303f,  0.179303f, -1.000000f });
+			vertexes.add({ -0.179303f, -0.179303f, -1.000000f });
+
+			const sp_uint facesLength = 44;
+			SpPoint3<sp_uint>* facesIndexes = sp_mem_new_array(SpPoint3<sp_uint>, facesLength);
+			facesIndexes[0] = SpPoint3<sp_uint>(1, 2, 3);
+			facesIndexes[1] = SpPoint3<sp_uint>(3, 4, 1);
+			facesIndexes[2] = SpPoint3<sp_uint>(5, 6, 7);
+			facesIndexes[3] = SpPoint3<sp_uint>(7, 8, 5);
+			facesIndexes[4] = SpPoint3<sp_uint>(9, 10, 11);
+			facesIndexes[5] = SpPoint3<sp_uint>(11, 12, 9);
+			facesIndexes[6] = SpPoint3<sp_uint>(13, 14, 15);
+			facesIndexes[7] = SpPoint3<sp_uint>(15, 16, 13);
+			facesIndexes[8] = SpPoint3<sp_uint>(17, 18, 19);
+			facesIndexes[9] = SpPoint3<sp_uint>(19, 20, 17);
+			facesIndexes[10] = SpPoint3<sp_uint>(21, 13, 18);
+			facesIndexes[11] = SpPoint3<sp_uint>(2, 22, 17);
+			facesIndexes[12] = SpPoint3<sp_uint>(19, 16, 10);
+			facesIndexes[13] = SpPoint3<sp_uint>(20, 9, 3);
+			facesIndexes[14] = SpPoint3<sp_uint>(23, 7, 14);
+			facesIndexes[15] = SpPoint3<sp_uint>(8, 24, 1);
+			facesIndexes[16] = SpPoint3<sp_uint>(6, 11, 15);
+			facesIndexes[17] = SpPoint3<sp_uint>(4, 12, 5);
+			facesIndexes[18] = SpPoint3<sp_uint>(1, 4, 5);
+			facesIndexes[19] = SpPoint3<sp_uint>(5, 8, 1);
+			facesIndexes[20] = SpPoint3<sp_uint>(2, 1, 24);
+			facesIndexes[21] = SpPoint3<sp_uint>(24, 22, 2);
+			facesIndexes[22] = SpPoint3<sp_uint>(18, 17, 22);
+			facesIndexes[23] = SpPoint3<sp_uint>(22, 21, 18);
+			facesIndexes[24] = SpPoint3<sp_uint>(12, 11, 6);
+			facesIndexes[25] = SpPoint3<sp_uint>(6, 5, 12);
+			facesIndexes[26] = SpPoint3<sp_uint>(10, 9, 20);
+			facesIndexes[27] = SpPoint3<sp_uint>(20, 19, 10);
+			facesIndexes[28] = SpPoint3<sp_uint>(23, 24, 8);
+			facesIndexes[29] = SpPoint3<sp_uint>(8, 7, 23);
+			facesIndexes[30] = SpPoint3<sp_uint>(16, 15, 11);
+			facesIndexes[31] = SpPoint3<sp_uint>(11, 10, 16);
+			facesIndexes[32] = SpPoint3<sp_uint>(13, 16, 19);
+			facesIndexes[33] = SpPoint3<sp_uint>(19, 18, 13);
+			facesIndexes[34] = SpPoint3<sp_uint>(4, 3, 9);
+			facesIndexes[35] = SpPoint3<sp_uint>(9, 12, 4);
+			facesIndexes[36] = SpPoint3<sp_uint>(15, 14, 7);
+			facesIndexes[37] = SpPoint3<sp_uint>(7, 6, 15);
+			facesIndexes[38] = SpPoint3<sp_uint>(14, 13, 21);
+			facesIndexes[39] = SpPoint3<sp_uint>(21, 23, 14);
+			facesIndexes[40] = SpPoint3<sp_uint>(3, 2, 17);
+			facesIndexes[41] = SpPoint3<sp_uint>(17, 20, 3);
+			facesIndexes[42] = SpPoint3<sp_uint>(24, 23, 21);
+			facesIndexes[43] = SpPoint3<sp_uint>(21, 22, 24);
+
+			SpMesh* mesh = sp_mem_new(SpMesh)();
+
+			mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
+			for (sp_uint i = 0; i < vertexesLength; i++)
+				mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes.get(i)));
+
+
+			mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(facesLength);
+			for (sp_uint i = 0; i < facesLength; i++)
+				mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, i, facesIndexes[i].x - 1, facesIndexes[i].y - 1, facesIndexes[i].z - 1));
+
+			mesh->init();
+
+			SpPhysicSimulator::instance()->mesh(index, mesh);
 		}
 
 		void resetObject(const sp_uint index)
@@ -62,6 +188,27 @@ namespace NAMESPACE_PHYSICS_TEST
 			simulator->physicProperties(index)->previousState.reset();
 			simulator->physicProperties(index)->mass(8.0f);
 			simulator->physicProperties(index)->integratedTime(ZERO_FLOAT);
+		}
+
+		void setupObject(const sp_uint index, const Vec3& position, const Quat& orientation, 
+			const Vec3& velocity, const Vec3& angularVelocity)
+		{
+			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+			SpPhysicProperties* properties = simulator->physicProperties(index);
+
+			properties->currentState.position(position);
+			properties->previousState.position(position);
+			simulator->transforms(index)->position = position;
+
+			properties->currentState.orientation(orientation);
+			properties->previousState.orientation(orientation);
+			simulator->transforms(index)->orientation = orientation;
+
+			properties->currentState.velocity(velocity);
+			properties->previousState.velocity(velocity);
+
+			properties->currentState.angularVelocity(angularVelocity);
+			properties->previousState.angularVelocity(angularVelocity);
 		}
 
 		SpCollisionDetails newCollisionDetails()
@@ -82,14 +229,306 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(areMovingAway);
 		SP_TEST_METHOD_DEF(collisionStatus);
 		SP_TEST_METHOD_DEF(filterCollision);
-		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test1);
-		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test2);
-		//SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test3);
-		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_Test4);
-		SP_TEST_METHOD_DEF(collisionDetails_EdgeFace_Test1);
-		SP_TEST_METHOD_DEF(collisionDetails_EdgeEdge_Test1);
-		SP_TEST_METHOD_DEF(collisionDetails_VertexFace_Test1);
+		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_1);
+		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_2);
+		//SP_TEST_METHOD_DEF(collisionDetails_inside);
+		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_4);
+		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_5);
+		SP_TEST_METHOD_DEF(collisionDetails_FaceFace_6);
+		SP_TEST_METHOD_DEF(collisionDetails_EdgeFace_1);
+		SP_TEST_METHOD_DEF(collisionDetails_EdgeEdge_1);
+		SP_TEST_METHOD_DEF(collisionDetails_VertexFace);
+		SP_TEST_METHOD_DEF(collisionDetails_multi); 
+		SP_TEST_METHOD_DEF(collisionDetails_multi2); 
+		SP_TEST_METHOD_DEF(collisionDetails_1);
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_multi)
+	{
+		TestPhysic::lock();
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpCollisionDetector collisionDetector;
+		SpCollisionDetails details;
+
+		createMeshePlane();
+		createMeshes2(1u);
+
+		resetObject(0u);
+		resetObject(1u);
+
+		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
+		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+
+		details = newCollisionDetails();
+
+		propertiesObj1->mass(ZERO_FLOAT); // static object
+		simulator->transforms(0u)->scaleVector = Vec3(100.0f, 1.0f, 100.0f);
+
+		const Vec3 defaultPositionObj2 = Vec3(0.0f, 4.0f, 0.0f);
+		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -20.0f, 0.0f);
+		const Quat defaultOrientationObj2 = Quat(Vec3(0.0f, 0.0f, 0.0f));
+		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+
+		for (sp_float posX = -50.0f; posX < 50.0f; posX++)
+		{
+			for (sp_float posZ = -50.0f; posZ < 50.0f; posZ++)
+			{
+				for (sp_float posY = 5.0f; posY > 2.0f; posY--)
+				{
+					
+					// test collision with all X axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotationAxisX(degreesToRadians(angle)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+					// test collision with all Y axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotationAxisY(degreesToRadians(angle)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+					// test collision with all Z axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotationAxisZ(degreesToRadians(angle)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+					// test collision with X and Z axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotate(degreesToRadians(angle), Vec3(1.0f, 0.0f, 1.0f)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+				}
+			}
+		}
+
+		/*
+		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
+		Asserts::isCloseEnough(details.collisionNormalObj1, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC);
+		Asserts::isCloseEnough(details.collisionNormalObj2, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC);
+
+		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.0f, -1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(1.0f, -1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[2], Vec3(1.0f, 1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[3], Vec3(1.0f, 1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+
+		Assert::IsTrue(isCloseEnough(details.centerContactPoint, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		*/
+
+		TestPhysic::unlock();
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_multi2)
+	{
+		TestPhysic::lock();
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpCollisionDetector collisionDetector;
+		SpCollisionDetails details;
+
+		createMeshes2(0u);
+		createMeshes2(1u);
+
+		resetObject(0u);
+		resetObject(1u);
+
+		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
+		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+
+		details = newCollisionDetails();
+
+		propertiesObj1->mass(ZERO_FLOAT); // static object
+		
+		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -25.0f, 0.0f);
+		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+
+		for (sp_float posX = -0.9f; posX < 0.9f; posX += 0.2f)
+		{
+			for (sp_float posZ = -0.9f; posZ < 0.9f; posZ += 0.2f)
+			{
+				for (sp_float posY = 4.0f; posY > 2.0f; posY--)
+				{
+
+					// test collision with all X axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotationAxisX(degreesToRadians(angle)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+					// test collision with all Y axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotationAxisY(degreesToRadians(angle)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+					// test collision with all Z axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotationAxisZ(degreesToRadians(angle)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+					// test collision with X and Z axis orientations 
+					for (sp_float angle = 0; angle < 360.0f; angle++)
+					{
+						details = newCollisionDetails();
+
+						setupObject(1u,
+							Vec3(posX, posY, posZ),
+							Quat::createRotate(degreesToRadians(angle), Vec3(1.0f, 0.0f, 1.0f)),
+							defaultVelocityObj2,
+							defaultAngVelocityObj2
+						);
+
+						collisionDetector.collisionDetails(&details);
+
+						if (details.type == SpCollisionType::None)
+							Assert::IsTrue(false, L"ERRO", LINE_INFO());
+					}
+
+				}
+			}
+		}
+
+		TestPhysic::unlock();
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_1)
+	{
+		TestPhysic::lock();
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpCollisionDetector collisionDetector;
+		SpCollisionDetails details;
+
+		createMeshePlane();
+		createCubeMeshes(1u);
+
+		resetObject(0u);
+		resetObject(1u);
+
+		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
+		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+
+		details = newCollisionDetails();
+
+		propertiesObj1->mass(ZERO_FLOAT); // static object
+		simulator->transforms(0u)->scaleVector = Vec3(100.0f, 1.0f, 100.0f);
+
+		const Vec3 defaultPositionObj2 = Vec3(0.0f, 4.0f, 0.0f);
+		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -20.0f, 0.0f);
+		const Quat defaultOrientationObj2 = Quat(Vec3(0.0f, 0.0f, 0.0f));
+		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+
+		sp_float posX = -50.0f;
+		sp_float posY = 5.0f;
+		sp_float posZ = -44.0f;
+		sp_float angle = 88.0f;
+
+		details = newCollisionDetails();
+
+		setupObject(1u,
+			Vec3(posX, posY, posZ),
+			Quat::createRotationAxisX(degreesToRadians(angle)),
+			defaultVelocityObj2,
+			defaultAngVelocityObj2
+		);
+
+		collisionDetector.collisionDetails(&details);
+
+		Assert::IsTrue(details.type == SpCollisionType::EdgeFace, L"ERRO", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, areMovingAway)
 	{
@@ -129,7 +568,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
-		createMeshes();
+		createMeshePlane();
+		createCubeMeshes(1u);
 
 		resetObject(0u);
 		resetObject(1u);
@@ -196,7 +636,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpCollisionDetector collisionDetector;
 
-		createMeshes();
+		createMeshePlane();
+		createCubeMeshes(1u);
 
 		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
 		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
@@ -252,7 +693,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		TestPhysic::unlock();
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_Test1)
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_1)
 	{
 		TestPhysic::lock();
 
@@ -260,7 +701,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
-		createMeshes();
+		createMeshePlane();
+		createCubeMeshes(1u);
 
 		resetObject(0u);
 		resetObject(1u);
@@ -296,7 +738,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		TestPhysic::unlock();
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_Test2)
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_2)
 	{
 		TestPhysic::lock();
 
@@ -304,7 +746,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
-		createMeshes();
+		createMeshePlane();
+		createCubeMeshes(1u);
 		resetObject(0u);
 		resetObject(1u);
 
@@ -341,7 +784,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	}
 
 	/* Test INSIDE Face-Face 
-	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_Test3)
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_inside)
 	{
 		TestPhysic::lock();
 
@@ -349,6 +792,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
+		createMeshePlane();
 		createMeshes();
 		resetObject(0u);
 		resetObject(1u);
@@ -396,7 +840,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	}
 	*/
 
-	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_Test4)
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_4)
 	{
 		TestPhysic::lock();
 
@@ -404,7 +848,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
-		createMeshes();
+		createMeshePlane();
+		createCubeMeshes(1u);
 
 		resetObject(0u);
 		resetObject(1u);
@@ -441,8 +886,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		TestPhysic::unlock();
 	}
-
-	SP_TEST_METHOD(CLASS_NAME, collisionDetails_EdgeFace_Test1)
+	
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_5)
 	{
 		TestPhysic::lock();
 
@@ -450,7 +895,141 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
-		createMeshes();
+		// build mesh 1
+		const sp_uint vertexesLength = 3u;
+		Vec3 vertexes[vertexesLength] = { Vec3(-1.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f) };
+		SpPoint3<sp_uint> facesIndex(0, 1, 2);
+
+		SpMesh* mesh = sp_mem_new(SpMesh)();
+		mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
+		mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(1u);
+
+		for (sp_uint i = 0; i < vertexesLength; i++)
+			mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes[i]));
+
+		mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, 0, facesIndex.x, facesIndex.y, facesIndex.z));
+		mesh->init();
+		simulator->mesh(0u, mesh);
+
+		// build mesh 2
+		Vec3 vertexes2[vertexesLength] = { Vec3(-1.0f, 0.5f, 0.0f), Vec3(1.0f, 0.5f, 0.0f), Vec3(0.0f, -0.5f, 0.0f) };
+		mesh = sp_mem_new(SpMesh)();
+		mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
+		mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(1u);
+
+		for (sp_uint i = 0; i < vertexesLength; i++)
+			mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes2[i]));
+
+		mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, 0, facesIndex.x, facesIndex.y, facesIndex.z));
+		mesh->init();
+		simulator->mesh(1u, mesh);
+		simulator->collisionFeatures(1u, 1u);
+
+
+		resetObject(0u);
+		resetObject(1u);
+
+		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
+		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+
+		details = newCollisionDetails();
+
+		collisionDetector.collisionDetails(&details);
+
+		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.contactPointsLength == 6u, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(0.0f, 0.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+
+		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(-0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[2], Vec3(-0.5f, 0.5f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[3], Vec3(-0.75f, 0.25f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[4], Vec3(0.5f, 0.5f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[5], Vec3(0.75f, 0.25f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+
+		Assert::IsTrue(isCloseEnough(details.centerContactPoint, Vec3(0.0f, 0.25f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_FaceFace_6)
+	{
+		TestPhysic::lock();
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpCollisionDetector collisionDetector;
+		SpCollisionDetails details;
+
+		// build mesh 1
+		const sp_uint vertexesLength = 3u;
+		Vec3 vertexes[vertexesLength] = { Vec3(-1.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f) };
+		SpPoint3<sp_uint> facesIndex(0, 1, 2);
+
+		SpMesh* mesh = sp_mem_new(SpMesh)();
+		mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
+		mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(1u);
+
+		for (sp_uint i = 0; i < vertexesLength; i++)
+			mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes[i]));
+
+		mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, 0, facesIndex.x, facesIndex.y, facesIndex.z));
+		mesh->init();
+		simulator->mesh(0u, mesh);
+
+		// build mesh 2
+		Vec3 vertexes2[vertexesLength] = { Vec3(1.0f, -0.5f, 0.0f), Vec3(-1.0f, -0.5f, 0.0f), Vec3(0.0f, 0.5f, 0.0f) };
+		mesh = sp_mem_new(SpMesh)();
+		mesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesLength);
+		mesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(1u);
+
+		for (sp_uint i = 0; i < vertexesLength; i++)
+			mesh->vertexesMesh->add(sp_mem_new(SpVertexMesh)(mesh, i, vertexes2[i]));
+
+		mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, 0, facesIndex.x, facesIndex.y, facesIndex.z));
+		mesh->init();
+		simulator->mesh(1u, mesh);
+		simulator->collisionFeatures(1u, 1u);
+
+
+		resetObject(0u);
+		resetObject(1u);
+
+		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
+		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+
+		details = newCollisionDetails();
+
+		collisionDetector.collisionDetails(&details);
+
+		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.contactPointsLength == 3u, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(0.0f, 0.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+
+		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(0.0f, 0.5f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(-0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(details.contactPoints[2], Vec3(0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+
+		Assert::IsTrue(isCloseEnough(details.centerContactPoint, Vec3(0.0f, 0.15f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_EdgeFace_1)
+	{
+		TestPhysic::lock();
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpCollisionDetector collisionDetector;
+		SpCollisionDetails details;
+
+		createMeshePlane();
+		createCubeMeshes(1u);
 		resetObject(0u);
 		resetObject(1u);
 
@@ -480,13 +1059,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 
-
-		sp_char tt[4000];
-		Maple::convert(*simulator->mesh(0), *simulator->transforms(0), "mesh1", "red", tt);
-		sp_char tt2[4000];
-		Maple::convert(*simulator->mesh(1), *simulator->transforms(1), "mesh2", "blue", tt2);
-
-
 		Assert::IsTrue(details.contactPointsLength == 2u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.0f, 0.5f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(1.0f, 0.5f, 0.5f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -496,7 +1068,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		TestPhysic::unlock();
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, collisionDetails_EdgeEdge_Test1)
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_EdgeEdge_1)
 	{
 		TestPhysic::lock();
 
@@ -504,7 +1076,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
-		createMeshes();
+		createMeshePlane();
+		createCubeMeshes(1u);
 		resetObject(0u);
 		resetObject(1u);
 
@@ -548,7 +1121,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		TestPhysic::unlock();
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, collisionDetails_VertexFace_Test1)
+	SP_TEST_METHOD(CLASS_NAME, collisionDetails_VertexFace)
 	{
 		TestPhysic::lock();
 
@@ -556,7 +1129,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector collisionDetector;
 		SpCollisionDetails details;
 
-		createMeshes();
+		createMeshePlane();
+		createCubeMeshes(1u);
 		resetObject(0u);
 		resetObject(1u);
 
@@ -579,8 +1153,14 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		collisionDetector.collisionDetails(&details);
 
+		sp_char text[16000];
+		sp_uint index = ZERO_UINT;
+		Maple::convert(*simulator->mesh(simulator->collisionFeatures(0u)->meshIndex), *simulator->transforms(0u), "mesh1", "red", text, &index);
+		Maple::convert(*simulator->mesh(simulator->collisionFeatures(1u)->meshIndex), *simulator->transforms(1u), "mesh2", "blue", text, &index);
+		Maple::display("mesh1", "mesh2", text, &index);
+
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::PointFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SpCollisionType::VertexFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 1u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());

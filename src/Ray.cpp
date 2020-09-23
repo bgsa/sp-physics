@@ -10,7 +10,7 @@ namespace NAMESPACE_PHYSICS
 
 		closestPoint(ray, &contact1, &contact2, &sqDistance, _epsilon);
 	
-		if (isCloseEnough(sqDistance, ZERO_FLOAT, _epsilon))
+		if (isCloseEnough(contact1, contact2, _epsilon))
 		{
 			contact[0] = (contact1 + contact2) * HALF_FLOAT;
 			return true;

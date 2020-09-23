@@ -25,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		distanceFromOrigin = normalVector.dot(point);
 	}
 
-	sp_bool Plane3D::intersection(const Line3D& line, Vec3* contactPoint) const
+	sp_bool Plane3D::intersection(const Line3D& line, Vec3* contactPoint, const sp_float _epsilon) const
 	{
 		const Vec3 lineAsVector = line.point2 - line.point1;
 		const sp_float angle = normalVector.dot(lineAsVector);
@@ -35,7 +35,7 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float t = (distanceFromOrigin - normalVector.dot(line.point1)) / angle;
 
-		if (t >= ZERO_FLOAT && t <= ONE_FLOAT)
+		if (t >= -_epsilon && t <= ONE_FLOAT + _epsilon)
 		{
 			contactPoint[0] = line.point1 + lineAsVector * t;
 			return true;

@@ -18,7 +18,8 @@ namespace NAMESPACE_PHYSICS
 		if (element->isStatic())
 			return;
 
-		const sp_float newElapsedTime =  (elapsedTime - element->integratedTime()) * settings->physicVelocity();
+		//const sp_float newElapsedTime =  (elapsedTime - element->integratedTime()) * settings->physicVelocity();
+		const sp_float newElapsedTime = elapsedTime * settings->physicVelocity();
 		const sp_float halfElapsedTime = newElapsedTime * HALF_FLOAT;
 
 		// Velocity Verlet Integration because regards the velocity

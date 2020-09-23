@@ -70,7 +70,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float sqDistance;
 		closestPoint(line2, point, &p2, &sqDistance);
 
-		if (isCloseEnough(sqDistance, ZERO_FLOAT, _epsilon))
+		if (isCloseEnough(*point, p2, _epsilon))
 			return true;
 
 		return false;
@@ -113,19 +113,31 @@ namespace NAMESPACE_PHYSICS
 		triangle.normalFace(&triangleNormal);
 		
 		// if the normal plane is perpendicular. there is no way to cross the plane
+		// but it can be a 2D intersection ...
 		if (isPerpendicular(triangleNormal))
+		{
+			if (intersection(Line3D(triangle.point1, triangle.point2), point, _epsilon))
+				return true;
+			if (intersection(Line3D(triangle.point2, triangle.point3), point, _epsilon))
+				return true;
+			if (intersection(Line3D(triangle.point3, triangle.point1), point, _epsilon))
+				return true;
+
 			return false;
+		}
+			
 
 		const Plane3D trianglePlane(triangle.point1, triangleNormal);
 
-		sp_float distanceToPoint1 = trianglePlane.distance(point1);
-		sp_float distanceToPoint2 = trianglePlane.distance(point2);
-
+		/*
+		const sp_float distanceToPoint1 = trianglePlane.distance(point1);
+		const sp_float distanceToPoint2 = trianglePlane.distance(point2);
 		// if the this line is completely one side of triangle, no intersection
 		if (sign(distanceToPoint1) == sign(distanceToPoint2)) 
 			return false;
+		*/
 
-		if (!trianglePlane.intersection(*this, point))
+		if (!trianglePlane.intersection(*this, point, _epsilon))
 			return false;
 
 		if (!triangle.isInside(*point, _epsilon))

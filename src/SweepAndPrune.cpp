@@ -1,4 +1,5 @@
 #include "SweepAndPrune.h"
+#include "SpPhysicSimulator.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -111,9 +112,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint* activeListIndex = ALLOC_ARRAY(sp_uint, length);
 		sp_uint activeListIndexCount = ZERO_UINT;
 		sp_uint kdopIndexJ = ZERO_UINT;
-
-		tempKDOPs = kdops;
-
+		
 		AlgorithmSorting::quickSortNative(indexes, length, SIZEOF_UINT, comparatorXAxisForQuickSortKDOP);
 
 		for (sp_uint i = 0; i < length; ++i)
