@@ -2322,7 +2322,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		for (sp_uint iterations = 0; iterations < 10; iterations++)
 		{
-			sp_uint length = 10;
+			sp_uint length = 50;
 			DOP18* kdops = getRandomKDOPs(length);
 
 			AlgorithmSorting::quickSortNative(kdops, length, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
@@ -2342,8 +2342,6 @@ namespace NAMESPACE_PHYSICS_TEST
 					}
 			}
 
-			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
-
 			SweepAndPruneResult resultCpu;
 			resultCpu.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
 
@@ -2351,10 +2349,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			for (sp_uint i = ZERO_UINT; i < length; i++)
 				indexes[i] = i;
 
+			PerformanceCounter counter; counter.start();
+
 			SweepAndPrune::findCollisions(kdops, indexes, length, &resultCpu);
 
-			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
-			std::chrono::milliseconds ms = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
+			sp_longlong elapsedTime = counter.diff();
 
 			Assert::AreEqual(expectedLength, resultCpu.length, L"wrong value", LINE_INFO());
 
@@ -2378,7 +2377,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
 		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, count);
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * count, CL_MEM_READ_ONLY, true);
+		for (sp_uint i = 0; i < count; i++)
+			physicProperties[i].mass(8.0f);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * count, CL_MEM_READ_WRITE, true);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count
@@ -2390,18 +2391,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		sap->init(gpu, buildOptions.str().c_str());
 		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu);
 
-		std::chrono::high_resolution_clock::time_point currentTime1 = std::chrono::high_resolution_clock::now();
-
+		PerformanceCounter counter; counter.start();
 		SweepAndPruneResult result1 = SweepAndPrune::findCollisions(aabbs1, count);
-
-		std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms1 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
-		currentTime1 = std::chrono::high_resolution_clock::now();
-
+		sp_longlong currentTime1 = counter.diff();
+		
+		counter.start();
 		sap->execute();
-
-		currentTime2 = std::chrono::high_resolution_clock::now();
-		std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime1);
+		sp_longlong currentTime2 = counter.diff();
 
 		sp_uint collisionsLength = sap->fetchCollisionLength();
 
@@ -2430,11 +2426,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
 		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY, true);
 
+		const sp_size physicPropertySize = sizeof(SpPhysicProperties);
 		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
 		for (sp_uint i = 0; i < length; i++)
-			physicProperties[i].mass(ZERO_FLOAT);
+			physicProperties[i].mass(8.0f);
 
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY, true);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, physicPropertySize * length, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR , true);
 		cl_mem outputGpu = gpu->createBuffer(sizeof(DOP18) * length * 2, CL_MEM_READ_ONLY);
 		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
@@ -2445,7 +2442,7 @@ namespace NAMESPACE_PHYSICS_TEST
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, 0, DOP18_ORIENTATIONS, physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu);
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, 0, DOP18_ORIENTATIONS, physcPropertiesGpu, physicPropertySize, outputGpu, outputLengthGpu);
 
 		performanceCounter.start();
 

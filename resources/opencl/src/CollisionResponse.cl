@@ -87,9 +87,6 @@ __kernel void handleCollision(
         return;
     }
 
-    if (SpPhysicProperties_areMovingAway(physicProperties, physicIndex1, physicIndex2))
-        return;
-
     const sp_uint temp = atomic_add(outputIndexesLength, 2);
     outputIndexes[temp    ] = index1;
     outputIndexes[temp + 1] = index2;

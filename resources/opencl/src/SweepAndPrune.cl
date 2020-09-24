@@ -2,9 +2,7 @@
 #include "DOP18.cl"
 #include "SpPhysicProperties.cl"
 
-#define MIN_POINT_NEXT_ELEMENT input[dopIndex2                            ]
-#define MAX_POINT_NEXT_ELEMENT input[dopIndex2 + axis + DOP18_ORIENTATIONS]
-
+#define MIN_POINT_NEXT_ELEMENT    input[dopIndex2 + axis]
 #define MIN_POINT_NEXT_ELEMENT_X  input[dopIndex2     ]
 #define MIN_POINT_NEXT_ELEMENT_Y  input[dopIndex2 +  1]
 #define MIN_POINT_NEXT_ELEMENT_Z  input[dopIndex2 +  2]
@@ -24,6 +22,7 @@
 #define MAX_POINT_NEXT_ELEMENT_XZ input[dopIndex2 + 16]
 #define MAX_POINT_NEXT_ELEMENT_ZX input[dopIndex2 + 17]
 
+#define MAX_POINT input[dopIndex1 + DOP18_ORIENTATIONS + axis]
 #define minPointX input[dopIndex1      ]
 #define minPointY input[dopIndex1  +  1]
 #define minPointZ input[dopIndex1  +  2]
@@ -60,9 +59,6 @@ __kernel void sweepAndPruneSingleAxis(
     const sp_uint objIndex1 = indexes[index];
     const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
 
-    //const sp_float minPoint = input[dopIndex1 + axis];
-    const sp_float maxPoint = input[dopIndex1 + axis + DOP18_ORIENTATIONS];
-
     const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, objIndex1 * SP_PHYSIC_PROPERTY_SIZE);
 
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
@@ -70,7 +66,7 @@ __kernel void sweepAndPruneSingleAxis(
         const sp_uint objIndex2 = indexes[j];
         const sp_uint dopIndex2 = objIndex2 * INPUT_STRIDE;
 
-        if (maxPoint < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else
+        if (MAX_POINT < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
             return;
 
         if (   (maxPointX  >= MIN_POINT_NEXT_ELEMENT_X  && minPointX  <= MAX_POINT_NEXT_ELEMENT_X)

@@ -146,7 +146,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Find intersection of line against a phere
 		///</summary>
-		API_INTERFACE DetailedCollisionStatus findIntersectionOnRay(const Sphere& sphere) const;
+		API_INTERFACE DetailedCollisionStatus findIntersectionOnRay(const Sphere& sphere, const sp_float _epsilong = ERROR_MARGIN_PHYSIC) const;
 
 		///<summary>
 		/// Find intersection of SEGMENT of line against a phere

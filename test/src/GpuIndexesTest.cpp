@@ -92,7 +92,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem output = commandIndexes->execute();
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, true);
+		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values);
 
 		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());

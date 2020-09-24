@@ -6,27 +6,28 @@
 #define SP_PHYSIC_RESTING_VELOCITY (0.09f)
 
 #define SP_PHYSIC_PROPERTY_SIZE                 (59)
-#define SP_PHYSIC_PROPERTY_POSITION_INDEX       (0)
-#define SP_PHYSIC_PROPERTY_VELOCITY_INDEX       (3)
-#define SP_PHYSIC_PROPERTY_ACCELERATION_INDEX   (6)
-#define SP_PHYSIC_PROPERTY_FORCE_INDEX          (9)
-#define SP_PHYSIC_PROPERTY_ORIENTATION_INDEX    (12)
-#define SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX   (16)
-#define SP_PHYSIC_PROPERTY_TORQUE_INDEX         (19)
-#define SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX  (22)
-#define SP_PHYSIC_PROPERTY_PREV_VEL_INDEX       (25)
-#define SP_PHYSIC_PROPERTY_PREV_ACC_INDEX       (28)
-#define SP_PHYSIC_PROPERTY_PREV_FORCE_INDEX     (31)
-#define SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX  (34)
-#define SP_PHYSIC_PROPERTY_PREV_ANG_VEL_INDEX   (38)
-#define SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX    (41)
-#define SP_PHYSIC_PROPERTY_INV_MASS_INDEX       (44)
-#define SP_PHYSIC_PROPERTY_DAMPING_INDEX        (45)
-#define SP_PHYSIC_PROPERTY_ANG_DAMPING_INDEX    (46)
-#define SP_PHYSIC_PROPERTY_COR_INDEX            (47)
-#define SP_PHYSIC_PROPERTY_COF_INDEX            (48)
-#define SP_PHYSIC_PROPERTY_INTEGRATE_TIME_INDEX (49)
-#define SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX   (50)
+#define SP_PHYSIC_PROPERTY_INV_MASS_INDEX       (0)
+#define SP_PHYSIC_PROPERTY_DAMPING_INDEX        (1)
+#define SP_PHYSIC_PROPERTY_ANG_DAMPING_INDEX    (2)
+#define SP_PHYSIC_PROPERTY_COR_INDEX            (3)
+#define SP_PHYSIC_PROPERTY_COF_INDEX            (4)
+#define SP_PHYSIC_PROPERTY_INTEGRATE_TIME_INDEX (5)
+#define SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX   (6)
+#define SP_PHYSIC_PROPERTY_POSITION_INDEX       (14)
+#define SP_PHYSIC_PROPERTY_VELOCITY_INDEX       (17)
+#define SP_PHYSIC_PROPERTY_ACCELERATION_INDEX   (20)
+#define SP_PHYSIC_PROPERTY_FORCE_INDEX          (23)
+#define SP_PHYSIC_PROPERTY_ORIENTATION_INDEX    (26)
+#define SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX   (30)
+#define SP_PHYSIC_PROPERTY_TORQUE_INDEX         (33)
+#define SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX  (36)
+#define SP_PHYSIC_PROPERTY_PREV_VEL_INDEX       (39)
+#define SP_PHYSIC_PROPERTY_PREV_ACC_INDEX       (42)
+#define SP_PHYSIC_PROPERTY_PREV_FORCE_INDEX     (45)
+#define SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX  (48)
+#define SP_PHYSIC_PROPERTY_PREV_ANG_VEL_INDEX   (52)
+#define SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX    (56)
+
 
 #define SpPhysicProperties_isStatic(properties, stride) \
     properties[stride + SP_PHYSIC_PROPERTY_INV_MASS_INDEX] == ZERO_FLOAT
@@ -94,49 +95,6 @@ inline sp_bool SpPhysicProperties_isResting(__global sp_float* properties, const
         isCloseEnough(properties[positionIndex+2], properties[previousPpositionIndex +2], SP_PHYSIC_RESTING_VELOCITY) &&
         vec3_isCloseEnough_vec3(acc, restingAcc, SP_PHYSIC_RESTING_VELOCITY);
  }
-
-inline sp_bool SpPhysicProperties_areMovingAway(__global sp_float* properties, const sp_uint strideObj1, const sp_uint strideObj2)
-{
-    const Vec3 positionObj1 = {
-        properties[strideObj1 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX],
-        properties[strideObj1 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1],
-        properties[strideObj1 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2]
-    };
-
-    const Vec3 velocityObj1 = {
-        properties[strideObj1 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX],
-        properties[strideObj1 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1],
-        properties[strideObj1 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2]
-    };
-
-    const Vec3 positionObj2 = {
-        properties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX],
-        properties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1],
-        properties[strideObj2 + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2]
-    };
-
-    const Vec3 velocityObj2 = {
-        properties[strideObj2 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX],
-        properties[strideObj2 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1],
-        properties[strideObj2 + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2]
-    };
-
-    Vec3 lineOfAction;
-    vec3_minus_vec3(positionObj2, positionObj1, lineOfAction);
-    
-    Vec3 velocityToObject2;
-    vec3_multiply_vec3(velocityObj1, lineOfAction, &velocityToObject2);
-
-    vec3_minus_vec3(positionObj1, positionObj2, lineOfAction);
-    
-    Vec3 velocityToObject1;
-    vec3_multiply_vec3(velocityObj2, lineOfAction, &velocityToObject1);
-
-    return
-           vec3_lesserThanOrEqual_float(velocityToObject2, ZERO_FLOAT)
-        && vec3_lesserThanOrEqual_float(velocityToObject1, ZERO_FLOAT);
-}
-
 
 __kernel void isResting(
     __global sp_float* properties,
@@ -216,6 +174,16 @@ __kernel void isResting(
     output[51] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 8];
     */
 }
+
+__kernel void isStatic(
+    __global sp_float* properties,
+    __global sp_bool* output
+)
+{
+    const sp_uint stride = SP_PHYSIC_PROPERTY_SIZE * THREAD_ID;
+    output[0] = SpPhysicProperties_isStatic(properties, stride);
+}
+
 
 __kernel void fetch(
     __global sp_float* physicProperties,

@@ -3,7 +3,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	DOP18* tempKDOPs;
+	DOP18* globalKDOPs;
 
 	sp_int comparatorXAxisForQuickSort(const void* a, const void* b)
 	{
@@ -21,8 +21,8 @@ namespace NAMESPACE_PHYSICS
 	
 	sp_int comparatorXAxisForQuickSortKDOP(const void* index1, const void* index2)
 	{
-		DOP18* obj1 = &tempKDOPs[*(sp_uint*)index1];
-		DOP18* obj2 = &tempKDOPs[*(sp_uint*)index2];
+		DOP18* obj1 = &globalKDOPs[*(sp_uint*)index1];
+		DOP18* obj2 = &globalKDOPs[*(sp_uint*)index2];
 
 		if (obj1->min[0] > obj2->min[0])
 			return -1;
@@ -112,6 +112,8 @@ namespace NAMESPACE_PHYSICS
 		sp_uint* activeListIndex = ALLOC_ARRAY(sp_uint, length);
 		sp_uint activeListIndexCount = ZERO_UINT;
 		sp_uint kdopIndexJ = ZERO_UINT;
+
+		globalKDOPs = kdops;
 		
 		AlgorithmSorting::quickSortNative(indexes, length, SIZEOF_UINT, comparatorXAxisForQuickSortKDOP);
 
@@ -155,14 +157,13 @@ namespace NAMESPACE_PHYSICS
 	}
 
 #ifdef OPENCL_ENABLED
-	static cl_program sapProgram = NULL;
-
+	
 	SweepAndPrune* SweepAndPrune::init(GpuDevice* gpu, const char* buildOptions)
 	{
+		this->gpu = gpu;
+
 		if (sapProgram != NULL)
 			return this;
-
-		this->gpu = gpu;
 
 		radixSorting = sp_mem_new(GpuRadixSorting)();
 		radixSorting->init(gpu, buildOptions);
@@ -197,8 +198,13 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
+	cl_mem input;
+	sp_uint inputLenLen;
 	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex)
 	{
+		input = inputGpu; // TODO: REMOVER debug
+		inputLenLen = inputLength;
+
 		globalWorkSize[0] = inputLength;
 		localWorkSize[0] = 1u;
 
@@ -224,14 +230,21 @@ namespace NAMESPACE_PHYSICS
 
 		radixSorting->execute(previousEventsLength, previousEvents);
 		lastEvent = radixSorting->lastEvent;
-
-		/* // check if sorting is OK
-		const sp_uint len = 512u;
+ 
+		/*
+		// check if sorting is OK
+		const sp_uint len = inputLenLen;
+		sp_float* aabbs = ALLOC_ARRAY(sp_float, len * 8);
+		lastEvent = gpu->commandManager->readBuffer(input, len * 8 * 4, aabbs, ONE_UINT, &lastEvent);
 		sp_uint* buffer = ALLOC_ARRAY(sp_uint, len);
 		lastEvent = gpu->commandManager->readBuffer(radixSorting->output, 4 * len, buffer, ONE_UINT, &lastEvent);
 		sp_log_info1s("BEGIN SORT"); sp_log_newline();
-		for (size_t i = 0; i < len; i++)
-			<< aabbs[buffer[i]].minPoint.x << END_OF_LINE;
+		for (sp_uint i = 0; i < len; i++)
+		{
+			sp_float valueX = aabbs[buffer[i] * 8 + 2];
+			sp_log_info1f(valueX);
+			sp_log_newline();
+		}
 		sp_log_info1s("END SORT"); sp_log_newline();
 		ALLOC_RELEASE(buffer);
 		*/
@@ -252,6 +265,11 @@ namespace NAMESPACE_PHYSICS
 		commandSaPCollisions->fetchInOutParameter<sp_uint>(4, &value);
 		
 		return divideBy2(value);
+	}
+
+	void SweepAndPrune::fetchCollisionIndexes(sp_uint* output) const
+	{
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(5, output);
 	}
 
 #endif // OPENCL_ENALBED

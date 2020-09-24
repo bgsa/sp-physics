@@ -223,15 +223,15 @@ namespace NAMESPACE_PHYSICS
 		*point = point1 + lineDirection * t;
 	}
 
-	DetailedCollisionStatus Line3D::findIntersectionOnRay(const Sphere& sphere) const
+	DetailedCollisionStatus Line3D::findIntersectionOnRay(const Sphere& sphere, const sp_float _epsilon) const
 	{
 		Vec3 lineDirection;
 		Vec3 point1ToSphere = point1 - sphere.center;
 
 		direction(&lineDirection);
 
-		sp_float b = point1ToSphere.dot(lineDirection);
-		sp_float c = point1ToSphere.dot(point1ToSphere) - (sphere.ray * sphere.ray);
+		const sp_float b = point1ToSphere.dot(lineDirection);
+		const sp_float c = point1ToSphere.dot(point1ToSphere) - (sphere.ray * sphere.ray);
 		
 		// Exit if r�s origin outside sphere (c > 0) and ray pointing away from sphere (b > 0) 
 		if (c > ZERO_FLOAT && b > ZERO_FLOAT)
@@ -240,11 +240,19 @@ namespace NAMESPACE_PHYSICS
 		sp_float discriminant = b * b - c;    // d = b^2 - c
 		
 		// A negative discriminant corresponds to ray missing sphere 
-		if (discriminant < ZERO_FLOAT) // the quadratic equation has not real root
+		if (discriminant < -_epsilon) // the quadratic equation has not real root
 			return DetailedCollisionStatus(CollisionStatus::OUTSIDE);
 
-		sp_float sqrtDisctiminant = sqrtf(discriminant);
+		sp_float sqrtDisctiminant; 
 
+		if (discriminant > ZERO_FLOAT)
+			sqrtDisctiminant = sqrtf(discriminant);
+		else
+		{
+			discriminant = ZERO_FLOAT;
+			sqrtDisctiminant = ZERO_FLOAT;
+		}
+		
 		// Ray now found to intersect sphere, compute smallest t value of intersection 
 		sp_float t1 = -b - sqrtDisctiminant;   // -b - sqrt(b^2 - c)
 

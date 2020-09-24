@@ -156,7 +156,6 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
 	{
-		//timerToPhysic.update();
 		sap->execute(ONE_UINT, &sap->lastEvent);
 
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, _boundingVolumes, _physicProperties);
@@ -166,20 +165,17 @@ namespace NAMESPACE_PHYSICS
 
 		collisionResponseGPU->fetchCollisionLength(&result->length);
 		collisionResponseGPU->fetchCollisions(result->indexes);
-		//std::cout << timerToPhysic.elapsedTime() << END_OF_LINE;
-
-		//std::cout << result->length << END_OF_LINE;
 	}
 
 	void SpPhysicSimulator::run()
 	{
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
-		
-		findCollisionsCpu(&sapResult);
+
+		//findCollisionsCpu(&sapResult);
 
 		updateDataOnGPU();
-		//findCollisionsGpu(&sapResult);
+		findCollisionsGpu(&sapResult);
 		updateDataOnCPU();
 
 		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
@@ -191,11 +187,6 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i)]), "MemoryNotInitializedExeption");
 			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i) + 1]), "MemoryNotInitializedExeption");
-			
-			// TODO: REMOVER
-			if (sapResult.indexes[multiplyBy2(i)] >= objectsLength() || sapResult.indexes[multiplyBy2(i) + 1] >= objectsLength())
-				int a = 1;
-
 			sp_assert(sapResult.indexes[multiplyBy2(i)] < objectsLength(), "IndexOutOfRangeException");
 			sp_assert(sapResult.indexes[multiplyBy2(i) + 1] < objectsLength(), "IndexOutOfRangeException");
 

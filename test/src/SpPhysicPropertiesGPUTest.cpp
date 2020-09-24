@@ -15,6 +15,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	public:
 		SP_TEST_METHOD_DEF(fetch);
 		SP_TEST_METHOD_DEF(isResting);
+		SP_TEST_METHOD_DEF(isStatic);
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, fetch)
@@ -164,6 +165,59 @@ namespace NAMESPACE_PHYSICS_TEST
 		const sp_bool expected = physicProperties[elementIndex].isResting();
 
 		Assert::AreEqual(expected, result, L"wrong value", LINE_INFO());
+
+		gpu->releaseBuffer(physcPropertiesGpu);
+		gpu->releaseBuffer(outputGpu);
+		ALLOC_RELEASE(physicProperties);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, isStatic)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, 2u);
+		physicProperties[0].mass(ZERO_FLOAT);
+		physicProperties[1].mass(8.0f);
+
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * 2u, CL_MEM_READ_ONLY, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SpPhysicProperties.cl");
+
+		SP_FILE file;
+		SpString* source = file.readTextFile(filename->name()->data());
+
+		sp_uint sapIndex = gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr);
+		cl_program sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
+
+		sp_mem_delete(source, SpString);
+
+		GpuCommand* command = gpu->commandManager
+			->createCommand()
+			->setInputParameter(physcPropertiesGpu, sizeof(SpPhysicProperties) * 2u)
+			->setInputParameter(outputGpu, sizeof(sp_bool))
+			->buildFromProgram(sapProgram, "isStatic");
+
+		const sp_size globalWorkSize[3] = { 1, 0, 0 };
+		const sp_size localWorkSize[3] = { 1, 0, 0 };
+
+		sp_uint index = 0u;
+		sp_bool result;
+		command
+			->execute(1, globalWorkSize, localWorkSize, &index)
+			->fetchInOutParameter<sp_bool>(1u, &result);
+
+		Assert::IsTrue(result, L"wrong value", LINE_INFO());
+
+		index = 1u;
+		command
+			->execute(1, globalWorkSize, localWorkSize, &index)
+			->fetchInOutParameter<sp_bool>(1u, &result);
+
+		Assert::IsFalse(result, L"wrong value", LINE_INFO());
 
 		gpu->releaseBuffer(physcPropertiesGpu);
 		gpu->releaseBuffer(outputGpu);

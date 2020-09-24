@@ -50,6 +50,7 @@ namespace NAMESPACE_PHYSICS
 
 #if OPENCL_ENABLED
 		GpuDevice* gpu = nullptr;
+		cl_program sapProgram = nullptr;
 
 		GpuRadixSorting* radixSorting = nullptr;
 		GpuCommand* commandSaPCollisions = nullptr;
@@ -64,6 +65,7 @@ namespace NAMESPACE_PHYSICS
 #endif // OPENCL_ENABLED
 
 	public:
+
 		///<summary>
 		/// Find the collisions using Sweep and Prune method
 		/// Returns the pair indexes
@@ -98,6 +100,11 @@ namespace NAMESPACE_PHYSICS
 		/// Get the length of collisions pairs detected
 		///</summary>
 		API_INTERFACE sp_uint fetchCollisionLength();
+
+		/// <summary>
+		/// Get the colision index pairs
+		/// </summary>
+		API_INTERFACE void fetchCollisionIndexes(sp_uint* output) const;
 
 		///<summary>
 		/// Update physic data on GPU
