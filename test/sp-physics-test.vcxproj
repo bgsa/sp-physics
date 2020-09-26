@@ -55,6 +55,7 @@
     <ClCompile Include="src\Mat4Test.cpp" />
     <ClCompile Include="src\OBBTest.cpp" />
     <ClCompile Include="src\RayTest.cpp" />
+    <ClCompile Include="src\SpAlgorithmsTest.cpp" />
     <ClCompile Include="src\SpCollisionDetectorTest.cpp" />
     <ClCompile Include="src\SpCollisionResponseTest.cpp" />
     <ClCompile Include="src\SpectrumPhysicsTest.cpp" />

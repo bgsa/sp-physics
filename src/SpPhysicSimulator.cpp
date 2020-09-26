@@ -87,23 +87,12 @@ namespace NAMESPACE_PHYSICS
 
 		collisionDetector.filterCollision(details);
 		if (details->ignoreCollision)
-		{
-			// TODO: REMOVER
-			sp_log_info1s("FILTRADA!!"); sp_log_newline();
 			return;
-		}
-
-		// TODO: REMOVER
-		sp_log_info1s("NAO FILTRADA!!"); sp_log_newline();
 
 		collisionDetector.collisionDetails(details);
 
 		if (details->ignoreCollision)
-		{
-			// TODO: REMOVER
-			sp_log_info1s("FILTRADA 222222222222222222222222!!"); sp_log_newline();
 			return;
-		}
 
 		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
 		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
@@ -172,10 +161,10 @@ namespace NAMESPACE_PHYSICS
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
 
-		//findCollisionsCpu(&sapResult);
+		findCollisionsCpu(&sapResult);
 
 		updateDataOnGPU();
-		findCollisionsGpu(&sapResult);
+		//findCollisionsGpu(&sapResult);
 		updateDataOnCPU();
 
 		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
@@ -194,10 +183,11 @@ namespace NAMESPACE_PHYSICS
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
 
-			handleCollisionCPU(&detailsArray[i]);
-			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
-			//tasks[i].parameter = &detailsArray[i];
+			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
+			tasks[i].parameter = &detailsArray[i];
+			
 			//threadPool->schedule(&tasks[i]);
+			handleCollisionCPU(&detailsArray[i]);
 		}
 
 		/*
@@ -205,9 +195,11 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (sapResult.indexes[i * 2] == v || sapResult.indexes[i * 2 + 1] == v)
 				int a = 1;
-		*/
-		//SpThreadPool::instance()->waitToFinish();
 		
+		SpThreadPool::instance()->waitToFinish();
+		*/
+
+
 		/* dispatch collision events
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)

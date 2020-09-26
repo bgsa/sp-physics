@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 			obj1Properties->currentState.position(obj1Properties->previousState.position());
 			obj1Properties->currentState.velocity(Vec3(ZERO_FLOAT));
 			obj1Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
-			obj1Properties->currentState.orientation(Quat());
+			obj1Properties->currentState.orientation(obj1Properties->previousState.orientation());
 			obj1Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
 			obj1Properties->currentState.torque(Vec3(ZERO_FLOAT));
 
@@ -42,7 +42,7 @@ namespace NAMESPACE_PHYSICS
 			obj2Properties->currentState.position(obj2Properties->previousState.position());
 			obj2Properties->currentState.velocity(Vec3(ZERO_FLOAT));
 			obj2Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
-			obj2Properties->currentState.orientation(Quat());
+			obj2Properties->currentState.orientation(obj2Properties->previousState.orientation());
 			obj2Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
 			obj2Properties->currentState.torque(Vec3(ZERO_FLOAT));
 
@@ -56,7 +56,7 @@ namespace NAMESPACE_PHYSICS
 			obj2Properties->currentState.position(obj2Properties->previousState.position());
 			obj2Properties->currentState.velocity(Vec3(ZERO_FLOAT));
 			obj2Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
-			obj2Properties->currentState.orientation(Quat());
+			obj2Properties->currentState.orientation(obj2Properties->previousState.orientation());
 			obj2Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
 			obj2Properties->currentState.torque(Vec3(ZERO_FLOAT));
 
@@ -70,7 +70,7 @@ namespace NAMESPACE_PHYSICS
 			obj1Properties->currentState.position(obj1Properties->previousState.position());
 			obj1Properties->currentState.velocity(Vec3(ZERO_FLOAT));
 			obj1Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
-			obj1Properties->currentState.orientation(Quat());
+			obj1Properties->currentState.orientation(obj1Properties->previousState.orientation());
 			obj1Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
 			obj1Properties->currentState.torque(Vec3(ZERO_FLOAT));
 

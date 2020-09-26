@@ -216,6 +216,7 @@
     <ClCompile Include="src\Quat.cpp" />
     <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
+    <ClCompile Include="src\SpAlgorithms.cpp" />
     <ClCompile Include="src\SpCollisionDetector.cpp" />
     <ClCompile Include="src\SpCollisionResponse.cpp" />
     <ClCompile Include="src\SpFaceMesh.cpp" />
@@ -276,6 +277,7 @@
     <ClInclude Include="src\Mat4.h" />
     <ClInclude Include="src\OBB.h" />
     <ClInclude Include="src\Ray.h" />
+    <ClInclude Include="src\SpAlgorithms.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
     <ClInclude Include="src\SpCollisionFeatures.h" />
