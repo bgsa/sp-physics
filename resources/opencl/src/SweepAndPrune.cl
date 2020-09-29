@@ -59,7 +59,7 @@ __kernel void sweepAndPruneSingleAxis(
     const sp_uint objIndex1 = indexes[index];
     const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
 
-    const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, objIndex1 * SP_PHYSIC_PROPERTY_SIZE);
+    //const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, objIndex1 * SP_PHYSIC_PROPERTY_SIZE);
 
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
@@ -80,10 +80,9 @@ __kernel void sweepAndPruneSingleAxis(
             && (maxPointZX >= MIN_POINT_NEXT_ELEMENT_ZX && minPointZX <= MAX_POINT_NEXT_ELEMENT_ZX)  
         )
         {
-            const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, objIndex2 * SP_PHYSIC_PROPERTY_SIZE);
-
-            if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
-                continue;
+            //const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, objIndex2 * SP_PHYSIC_PROPERTY_SIZE);
+            //if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
+            //    continue;
 
             const sp_uint temp = atomic_add(outputLength, 2);
             output[temp    ] = objIndex1;

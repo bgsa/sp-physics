@@ -439,6 +439,9 @@ namespace NAMESPACE_PHYSICS
 		}
 	};
 
+	const Quat QUAT_UNIT(ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+	const Quat QUAT_ZERO(ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+
 	API_INTERFACE inline void multiply(const Quat& quat1, const Quat& quat2, Quat* output)
 	{
 		output->w = (quat1.w * quat2.w) - (quat1.x * quat2.x) - (quat1.y * quat2.y) - (quat1.z * quat2.z);

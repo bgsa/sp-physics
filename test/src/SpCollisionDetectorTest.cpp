@@ -187,7 +187,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			simulator->physicProperties(index)->currentState.reset();
 			simulator->physicProperties(index)->previousState.reset();
 			simulator->physicProperties(index)->mass(8.0f);
-			simulator->physicProperties(index)->integratedTime(ZERO_FLOAT);
 		}
 
 		void setupObject(const sp_uint index, const Vec3& position, const Quat& orientation, 

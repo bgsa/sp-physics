@@ -305,8 +305,8 @@ namespace NAMESPACE_PHYSICS
 			details->vertexIndexObj1 = mesh1->vertexesMesh->get(details->vertexIndexObj1)->findClosest(contactPoint, *simulator->transforms(details->objIndex1))->index();
 		}
 
-		simulator->physicProperties(details->objIndex1)->integratedTime(elapsedTime);
-		simulator->physicProperties(details->objIndex2)->integratedTime(elapsedTime);
+		//simulator->physicProperties(details->objIndex1)->integratedTime(elapsedTime);
+		//simulator->physicProperties(details->objIndex2)->integratedTime(elapsedTime);
 		details->timeOfCollision = elapsedTime;
 
 		sp_assert(details->objIndex1 < simulator->objectsLength(), "InvalidArgumentException");
@@ -419,6 +419,8 @@ namespace NAMESPACE_PHYSICS
 			return;
 	
 		// TODO: REMOVER!!
+		details->ignoreCollision = true;
+		return;
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		sp_char text[16000];
 		sp_uint index = ZERO_UINT;

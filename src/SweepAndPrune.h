@@ -15,6 +15,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
+#define SP_SAP_MAX_COLLISION_PER_OBJECT 8
+
 	class SweepAndPruneResult
 	{
 	public:

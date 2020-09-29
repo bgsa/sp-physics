@@ -36,7 +36,7 @@ namespace NAMESPACE_PHYSICS
 
 		_transformsGPU = gpu->createBufferFromOpenGL(_transformsGPUBuffer);
 
-		const sp_uint outputIndexSize = multiplyBy4(objectsLength) * SIZEOF_UINT;
+		const sp_uint outputIndexSize = multiplyBy2(objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT * SIZEOF_UINT;
 
 		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
 		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
@@ -103,18 +103,10 @@ namespace NAMESPACE_PHYSICS
 	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
 	{
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
-
 		sp_assert(details != nullptr, "InvalidArgumentException");
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
 
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpCollisionDetector collisionDetector;
-
-		//simulator->filterCollisions(details);
-		// TODO: fazer;
-
-		if (details->ignoreCollision)
-			return;
 
 		collisionDetector.collisionDetails(details);
 
@@ -147,6 +139,10 @@ namespace NAMESPACE_PHYSICS
 	{
 		sap->execute(ONE_UINT, &sap->lastEvent);
 
+		sap->fetchCollisionIndexes(result->indexes);
+		result->length = sap->fetchCollisionLength();
+
+		/*
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, _boundingVolumes, _physicProperties);
 
 		collisionResponseGPU->execute(ONE_UINT, &sap->lastEvent);
@@ -154,12 +150,13 @@ namespace NAMESPACE_PHYSICS
 
 		collisionResponseGPU->fetchCollisionLength(&result->length);
 		collisionResponseGPU->fetchCollisions(result->indexes);
+		*/
 	}
 
 	void SpPhysicSimulator::run()
 	{
 		SweepAndPruneResult sapResult;
-		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(_objectsLength));
+		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
 
 		findCollisionsCpu(&sapResult);
 
@@ -174,11 +171,6 @@ namespace NAMESPACE_PHYSICS
 		
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
-			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i)]), "MemoryNotInitializedExeption");
-			sp_assert(sp_isHeapInitialized(sapResult.indexes[multiplyBy2(i) + 1]), "MemoryNotInitializedExeption");
-			sp_assert(sapResult.indexes[multiplyBy2(i)] < objectsLength(), "IndexOutOfRangeException");
-			sp_assert(sapResult.indexes[multiplyBy2(i) + 1] < objectsLength(), "IndexOutOfRangeException");
-
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
@@ -186,20 +178,11 @@ namespace NAMESPACE_PHYSICS
 			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
 			tasks[i].parameter = &detailsArray[i];
 			
-			//threadPool->schedule(&tasks[i]);
-			handleCollisionCPU(&detailsArray[i]);
+			threadPool->schedule(&tasks[i]);
+			//handleCollisionCPU(&detailsArray[i]);
 		}
-
-		/*
-		sp_uint v = 0;
-		for (sp_uint i = 0; i < sapResult.length; i++)
-			if (sapResult.indexes[i * 2] == v || sapResult.indexes[i * 2 + 1] == v)
-				int a = 1;
-		
 		SpThreadPool::instance()->waitToFinish();
-		*/
-
-
+		
 		/* dispatch collision events
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)

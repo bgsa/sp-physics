@@ -207,7 +207,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE SpPhysicProperties()
 		{
-			_damping = 0.95f;
+			_damping = 0.75f;
 			_angularDamping = 0.95f;
 			_coeficientOfRestitution = 0.60f;
 			_coeficientOfFriction = 0.80f;
@@ -259,17 +259,20 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isResting() const
 		{
-#define NO_MOVING isCloseEnough(currentState._position, previousState._position, restingEpsilon)
-#define NO_ACCELERATION (isCloseEnough(currentState._acceleration, ZERO_FLOAT) || isCloseEnough(currentState._acceleration, restingAcceleration(), restingEpsilon))
-#define NO_ANG_VELOCITY isCloseEnough(currentState._angularVelocity, ZERO_FLOAT, restingEpsilon)
-
 			const sp_float restingEpsilon = SpPhysicSettings::instance()->restingVelocityEpsilon();
 
-			return NO_MOVING && NO_ACCELERATION && NO_ANG_VELOCITY;
-
-#undef NO_ANG_VELOCITY
-#undef NO_ACCELERATION
-#undef NO_MOVING
+			const sp_bool isRestingPosition = isCloseEnough(currentState._position, previousState._position, restingEpsilon);
+			const sp_bool isRestingOrientation = isCloseEnough(currentState._orientation, previousState._orientation, restingEpsilon);
+			const sp_bool isRestingAcc = (isCloseEnough(currentState._acceleration, ZERO_FLOAT) || isCloseEnough(currentState._acceleration, restingAcceleration(), restingEpsilon));
+			const sp_bool isRestingVelocity = isCloseEnough(currentState._velocity - previousState._velocity, ZERO_FLOAT, restingEpsilon);
+			const sp_bool isRestingAngVelocity = isCloseEnough(currentState._angularVelocity - previousState._angularVelocity, ZERO_FLOAT, restingEpsilon);
+		
+			return isRestingPosition 
+				&& isRestingOrientation
+				//&& isRestingAcc 
+				//&& isRestingVelocity 
+				//&& isRestingAngVelocity
+				;
 		}
 
 		/// <summary>
@@ -311,7 +314,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Hold linear velocity over time
+		/// Slow down the linear velocity over time
 		/// </summary>
 		API_INTERFACE inline sp_float damping() const
 		{
@@ -319,7 +322,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Set linear velocity over time
+		/// Slow down the linear velocity over time
 		/// </summary>
 		API_INTERFACE inline void damping(const sp_float newDamping)
 		{
@@ -327,7 +330,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Set angular velocity over time
+		/// Slow down the angular velocity over time
 		/// </summary>
 		API_INTERFACE inline void angularDamping(const sp_float newAngularDamping)
 		{
@@ -335,7 +338,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Hold angular velocity over time
+		/// Slow down the angular velocity over time
 		/// </summary>
 		API_INTERFACE inline sp_float angularDamping() const
 		{
@@ -380,22 +383,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void rollbackState()
 		{
 			currentState = previousState;
-		}
-
-		/// <summary>
-		/// Set the integrated time of this element
-		/// </summary>
-		API_INTERFACE inline void integratedTime(const sp_float value)
-		{
-			_integratedTime = value;
-		}
-
-		/// <summary>
-		/// Get the integrated time of this element
-		/// </summary>
-		API_INTERFACE inline sp_float integratedTime() const
-		{
-			return _integratedTime;
 		}
 
 	};

@@ -59,7 +59,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			simulator->physicProperties(index)->currentState.reset();
 			simulator->physicProperties(index)->previousState.reset();
 			simulator->physicProperties(index)->mass(8.0f);
-			simulator->physicProperties(index)->integratedTime(ZERO_FLOAT);
 		}
 
 		SpCollisionDetails newCollisionDetails()
@@ -112,8 +111,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(isCloseEnough(propertiesObj2->currentState.angularVelocity(), Vec3(0.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(propertiesObj2->previousState.angularVelocity(), Vec3(0.0f, 0.0f, 0.0f), 0.009f), L"Wrong value.", LINE_INFO());
 		
-		Assert::IsTrue(propertiesObj2->currentState.orientation().isCloseEnough(Quat(1.0f, Vec3()), 0.009f), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(propertiesObj2->previousState.orientation().isCloseEnough(Quat(1.0f, Vec3()), 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(propertiesObj2->currentState.orientation().isCloseEnough(QUAT_UNIT, 0.009f), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(propertiesObj2->previousState.orientation().isCloseEnough(QUAT_UNIT, 0.009f), L"Wrong value.", LINE_INFO());
 
 		TestPhysic::unlock();
 	}

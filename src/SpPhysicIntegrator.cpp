@@ -86,8 +86,6 @@ namespace NAMESPACE_PHYSICS
 
 		element->previousState._torque = element->currentState.torque();
 		element->currentState._torque = newAngularAcceleration;
-
-		element->integratedTime(ZERO_FLOAT);
 	}
 
 	void SpPhysicIntegratorEuler::execute(const sp_uint index, const sp_float elapsedTime)

@@ -2425,29 +2425,30 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
 		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY, true);
-
+		
 		const sp_size physicPropertySize = sizeof(SpPhysicProperties);
 		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
 		for (sp_uint i = 0; i < length; i++)
 			physicProperties[i].mass(8.0f);
 
+		const sp_size axis = ZERO_UINT;
 		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, physicPropertySize * length, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR , true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(DOP18) * length * 2, CL_MEM_READ_ONLY);
-		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
+		cl_mem outputGpu = gpu->createBuffer(SIZEOF_UINT * length * SP_SAP_MAX_COLLISION_PER_OBJECT, CL_MEM_READ_ONLY);
+		cl_mem outputLengthGpu = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_ONLY);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << length
 					<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-					<< " -DINPUT_OFFSET=" << 0
+					<< " -DINPUT_OFFSET=" << axis
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, 0, DOP18_ORIENTATIONS, physcPropertiesGpu, physicPropertySize, outputGpu, outputLengthGpu);
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, axis, DOP18_ORIENTATIONS, physcPropertiesGpu, physicPropertySize, outputLengthGpu, outputGpu);
 
 		performanceCounter.start();
 
 		SweepAndPruneResult expected;
-		expected.indexes = ALLOC_ARRAY(sp_uint, multiplyBy4(length));
+		expected.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(length) * SP_SAP_MAX_COLLISION_PER_OBJECT);
 
 		sp_uint* indexes = ALLOC_ARRAY(sp_uint, length);
 		for (sp_uint i = ZERO_UINT; i < length; i++)

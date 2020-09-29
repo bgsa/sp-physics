@@ -208,7 +208,7 @@ namespace NAMESPACE_PHYSICS
 		globalWorkSize[0] = inputLength;
 		localWorkSize[0] = 1u;
 
-		const sp_uint collisionsSize = inputLength * 2u * SIZEOF_UINT;
+		const sp_uint collisionsSize = inputLength * 2u * SP_SAP_MAX_COLLISION_PER_OBJECT * SIZEOF_UINT;
 
 		initIndexes(inputLength);
 

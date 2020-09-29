@@ -1,5 +1,6 @@
 #include "OpenCLBase.cl"
 #include "Vec3.cl"
+#include "Quat.cl"
 
 #define SP_PHYSIC_GRAVITY_FORCE { 0.0f, -9.8f, 0.0f }
 #define SP_PHYSIC_DRAG_FORCE (0.1f)
@@ -33,21 +34,92 @@
     properties[stride + SP_PHYSIC_PROPERTY_INV_MASS_INDEX] == ZERO_FLOAT
 
 
+#define SpPhysicProperties_getPosition(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 2]  \
+}
 #define SpPhysicProperties_setPosition(properties, stride, newPosition) \
     properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX    ] = newPosition.x; \
     properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 1] = newPosition.y; \
     properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX + 2] = newPosition.z;
 
+#define SpPhysicProperties_getPreviousPosition(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2]  \
+}
+
+#define SpPhysicProperties_getVelocity(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2]  \
+}
 #define SpPhysicProperties_setVelocity(properties, stride, newVelocity) \
     properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX    ] = newVelocity.x; \
     properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1] = newVelocity.y; \
     properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2] = newVelocity.z;
 
+#define SpPhysicProperties_getPreviousVelocity(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_VEL_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_VEL_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_VEL_INDEX + 2]  \
+}
+
+#define SpPhysicProperties_getAcceleration(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 2]  \
+}
 #define SpPhysicProperties_setAcceleration(properties, stride, newAcceleration) \
     properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX    ] = newAcceleration.x; \
     properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 1] = newAcceleration.y; \
     properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX + 2] = newAcceleration.z;
 
+#define SpPhysicProperties_getOrientation(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX + 2]  \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX + 3]  \
+}
+#define SpPhysicProperties_setOrientation(properties, stride, newOrientation) \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX    ] = newOrientation.w; \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX + 1] = newOrientation.x; \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX + 2] = newOrientation.y; \
+    properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX + 3] = newOrientation.z;
+
+#define SpPhysicProperties_getPreviousOrientation(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX + 2], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX + 3]  \
+}
+
+#define SpPhysicProperties_getAngVelocity(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX + 2]  \
+}
+#define SpPhysicProperties_setAngVelocity(properties, stride, newAngVelocity) \
+    properties[stride + SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX   ] = newAngVelocity.x; \
+    properties[stride + SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX + 1] = newAngVelocity.y; \
+    properties[stride + SP_PHYSIC_PROPERTY_ANG_VELOCITY_INDEX + 2] = newAngVelocity.z;
+
+#define SpPhysicProperties_getPreviousAngVelocity(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_ANG_VEL_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_ANG_VEL_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_PREV_ANG_VEL_INDEX + 2]  \
+}
+
+#define SpPhysicProperties_getTorque(properties, stride) {    \
+    properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX    ], \
+    properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX + 1], \
+    properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX + 2]  \
+}
+#define SpPhysicProperties_setTorque(properties, stride, newTorque) \
+    properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX    ] = newTorque.x; \
+    properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX + 1] = newTorque.y; \
+    properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX + 2] = newTorque.z;
 
 
 inline void restingAcceleration(__global sp_float* properties, const sp_uint stride, Vec3* result)
@@ -55,11 +127,7 @@ inline void restingAcceleration(__global sp_float* properties, const sp_uint str
     const sp_float mass = properties[stride + SP_PHYSIC_PROPERTY_INV_MASS_INDEX];
     Vec3 gravityForce = SP_PHYSIC_GRAVITY_FORCE;
 
-    const Vec3 velocity = {
-        properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX],
-        properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 1],
-        properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX + 2]
-    };
+    const Vec3 velocity = SpPhysicProperties_getVelocity(properties, stride);
 
     Vec3 absoluteVelocity;
     vec3_abs(velocity, &absoluteVelocity);
@@ -75,25 +143,18 @@ inline void restingAcceleration(__global sp_float* properties, const sp_uint str
 
 inline sp_bool SpPhysicProperties_isResting(__global sp_float* properties, const sp_uint stride)
 {
-    const sp_uint positionIndex = stride + SP_PHYSIC_PROPERTY_POSITION_INDEX;
-    const sp_uint previousPpositionIndex = stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX;
-    const sp_uint accIndex = stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX;
-    const sp_uint prevAccIndex = stride + SP_PHYSIC_PROPERTY_PREV_ACC_INDEX;
-
-    const Vec3 acc = {
-        properties[accIndex    ],
-        properties[accIndex + 1],
-        properties[accIndex + 2],
-    };
-
     Vec3 restingAcc;
     restingAcceleration(properties, stride, &restingAcc);
 
-    return
-        isCloseEnough(properties[positionIndex  ], properties[previousPpositionIndex   ], SP_PHYSIC_RESTING_VELOCITY) &&
-        isCloseEnough(properties[positionIndex+1], properties[previousPpositionIndex +1], SP_PHYSIC_RESTING_VELOCITY) &&
-        isCloseEnough(properties[positionIndex+2], properties[previousPpositionIndex +2], SP_PHYSIC_RESTING_VELOCITY) &&
-        vec3_isCloseEnough_vec3(acc, restingAcc, SP_PHYSIC_RESTING_VELOCITY);
+    const Vec3 acc = SpPhysicProperties_getAcceleration(properties, stride);
+    const Vec3 velocity = SpPhysicProperties_getVelocity(properties, stride);
+    const Vec3 prevVelocity = SpPhysicProperties_getPreviousVelocity(properties, stride);
+    const Vec3 angVelocity = SpPhysicProperties_getAngVelocity(properties, stride);
+    const Vec3 prevAngVelocity = SpPhysicProperties_getPreviousAngVelocity(properties, stride);
+
+    return vec3_isCloseEnough_vec3(velocity, prevVelocity, SP_PHYSIC_RESTING_VELOCITY)
+        && vec3_isCloseEnough_vec3(angVelocity, prevAngVelocity, SP_PHYSIC_RESTING_VELOCITY)
+        && vec3_isCloseEnough_vec3(acc, restingAcc, SP_PHYSIC_RESTING_VELOCITY);
  }
 
 __kernel void isResting(
@@ -105,74 +166,6 @@ __kernel void isResting(
     const sp_uint outputIndex = SP_PHYSIC_PROPERTY_SIZE * (THREAD_ID - THREAD_OFFSET);
  
     output[outputIndex] = SpPhysicProperties_isResting(properties, stride);
-
-    /* DEBUG 
-    output[0] = properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX];
-    output[1] = properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX+1];
-    output[2] = properties[stride + SP_PHYSIC_PROPERTY_POSITION_INDEX+2];
-
-    output[3] = properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX];
-    output[4] = properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX+1];
-    output[5] = properties[stride + SP_PHYSIC_PROPERTY_VELOCITY_INDEX+2];
-    
-    output[6] = properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX];
-    output[7] = properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX+1];
-    output[8] = properties[stride + SP_PHYSIC_PROPERTY_ACCELERATION_INDEX+2];
-
-    output[9] = properties[stride + SP_PHYSIC_PROPERTY_FORCE_INDEX];
-    output[10] = properties[stride + SP_PHYSIC_PROPERTY_FORCE_INDEX+1];
-    output[11] = properties[stride + SP_PHYSIC_PROPERTY_FORCE_INDEX+2];
-
-    output[12] = properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX];
-    output[13] = properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX+1];
-    output[14] = properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX+2];
-    output[15] = properties[stride + SP_PHYSIC_PROPERTY_ORIENTATION_INDEX+3];
-
-    output[16] = properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX];
-    output[17] = properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX+1];
-    output[18] = properties[stride + SP_PHYSIC_PROPERTY_TORQUE_INDEX+2];
-
-    output[19] = properties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX];
-    output[20] = properties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 1];
-    output[21] = properties[stride + SP_PHYSIC_PROPERTY_PREV_POSITION_INDEX + 2];
-
-    output[22] = properties[stride + SP_PHYSIC_PROPERTY_PREV_VEL_INDEX];
-    output[23] = properties[stride + SP_PHYSIC_PROPERTY_PREV_VEL_INDEX + 1];
-    output[24] = properties[stride + SP_PHYSIC_PROPERTY_PREV_VEL_INDEX + 2];
-
-    output[25] = properties[stride + SP_PHYSIC_PROPERTY_PREV_ACC_INDEX];
-    output[26] = properties[stride + SP_PHYSIC_PROPERTY_PREV_ACC_INDEX + 1];
-    output[27] = properties[stride + SP_PHYSIC_PROPERTY_PREV_ACC_INDEX + 2];
-
-    output[28] = properties[stride + SP_PHYSIC_PROPERTY_PREV_FORCE_INDEX];
-    output[29] = properties[stride + SP_PHYSIC_PROPERTY_PREV_FORCE_INDEX + 1];
-    output[30] = properties[stride + SP_PHYSIC_PROPERTY_PREV_FORCE_INDEX + 2];
-
-    output[31] = properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX];
-    output[32] = properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX + 1];
-    output[33] = properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX + 2];
-    output[34] = properties[stride + SP_PHYSIC_PROPERTY_PREV_ORIENTAT_INDEX + 3];
-
-    output[35] = properties[stride + SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX];
-    output[36] = properties[stride + SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX + 1];
-    output[37] = properties[stride + SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX + 2];
-
-    output[38] = properties[stride + SP_PHYSIC_PROPERTY_INV_MASS_INDEX];
-    output[39] = properties[stride + SP_PHYSIC_PROPERTY_DAMPING_INDEX];
-    output[40] = properties[stride + SP_PHYSIC_PROPERTY_ANG_DAMPING_INDEX];
-    output[41] = properties[stride + SP_PHYSIC_PROPERTY_COR_INDEX];
-    output[42] = properties[stride + SP_PHYSIC_PROPERTY_COF_INDEX];
-    
-    output[43] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX    ];
-    output[44] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 1];
-    output[45] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 2];
-    output[46] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 3];
-    output[47] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 4];
-    output[48] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 5];
-    output[49] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 6];
-    output[50] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 7];
-    output[51] = properties[stride + SP_PHYSIC_PROPERTY_INRTIAL_TENS_INDEX + 8];
-    */
 }
 
 __kernel void isStatic(
