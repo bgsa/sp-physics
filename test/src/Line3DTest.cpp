@@ -41,7 +41,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test1);
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test2);
 		SP_TEST_METHOD_DEF(Line3D_findIntersectionOnSegment_plane_Test3);
-		SP_TEST_METHOD_DEF(Line3D_findIntersection_Test);
+		SP_TEST_METHOD_DEF(Line3D_intersection_line);
+		SP_TEST_METHOD_DEF(Line3D_intersection_triangle);
 		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test1);
 		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test2);
 		SP_TEST_METHOD_DEF(Line3D_closestPointOnTheLine_point_Test3);
@@ -55,8 +56,15 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Line3D line1 = Line3D(Vec3{ 2.0f, 2.0f, 0.0f }, Vec3{ 4.0f, 2.0f, 0.0f });
 		Line3D line2 = Line3D(Vec3{ 0.0f, 1.0f, 2.0f }, Vec3{ 0.0f, 3.0f, 2.0f });
+		sp_bool result;
+		
+		PerformanceCounter counter;
 
-		sp_bool result = line1.isPerpendicular(line2);
+		for (sp_uint i = 0; i < 100000; i++)
+			result = line1.isPerpendicular(line2);
+		
+		counter.logElapsedTime("Line3D::isPerpendicular: ");
+
 		Assert::IsTrue(result, L"Wrong value");
 		
 		result = line2.isPerpendicular(line1);
@@ -446,7 +454,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsNull(result, L"Point should not be null.", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Line3D_findIntersection_Test)
+	SP_TEST_METHOD(CLASS_NAME, Line3D_intersection_line)
 	{
 		Line3D line1 = Line3D( Vec3{ 6.0f, 8.0f, 4.0f }, Vec3{ 12.0f, 15.0f, 4.0f });
 		Line3D line2 = Line3D(Vec3{ 6.0f, 8.0f, 2.0f }, Vec3{ 12.0f, 15.0f, 6.0f });
@@ -461,6 +469,26 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected.x, result.x, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(expected.y, result.y, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(expected.z, result.z, L"Wrong value.", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, Line3D_intersection_triangle)
+	{
+		Line3D line(Vec3{ 0.0f, 0.0f, 0.0f }, Vec3{ 0.0f, 0.0f, -10.0f });
+		Triangle3D triangle(Vec3(-1.0f, 0.0f, -5.0f), Vec3(1.0f, 0.0f, -5.0f), Vec3(0.0f, 1.0f, -5.0f));
+		Vec3 expected = { 0.0f, 0.0f, -5.0f };
+		Vec3 contact;
+		sp_bool hasIntersection;
+		
+		PerformanceCounter counter;
+
+		for (sp_uint i = 0; i < 100000; i++)
+			hasIntersection = line.intersection(triangle, &contact);
+
+		// time: 249152700
+		counter.logElapsedTime("Line3D::intersection_triangle: ");
+
+		Assert::IsTrue(hasIntersection, L"Value should not be null.", LINE_INFO());
+		Asserts::isCloseEnough(expected, contact, ERROR_MARGIN_PHYSIC, L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Line3D_closestPointOnTheLine_point_Test1)

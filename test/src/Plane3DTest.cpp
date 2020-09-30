@@ -139,7 +139,14 @@ namespace NAMESPACE_PHYSICS_TEST
 			Vec3(-1.0f, 1.0f, -1.0f),
 			Vec3(1.0f, 1.0f, -1.0f)
 		);
-		result = plane.intersection(line, &contact);
+
+		PerformanceCounter counter;
+
+		for (sp_uint i = 0; i < 100000; i++)
+			result = plane.intersection(line, &contact);
+		
+		counter.logElapsedTime("Plane3D::intersection_line: ");
+
 		expected = Vec3(-0.5f, 1.0f, -1.0f);
 		Assert::IsTrue(result, L"Wrong value");
 		Assert::IsTrue(isCloseEnough(contact, expected, 0.01f), L"Wrong value");
@@ -203,9 +210,15 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);
-
 		sp_float expected = 10.0f;
-		sp_float result = plane.distance(point);
+		sp_float result;
+
+		PerformanceCounter counter;
+
+		for (sp_uint i = 0; i < 100000; i++)
+			result = plane.distance(point);
+
+		counter.logElapsedTime("Plane3D::distance_vec3: ");
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
 	}
@@ -253,6 +266,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		sp_float result = plane1.distance(plane2);
 		sp_float expected = 1.25f;
+
+		PerformanceCounter counter;
+
+		for (sp_uint i = 0; i < 100000; i++)
+			plane1.distance(plane2);
+		
+		counter.logElapsedTime("Plane3D::distance_plane: ");
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
 	}

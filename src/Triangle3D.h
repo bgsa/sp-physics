@@ -17,6 +17,16 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>Total area</returns>
 	API_INTERFACE inline sp_float area(const Vec3& a, const Vec3& b, const Vec3& c)
 	{
+#ifdef AVX_ENABLED
+		const __m128 a_simd = sp_vec3_convert_simd(a);
+		const __m128 b_simd = sp_vec3_convert_simd(b);
+		const __m128 c_simd = sp_vec3_convert_simd(c);
+		__m128 output_simd;
+
+		sp_triangle3D_area_simd(a_simd, b_simd, c_simd, output_simd);
+
+		return output_simd.m128_f32[0];
+#else
 		Vec3 ab, ca;
 
 		diff(b, a, &ab);
@@ -26,6 +36,7 @@ namespace NAMESPACE_PHYSICS
 		cross(ab, ca, &temp);
 
 		return length(temp) * HALF_FLOAT;
+#endif
 	}
 
 	class Triangle3D

@@ -427,8 +427,7 @@ namespace NAMESPACE_PHYSICS
 	API_INTERFACE inline sp_float length(const Vec3& vector)
 	{
 #ifdef AVX_ENABLED
-		sp_vec3_length_simd(vector, const __m128 result);
-		return result.m128_f32[0];
+		return sp_vec3_length_simd(sp_vec3_convert_simd(vector)).m128_f32[0];
 #else
 		return sqrtf(vector.squaredLength());
 #endif
@@ -475,11 +474,9 @@ namespace NAMESPACE_PHYSICS
 		const __m128 v = sp_vec3_convert_simd(input);
 		const __m128 vDot = sp_vec3_dot_simd(v, v); // dot
 		const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot); // root
-		const sp_float* result = sp_vec3_mult_simd(v, vDotSquaredRoot).m128_f32;
+		const __m128 result = sp_vec3_mult_simd(v, vDotSquaredRoot);
 
-		output->x = result[0];
-		output->y = result[1];
-		output->z = result[2];
+		std::memcpy(output, result.m128_f32, SIZEOF_FLOAT * 3u);
 #else
 		const sp_float len = NAMESPACE_PHYSICS::length(input);
 
@@ -588,12 +585,9 @@ namespace NAMESPACE_PHYSICS
 		const __m128 v2_simd = sp_vec3_convert_simd(p2);
 		const __m128 v3_simd = sp_vec3_convert_simd(p3);
 
-		sp_vec3_normal_simd(v1_simd, v2_simd, v3_simd, const __m128 result);
+		const __m128 result = sp_vec3_normal_simd(v1_simd, v2_simd, v3_simd);
 
-		const sp_float* r = result.m128_f32;
-		output->x = r[0];
-		output->y = r[1];
-		output->z = r[2];
+		std::memcpy(output, result.m128_f32, SIZEOF_FLOAT * 3u);
 #else
 		// right-hand rule (B-A)x(C-A)
 		cross(p3 - p2, p2 - p1, output);

@@ -78,37 +78,40 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Line3D::intersection(const Triangle3D& triangle, Vec3* point, const sp_float _epsilon) const
 	{
-		/*
-		Vec3 pq = point2 - point1;
-		Vec3 pa = triangle.point1 - point1;
-		Vec3 pb = triangle.point2 - point1;
-		Vec3 pc = triangle.point3 - point1;
+#ifdef AVX_ENABLED
+		const __m128 triangle_point1 = sp_vec3_convert_simd(triangle.point1);
+		const __m128 triangle_point2 = sp_vec3_convert_simd(triangle.point2);
+		const __m128 triangle_point3 = sp_vec3_convert_simd(triangle.point3);
+		const __m128 normal_simd = sp_vec3_normal_simd(triangle_point1, triangle_point2, triangle_point3);
+		const __m128 d_simd = sp_vec3_dot_simd(normal_simd, triangle_point1);
 
-		// Test if pq is inside the edges bc, ca and ab. Done by testing  
-		// that the signed tetrahedral volumes, computed using scalar triple  
-		// products, are all positive  
-		point->x = ScalarTriple(pq, pc, pb);
-		if (point->x < ZERO_FLOAT)
+		// if the normal plane is perpendicular. there is no way to cross the plane
+		// but it can be a 2D intersection ...
+		if (sp_line3D_isPerpendicular2_simd(point1, point2, normal_simd))
+		{
+			if (intersection(Line3D(triangle.point1, triangle.point2), point, _epsilon))
+				return true;
+			if (intersection(Line3D(triangle.point2, triangle.point3), point, _epsilon))
+				return true;
+			if (intersection(Line3D(triangle.point3, triangle.point1), point, _epsilon))
+				return true;
+
+			return false;
+		}
+
+		sp_bool hasIntersection;
+		__m128 contact_simd;
+		sp_plane3D_intersection_line(normal_simd, d_simd, sp_vec3_convert_simd(point1), sp_vec3_convert_simd(point2), contact_simd, hasIntersection);
+
+		if (!hasIntersection)
 			return false;
 
-		point->y = ScalarTriple(pq, pa, pc);
-		if (point->y < ZERO_FLOAT)
-			return false;
+		sp_triangle3D_isInside_simd(triangle_point1, triangle_point2, triangle_point3, contact_simd, const sp_bool isIn);
 
-		point->z = ScalarTriple(pq, pb, pa);
-		if (point->z < ZERO_FLOAT)
-			return false;
+		std::memcpy(point, contact_simd.m128_f32, SIZEOF_FLOAT * 3u);
 
-		// Compute the barycentric coordinates (u, v, w) determining the  
-		// intersection point r, r = u*a + v*b + w*c  
-		const sp_float denom = ONE_FLOAT / (u + v + w);
-		point->x *= denom;
-		point->x *= denom;
-		point->x *= denom;
-
-		return true;
-		*/
-
+		return isIn;
+#else
 		Vec3 triangleNormal;
 		triangle.normalFace(&triangleNormal);
 		
@@ -125,25 +128,17 @@ namespace NAMESPACE_PHYSICS
 
 			return false;
 		}
-			
 
-		const Plane3D trianglePlane(triangle.point1, triangleNormal);
+		const Plane3D plane(triangle.point1, triangleNormal);
 
-		/*
-		const sp_float distanceToPoint1 = trianglePlane.distance(point1);
-		const sp_float distanceToPoint2 = trianglePlane.distance(point2);
-		// if the this line is completely one side of triangle, no intersection
-		if (sign(distanceToPoint1) == sign(distanceToPoint2)) 
-			return false;
-		*/
-
-		if (!trianglePlane.intersection(*this, point, _epsilon))
+		if (!plane.intersection(*this, point, _epsilon))
 			return false;
 
 		if (!triangle.isInside(*point, _epsilon))
 			return false;
 
 		return true;
+#endif
 	}
 
 	Vec3 Line3D::closestPointOnTheLine(const Vec3& target) const

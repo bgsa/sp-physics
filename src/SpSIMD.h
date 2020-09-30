@@ -8,6 +8,11 @@ namespace NAMESPACE_PHYSICS
 
 #ifdef AVX_ENABLED
 
+	#define sp_create_simd4f(value1, value2, value3, value4) _mm_set_ps(value4, value3, value2, value1)
+	#define sp_vec4_create_simd1f(value) _mm_set_ps(value, value, value, value)
+	#define sp_vec4_div_simd(vec4_simd1, vec4_simd2) _mm_div_ps(vec4_simd1, vec4_simd2)
+
+
 	#define sp_vec3_sqrt_sse(vec3_sse) _mm_sqrt_ss(vec3_sse)
 
 	#define sp_vec3_convert_simd(v) _mm_set_ps(ZERO_FLOAT, v.z, v.y, v.x)
@@ -22,6 +27,8 @@ namespace NAMESPACE_PHYSICS
 
 	#define sp_vec3_sub_simd(vec3_simd1, vec3_simd2) _mm_sub_ps(vec3_simd1, vec3_simd2)
 
+	#define sp_vec3_div_simd(vec3_simd1, vec3_simd2) _mm_div_ps(vec3_simd1, vec3_simd2)
+
 	#define sp_vec3_sqrt_simd(vec3_simd) _mm_sqrt_ps(vec3_simd)
 	#define sp_vec3_rsqrt_simd(vec3_simd) _mm_rsqrt_ps(vec3_simd)
 
@@ -31,30 +38,17 @@ namespace NAMESPACE_PHYSICS
 
 	#define sp_vec3_shuflle_simd(vec3_simd1, vec3_simd2, mask1, mask2, mask3, mask4) _mm_shuffle_ps(vec3_simd1, vec3_simd2, _MM_SHUFFLE(mask1, mask2, mask3, mask4))
 
-	#define sp_vec3_length_simd(vec3_simd_input, vec3_simd_output) \
-			__m128 v1 = sp_vec3_convert_simd(vec3_simd_input); \
-			v1 = sp_vec3_dot_simd(v1, v1); \
-			vec3_simd_output = sp_vec3_sqrt_simd(v1)
+	#define sp_vec3_length_simd(input_simd) \
+			sp_vec3_sqrt_simd(sp_vec3_dot_simd(input_simd, input_simd))
 
-	#define sp_vec3_cross_simd(vec3_simd1, vec3_simd2, vec3_simd_output) \
-			const __m128 swp0 = sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 0, 2, 1); \
-			const __m128 swp1 = sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 1, 0, 2); \
-			const __m128 swp2 = sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 0, 2, 1); \
-			const __m128 swp3 = sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 1, 0, 2); \
-			const __m128 mul0 = sp_vec3_mult_simd(swp0, swp3); \
-			const __m128 mul1 = sp_vec3_mult_simd(swp1, swp2); \
-			vec3_simd_output = sp_vec3_sub_simd(mul0, mul1)
+	#define sp_vec3_cross_simd(vec3_simd1, vec3_simd2) \
+			sp_vec3_sub_simd(sp_vec3_mult_simd(sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 0, 2, 1), sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 1, 0, 2)), sp_vec3_mult_simd(sp_vec3_shuflle_simd(vec3_simd2, vec3_simd2, 3, 1, 0, 2), sp_vec3_shuflle_simd(vec3_simd1, vec3_simd1, 3, 0, 2, 1)))
 
-	#define sp_vec3_normalize_simd(vec3_simd, vec3_simd_output)     \
-			const __m128 vDot = sp_vec3_dot_simd(vec3_simd, vec3_simd); \
-			const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot);    \
-			vec3_simd_output = sp_vec3_mult_simd(vec3_simd, vDotSquaredRoot)
+	#define sp_vec3_normalize_simd(vec3_simd) \
+			sp_vec3_mult_simd(vec3_simd,  sp_vec3_rsqrt_simd(sp_vec3_dot_simd(vec3_simd, vec3_simd)))
 
-	#define sp_vec3_normal_simd(vec3_simd1, vec3_simd2, vec3_simd3, vec3_simd_output) \
-			const __m128 line1 = sp_vec3_sub_simd(vec3_simd3, vec3_simd2); \
-			const __m128 line2 = sp_vec3_sub_simd(vec3_simd2, vec3_simd1); \
-			sp_vec3_cross_simd(line1, line2, const __m128 crossedVec);     \
-			sp_vec3_normalize_simd(crossedVec, vec3_simd_output)
+	#define sp_vec3_normal_simd(vec3_simd1, vec3_simd2, vec3_simd3) \
+			sp_vec3_normalize_simd(sp_vec3_cross_simd(sp_vec3_sub_simd(vec3_simd3, vec3_simd2), sp_vec3_sub_simd(vec3_simd2, vec3_simd1)))
 
 	#define sp_vec3_distance_simd(vec3_simd1, vec3_simd2, vec3_simd_output) \
 			__m128 tempDist = sp_vec3_sub_simd(vec3_simd1, vec3_simd2); \
@@ -93,6 +87,94 @@ namespace NAMESPACE_PHYSICS
 		tempMultY = _mm_shuffle_ps(tempMultY, tempMultZ, _MM_SHUFFLE(0, 1, 2, 3)); \
 		tempMultY = _mm_permute_ps(tempMultY, _MM_SHUFFLE(0, 2, 1, 3));            \
 		quat_simd_output = _mm_shuffle_ps(tempMultW, tempMultY, _MM_SHUFFLE(0, 1, 2, 3))
+
+
+	// Plane3D
+	#define sp_plane3D_distance_simd(normal_simd, target_simd, output_simd) \
+		const __m128 divisor_simd = sp_vec3_dot_simd(normal_simd, normal_simd);   \
+		__m128 normalDotTarget_simd = sp_vec3_dot_simd(normal_simd, target_simd); \
+		normalDotTarget_simd = sp_vec3_sub_simd(normalDotTarget_simd, sp_vec4_create_simd1f(distanceFromOrigin)); \
+		output_simd = sp_vec3_div_simd(normalDotTarget_simd, divisor_simd);
+
+	#define sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, contact_simd, hasIntersection) \
+		const __m128 _angle = sp_vec3_dot_simd(normal_simd, ray_direction_simd); \
+		if (isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT)) \
+				hasIntersection = false; \
+		else { \
+			hasIntersection = true;														\
+			__m128 temp1 = sp_vec3_dot_simd(normal_simd, ray_point_simd);				\
+			temp1 = sp_vec3_sub_simd(sp_vec4_create_simd1f(distanceFromOrigin), temp1); \
+			temp1 = sp_vec3_div_simd(temp1, _angle);									\
+			temp1 = sp_vec3_mult_simd(ray_direction_simd, temp1);						\
+			contact_simd = sp_vec3_add_simd(ray_point_simd, temp1);						\
+		}
+
+	#define sp_plane3D_intersection_line(normal_simd, d_simd, line_point1_simd, line_point2_simd, contact_simd, hasIntersection) \
+		const __m128 line_direction_simd = sp_vec3_sub_simd(line_point2_simd, line_point1_simd); \
+		const __m128 _angle = sp_vec3_dot_simd(normal_simd, line_direction_simd);				 \
+		hasIntersection = false;																 \
+	\
+		if (!isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT))										 \
+		{																						 \
+			__m128 temp1 = sp_vec3_dot_simd(normal_simd, line_point1_simd);						 \
+			temp1 = sp_vec3_sub_simd(d_simd, temp1);	 										 \
+			temp1 = sp_vec3_div_simd(temp1, _angle);											 \
+	\
+			const sp_float t = temp1.m128_f32[0];												 \
+			if (t >= -_epsilon && t <= ONE_FLOAT + _epsilon)									 \
+			{																					 \
+				temp1 = sp_vec3_mult_simd(line_direction_simd, temp1);							 \
+				contact_simd = sp_vec3_add_simd(line_point1_simd, temp1);						 \
+				hasIntersection = true;															 \
+			}																					 \
+		}
+
+	// Triangle3D
+	#define sp_triangle3D_area_simd(a_simd, b_simd, c_simd, output_simd)  \
+		output_simd = sp_vec3_length_simd(sp_vec3_cross_simd(sp_vec3_sub_simd(b_simd, a_simd), sp_vec3_sub_simd(c_simd, a_simd))); \
+		output_simd = sp_vec3_mult_simd(output_simd, sp_vec4_create_simd1f(HALF_FLOAT));
+
+	#define sp_triangle3D_isInside_simd(point1_simd, point2_simd, point3_simd, target_simd, output) \
+		const __m128 half_simd = sp_vec4_create_simd1f(HALF_FLOAT);					\
+		__m128 ab_simd = sp_vec3_sub_simd(point2_simd, point1_simd);				\
+		__m128 ac_simd = sp_vec3_sub_simd(point3_simd, point1_simd);				\
+		__m128 temp = sp_vec3_length_simd(sp_vec3_cross_simd(ab_simd, ac_simd));	\
+		__m128 total_simd = sp_vec3_mult_simd(temp, half_simd);						\
+		\
+		ab_simd = sp_vec3_sub_simd(point2_simd, point1_simd);						\
+		ac_simd = sp_vec3_sub_simd(target_simd, point1_simd);						\
+		temp = sp_vec3_length_simd(sp_vec3_cross_simd(ab_simd, ac_simd));			\
+		__m128 sum_area = sp_vec3_mult_simd(temp, half_simd);						\
+		\
+		ab_simd = sp_vec3_sub_simd(point3_simd, point2_simd);						\
+		ac_simd = sp_vec3_sub_simd(target_simd, point2_simd);						\
+		temp = sp_vec3_length_simd(sp_vec3_cross_simd(ab_simd, ac_simd));			\
+		sum_area = sp_vec3_add_simd(sum_area, sp_vec3_mult_simd(temp, half_simd));	\
+		\
+		ab_simd = sp_vec3_sub_simd(point1_simd, point3_simd);						\
+		ac_simd = sp_vec3_sub_simd(target_simd, point3_simd);						\
+		temp = sp_vec3_length_simd(sp_vec3_cross_simd(ab_simd, ac_simd));			\
+		sum_area = sp_vec3_add_simd(sum_area, sp_vec3_mult_simd(temp, half_simd));	\
+		\
+		output = isCloseEnough(total_simd.m128_f32[0], sum_area.m128_f32[0], total_simd.m128_f32[0] * _epsilon);
+
+
+	// Line3D
+	#define sp_line3D_isPerpendicular_simd(line1_point1, line1_point2, line2_point1, line2_point2) \
+		isCloseEnough( \
+			sp_vec3_dot_simd( \
+				sp_vec3_sub_simd(sp_vec3_convert_simd(line1_point2), sp_vec3_convert_simd(line1_point1)), \
+				sp_vec3_sub_simd(sp_vec3_convert_simd(line2_point2), sp_vec3_convert_simd(line2_point1))  \
+			).m128_f32[0] \
+			, ZERO_FLOAT, _epsilon)
+
+	#define sp_line3D_isPerpendicular2_simd(line_point1, line_point2, direction) \
+		isCloseEnough( \
+			sp_vec3_dot_simd( \
+				sp_vec3_sub_simd(sp_vec3_convert_simd(line_point2), sp_vec3_convert_simd(line_point1)), \
+				direction																				\
+			).m128_f32[0] \
+			, ZERO_FLOAT, _epsilon)
 
 #endif
 

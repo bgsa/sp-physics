@@ -75,6 +75,36 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool intersection(const Ray& ray, Vec3* contactPoint) const
 		{
+#ifdef AVX_ENABLED
+			const __m128 normal_simd = sp_vec3_convert_simd(normalVector);
+			const __m128 ray_point_simd = sp_vec3_convert_simd(ray.point);
+			const __m128 ray_direction_simd = sp_vec3_convert_simd(ray.direction);
+			__m128 output;
+
+			sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, output, sp_bool hasIntersection)
+			
+			std::memcpy(contactPoint, output.m128_f32, SIZEOF_FLOAT * 3u);
+
+			/*
+			const __m128 _angle = sp_vec3_dot_simd(normal_simd, ray_direction_simd);
+
+			if (isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT))
+				return false;
+
+			const __m128 ray_point_simd = sp_vec3_convert_simd(ray.point);
+
+			__m128 temp1 = sp_vec3_dot_simd(normal_simd, ray_point_simd);
+			temp1 = sp_vec3_sub_simd(sp_vec4_create_simd1f(distanceFromOrigin), temp1);
+
+			temp1 = sp_vec3_div_simd(temp1, _angle);
+
+			temp1 = sp_vec3_mult_simd(ray_direction_simd, temp1);
+			temp1 = sp_vec3_add_simd(ray_point_simd, temp1);
+
+			std::memcpy(contactPoint, temp1.m128_f32, SIZEOF_FLOAT * 3u);
+			*/
+
+#else
 			const sp_float angle = normalVector.dot(ray.direction);
 
 			if (isCloseEnough(angle, ZERO_FLOAT))
@@ -84,6 +114,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_float t = numerator / angle;
 
 			contactPoint[0] = ray.point + ray.direction * t;
+#endif
 			return true;
 		}
 
@@ -113,7 +144,19 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the distance from the plane to the point
 		/// </summary>
-		API_INTERFACE sp_float distance(const Vec3& point) const;
+		API_INTERFACE inline sp_float distance(const Vec3& target) const
+		{
+#ifdef AVX_ENABLED
+			const __m128 normal_simd = sp_vec3_convert_simd(normalVector);
+			const __m128 target_simd = sp_vec3_convert_simd(target);
+
+			sp_plane3D_distance_simd(normal_simd, target_simd, const __m128 output);
+
+			return output.m128_f32[0];
+#else
+			return (normalVector.dot(target) - distanceFromOrigin) / normalVector.dot(normalVector);
+#endif
+		}
 
 		/// <summary>
 		/// Get the distance from the plane to the other one

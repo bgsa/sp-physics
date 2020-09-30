@@ -8,12 +8,32 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
+		SP_TEST_METHOD_DEF(area);
 		SP_TEST_METHOD_DEF(barycentric);
 		SP_TEST_METHOD_DEF(convert_lines);
 		SP_TEST_METHOD_DEF(project);
 		SP_TEST_METHOD_DEF(isInside_1);
 		SP_TEST_METHOD_DEF(isInside_2);
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, area)
+	{
+		Triangle3D triangle = Triangle3D(
+			Vec3(0.0f, 0.0f, 0.0f),
+			Vec3(10.0f, 0.0f, 0.0f),
+			Vec3(5.0f, 10.0f, 0.0f)
+		);
+
+		sp_float result;
+		PerformanceCounter counter;
+
+		for (sp_uint i = 0; i < 100000; i++)
+			result = triangle.area();
+
+		counter.logElapsedTime("Triangle3D::area: ");
+
+		Assert::IsTrue(isCloseEnough(50.0f, result, ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, barycentric)
 	{
@@ -82,7 +102,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		Triangle3D triangle(point1, point2, point3);
 
 		Vec3 target(3.0f, 1.0f, 0.0f);
-		sp_bool result = triangle.isInside(target);
+		sp_bool result;
+		
+		PerformanceCounter counter;
+
+		for (sp_uint i = 0; i < 100000; i++)
+			result = triangle.isInside(target);
+
+		counter.logElapsedTime("Triangle3D::isInside: ");
 
 		Assert::IsTrue(result, L"Wrong value.");
 

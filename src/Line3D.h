@@ -103,10 +103,14 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>True if they are penpendicular or else false</returns>
 		API_INTERFACE sp_bool isPerpendicular(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const
 		{
+#ifdef AVX_ENABLED
+			return sp_line3D_isPerpendicular_simd(point1, point2, line.point1, line.point2);
+#else
 			Vec3 _direction;
 			line.direction(&_direction);
 
 			return isPerpendicular(_direction, _epsilon);
+#endif
 		}
 
 		/// <summary>

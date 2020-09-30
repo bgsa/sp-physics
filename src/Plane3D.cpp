@@ -27,6 +27,21 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Plane3D::intersection(const Line3D& line, Vec3* contactPoint, const sp_float _epsilon) const
 	{
+#ifdef AVX_ENABLED
+		const __m128 line_point1_simd = sp_vec3_convert_simd(line.point1);
+		const __m128 line_point2_simd = sp_vec3_convert_simd(line.point2);
+		const __m128 lineAsVector_simd = sp_vec3_sub_simd(sp_vec3_convert_simd(line.point2), line_point1_simd);
+		const __m128 normal_simd = sp_vec3_convert_simd(normalVector);
+		__m128 contact_simd;
+		sp_bool hasIntersection;
+
+		sp_plane3D_intersection_line(normal_simd, sp_vec4_create_simd1f(distanceFromOrigin),
+			line_point1_simd, line_point2_simd,
+			contact_simd, hasIntersection);
+
+		std::memcpy(contactPoint, contact_simd.m128_f32, SIZEOF_FLOAT * 3u);
+		return hasIntersection;
+#else
 		const Vec3 lineAsVector = line.point2 - line.point1;
 		const sp_float angle = normalVector.dot(lineAsVector);
 
@@ -40,7 +55,7 @@ namespace NAMESPACE_PHYSICS
 			contactPoint[0] = line.point1 + lineAsVector * t;
 			return true;
 		}
-
+#endif
 		return false;
 	}
 
@@ -48,9 +63,8 @@ namespace NAMESPACE_PHYSICS
 	{
 		const Vec3 lineAsVector = line.point2 - line.point1;
 
-		const sp_float t
-			= -(normalVector[0] * line.point1[0] + normalVector[1] * line.point1[1] + normalVector[2] * line.point1[2] + distanceFromOrigin)
-			/ normalVector[0] * lineAsVector[0] + normalVector[1] * lineAsVector[1] + normalVector[2] * lineAsVector[2];
+		const sp_float t = -(normalVector.dot(line.point1) + distanceFromOrigin) 
+			/ normalVector.dot(lineAsVector);
 
 		closest->x = line.point1[0] + lineAsVector[0] * t;
 		closest->y = line.point1[1] + lineAsVector[1] * t;
@@ -97,25 +111,32 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	sp_float Plane3D::distance(const Vec3& target) const
-	{
-		return (normalVector.dot(target) - distanceFromOrigin) / normalVector.dot(normalVector);
-	}
-
 	sp_float Plane3D::distance(const Plane3D& plane) const
 	{
+#ifdef AVX_ENABLED
+		const __m128 normal_simd = sp_vec3_convert_simd(normalVector);
+		const __m128 plane_point_simd = sp_vec3_convert_simd(plane.point);
+		const __m128 ray_direction_simd = sp_vec3_mult_simd(normal_simd, sp_vec4_create_simd1f(-ONE_FLOAT));
+		__m128 projectedPoint;
+
+		sp_plane3D_intersection_ray_simd(normal_simd, plane_point_simd, ray_direction_simd, projectedPoint, sp_bool hasIntersection);
+		sp_vec3_distance_simd(plane_point_simd, projectedPoint, const __m128 output);
+
+		return output.m128_f32[0];
+#else
 		Vec3 projectedPoint;
 		project(plane.point, &projectedPoint);
 
 		return NAMESPACE_PHYSICS::distance(plane.point, projectedPoint);
-		
+
 		/* It does not work when (distanceFromOrigin - plane.distanceFromOrigin) = 0
 		return std::fabsf(distanceFromOrigin - plane.distanceFromOrigin)
-				/ std::sqrtf(point.x * point.x + point.y * point.y + point.z * point.z);
+		/ std::sqrtf(point.x * point.x + point.y * point.y + point.z * point.z);
 		*/
+#endif
 	}
 
-	Vec3 Plane3D::closestPointOnThePlane(const Vec3 &target) const
+	Vec3 Plane3D::closestPointOnThePlane(const Vec3& target) const
 	{
 		// t = ((n . p) - d) / (n.n)
 		sp_float t = (normalVector.dot(target) - getDcomponent()) / normalVector.dot(normalVector); 
@@ -133,8 +154,19 @@ namespace NAMESPACE_PHYSICS
 
 	void Plane3D::project(const Vec3& target, Vec3* output) const
 	{
+#ifdef AVX_ENABLED
+		const __m128 normal_simd = sp_vec3_convert_simd(normalVector);
+		const __m128 ray_point_simd = sp_vec3_convert_simd(target);
+		const __m128 ray_direction_simd = sp_vec3_mult_simd(normal_simd, sp_vec4_create_simd1f(-ONE_FLOAT));
+		__m128 contact;
+
+		sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, contact, sp_bool hasIntersection);
+
+		std::memcpy(output, contact.m128_f32, SIZEOF_FLOAT * 3u);
+#else
 		Ray ray(target, -normalVector);
 		intersection(ray, output);
+#endif
 	}
 
 }
