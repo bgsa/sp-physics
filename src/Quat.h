@@ -451,7 +451,7 @@ namespace NAMESPACE_PHYSICS
 	}
 	API_INTERFACE void multiply(const Quat& quat1, const Quat& quat2, Vec3* output);
 	API_INTERFACE void multiply(const Vec3& vector, const Quat& quat, Quat* output);
-	API_INTERFACE void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3 sumVector, Vec3* output);
+	API_INTERFACE void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3& sumVector, Vec3* output);
 
 	API_INTERFACE inline void normalize(Quat* quat)
 	{

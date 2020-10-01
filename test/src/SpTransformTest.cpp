@@ -13,16 +13,19 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, transform)
 	{
+		Vec3 result;
 		SpTransform transform;
 		transform.position = Vec3(0.0f, 0.0f, -10.0f);
 		transform.orientation = Quat::createRotationAxisZ(degreesToRadians(45));
 
-		Vec3 result;
-		transform.transform(Vec3(1.0f, 1.0f, 0.0f), &result);
+		PerformanceCounter counter;
 
-		Vec3 expected(0.0f, 1.4142f, -10.0f);
+		for (sp_uint i = 0; i < 100000; i++)
+			transform.transform(Vec3(1.0f, 1.0f, 0.0f), &result);
 
-		Assert::IsTrue(isCloseEnough(expected, result), L"Wrong value.", LINE_INFO());
+		counter.logElapsedTime("SpTransform::transform: ");
+
+		Assert::IsTrue(isCloseEnough(Vec3(0.0f, 1.4142f, -10.0f), result), L"Wrong value.", LINE_INFO());
 	}
 }
 

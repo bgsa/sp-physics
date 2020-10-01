@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Quat_subtract_Index_Test);
 		SP_TEST_METHOD_DEF(Quat_scale_Test);
 		SP_TEST_METHOD_DEF(multiply_1);
-		SP_TEST_METHOD_DEF(Quat_multiply_Test2);
+		SP_TEST_METHOD_DEF(multiply_2);
 		SP_TEST_METHOD_DEF(Quat_length_Test);
 		SP_TEST_METHOD_DEF(Quat_normalize_Test);
 		SP_TEST_METHOD_DEF(conjugate);
@@ -176,12 +176,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		Quat result;
 
 		PerformanceCounter counter;
-		counter.start();
-
+		
 		for (sp_uint i = 0; i < 100000; i++)
 			NAMESPACE_PHYSICS::multiply(quat1, quat2, &result);
 
-		sp_longlong elapsedTime = counter.diff();
+		counter.logElapsedTime("Quat::multiply: ");
 
 		Assert::AreEqual(expected.w, result.w, L"Wrong value", LINE_INFO());
 		Assert::AreEqual(expected.x, result.x, L"Wrong value", LINE_INFO());
@@ -189,7 +188,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected.z, result.z, L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Quat_multiply_Test2)
+	SP_TEST_METHOD(CLASS_NAME, multiply_2)
 	{
 		Quat quat1(1.0f, 2.0f, 3.0f, 4.0f);
 		Quat quat2(-5.0f, 6.0f, -7.0f, 8.0f);

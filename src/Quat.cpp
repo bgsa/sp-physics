@@ -352,7 +352,7 @@ namespace NAMESPACE_PHYSICS
 		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x);
 		output->z = (quat1.w * quat2.z) - (quat1.x * quat2.y) + (quat1.y * quat2.x) + (quat1.z * quat2.w);
 	}
-	void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3 sumVector, Vec3* output)
+	void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3& sumVector, Vec3* output)
 	{
 		output->x = (quat1.w * quat2.x) + (quat1.x * quat2.w) - (quat1.y * quat2.z) + (quat1.z * quat2.y) + sumVector.x;
 		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x) + sumVector.y;

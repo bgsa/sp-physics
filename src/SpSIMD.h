@@ -57,36 +57,32 @@ namespace NAMESPACE_PHYSICS
 			vec3_simd_output = sp_vec3_sqrt_sse(rDist)
 
 
+	// Quat
 	#define sp_quat_convert_simd(quat) _mm_set_ps(quat.z, quat.y, quat.x, quat.w)
+	#define sp_quat_convert_vec3_simd(vec3) _mm_set_ps(vec3.z, vec3.y, vec3.x, ONE_FLOAT)
 
-		const __m128 sp_quat_conjugated_mult = _mm_set_ps(-ONE_FLOAT, -ONE_FLOAT, -ONE_FLOAT, ONE_FLOAT);
-		const __m128 sp_quat_not_w = _mm_set_ps(ONE_FLOAT, ONE_FLOAT, ONE_FLOAT, -ONE_FLOAT);
-		const __m128 sp_quat_not_x = _mm_set_ps(ONE_FLOAT, ONE_FLOAT, -ONE_FLOAT, ONE_FLOAT);
-		const __m128 sp_quat_not_y = _mm_set_ps(ONE_FLOAT, -ONE_FLOAT, ONE_FLOAT, ONE_FLOAT);
-		const __m128 sp_quat_not_z = _mm_set_ps(-ONE_FLOAT, ONE_FLOAT, ONE_FLOAT, ONE_FLOAT);
+	const __m128 sp_quat_conjugated_mult = _mm_set_ps(-ONE_FLOAT, -ONE_FLOAT, -ONE_FLOAT, ONE_FLOAT);
+	const __m128 sp_quat_not_w = _mm_set_ps(ONE_FLOAT, ONE_FLOAT, ONE_FLOAT, -ONE_FLOAT);
+	const __m128 sp_quat_not_x = _mm_set_ps(ONE_FLOAT, ONE_FLOAT, -ONE_FLOAT, ONE_FLOAT);
+	const __m128 sp_quat_not_y = _mm_set_ps(ONE_FLOAT, -ONE_FLOAT, ONE_FLOAT, ONE_FLOAT);
+	const __m128 sp_quat_not_z = _mm_set_ps(-ONE_FLOAT, ONE_FLOAT, ONE_FLOAT, ONE_FLOAT);
 
-	#define sp_quat_conjugate_simd(quat_simd) _mm_mul_ps(quat_simd, quat_conjugated_mult)
+	#define sp_quat_conjugate_simd(quat_simd) _mm_mul_ps(quat_simd, sp_quat_conjugated_mult)
 
-	#define sp_quat_mult(quat_simd1, quat_simd2, quat_simd_output) \
-		__m128 rowW = _mm_mul_ps(q1, q2);												\
-		__m128 rowX = _mm_mul_ps(q1, _mm_shuffle_ps(q2, q2, _MM_SHUFFLE(2, 3, 0, 1)));  \
-		__m128 rowY = _mm_mul_ps(q1, _mm_shuffle_ps(q2, q2, _MM_SHUFFLE(1, 0, 3, 2)));  \
-		__m128 rowZ = _mm_mul_ps(q1, _mm_shuffle_ps(q2, q2, _MM_SHUFFLE(0, 2, 1, 3)));  \
-		__m128 tempMultW = _mm_hsub_ps(rowW, rowW);    \
-		tempMultW = _mm_hsub_ps(tempMultW, tempMultW); \
-		__m128 tempMultX = _mm_hadd_ps(rowX, rowX);    \
-		tempMultX = _mm_hsub_ps(tempMultX, tempMultX); \
-		rowY = _mm_mul_ps(rowY, sp_quat_not_w);        \
-		__m128 tempMultY = _mm_hadd_ps(rowY, rowY);    \
-		tempMultY = _mm_hadd_ps(tempMultY, tempMultY); \
-		rowZ = _mm_mul_ps(rowZ, sp_quat_not_y);        \
-		__m128 tempMultZ = _mm_hadd_ps(rowZ, rowZ);    \
-		tempMultZ = _mm_hadd_ps(tempMultZ, tempMultZ); \
-		tempMultW = _mm_shuffle_ps(tempMultW, tempMultX, _MM_SHUFFLE(0, 1, 2, 3)); \
-		tempMultW = _mm_permute_ps(tempMultW, _MM_SHUFFLE(0, 2, 1, 3));            \
-		tempMultY = _mm_shuffle_ps(tempMultY, tempMultZ, _MM_SHUFFLE(0, 1, 2, 3)); \
-		tempMultY = _mm_permute_ps(tempMultY, _MM_SHUFFLE(0, 2, 1, 3));            \
-		quat_simd_output = _mm_shuffle_ps(tempMultW, tempMultY, _MM_SHUFFLE(0, 1, 2, 3))
+	#define sp_quat_mult_def_simd() \
+		__m128 xyzw, abcd, wzyx, baba, dcdc, ZnXWY, XZYnW, XZWY;
+
+	#define sp_quat_mult_simd(wxyz1, wxyz2, output_simd) \
+		xyzw = _mm_shuffle_ps(wxyz1, wxyz1, _MM_SHUFFLE(0, 1, 2, 3));				\
+		abcd = _mm_shuffle_ps(wxyz2, wxyz2, _MM_SHUFFLE(0, 1, 2, 3));				\
+		wzyx = _mm_shuffle_ps(xyzw, xyzw, _MM_SHUFFLE(0, 1, 2, 3));					\
+		baba = _mm_shuffle_ps(abcd, abcd, _MM_SHUFFLE(0, 1, 0, 1));					\
+		dcdc = _mm_shuffle_ps(abcd, abcd, _MM_SHUFFLE(2, 3, 2, 3));					\
+		ZnXWY = _mm_hsub_ps(_mm_mul_ps(xyzw, baba), _mm_mul_ps(wzyx, dcdc));			\
+		XZYnW = _mm_hadd_ps(_mm_mul_ps(xyzw, dcdc), _mm_mul_ps(wzyx, baba));			\
+		XZWY = _mm_addsub_ps(_mm_shuffle_ps(XZYnW, ZnXWY, _MM_SHUFFLE(3, 2, 1, 0)),	\
+			_mm_shuffle_ps(ZnXWY, XZYnW, _MM_SHUFFLE(2, 3, 0, 1)));							\
+		output_simd = _mm_shuffle_ps(XZWY, XZWY, _MM_SHUFFLE(0, 3, 1, 2));
 
 
 	// Plane3D
