@@ -177,19 +177,19 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Back the object to the state before timestep
 		/// </summary>
-		API_INTERFACE inline static void backToTime(const sp_uint index)
+		API_INTERFACE inline void backToTime(const sp_uint index)
 		{
-			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-			SpPhysicProperties* element = &simulator->_physicProperties[index];
+			SpPhysicProperties* element = &_physicProperties[index];
 
-			const Vec3 translation = element->previousState.position() - element->currentState.position();
+			Vec3 translation;
+			diff(element->previousState.position(), element->currentState.position(), &translation);
 
 			element->rollbackState();
 			
-			simulator->_transforms[index].position = element->currentState.position();
-			simulator->_transforms[index].orientation = element->currentState.orientation();
+			_transforms[index].position = element->currentState.position();
+			_transforms[index].orientation = element->currentState.orientation();
 		
-			simulator->_boundingVolumes[index].translate(translation);
+			_boundingVolumes[index].translate(translation);
 		}
 
 		API_INTERFACE void translate(const sp_uint index, const Vec3& translation) 

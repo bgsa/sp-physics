@@ -73,6 +73,7 @@ namespace NAMESPACE_PHYSICS
 
 	class SpCollisionDetails;
 	class SpMesh;
+	class SpMeshCache;
 	class SpVertexMesh;
 	class SpEdgeMesh;
 	class SpFaceMesh;

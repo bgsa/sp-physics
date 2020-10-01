@@ -718,8 +718,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		propertiesObj2->currentState.velocity(Vec3(-20.0f, 0.0f, 0.0f));
 		propertiesObj2->previousState.velocity(Vec3(-20.0f, 0.0f, 0.0f));
 
+		PerformanceCounter counter;
+
 		collisionDetector.collisionDetails(&details);
 		
+		// 4273200
+		counter.logElapsedTime("SpCollisionDetector::colisionDetails: ");
+
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());

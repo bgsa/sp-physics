@@ -8,6 +8,7 @@
 #include "SpArray.h"
 #include "SpTransform.h"
 #include "SpMesh.h"
+#include "SpMeshCache.h"
 #include "SpVector.h"
 
 namespace NAMESPACE_PHYSICS
@@ -146,6 +147,17 @@ namespace NAMESPACE_PHYSICS
 			Vec3* vertexesOutput, sp_uint* vertexOutputLength, sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
+		/// Find parallel vertex from this vertex and a orientation
+		/// </summary>
+		/// <param name="plane">Orientation</param>
+		/// <param name="cache">Cache vertexes mesh</param>
+		/// <param name="vertexesOutput">Vertexes</param>
+		/// <param name="vertexOutputLength">Vertexes length</param>
+		/// <param name="_epsilon">Error margin</param>
+		API_INTERFACE void findParallelVertexes(const Plane3D& plane, const SpMeshCache* cache,
+			Vec3* vertexesOutput, sp_uint* vertexOutputLength, sp_float _epsilon = DefaultErrorMargin) const;
+
+		/// <summary>
 		/// Find parallel faces starting from this vertex of mesh 1 and vertex2 of mesh 2.
 		/// </summary>
 		/// <param name="vertex2">Second mesh starting from this vertex parameter</param>
@@ -160,6 +172,24 @@ namespace NAMESPACE_PHYSICS
 			sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length, 
 			sp_uint* facesIndexesMesh2, sp_uint* facesIndexesMesh2Length,
 			const sp_float _epsilon = DefaultErrorMargin) const;
+
+		/// <summary>
+		/// Find parallel faces starting from this vertex of mesh 1 and vertex2 of mesh 2.
+		/// This version uses cached transformed vertexes.
+		/// </summary>
+		/// <param name="vertex2">Second mesh starting from this vertex parameter</param>
+		/// <param name="cache1">Cache vertexes mesh 1</param>
+		/// <param name="cache2">Cache vertexes mesh 2</param>
+		/// <param name="facesIndexesMesh1">Output faces indexes of mesh 1</param>
+		/// <param name="facesIndexesMesh2">Output faces indexes of mesh 2</param>
+		/// <param name="_epsilon">Error margin</param>
+		/// <returns>void</returns>
+		API_INTERFACE void findParallelFaces(const SpVertexMesh* vertex2,
+			const SpMeshCache* cache1, const SpMeshCache* cache2,
+			sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length,
+			sp_uint* facesIndexesMesh2, sp_uint* facesIndexesMesh2Length,
+			const sp_float _epsilon = DefaultErrorMargin) const;
+		
 		
 		/// <summary>
 		/// Find the faces of this vertex using all elements from faces indexes of the mesh
@@ -188,6 +218,18 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="_epsilon">Error margin</param>
 		/// <returns>void</returns>
 		API_INTERFACE void findParallelFaces(const Plane3D& plane, const SpTransform& meshTransform,
+			sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length, const sp_float _epsilon) const;
+
+		/// <summary>
+		/// Find parallel faces with the plane
+		/// </summary>
+		/// <param name="plane">Plane</param>
+		/// <param name="cache">Cache vertex mesh</param>
+		/// <param name="facesIndexesMesh1">List of parallel faces indexes</param>
+		/// <param name="facesIndexesMesh1Length">List Length of parallel faces indexes</param>
+		/// <param name="_epsilon">Error margin</param>
+		/// <returns>void</returns>
+		API_INTERFACE void findParallelFaces(const Plane3D& plane, const SpMeshCache* cache,
 			sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length, const sp_float _epsilon) const;
 
 	};

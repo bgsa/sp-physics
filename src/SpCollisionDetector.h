@@ -7,6 +7,7 @@
 #include "SpPhysicSimulator.h"
 #include "SpCollisionFeatures.h"
 #include "SpArray.h"
+#include "SpMeshCache.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -17,6 +18,8 @@ namespace NAMESPACE_PHYSICS
 		sp_uint faceIndex;
 		sp_bool searchOnObj1;
 		sp_float distance;
+		SpMeshCache* cacheMesh1;
+		SpMeshCache* cacheMesh2;
 
 		API_INTERFACE SpCollisionDetectorCache()
 		{
@@ -40,15 +43,16 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		
-		void fillCollisionDetails(SpCollisionDetails* details);
+		void fillCollisionDetails(SpCollisionDetails* details, SpCollisionDetectorCache* cache);
 		
-		void timeOfCollision(SpCollisionDetails* details);
+		void timeOfCollision(SpCollisionDetails* details, SpCollisionDetectorCache* collisionCache);
 
 		sp_bool findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, 
 			sp_uint* vertexIndexObj1, Vec3* contactPoint,
-			SpCollisionDetectorCache* cache, SpCollisionDetails* details);
+			SpCollisionDetectorCache* cache, SpMeshCache* cacheMesh1, SpMeshCache* cacheMesh2,
+			SpCollisionDetails* details);
 
-		sp_bool isFaceFaceCollision(SpCollisionDetails* details) const;
+		sp_bool isFaceFaceCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
 
 		/// <summary>
 		/// Check all faces from first vertex against edges from second vertex

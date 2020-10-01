@@ -222,6 +222,7 @@
     <ClCompile Include="src\SpFaceMesh.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpMesh.cpp" />
+    <ClCompile Include="src\SpMeshCache.cpp" />
     <ClCompile Include="src\SpPhysicIntegrator.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
     <ClCompile Include="src\SpVertexMesh.cpp" />
@@ -299,6 +300,7 @@
     <ClInclude Include="src\SpGpuTextureBuffer.h" />
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\SpInertiaTensor.h" />
+    <ClInclude Include="src\SpMeshCache.h" />
     <ClInclude Include="src\SpPhysicIntegrator.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
     <ClInclude Include="src\SpPhysicObjectList.h" />

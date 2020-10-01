@@ -382,7 +382,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void rollbackState()
 		{
-			currentState = previousState;
+			std::memcpy(&currentState, &previousState, sizeof(SpPhysicPropertiesState));
 		}
 
 	};
