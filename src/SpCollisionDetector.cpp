@@ -4,6 +4,55 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	sp_bool SpCollisionDetector::hasCollision(sp_uint objIndex1, sp_uint objIndex2) const
+	{
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		const SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(objIndex1)->meshIndex);
+		const SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(objIndex2)->meshIndex);
+		
+		const SpTransform transform1 = *simulator->transforms(objIndex1);
+		const SpTransform transform2 = *simulator->transforms(objIndex2);
+		
+		const SpPhysicProperties* properties1 = simulator->physicProperties(objIndex1);
+		const SpPhysicProperties* properties2 = simulator->physicProperties(objIndex2);
+
+		Vec3 _direction;
+		direction(properties1->currentState.position(), properties2->currentState.position(), &_direction);
+
+		SpVertexMesh* vertexMesh1 = mesh1->findExtremeVertex(_direction, transform1);
+		SpVertexMesh* vertexMesh2 = mesh2->findExtremeVertex(-_direction, transform2);
+		
+		Vec3 extremeVertex1;
+		transform1.transform(vertexMesh1->value(), &extremeVertex1);
+		Vec3 extremeVertex2;
+		transform2.transform(vertexMesh2->value(), &extremeVertex2);
+
+		//const sp_float distanceToCenter = distance(properties1->currentState.position(), properties2->currentState.position());
+		const sp_float mesh1DistanceToVertex1 = distance(properties1->currentState.position(), extremeVertex1);
+		const sp_float mesh1DistanceToVertex2 = distance(properties1->currentState.position(), extremeVertex2);
+
+		if (mesh1DistanceToVertex2 > mesh1DistanceToVertex1)
+			return false;
+
+		Line3D line(properties1->currentState.position(), extremeVertex2);
+		
+		for (sp_uint i = 0; i < vertexMesh1->faceIndexLength(); i++)
+		{
+			SpFaceMesh* face1 = vertexMesh1->face(i);
+			Triangle3D face;
+			face1->convert(&face, transform1);
+
+			Vec3 contact;
+			if (line.intersection(face, &contact, ERROR_MARGIN_PHYSIC))
+				if (face.isInside(contact, ERROR_MARGIN_PHYSIC))
+					return true;
+				else
+					return false;
+		}
+
+		return true;
+	}
+
 	void SpCollisionDetector::filterCollision(SpCollisionDetails* details) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();

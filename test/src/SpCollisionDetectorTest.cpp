@@ -240,7 +240,54 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(collisionDetails_multi); 
 		SP_TEST_METHOD_DEF(collisionDetails_multi2); 
 		SP_TEST_METHOD_DEF(collisionDetails_1);
+		SP_TEST_METHOD_DEF(hasCollision);
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, hasCollision)
+	{
+		TestPhysic::lock();
+
+		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		const SpCollisionDetector collisionDetector;
+
+		createMeshePlane();
+		createCubeMeshes(1u);
+
+		resetObject(0u);
+		resetObject(1u);
+
+		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 1.0f, 0.0f));
+		simulator->transforms(1u)->position = Vec3(0.0f, 1.0f, 0.0f);
+		sp_bool result = collisionDetector.hasCollision(0u, 1u);
+		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
+
+		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 0.5f, 0.0f));
+		simulator->transforms(1u)->position = Vec3(0.0f, 0.5f, 0.0f);
+		result = collisionDetector.hasCollision(0u, 1u);
+		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
+
+		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 1.5f, 0.0f));
+		simulator->transforms(1u)->position = Vec3(0.0f, 1.5f, 0.0f);
+		result = collisionDetector.hasCollision(0u, 1u);
+		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
+
+		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 2.0f, 0.0f));
+		simulator->transforms(1u)->position = Vec3(0.0f, 2.0f, 0.0f);
+		result = collisionDetector.hasCollision(0u, 1u);
+		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
+
+		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 2.5f, 0.0f));
+		simulator->transforms(1u)->position = Vec3(0.0f, 2.5f, 0.0f);
+		result = collisionDetector.hasCollision(0u, 1u);
+		Assert::IsFalse(result, L"Wrong value.", LINE_INFO());
+
+		simulator->physicProperties(1u)->currentState.position(Vec3(3000.0f, 0.0f, 0.0f));
+		simulator->transforms(1u)->position = Vec3(3000.0f, 0.0f, 0.0f);
+		result = collisionDetector.hasCollision(0u, 1u);
+		Assert::IsFalse(result, L"Wrong value.", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, collisionDetails_multi)
 	{

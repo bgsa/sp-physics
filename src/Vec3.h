@@ -434,6 +434,26 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	/// <summary>
+	/// Get the normalized direction
+	/// output = noramlize(input2 - input1)
+	/// </summary>
+	/// <param name="input1">Vector 1</param>
+	/// <param name="input2">Vector 2</param>
+	/// <param name="output">Normalized vector direction</param>
+	/// <returns></returns>
+	API_INTERFACE inline void direction(const Vec3& input1, const Vec3& input2, Vec3* output)
+	{
+#ifdef AVX_ENABLED
+		__m128 temp = sp_vec3_sub_simd(sp_vec3_convert_simd(input2), sp_vec3_convert_simd(input1));
+		__m128 output_simd = sp_vec3_normalize_simd(temp);
+		std::memcpy(output, output_simd.m128_f32, SIZEOF_FLOAT * 3u);
+#else
+		diff(input2, input1, output);
+		normalize(output);
+#endif
+	}
+
+	/// <summary>
 	/// Normalize the vector
 	/// </summary>
 	/// <param name="vector">Vector to be normalized</param>
@@ -491,7 +511,7 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	/// <summary>
-	/// Calculate the distance (Euclidean) from this vector to another one
+	/// Compute the distance (Euclidean) from this vector to another one
 	/// </summary>
 	API_INTERFACE inline sp_float distance(const Vec3& vector1, const Vec3& vector2)
 	{
