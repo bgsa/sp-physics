@@ -84,12 +84,10 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
 		SpEdgeMesh** edges = mesh1->edges->data();
-		SpTransform transformObj1 = *simulator->transforms(obj1Index);
 		const sp_uint edgesLengthObj1 = mesh1->edges->length();
 
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(obj2Index)->meshIndex);
 		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
-		SpTransform transformObj2 = *simulator->transforms(obj2Index);
 		const sp_uint facesLengthObj2 = mesh2->faces->length();
 
 		// for each edge from mesh 1
@@ -420,16 +418,16 @@ namespace NAMESPACE_PHYSICS
 		if (isFaceFaceCollision(details, cache))
 			return;
 
-		if (isEdgeFaceCollisionObj1(details))
+		if (isEdgeFaceCollisionObj1(details, cache))
 			return;
 
-		if (isEdgeFaceCollisionObj2(details))
+		if (isEdgeFaceCollisionObj2(details, cache))
 			return;
 
-		if (isEdgeEdgeCollision(details))
+		if (isEdgeEdgeCollision(details, cache))
 			return;
 
-		if (isVertexFaceCollision(details))
+		if (isVertexFaceCollision(details, cache))
 			return;
 	
 		// TODO: REMOVER!!
@@ -725,23 +723,26 @@ namespace NAMESPACE_PHYSICS
 #undef MAX_PARALLEL_FACES
 	}
 
-	sp_bool SpCollisionDetector::isEdgeFaceCollision(SpVertexMesh* vertex1, SpVertexMesh* vertex2, const SpTransform& transform1, const SpTransform& transform2, sp_uint* faceIndexObj1, sp_uint* vertexIndexObj2) const
+	sp_bool SpCollisionDetector::isEdgeFaceCollision(SpVertexMesh* vertex1, SpVertexMesh* vertex2, const SpMeshCache* cacheMesh1, const SpMeshCache* cacheMesh2, sp_uint* faceIndexObj1, sp_uint* vertexIndexObj2) const
 	{
 		SpMesh* mesh2 = vertex2->mesh();
 	
-		Line3D edge2;
-		transform2.transform(vertex2->value(), &edge2.point1);
+		Line3D edge2(cacheMesh2->vertexes[vertex2->index()], Vec3());
 
 		for (sp_uint i = 0; i < vertex1->faceIndexLength(); i++)
 		{
-			Triangle3D face1AsTriangle;
-			vertex1->face(i)->convert(&face1AsTriangle, transform1);
+			sp_uint* vertexesIndexFaceObj1 = vertex1->face(i)->vertexesIndexes;
+			Triangle3D face1AsTriangle(
+				cacheMesh1->vertexes[vertexesIndexFaceObj1[0]],
+				cacheMesh1->vertexes[vertexesIndexFaceObj1[1]],
+				cacheMesh1->vertexes[vertexesIndexFaceObj1[2]]
+			);
 
 			Plane3D face1AsPlane(face1AsTriangle);
 
 			for (sp_uint j = 0; j < vertex2->edgeLength(); j++)
 			{
-				mesh2->vertex(vertex2->edgeVertexIndex(j), transform2, &edge2.point2);
+				edge2.point2 = cacheMesh2->vertexes[vertex2->edgeVertexIndex(j)];
 
 				// the edge and face normal should be perpendicular for edge-face collision
 				if (!edge2.isPerpendicular(face1AsPlane.normalVector, 0.1f))
@@ -770,12 +771,12 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	sp_bool SpCollisionDetector::isEdgeEdgeCollision(SpCollisionDetails* details) const
+	sp_bool SpCollisionDetector::isEdgeEdgeCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
-		const SpTransform transform1 = *simulator->transforms(details->objIndex1);
-		const SpTransform transform2 = *simulator->transforms(details->objIndex2);
+		const Vec3* allVertexesObj1 = cache->cacheMesh1->vertexes;
+		const Vec3* allVertexesObj2 = cache->cacheMesh2->vertexes;
 
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->get(details->vertexIndexObj1);
@@ -790,19 +791,27 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint i = 0; i < edgesLengthObj1; i++)
 		{
-			if (!vertexMeshObj1->edges(i)->isBoundaryEdge())
+			const SpEdgeMesh* edgeObj1 = vertexMeshObj1->edges(i);
+
+			if (!edgeObj1->isBoundaryEdge())
 				continue;
 
-			Line3D line1;
-			vertexMeshObj1->edges(i)->convert(&line1, transform1);
+			Line3D line1(
+				allVertexesObj1[edgeObj1->vertexIndex1],
+				allVertexesObj1[edgeObj1->vertexIndex2]
+			);
 
 			for (sp_uint j = 0; j < edgesLengthObj2; j++)
 			{
-				if (!vertexMeshObj2->edges(j)->isBoundaryEdge())
+				const SpEdgeMesh* edgeObj2 = vertexMeshObj2->edges(j);
+
+				if (!edgeObj2->isBoundaryEdge())
 					continue;
 
-				Line3D line2;
-				vertexMeshObj2->edges(j)->convert(&line2, transform2);
+				Line3D line2(
+					allVertexesObj2[edgeObj2->vertexIndex1],
+					allVertexesObj2[edgeObj2->vertexIndex2]
+				);
 
 				Vec3 p1, p2;
 				sp_float sqDistance;
@@ -865,12 +874,12 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	sp_bool SpCollisionDetector::isVertexFaceCollision(SpCollisionDetails* details) const
+	sp_bool SpCollisionDetector::isVertexFaceCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
-		const SpTransform transformObj1 = *simulator->transforms(details->objIndex1);
-		const SpTransform transformObj2 = *simulator->transforms(details->objIndex2);
+		const Vec3* allVertexesObj1 = cache->cacheMesh1->vertexes;
+		const Vec3* allVertexesObj2 = cache->cacheMesh2->vertexes;
 
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
@@ -881,17 +890,20 @@ namespace NAMESPACE_PHYSICS
 		SpFaceMesh** facesObj1 = vertexMeshObj1->mesh()->faces->data();
 		SpFaceMesh** facesObj2 = vertexMeshObj2->mesh()->faces->data();
 
-		Line3D line;
-		transformObj2.transform(vertexMeshObj2->value(), &line.point1);
+		Line3D line(allVertexesObj2[vertexMeshObj2->index()], Vec3());
 
 		for (sp_uint i = 0; i < vertexMeshObj1->faceIndexLength(); i++)
 		{
-			Triangle3D triangle;
-			vertexMeshObj1->face(i)->convert(&triangle, transformObj1);
+			sp_uint* vertexesIndexesFaceObj1 = vertexMeshObj1->face(i)->vertexesIndexes;
+			Triangle3D triangle(
+				allVertexesObj1[vertexesIndexesFaceObj1[0]],
+				allVertexesObj1[vertexesIndexesFaceObj1[1]],
+				allVertexesObj1[vertexesIndexesFaceObj1[2]]
+			);
 
 			for (sp_uint j = 0; j < vertexMeshObj2->edgeLength(); j++)
 			{
-				mesh2->vertex(vertexMeshObj2->edgeVertexIndex(j), transformObj2, &line.point2);
+				line.point2 = allVertexesObj2[vertexMeshObj2->edgeVertexIndex(j)];
 			
 				if (line.intersection(triangle, &details->centerContactPoint, ERROR_MARGIN_PHYSIC))
 				{
@@ -915,16 +927,20 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		transformObj1.transform(vertexMeshObj1->value(), &line.point1);
+		line.point1 = allVertexesObj1[vertexMeshObj1->index()];
 
 		for (sp_uint i = 0; i < vertexMeshObj2->faceIndexLength(); i++)
 		{
-			Triangle3D triangle;
-			vertexMeshObj2->face(i)->convert(&triangle, transformObj2);
+			sp_uint* vertexesIndexesFaceObj2 = vertexMeshObj2->face(i)->vertexesIndexes;
+			Triangle3D triangle(
+				allVertexesObj2[vertexesIndexesFaceObj2[0]],
+				allVertexesObj2[vertexesIndexesFaceObj2[1]],
+				allVertexesObj2[vertexesIndexesFaceObj2[2]]
+			);
 
 			for (sp_uint j = 0; j < vertexMeshObj1->edgeLength(); j++)
 			{
-				mesh1->vertex(vertexMeshObj1->edgeVertexIndex(j), transformObj1, &line.point2);
+				line.point2 = allVertexesObj1[vertexMeshObj1->edgeVertexIndex(j)];
 				
 				if (line.intersection(triangle, &details->centerContactPoint, ERROR_MARGIN_PHYSIC))
 				{
@@ -948,40 +964,42 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	sp_bool SpCollisionDetector::isEdgeFaceCollisionObj1(SpCollisionDetails* details) const
+	sp_bool SpCollisionDetector::isEdgeFaceCollisionObj1(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
-		const SpTransform transformObj1 = *simulator->transforms(details->objIndex1);
 		SpFaceMesh** allFacesObj1 = mesh1->faces->data();
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->data()[details->vertexIndexObj1];
 
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
-		const SpTransform transformObj2 = *simulator->transforms(details->objIndex2);
 		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
 		SpVertexMesh* vertexMeshObj2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];
 
 		sp_uint faceIndexCollisionObj1;
 		sp_uint edgeVertexIndexObj2;
 
-		if (isEdgeFaceCollision(vertexMeshObj1, vertexMeshObj2, transformObj1, transformObj2, &faceIndexCollisionObj1, &edgeVertexIndexObj2))
+		if (isEdgeFaceCollision(vertexMeshObj1, vertexMeshObj2, cache->cacheMesh1, cache->cacheMesh2, &faceIndexCollisionObj1, &edgeVertexIndexObj2))
 		{
 #define MAX_PARALLEL_FACES 10u
 #define MAX_CONTACTS 2u
 			SpFaceMesh* faceCollisionObj1 = mesh1->faces->data()[faceIndexCollisionObj1];
 
-			Line3D edgeObj2;
-			transformObj2.transform(vertexMeshObj2->value(), &edgeObj2.point1);
-			mesh2->vertex(edgeVertexIndexObj2, transformObj2, &edgeObj2.point2);
-
-			Plane3D faceAsPlane;
-			faceCollisionObj1->convert(&faceAsPlane, transformObj1);
-
+			Line3D edgeObj2(
+				cache->cacheMesh2->vertexes[vertexMeshObj2->index()],
+				cache->cacheMesh2->vertexes[edgeVertexIndexObj2]
+			);
+			
+			Plane3D faceAsPlane(
+				cache->cacheMesh1->vertexes[faceCollisionObj1->vertexesIndexes[0]],
+				cache->cacheMesh1->vertexes[faceCollisionObj1->vertexesIndexes[1]],
+				cache->cacheMesh1->vertexes[faceCollisionObj1->vertexesIndexes[2]]
+			);
+			
 			sp_uint parallelFacesIndexes[MAX_PARALLEL_FACES];
 			sp_uint parallelFacesIndexesLength = ZERO_UINT;
 
-			vertexMeshObj1->findParallelFaces(faceAsPlane, transformObj1, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
+			vertexMeshObj1->findParallelFaces(faceAsPlane, cache->cacheMesh1, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
 
 			sp_assert(parallelFacesIndexesLength < MAX_PARALLEL_FACES, "IndexOutOfRangeException");
 
@@ -992,9 +1010,12 @@ namespace NAMESPACE_PHYSICS
 			for (sp_uint i = 0; i < parallelFacesIndexesLength; i++)
 			{
 				SpFaceMesh* face = allFacesObj1[parallelFacesIndexes[i]];
-				Triangle3D faceAsTriangle;
-				face->convert(&faceAsTriangle, transformObj1);
-
+				Triangle3D faceAsTriangle(
+					cache->cacheMesh1->vertexes[face->vertexesIndexes[0]],
+					cache->cacheMesh1->vertexes[face->vertexesIndexes[1]],
+					cache->cacheMesh1->vertexes[face->vertexesIndexes[2]]
+				);
+				
 				Line3D lines[3];
 				faceAsTriangle.convert(lines);
 
@@ -1051,47 +1072,46 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	sp_bool SpCollisionDetector::isEdgeFaceCollisionObj2(SpCollisionDetails* details) const
+	sp_bool SpCollisionDetector::isEdgeFaceCollisionObj2(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
 	{
-
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
-		const SpTransform transformObj1 = *simulator->transforms(details->objIndex1);
 		SpFaceMesh** allFacesObj1 = mesh1->faces->data();
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->data()[details->vertexIndexObj1];
+		Vec3* allVertexesObj1 = cache->cacheMesh1->vertexes;
 
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		const SpTransform transformObj2 = *simulator->transforms(details->objIndex2);
 		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
 		SpVertexMesh* vertexMeshObj2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];
+		Vec3* allVertexesObj2 = cache->cacheMesh2->vertexes;
 
 		sp_uint faceIndexCollisionObj2;
 		sp_uint edgeVertexIndexObj1;
 
-		if (isEdgeFaceCollision(vertexMeshObj2, vertexMeshObj1, transformObj2, transformObj1, &faceIndexCollisionObj2, &edgeVertexIndexObj1))
+		if (isEdgeFaceCollision(vertexMeshObj2, vertexMeshObj1, cache->cacheMesh2, cache->cacheMesh1, &faceIndexCollisionObj2, &edgeVertexIndexObj1))
 		{
 #define MAX_PARALLEL_FACES 10u
 #define MAX_CONTACTS 2u
 			SpFaceMesh* faceCollisionObj2 = mesh2->faces->data()[faceIndexCollisionObj2];
 
-			Line3D edge;
-			transformObj1.transform(vertexMeshObj1->value(), &edge.point1);
-			//mesh1->vertex(vertexMeshObj1->edgeVertexIndex(edgeVertexIndexObj1), transformObj1, &edge.point2);
-			mesh1->vertex(edgeVertexIndexObj1, transformObj1, &edge.point2);
-
-			Plane3D faceAsPlane;
-			faceCollisionObj2->convert(&faceAsPlane, transformObj2);
+			Line3D edge(
+				allVertexesObj1[vertexMeshObj1->index()],
+				allVertexesObj1[edgeVertexIndexObj1]
+			);
+			
+			Plane3D faceAsPlane(
+				allVertexesObj1[faceCollisionObj2->vertexesIndexes[0]],
+				allVertexesObj1[faceCollisionObj2->vertexesIndexes[1]],
+				allVertexesObj1[faceCollisionObj2->vertexesIndexes[2]]
+			);
 
 			sp_uint parallelFacesIndexes[MAX_PARALLEL_FACES];
 			sp_uint parallelFacesIndexesLength = ZERO_UINT;
 
 			// find all parallel faces
-			vertexMeshObj2->findParallelFaces(faceAsPlane, transformObj2, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
-
-			// TODO: REMOVER !!!
-			if (parallelFacesIndexesLength > MAX_PARALLEL_FACES)
-				int a = 1;
+			vertexMeshObj2->findParallelFaces(faceAsPlane, cache->cacheMesh2, parallelFacesIndexes, &parallelFacesIndexesLength, 0.1f);
 
 			sp_assert(parallelFacesIndexesLength < MAX_PARALLEL_FACES, "ApplicationException");
 
@@ -1110,9 +1130,11 @@ namespace NAMESPACE_PHYSICS
 					if (!edgeMesh->isBoundaryEdge())
 						continue;
 
-					Line3D line;
-					edgeMesh->convert(&line, transformObj2);
-
+					Line3D line(
+						allVertexesObj2[edgeMesh->vertexIndex1],
+						allVertexesObj2[edgeMesh->vertexIndex2]
+					);
+					
 					Vec3 contact;
 					if (line.intersection(edge, &contact))
 					{

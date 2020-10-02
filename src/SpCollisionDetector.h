@@ -65,17 +65,19 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="vertexIndexObj2">Edge Index Obj 2</param>
 		/// <returns>True if it is Edge-Face collision or else False</returns>
 		sp_bool isEdgeFaceCollision(SpVertexMesh* vertex1, SpVertexMesh* vertex2, 
-			const SpTransform& transform1, const SpTransform& transform2, 
+			const SpMeshCache* cacheMesh1, const SpMeshCache* cacheMesh2,
 			sp_uint* faceIndexObj1, sp_uint* vertexIndexObj2) const;
 
-		sp_bool isEdgeEdgeCollision(SpCollisionDetails* details) const;
+		sp_bool isEdgeEdgeCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
 
-		sp_bool isEdgeFaceCollisionObj1(SpCollisionDetails* details) const;
-		sp_bool isEdgeFaceCollisionObj2(SpCollisionDetails* details) const;
+		sp_bool isEdgeFaceCollisionObj1(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
+		sp_bool isEdgeFaceCollisionObj2(SpCollisionDetails* detail, SpCollisionDetectorCache* caches) const;
 
 		sp_bool fillCollisionDetailsEdgeEdge(const Line3D& edge, SpVertexMesh* vertex, const SpTransform& vertexTransform, sp_uint* edgeIndexOutput, const sp_float _epsilon = DefaultErrorMargin);
 
 		sp_bool collisionStatusCache(SpCollisionDetectorCache* cache, Vec3* contactPoint, SpCollisionDetails* details);
+
+		sp_bool isVertexFaceCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
 
 	public:
 
@@ -86,8 +88,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE CollisionStatus collisionStatus(Vec3* contactPoint, SpCollisionDetectorCache* cache, SpCollisionDetails* details);
 
 		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const;
-
-		API_INTERFACE sp_bool isVertexFaceCollision(SpCollisionDetails* details) const;
 
 	};
 
