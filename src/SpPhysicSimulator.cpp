@@ -174,6 +174,8 @@ namespace NAMESPACE_PHYSICS
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
 			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
 			detailsArray[i].timeStep = elapsedTime;
+			detailsArray[i].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex1)->meshIndex)->vertexesMesh->length());
+			detailsArray[i].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex2)->meshIndex)->vertexesMesh->length());
 
 			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
 			tasks[i].parameter = &detailsArray[i];

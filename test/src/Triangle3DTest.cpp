@@ -11,7 +11,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(area);
 		SP_TEST_METHOD_DEF(barycentric);
 		SP_TEST_METHOD_DEF(convert_lines);
-		SP_TEST_METHOD_DEF(project);
+		SP_TEST_METHOD_DEF(closestPoint);
+		SP_TEST_METHOD_DEF(distance);
 		SP_TEST_METHOD_DEF(isInside_1);
 		SP_TEST_METHOD_DEF(isInside_2);
 	};
@@ -73,24 +74,49 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(result[2].point1 == point3 && result[2].point2 == point1, L"Wrong value.");
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, project)
+	SP_TEST_METHOD(CLASS_NAME, closestPoint)
 	{
-		const Vec3 point1 (0.0f, 0.0f, 0.0f);
-		const Vec3 point2 (10.0f, 0.0f, 0.0f);
-		const Vec3 point3 (5.0f, 10.0f, 0.0f);
+		Vec3 point1 (0.0f, 0.0f, 0.0f);
+		Vec3 point2 (10.0f, 0.0f, 0.0f);
+		Vec3 point3 (5.0f, 10.0f, 0.0f);
 		Triangle3D triangle (point1, point2, point3);
 
 		Vec3 result;
 		Vec3 target(3.0f, 4.0f, -5.0f);
 		Vec3 expected(3.0f, 4.0f, 0.0f);
-		triangle.project(target, &result);
-	
+		triangle.closestPoint(target, &result);
 		Assert::IsTrue(expected == result, L"Wrong value.");
 
 		target = Vec3(30.0f, 4.0f, -5.0f);
-		expected = Vec3(30.0f, 4.0f, 0.0f);
-		triangle.project(target, &result);
+		expected = Vec3(10.0f, 0.0f, 0.0f);
+		triangle.closestPoint(target, &result);
+		Assert::IsTrue(expected == result, L"Wrong value.");
 
+		triangle.point1 = Vec3( 1.835786f, 0.0f, 1.0f );
+		triangle.point2 = Vec3(1.835786f, 0.0f, -1.0f);
+		triangle.point3 = Vec3(3.249994f, -1.414214f, -1.0f);
+		target = Vec3(ZERO_FLOAT);
+		expected = Vec3(1.83578598, 0.0f, 0.0f);
+		triangle.closestPoint(target, &result);
+		Assert::IsTrue(isCloseEnough(expected, result), L"Wrong value.");
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, distance)
+	{
+		const Vec3 point1(0.0f, 0.0f, 0.0f);
+		const Vec3 point2(10.0f, 0.0f, 0.0f);
+		const Vec3 point3(5.0f, 10.0f, 0.0f);
+		Triangle3D triangle(point1, point2, point3);
+
+		Vec3 target(3.0f, 4.0f, -5.0f);
+		sp_float expected = 5.0f;
+		Vec3 closest;
+		sp_float result = triangle.distance(target, &closest);
+		Assert::IsTrue(expected == result, L"Wrong value.");
+
+		target = Vec3(30.0f, 0.0f, 0.0f);
+		expected = 20.0f;
+		result = triangle.distance(target, &closest);
 		Assert::IsTrue(expected == result, L"Wrong value.");
 	}
 

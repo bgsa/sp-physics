@@ -141,9 +141,10 @@ namespace NAMESPACE_PHYSICS
 #endif
 	}
 
-	Vec3 Line3D::closestPointOnTheLine(const Vec3& target) const
+	void Line3D::closestPointOnTheLine(const Vec3& target, Vec3* output) const
 	{
-		Vec3 lineDirection = point2 - point1;
+		Vec3 lineDirection;
+		diff(point2, point1, &lineDirection);
 		
 		// Project target onto lineDirection, computing parameterized position closestPoint(t) = point1 + t*(point2 � point1) 
 		sp_float t = (target - point1).dot(lineDirection) / lineDirection.dot(lineDirection);
@@ -151,10 +152,7 @@ namespace NAMESPACE_PHYSICS
 		// If outside segment, clamp t (and therefore d) to the closest endpoint 
 		t = clamp(t, ZERO_FLOAT, ONE_FLOAT); // clamp t from 0.0 to 1.0
 		
-		//closestPoint(t) = point1 + t * (point2 � point1)
-		Vec3 closestPoint = point1 + lineDirection * t;
-
-		return closestPoint;
+		output[0] = point1 + lineDirection * t;
 	}
 
 	sp_bool Line3D::hasIntersectionOnRay(const Sphere& sphere) const

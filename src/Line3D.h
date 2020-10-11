@@ -180,7 +180,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the closest point in the SEGMENT of line, given an arbitrary point
 		///</summary>
-		API_INTERFACE Vec3 closestPointOnTheLine(const Vec3& target) const;
+		API_INTERFACE void closestPointOnTheLine(const Vec3& target, Vec3* output) const;
 
 		///<summary>
 		/// Find the cross-product with two lines

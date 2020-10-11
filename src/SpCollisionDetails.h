@@ -37,8 +37,14 @@ namespace NAMESPACE_PHYSICS
 		Vec3 contactPoints[8];
 		sp_uint contactPointsLength;
 
+		SpMeshCache* cacheObj1;
+		SpMeshCache* cacheObj2;
+
 		SpCollisionDetails()
 		{
+			cacheObj1 = nullptr;
+			cacheObj2 = nullptr;
+
 			ignoreCollision = false;
 			type = SpCollisionType::None;
 			contactPointsLength = ZERO_UINT;

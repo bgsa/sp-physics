@@ -498,7 +498,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec3 expected = { 7.0f, 0.0f, 0.0f };
 
-		Vec3 result = line.closestPointOnTheLine(point);
+		Vec3 result;
+		line.closestPointOnTheLine(point, &result);
 		
 		Assert::AreEqual(expected.x, result.x, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(expected.y, result.y, L"Wrong value.", LINE_INFO());
@@ -512,7 +513,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec3 expected = { 0.0f, 0.0f, 0.0f };
 
-		Vec3 result = line.closestPointOnTheLine(point);
+		Vec3 result;
+		line.closestPointOnTheLine(point, &result);
 
 		Assert::AreEqual(expected.x, result.x, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(expected.y, result.y, L"Wrong value.", LINE_INFO());
@@ -526,7 +528,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec3 expected = { 10.0f, 0.0f, 0.0f };
 
-		Vec3 result = line.closestPointOnTheLine(point);
+		Vec3 result;
+		line.closestPointOnTheLine(point, &result);
 
 		Assert::AreEqual(expected.x, result.x, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(expected.y, result.y, L"Wrong value.", LINE_INFO());

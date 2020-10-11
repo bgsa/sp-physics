@@ -110,63 +110,110 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_bool isInside(const Vec3& target, const sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
-		/// Project the point (target parameter) in the triangle
+		/// Find the closest point in triangle given a target point
 		/// </summary>
-		/// <param name="target">Arbitraty point</param>
-		/// <param name="output">Projected point</param>
-		/// <returns>Output parameter</returns>
-		API_INTERFACE void project(const Vec3& target, Vec3* output) const;
-
-		/* not working ....   taken from book collision detection 
-		API_INTERFACE inline Vec3 closestPoint(const Vec3& target) const
+		/// <param name="target">Target point</param>
+		/// <param name="output">Closest point</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void closestPoint(const Vec3& target, Vec3* output) const
 		{
-			Plane3D plane(point1, point2, point3);
-			Ray ray(target, -plane.normalVector);
-
-			Vec3 projectedPoint;
-			plane.intersection(ray, &projectedPoint);
-
-			// Check if P in vertex region outside A  
+			// Check if Target in region outside A  
 			const Vec3 ab = point2 - point1;  
 			const Vec3 ac = point3 - point1;
-			const Vec3 ap = projectedPoint - point1;
+			const Vec3 ap = target - point1;
 			
 			const sp_float d1 = ab.dot(ap);
 			const sp_float d2 = ac.dot(ap);
 			
 			if (d1 <= ZERO_FLOAT && d2 <= ZERO_FLOAT)
-				return point1; // barycentric coordinates (1,0,0)  
-						  
-			// Check if P in vertex region outside B  
-			const Vec3 bp = projectedPoint - point2;
+			{
+				output[0] = point1; // barycentric coordinates (1,0,0)  
+				return;
+			}
+
+			// Check if Target in vertex region outside B  
+			const Vec3 bp = target - point2;
 			const sp_float d3 = ab.dot(bp);
 			const sp_float d4 = ac.dot(bp);
-			
 			if (d3 >= ZERO_FLOAT && d4 <= d3)
-				return point2; // barycentric coordinates (0,1,0)  
-						  
-			// Check if P in edge region of AB, if so return projection of P onto AB  
+			{
+				output[0] = point2; // barycentric coordinates (0,1,0)  
+				return;
+			}
+
+			// Check if Target in edge region of AB, if so return projection of P onto AB  
 			const sp_float vc = d1*d4 - d3*d2;
-			
 			if (vc <= ZERO_FLOAT && d1 >= ZERO_FLOAT && d3 <= ZERO_FLOAT)
 			{  
 				const sp_float v = d1 / (d1 - d3);
-				return point1 + ab * v; 	// barycentric coordinates (1-v,v,0)  
+				output[0] = point1 + ab * v; 	// barycentric coordinates (1-v,v,0)  
+				return;
 			}  
 			
-			// Check if P in vertex region outside C  
-			const Vec3 cp = projectedPoint - point3;
+			// Check if Target in vertex region outside C  
+			const Vec3 cp = target - point3;
 			const sp_float d5 = ab.dot(cp);
 			const sp_float d6 = ac.dot(cp);
-			
 			if (d6 >= ZERO_FLOAT && d5 <= d6)
-				return point3; // barycentric coordinates (0,0,1)
+			{
+				output[0] = point3; // barycentric coordinates (0,0,1)
+				return;
+			}
 
-			return projectedPoint;
+			// Check if Target in edge region of AC, if so return projection of Target onto AC
+			const sp_float vb = d5 * d2 - d1 * d6;
+			if (vb <= ZERO_FLOAT && d2 >= ZERO_FLOAT && d6 <= ZERO_FLOAT) 
+			{  
+				const sp_float w = d2 / (d2 - d6);
+				output[0] = point1 + ac * w; // barycentric coordinates (1-w,0,w) 
+				return;
+			}  
+			
+			// Check if Target in edge region of BC, if so return projection of P onto BC  
+			const sp_float va = d3 * d6 - d5 * d4;
+			if (va <= ZERO_FLOAT && (d4 - d3) >= ZERO_FLOAT && (d5 - d6) >= ZERO_FLOAT) 
+			{  
+				const sp_float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+				output[0] = point2 + (point3 - point2) * w; // barycentric coordinates (0,1-w,w)  
+				return;
+			}  
+			
+			// Target inside face region. Compute Q through its barycentric coordinates (u,v,w)  
+			const sp_float denom = ONE_FLOAT / (va + vb + vc);  
+			const sp_float v = vb * denom;
+			const sp_float w = vc * denom;
+			
+			output[0] = point1 + ab * v + ac * w; // = u*a + v*b + w*c, u = va * denom = 1.0f - v - w 
 		}
-		*/
+
+		/// <summary>
+		/// Find the distance from this triangle to target
+		/// </summary>
+		/// <param name="target">Target point</param>
+		/// <param name="closest">Return closest point</param>
+		/// <returns>Distance</returns>
+		API_INTERFACE inline sp_float distance(const Vec3& target, Vec3* closest) const
+		{
+			closestPoint(target, closest);
+			return NAMESPACE_PHYSICS::distance(*closest, target);
+		}
 
 	};
+
+	/// <summary>
+	/// Centroid or Midpoint of the triangle (3 points)
+	/// </summary>
+	/// <param name="point1">First point</param>
+	/// <param name="point2">Second point</param>
+	/// <param name="point3">Third point</param>
+	/// <param name="output">Midpoint output</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void midpoint(const Vec3& point1, const Vec3& point2, const Vec3& point3, Vec3* output)
+	{
+		output->x = (point1.x + point2.x + point3.x) * 0.3333333f;
+		output->y = (point1.y + point2.y + point3.y) * 0.3333333f;
+		output->z = (point1.z + point2.z + point3.z) * 0.3333333f;
+	}
 
 }
 

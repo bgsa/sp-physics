@@ -43,16 +43,18 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		
-		void fillCollisionDetails(SpCollisionDetails* details, SpCollisionDetectorCache* cache);
+		void fillCollisionDetails(SpCollisionDetails* details);
 		
-		void timeOfCollision(SpCollisionDetails* details, SpCollisionDetectorCache* collisionCache);
+		void timeOfCollision(SpCollisionDetails* details);
 
 		sp_bool findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, 
 			sp_uint* vertexIndexObj1, Vec3* contactPoint,
 			SpCollisionDetectorCache* cache, SpMeshCache* cacheMesh1, SpMeshCache* cacheMesh2,
 			SpCollisionDetails* details);
 
-		sp_bool isFaceFaceCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
+		sp_bool isFaceFaceCollision(SpCollisionDetails* details) const;
+
+		sp_bool hasPlaneCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details) const;
 
 		/// <summary>
 		/// Check all faces from first vertex against edges from second vertex
@@ -68,16 +70,16 @@ namespace NAMESPACE_PHYSICS
 			const SpMeshCache* cacheMesh1, const SpMeshCache* cacheMesh2,
 			sp_uint* faceIndexObj1, sp_uint* vertexIndexObj2) const;
 
-		sp_bool isEdgeEdgeCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
+		sp_bool isEdgeEdgeCollision(SpCollisionDetails* details) const;
 
-		sp_bool isEdgeFaceCollisionObj1(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
-		sp_bool isEdgeFaceCollisionObj2(SpCollisionDetails* detail, SpCollisionDetectorCache* caches) const;
+		sp_bool isEdgeFaceCollisionObj1(SpCollisionDetails* details) const;
+		sp_bool isEdgeFaceCollisionObj2(SpCollisionDetails* detail) const;
 
 		sp_bool fillCollisionDetailsEdgeEdge(const Line3D& edge, SpVertexMesh* vertex, const SpTransform& vertexTransform, sp_uint* edgeIndexOutput, const sp_float _epsilon = DefaultErrorMargin);
 
 		sp_bool collisionStatusCache(SpCollisionDetectorCache* cache, Vec3* contactPoint, SpCollisionDetails* details);
 
-		sp_bool isVertexFaceCollision(SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
+		sp_bool isVertexFaceCollision(SpCollisionDetails* details) const;
 
 	public:
 
@@ -89,7 +91,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const;
 		
-		API_INTERFACE sp_bool hasCollision(sp_uint objIndex1, sp_uint objIndex2) const;
+		API_INTERFACE sp_bool hasCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details) const;
 
 	};
 
