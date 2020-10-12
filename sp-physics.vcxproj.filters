@@ -3126,6 +3126,9 @@
     <ClCompile Include="src\SpMeshCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpOptimization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AlgorithmAitken.h">
@@ -6492,6 +6495,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpMeshCache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpOptimization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
