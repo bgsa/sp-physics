@@ -33,6 +33,29 @@ namespace NAMESPACE_PHYSICS
 			return content;
 		}
 
+		static std::string toString(const sp_float* values, const sp_uint rowLength, const sp_uint columnLength, const sp_int precision = 4)
+		{
+			std::string content;
+			const sp_uint length = rowLength * columnLength;
+
+			for (sp_uint i = ZERO_UINT; i < length; i++)
+			{
+				std::stringstream stream;
+				stream << std::fixed << std::setprecision(precision) << values[i];
+				std::string numberAsString = stream.str();
+
+				if (values[i] >= ZERO_FLOAT)
+					numberAsString = " " + numberAsString;
+
+				content += " " + numberAsString + " ";
+
+				if ((i + 1) % columnLength == ZERO_UINT)
+					content += END_OF_LINE;
+			}
+
+			return content;
+		}
+
 		static void gaussianElimination(sp_float *matrix, const sp_int rowSize);
 
 		/// <summary>

@@ -18,26 +18,26 @@
 namespace NAMESPACE_PHYSICS_TEST
 {
 
-	AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
+	AABB* getRandomAABBs(sp_uint count, sp_uint spaceSize = 1000)
 	{
 		Randomizer randomizerSize(0, 30);
 		Randomizer randomizerLocation(0, spaceSize);
 
 		AABB* aabbs = ALLOC_NEW_ARRAY(AABB, count);
 
-		for (size_t i = 0; i < count; i++)
+		for (sp_uint i = 0; i < count; i++)
 		{
-			int xMin = randomizerSize.rand();
-			int yMin = randomizerSize.rand();
-			int zMin = randomizerSize.rand();
+			sp_int xMin = randomizerSize.randInt();
+			sp_int yMin = randomizerSize.randInt();
+			sp_int zMin = randomizerSize.randInt();
 
-			int xMax = randomizerSize.rand();
-			int yMax = randomizerSize.rand();
-			int zMax = randomizerSize.rand();
+			sp_int xMax = randomizerSize.randInt();
+			sp_int yMax = randomizerSize.randInt();
+			sp_int zMax = randomizerSize.randInt();
 
-			int locationX = randomizerLocation.rand();
-			int locationY = randomizerLocation.rand();
-			int locationZ = randomizerLocation.rand();
+			sp_int locationX = randomizerLocation.randInt();
+			sp_int locationY = randomizerLocation.randInt();
+			sp_int locationZ = randomizerLocation.randInt();
 
 			if (xMin == xMax)
 				xMax++;

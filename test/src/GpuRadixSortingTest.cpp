@@ -28,7 +28,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_float* result = ALLOC_ARRAY(sp_float, count);
 
 			for (sp_uint i = 0; i < count; i++)
-				result[i] = randomizer.rand() / 100.0f;
+				result[i] = randomizer.randInt() / 100.0f;
 
 			return result;
 		}
@@ -42,17 +42,17 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			for (sp_uint i = 0; i < count; i++)
 			{
-				sp_int xMin = randomizerSize.rand();
-				sp_int yMin = randomizerSize.rand();
-				sp_int zMin = randomizerSize.rand();
+				sp_int xMin = randomizerSize.randInt();
+				sp_int yMin = randomizerSize.randInt();
+				sp_int zMin = randomizerSize.randInt();
 
-				sp_int xMax = randomizerSize.rand();
-				sp_int yMax = randomizerSize.rand();
-				sp_int zMax = randomizerSize.rand();
+				sp_int xMax = randomizerSize.randInt();
+				sp_int yMax = randomizerSize.randInt();
+				sp_int zMax = randomizerSize.randInt();
 
-				sp_int locationX = randomizerLocation.rand();
-				sp_int locationY = randomizerLocation.rand();
-				sp_int locationZ = randomizerLocation.rand();
+				sp_int locationX = randomizerLocation.randInt();
+				sp_int locationY = randomizerLocation.randInt();
+				sp_int locationZ = randomizerLocation.randInt();
 
 				if (xMin == xMax)
 					xMax++;
@@ -87,9 +87,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			for (sp_uint i = 0; i < length; i++)
 			{
-				sp_float x = randomizer.rand() / 100.0f;
-				sp_float y = randomizer.rand() / 100.0f;
-				sp_float z = randomizer.rand() / 100.0f;
+				sp_float x = randomizer.randInt() / 100.0f;
+				sp_float y = randomizer.randInt() / 100.0f;
+				sp_float z = randomizer.randInt() / 100.0f;
 
 				kdops[i].scale(Vec3(3.0f));
 				kdops[i].translate({ x, 0.5f, z });

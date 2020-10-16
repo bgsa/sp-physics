@@ -39,14 +39,14 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 	private:
 
-		float* getRandom(size_t count, size_t spaceSize = 10000)
+		sp_float* getRandom(sp_uint count, sp_uint spaceSize = 10000)
 		{
 			Randomizer randomizer(0, spaceSize);
 
-			float* result = ALLOC_ARRAY(float, count);
+			sp_float* result = ALLOC_ARRAY(float, count);
 
 			for (size_t i = 0; i < count; i++)
-				result[i] = randomizer.rand() / 100.0f;
+				result[i] = randomizer.randInt() / 100.0f;
 
 			return result;
 		}
@@ -58,19 +58,19 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			AABB* aabbs = ALLOC_ARRAY(AABB, count);
 
-			for (size_t i = 0; i < count; i++)
+			for (sp_uint i = 0; i < count; i++)
 			{
-				int xMin = randomizerSize.rand();
-				int yMin = randomizerSize.rand();
-				int zMin = randomizerSize.rand();
+				sp_int xMin = randomizerSize.randInt();
+				sp_int yMin = randomizerSize.randInt();
+				sp_int zMin = randomizerSize.randInt();
 
-				int xMax = randomizerSize.rand();
-				int yMax = randomizerSize.rand();
-				int zMax = randomizerSize.rand();
+				sp_int xMax = randomizerSize.randInt();
+				sp_int yMax = randomizerSize.randInt();
+				sp_int zMax = randomizerSize.randInt();
 
-				int locationX = randomizerLocation.rand();
-				int locationY = randomizerLocation.rand();
-				int locationZ = randomizerLocation.rand();
+				sp_int locationX = randomizerLocation.randInt();
+				sp_int locationY = randomizerLocation.randInt();
+				sp_int locationZ = randomizerLocation.randInt();
 
 				if (xMin == xMax)
 					xMax++;
