@@ -25,8 +25,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		StackMemoryAllocator::main()->init(ONE_MEGABYTE * 512);
 
-		SpLogMsTestProvider* logProvider = ALLOC_NEW(SpLogMsTestProvider);
-		SpLogger::init(logProvider);
+		SpLogMsTestProvider* logProvider = sp_mem_new(SpLogMsTestProvider);
+		SpLogger::init();
+		SpLogger::instance()->addProvider(logProvider);
 
 		NAMESPACE_RENDERING::SpOpenGL::initOffScreenRendering();
 		NAMESPACE_RENDERING::SpGpuRenderingFactoryOpenGL::init();

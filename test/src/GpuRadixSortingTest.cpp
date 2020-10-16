@@ -147,6 +147,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(radixGPU_2);
 		SP_TEST_METHOD_DEF(radixGPU_WithNegatives);
 		SP_TEST_METHOD_DEF(radixGPU_WithKDOPs);
+		SP_TEST_METHOD_DEF(radixGPU_WithKDOPs_2);
 		SP_TEST_METHOD_DEF(radixGPU_manyTimes);
 	};
 
@@ -652,6 +653,58 @@ namespace NAMESPACE_PHYSICS_TEST
 		ALLOC_DELETE(createIndexes, GpuIndexes);
 	}
 
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_WithKDOPs_2)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+		sp_uint inputLength = 4u;
+
+		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
+		createIndexes->init(gpu, nullptr);
+
+		sp_float values[18*4] = {
+			-50.0000f, -0.10000f, -50.0000f, -49.8499f, -49.8499f, -49.8499f, -49.8499f, -99.7500f, -99.7500f, 50.00000f, 0.100000f, 50.00000f, 49.84999f, 49.84999f, 49.84999f, 49.84999f, 99.75000f, 99.75000f, 0.600000f, 8.500000f, 1.500000f, -10.6500f, 9.350000f, 10.25000f, 4.250000f, 2.350000f, -3.65000f, 3.400000f, 11.50000f, 4.500000f, -5.35000f, 14.65000f, 15.75000f, 9.750000f, 7.650000f, 1.650000f, -1.40000f, -1.50000f, -1.50000f, -2.65000f, -2.65000f, -2.75000f, -2.75000f, -2.65000f, -2.65000f, 1.400000f, 1.500000f, 1.500000f, 2.650000f, 2.650000f, 2.750000f, 2.750000f, 2.650000f, 2.650000f, -17.7899f, 43.73000f, 2.750000f, -64.2699f, 26.19000f, 46.73000f, 38.23000f, -14.7899f, -23.2899f, -14.9900f, 46.73000f, 5.750000f, -58.9699f, 31.49000f, 52.23000f, 43.73000f, -9.49000f, -17.9900f
+		};
+		DOP18* input1 = (DOP18*)values;
+		DOP18* input2 = ALLOC_COPY(input1, DOP18, inputLength);
+		cl_mem inputGpu = gpu->createBuffer(input2, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY, true);
+
+		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
+		createIndexes->setParametersCreateIndexes(inputLength);
+		cl_mem newIndexes = createIndexes->execute();
+
+		AlgorithmSorting::quickSortNative(input1, inputLength, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength
+			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
+			<< " -DINPUT_OFFSET=" << 0
+			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
+
+		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
+		radixGpu
+			->init(gpu, buildOptions.str().c_str())
+			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER);
+
+		cl_mem output = radixGpu->execute();
+
+		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
+		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			for (sp_uint j = 0; i < DOP18_ORIENTATIONS; i++)
+			{
+				Assert::AreEqual(input1[i].min[j], input2[orderedIndexes[i]].min[j], L"Wrong value.", LINE_INFO());
+				Assert::AreEqual(input1[i].max[j], input2[orderedIndexes[i]].max[j], L"Wrong value.", LINE_INFO());
+			}
+
+		gpu->releaseBuffer(inputGpu);
+		ALLOC_DELETE(radixGpu, GpuRadixSorting);
+		ALLOC_RELEASE(input1);
+
+		ALLOC_DELETE(createIndexes, GpuIndexes);
+	}
+	
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_manyTimes)
 	{
 		GpuContext* context = GpuContext::init();

@@ -65,8 +65,7 @@ namespace NAMESPACE_PHYSICS
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpu(SweepAndPruneResult* result);
-		void findCollisionsGpuOLD(SweepAndPruneResult* result);
-
+		
 		void updateDataOnGPU()
 		{
 			//gpu->commandManager->updateBuffer(_boundingVolumesGPU, sizeof(DOP18) * _objectsLengthAllocated, _boundingVolumes, ONE_UINT, &lastEvent);

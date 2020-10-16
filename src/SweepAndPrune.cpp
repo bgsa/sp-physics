@@ -231,23 +231,28 @@ namespace NAMESPACE_PHYSICS
 		radixSorting->execute(previousEventsLength, previousEvents);
 		lastEvent = radixSorting->lastEvent;
  
-		/*
 		// check if sorting is OK
 		const sp_uint len = inputLenLen;
-		sp_float* aabbs = ALLOC_ARRAY(sp_float, len * 8);
-		lastEvent = gpu->commandManager->readBuffer(input, len * 8 * 4, aabbs, ONE_UINT, &lastEvent);
+		const sp_uint floatsLength = 18;
+		sp_float* kdops = ALLOC_ARRAY(sp_float, len * floatsLength);
+		lastEvent = gpu->commandManager->readBuffer(input, len * floatsLength * 4, kdops, ONE_UINT, &lastEvent);
 		sp_uint* buffer = ALLOC_ARRAY(sp_uint, len);
 		lastEvent = gpu->commandManager->readBuffer(radixSorting->output, 4 * len, buffer, ONE_UINT, &lastEvent);
 		sp_log_info1s("BEGIN SORT"); sp_log_newline();
 		for (sp_uint i = 0; i < len; i++)
 		{
-			sp_float valueX = aabbs[buffer[i] * 8 + 2];
+			sp_float valueX = kdops[buffer[i] * floatsLength ];
 			sp_log_info1f(valueX);
 			sp_log_newline();
 		}
 		sp_log_info1s("END SORT"); sp_log_newline();
 		ALLOC_RELEASE(buffer);
-		*/
+
+		for (sp_uint i = 0; i < len * 18; i++)
+		{
+			sp_log_info1f(kdops[i]);
+			sp_log_info1s("f, ");
+		}
 
 		commandSaPCollisions
 			->updateInputParameter(3, radixSorting->output)
