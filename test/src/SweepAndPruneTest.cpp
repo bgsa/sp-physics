@@ -2424,7 +2424,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops1 = get64KDOPs();
 
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
-		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY, true);
+		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		
 		const sp_size physicPropertySize = sizeof(SpPhysicProperties);
 		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);

@@ -220,7 +220,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			details.vertexIndexObj1 = SP_UINT_MAX;
 			details.vertexIndexObj2 = SP_UINT_MAX;
 			details.ignoreCollision = false;
-			
+
+			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+			details.cacheObj1 = ALLOC_NEW(SpMeshCache)(simulator->mesh(0u)->vertexesMesh->length());
+			details.cacheObj2 = ALLOC_NEW(SpMeshCache)(simulator->mesh(1u)->vertexesMesh->length());
+
 			return details;
 		}
 
@@ -1273,7 +1277,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
-
+		
 		Quat orientationObj1 = Quat::createRotationAxisY(degreesToRadians(45));
 		simulator->transforms(0u)->orientation = orientationObj1;
 		simulator->physicProperties(0u)->currentState.orientation(orientationObj1);
@@ -1292,9 +1296,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		collisionDetector.collisionDetails(&details);
 		
-		Vec3 vertexes[30];
-		simulator->mesh(1)->convert(vertexes, *simulator->transforms(1u));
-
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.type == SpCollisionType::EdgeEdge, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());

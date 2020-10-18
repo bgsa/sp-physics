@@ -328,10 +328,10 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\opencl\src\BasicCommands.cl" />
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
     <None Include="resources\opencl\src\CollisionResponse.cl" />
     <None Include="resources\opencl\src\DOP18.cl" />
+    <None Include="resources\opencl\src\FindFirstNegative.cl" />
     <None Include="resources\opencl\src\FindMinMax.cl" />
     <None Include="resources\opencl\src\InsertionSorting.cl" />
     <None Include="resources\opencl\src\OpenCLBase.cl" />

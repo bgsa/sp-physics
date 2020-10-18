@@ -6505,9 +6505,6 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\opencl\src\BasicCommands.cl">
-      <Filter>Resource Files\OpenCL\src</Filter>
-    </None>
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
@@ -6548,6 +6545,9 @@
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
     <None Include="resources\opencl\src\Quat.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
+    <None Include="resources\opencl\src\FindFirstNegative.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
   </ItemGroup>

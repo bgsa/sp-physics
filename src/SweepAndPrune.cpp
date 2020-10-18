@@ -218,7 +218,7 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(inputGpu, inputLength * strider * SIZEOF_FLOAT)
 			->setInputParameter(physicProperties, inputLength * physicPropertySize)
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
-			->setInputParameter(radixSorting->output, inputLength * SIZEOF_UINT)
+			->setInputParameter(indexesGPU, inputLength * SIZEOF_UINT)
 			->setInputParameter(outputIndexLength, SIZEOF_UINT)
 			->setInputParameter(outputIndex, collisionsSize)
 			->buildFromProgram(sapProgram, "sweepAndPruneSingleAxis");
@@ -228,16 +228,17 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_uint zeroValue = ZERO_UINT;
 
-		radixSorting->execute(previousEventsLength, previousEvents);
+		cl_mem sortedIndexes = radixSorting->execute(previousEventsLength, previousEvents);
 		lastEvent = radixSorting->lastEvent;
  
+		/*
 		// check if sorting is OK
 		const sp_uint len = inputLenLen;
 		const sp_uint floatsLength = 18;
 		sp_float* kdops = ALLOC_ARRAY(sp_float, len * floatsLength);
 		lastEvent = gpu->commandManager->readBuffer(input, len * floatsLength * 4, kdops, ONE_UINT, &lastEvent);
 		sp_uint* buffer = ALLOC_ARRAY(sp_uint, len);
-		lastEvent = gpu->commandManager->readBuffer(radixSorting->output, 4 * len, buffer, ONE_UINT, &lastEvent);
+		lastEvent = gpu->commandManager->readBuffer(sortedIndexes, 4 * len, buffer, ONE_UINT, &lastEvent);
 		sp_log_info1s("BEGIN SORT"); sp_log_newline();
 		for (sp_uint i = 0; i < len; i++)
 		{
@@ -253,15 +254,16 @@ namespace NAMESPACE_PHYSICS
 			sp_log_info1f(kdops[i]);
 			sp_log_info1s("f, ");
 		}
+		*/
 
 		commandSaPCollisions
-			->updateInputParameter(3, radixSorting->output)
+			->updateInputParameter(3, sortedIndexes)
 			->updateInputParameterValue(4, &zeroValue)
 			->execute(1, globalWorkSize, localWorkSize, 0, &lastEvent, ONE_UINT);
 
 		lastEvent = commandSaPCollisions->lastEvent;
 
-		return nullptr;
+		return commandSaPCollisions->getInputParameter(4u);
 	}
 
 	sp_uint SweepAndPrune::fetchCollisionLength()
