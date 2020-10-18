@@ -5,6 +5,7 @@
 
 #include "SpectrumPhysics.h"
 #include <CL/cl.h>
+#include "SpLogger.h"
 
 #if DEBUG
 	#define HANDLE_OPENCL_ERROR(errorCode) GpuLog::handleCompileError(errorCode);
@@ -37,16 +38,17 @@ namespace NAMESPACE_PHYSICS
 		{
 			if (errorCode == CL_BUILD_PROGRAM_FAILURE)
 			{
-				size_t logSize;
+				sp_size logSize;
 
 				errorCode = clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &logSize);
 
-				char* errorMessage = (char*)ALLOC_SIZE(logSize + 1);
+				sp_char* errorMessage = (char*)ALLOC_SIZE(logSize + 1);
 
 				clGetProgramBuildInfo(program, deviceId, CL_PROGRAM_BUILD_LOG, logSize, errorMessage, NULL);
 
-				errorMessage[logSize] = '\0';
+				errorMessage[logSize] = END_OF_STRING;
 
+				sp_log_error1s(errorMessage);
 				sp_assert(false, "OpenCLBuildException");
 				ALLOC_RELEASE(errorMessage);
 			}

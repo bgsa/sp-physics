@@ -334,6 +334,7 @@
     <None Include="resources\opencl\src\FindFirstNegative.cl" />
     <None Include="resources\opencl\src\FindMinMax.cl" />
     <None Include="resources\opencl\src\InsertionSorting.cl" />
+    <None Include="resources\opencl\src\Mat3.cl" />
     <None Include="resources\opencl\src\OpenCLBase.cl" />
     <None Include="resources\opencl\src\Quat.cl" />
     <None Include="resources\opencl\src\RadixSorting.cl" />

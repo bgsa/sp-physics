@@ -48,18 +48,6 @@ namespace NAMESPACE_PHYSICS
 		*/
 		jt *= friction;
 
-		sp_log_info1s("DENOMINADOR: ");
-		sp_log_info1f(denominator);
-		sp_log_newline();
-
-		sp_log_info1s("CONTACTS: ");
-		sp_log_info1f((sp_float)details->contactPointsLength);
-		sp_log_newline();
-		
-		sp_log_info1s("JT: ");
-		sp_log_info1f(jt);
-		sp_log_newline();
-
 		Vec3 tangentImpuse = tangent * jt;
 
 		cross(rayToContactObj1, tangentImpuse, &temp1);

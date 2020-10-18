@@ -131,10 +131,6 @@ namespace NAMESPACE_PHYSICS
 	{
 		sap->execute(ONE_UINT, &sap->lastEvent);
 
-		sap->fetchCollisionIndexes(result->indexes);
-		result->length = sap->fetchCollisionLength();
-//		return;
-	
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, _boundingVolumes, _physicProperties);
 
 		collisionResponseGPU->execute(ONE_UINT, &sap->lastEvent);
@@ -167,9 +163,6 @@ namespace NAMESPACE_PHYSICS
 			detailsArray[i].timeStep = elapsedTime;
 			detailsArray[i].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex1)->meshIndex)->vertexesMesh->length());
 			detailsArray[i].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex2)->meshIndex)->vertexesMesh->length());
-
-			if (detailsArray[i].objIndex1 == detailsArray[i].objIndex2)
-				int a = 1.0f;
 
 			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
 			tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;

@@ -23,6 +23,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
+		const sp_uint sizePhysicProperties = sizeof(SpPhysicProperties);
 		const sp_uint length = 3u;
 		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
 		for (sp_uint i = 0; i < length; i++)
@@ -39,8 +40,26 @@ namespace NAMESPACE_PHYSICS_TEST
 			index += 3;
 			physicProperties[i].currentState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 4;
-			physicProperties[i].addImpulseAngular(Vec3(index, index + 1.0f, index + 2.0f), Vec3(index, index + 1.0f, index + 2.0f));
-			index += 6 + 21;
+			physicProperties[i].currentState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+			physicProperties[i].currentState.torque(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+
+			physicProperties[i].previousState.position(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+			physicProperties[i].previousState.velocity(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+			physicProperties[i].previousState.acceleration(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+			physicProperties[i].previousState.addForce(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+			physicProperties[i].previousState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 4;
+			physicProperties[i].previousState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+			physicProperties[i].previousState.torque(Vec3(index, index + 1.0f, index + 2.0f));
+			index += 3;
+
 			physicProperties[i].mass(index);
 			index += 1;
 			physicProperties[i].damping(index);
@@ -51,11 +70,9 @@ namespace NAMESPACE_PHYSICS_TEST
 			index += 1;
 			physicProperties[i].coeficientOfFriction(index);
 		}
-		physicProperties[2].currentState.position(physicProperties[2].previousState.position());
-		physicProperties[2].currentState.acceleration(physicProperties[2].previousState.acceleration());
-
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizePhysicProperties * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem outputGpu = gpu->createBuffer(sizePhysicProperties, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
@@ -71,21 +88,21 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(physcPropertiesGpu, sizeof(SpPhysicProperties) * length)
-			->setInputParameter(outputGpu, sizeof(SpPhysicProperties))
+			->setInputParameter(physcPropertiesGpu, sizePhysicProperties * length)
+			->setInputParameter(outputGpu, sizePhysicProperties)
 			->buildFromProgram(sapProgram, "fetch");
 
 		const sp_size globalWorkSize[3] = { 1, 0, 0 };
 		const sp_size localWorkSize[3] = { 1, 0, 0 };
 
 		const sp_size elementIndex = 2u;
-		sp_float* result = (sp_float*)ALLOC_SIZE(sizeof(SpPhysicProperties));
+		sp_float* result = (sp_float*)ALLOC_SIZE(sizePhysicProperties);
 		command
 			->execute(1, globalWorkSize, localWorkSize, &elementIndex)
 			->fetchInOutParameter<sp_float>(1u, result);
 
 		const sp_float* expected = (sp_float*)&physicProperties[elementIndex];
-		const sp_uint floatsInProperties = sizeof(SpPhysicProperties) / sizeof(sp_float);
+		const sp_uint floatsInProperties = sizePhysicProperties / sizeof(sp_float);
 
 		for (sp_uint i = 0; i < floatsInProperties; i++)
 			Assert::AreEqual(expected[i], result[i], L"wrong value", LINE_INFO());

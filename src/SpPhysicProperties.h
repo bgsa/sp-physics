@@ -189,7 +189,6 @@ namespace NAMESPACE_PHYSICS
 		sp_float _angularDamping;
 		sp_float _coeficientOfRestitution;
 		sp_float _coeficientOfFriction;
-		sp_float _integratedTime;
 
 		Mat3 _inertialTensorInverse;
 
@@ -212,7 +211,6 @@ namespace NAMESPACE_PHYSICS
 			_coeficientOfRestitution = 0.60f;
 			_coeficientOfFriction = 0.80f;
 			_inverseMass = ZERO_FLOAT;
-			_integratedTime = ZERO_FLOAT;
 			_inertialTensorInverse = Mat3::identity();
 		}
 
@@ -263,9 +261,9 @@ namespace NAMESPACE_PHYSICS
 
 			const sp_bool isRestingPosition = isCloseEnough(currentState._position, previousState._position, restingEpsilon);
 			const sp_bool isRestingOrientation = isCloseEnough(currentState._orientation, previousState._orientation, restingEpsilon);
-			const sp_bool isRestingAcc = (isCloseEnough(currentState._acceleration, ZERO_FLOAT) || isCloseEnough(currentState._acceleration, restingAcceleration(), restingEpsilon));
-			const sp_bool isRestingVelocity = isCloseEnough(currentState._velocity - previousState._velocity, ZERO_FLOAT, restingEpsilon);
-			const sp_bool isRestingAngVelocity = isCloseEnough(currentState._angularVelocity - previousState._angularVelocity, ZERO_FLOAT, restingEpsilon);
+			//const sp_bool isRestingAcc = (isCloseEnough(currentState._acceleration, ZERO_FLOAT) || isCloseEnough(currentState._acceleration, restingAcceleration(), restingEpsilon));
+			//const sp_bool isRestingVelocity = isCloseEnough(currentState._velocity - previousState._velocity, ZERO_FLOAT, restingEpsilon);
+			//const sp_bool isRestingAngVelocity = isCloseEnough(currentState._angularVelocity - previousState._angularVelocity, ZERO_FLOAT, restingEpsilon);
 		
 			return isRestingPosition 
 				&& isRestingOrientation

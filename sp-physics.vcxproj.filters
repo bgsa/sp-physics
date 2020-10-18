@@ -6550,5 +6550,8 @@
     <None Include="resources\opencl\src\FindFirstNegative.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
+    <None Include="resources\opencl\src\Mat3.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
   </ItemGroup>
 </Project>
