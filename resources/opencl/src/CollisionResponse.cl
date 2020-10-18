@@ -45,11 +45,31 @@ __kernel void handleCollision(
     Vec3 translationObj2;
     vec3_minus_vec3(previousPositionObj2, positionObj2, translationObj2);
 
-    if (isStaticObj1 && isRestingObj2)
+    if (isRestingObj1 && isRestingObj2)
     {
         if (!isStaticObj1 && !isStaticObj2)
             return;
 
+        dop18_translate(dops, index1, translationObj1);
+        SpPhysicProperties_setPosition(physicProperties, physicIndex1, previousPositionObj1);
+        SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
+        SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);
+        SpPhysicProperties_setOrientation(physicProperties, physicIndex1, previousOrientationObj1);
+        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex1, VEC3_ZERO);
+        SpPhysicProperties_setTorque(physicProperties, physicIndex1, VEC3_ZERO);
+
+        dop18_translate(dops, index2, translationObj2);
+        SpPhysicProperties_setPosition(physicProperties, physicIndex2, previousPositionObj2);
+        SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
+        SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
+        SpPhysicProperties_setOrientation(physicProperties, physicIndex2, previousOrientationObj2);
+        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex2, VEC3_ZERO);
+        SpPhysicProperties_setTorque(physicProperties, physicIndex2, VEC3_ZERO);
+        return;
+    }
+
+    if (isStaticObj1 && isRestingObj2)
+    {
         dop18_translate(dops, index2, translationObj2);
         SpPhysicProperties_setPosition(physicProperties, physicIndex2, previousPositionObj2);
         SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
@@ -69,26 +89,6 @@ __kernel void handleCollision(
         SpPhysicProperties_setOrientation(physicProperties, physicIndex1, previousOrientationObj1);
         SpPhysicProperties_setAngVelocity(physicProperties, physicIndex1, VEC3_ZERO);
         SpPhysicProperties_setTorque(physicProperties, physicIndex1, VEC3_ZERO);
-        return;
-    }
-
-    if (isRestingObj1 && isRestingObj2) // if one of them are not resting
-    {
-        dop18_translate(dops, index1, translationObj1);
-        SpPhysicProperties_setPosition(physicProperties, physicIndex1, previousPositionObj1);
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setOrientation(physicProperties, physicIndex1, previousOrientationObj1);
-        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setTorque(physicProperties, physicIndex1, VEC3_ZERO);
-
-        dop18_translate(dops, index2, translationObj2);
-        SpPhysicProperties_setPosition(physicProperties, physicIndex2, previousPositionObj2);
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setOrientation(physicProperties, physicIndex2, previousOrientationObj2);
-        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setTorque(physicProperties, physicIndex2, VEC3_ZERO);
         return;
     }
 
