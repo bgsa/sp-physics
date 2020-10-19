@@ -419,15 +419,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		const sp_uint maxIterations = 20;
-		std::chrono::nanoseconds times[maxIterations];
-		std::chrono::nanoseconds minTime(99999999999);
-
-		sp_uint inputLength = (sp_uint)std::pow(2.0, 17.0);
-
 		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
 		createIndexes->init(gpu, nullptr);
 
+		sp_uint inputLength = (sp_uint)std::pow(2.0, 17.0);
+		const sp_uint maxIterations = 20;
 		for (sp_size i = 0; i < maxIterations; i++)
 		{	
 			sp_float* input1 = getRandom(inputLength);
