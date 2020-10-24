@@ -19,6 +19,7 @@
 #include "SpGpuRenderingFactory.h"
 #include "SpCollisionResponse.h"
 #include "SpPhysicIntegrator.h"
+#include "SpCollisionGroup.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -251,6 +252,8 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		API_INTERFACE void run();
+
+		API_INTERFACE void groupCollisions(const SweepAndPruneResult& sapResult, SpCollisionGroups* collisionGroups);
 
 		API_INTERFACE void moveAwayDynamicObjects()
 		{

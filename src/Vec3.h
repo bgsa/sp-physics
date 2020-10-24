@@ -367,6 +367,9 @@ namespace NAMESPACE_PHYSICS
 
 	};
 
+	const Vec3 Vec3Zeros = Vec3(ZERO_FLOAT);
+	const Vec3 Vec3Ones = Vec3(ONE_FLOAT);
+
 	API_INTERFACE inline void abs(Vec3* vec)
 	{
 		vec->x = std::fabsf(vec->x);

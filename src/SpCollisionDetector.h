@@ -18,8 +18,6 @@ namespace NAMESPACE_PHYSICS
 		sp_uint faceIndex;
 		sp_bool searchOnObj1;
 		sp_float distance;
-		SpMeshCache* cacheMesh1;
-		SpMeshCache* cacheMesh2;
 
 		API_INTERFACE SpCollisionDetectorCache()
 		{
@@ -48,9 +46,8 @@ namespace NAMESPACE_PHYSICS
 		void timeOfCollision(SpCollisionDetails* details);
 
 		sp_bool findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, 
-			sp_uint* vertexIndexObj1, Vec3* contactPoint,
-			SpCollisionDetectorCache* cache, SpMeshCache* cacheMesh1, SpMeshCache* cacheMesh2,
-			SpCollisionDetails* details);
+			sp_uint* vertexIndexObj1, Vec3* contactPoint, SpCollisionDetectorCache* cache,
+			SpMeshCache* cacheMesh1, SpMeshCache* cacheMesh2, SpCollisionDetails* details);
 
 		sp_bool isFaceFaceCollision(SpCollisionDetails* details) const;
 

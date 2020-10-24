@@ -18,7 +18,8 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSettings()
 		{
 			//_physicVelocity = 0.009f;
-			_physicVelocity = 0.01f;
+			//_physicVelocity = 0.01f;
+			_physicVelocity = 0.005f;
 			_gravityForce = Vec3(0.0f, -9.8f, 0.0f);
 			_restingVelocityEpsilon = 0.09f;
 			enableSimulation();

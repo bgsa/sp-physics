@@ -283,6 +283,7 @@
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
     <ClInclude Include="src\SpCollisionFeatures.h" />
+    <ClInclude Include="src\SpCollisionGroup.h" />
     <ClInclude Include="src\SpCollisionResponse.h" />
     <ClInclude Include="src\SpCollisionResponseGPU.h" />
     <ClInclude Include="src\SpFaceMesh.h" />
@@ -314,6 +315,7 @@
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SpVertexMesh.h" />
     <ClInclude Include="src\SpEdgeMesh.h" />
+    <ClInclude Include="src\SpWavefrontExporter.h" />
     <ClInclude Include="src\SweepAndPrune.h" />
     <ClInclude Include="src\SystemOfLinearEquations.h" />
     <ClInclude Include="src\Triangle2D.h" />

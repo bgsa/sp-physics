@@ -20,10 +20,10 @@ namespace NAMESPACE_PHYSICS
 
 		Vec3 d2;
 		cross(obj1Properties->inertialTensorInverse() * temp1, rayToContactObj1, &d2);
-		
+
 		Vec3 d3;
 		cross(obj2Properties->inertialTensorInverse() * temp2, rayToContactObj2, &d3);
-		
+
 		sp_float denominator = invMassSum + tangent.dot(d2 + d3);
 
 		if (denominator == ZERO_FLOAT)
@@ -53,11 +53,31 @@ namespace NAMESPACE_PHYSICS
 		cross(rayToContactObj1, tangentImpuse, &temp1);
 		cross(rayToContactObj2, tangentImpuse, &temp2);
 
-		obj1Properties->currentState._velocity += tangentImpuse;
-		obj1Properties->currentState._angularVelocity += tangentImpuse * jt;
+		if (obj1Properties->isResting())
+		{
+			obj1Properties->currentState._position = obj1Properties->previousState._position;
+			obj1Properties->currentState._orientation = obj1Properties->previousState._orientation;
+			obj1Properties->currentState._velocity = Vec3Zeros;
+			obj1Properties->currentState._angularVelocity = Vec3Zeros;
+		}
+		else 
+		{
+			obj1Properties->currentState._velocity -= tangentImpuse;
+			obj1Properties->currentState._angularVelocity += (temp1 * jt) * obj1Properties->angularDamping();
+		}
 
-		obj2Properties->currentState._velocity -= tangentImpuse;
-		obj2Properties->currentState._angularVelocity += temp2 * -jt;
+		if (obj2Properties->isResting())
+		{
+			obj2Properties->currentState._position = obj2Properties->previousState._position;
+			obj2Properties->currentState._orientation = obj2Properties->previousState._orientation;
+			obj2Properties->currentState._velocity = Vec3Zeros;
+			obj2Properties->currentState._angularVelocity = Vec3Zeros;
+		}
+		else
+		{
+			obj2Properties->currentState._velocity += tangentImpuse;
+			obj2Properties->currentState._angularVelocity += (temp2 * -jt) * obj2Properties->angularDamping();
+		}
 	}
 
 	void SpCollisionResponse::handleCollisionResponse(SpCollisionDetails* details)
@@ -88,7 +108,7 @@ namespace NAMESPACE_PHYSICS
 		add(obj2Properties->currentState.velocity(), angularCrossContactRayObj2, &pointVelocityObj2);
 
 		Vec3 relativeVel;
-		diff(pointVelocityObj1, pointVelocityObj2, &relativeVel);
+		diff(pointVelocityObj2, pointVelocityObj1, &relativeVel);
 
 		sp_float relativeVelocityAtNormal = relativeVel.dot(collisionNormal);
 
@@ -126,19 +146,39 @@ namespace NAMESPACE_PHYSICS
 
 		const Vec3 impulse = collisionNormal * j;
 		
-		obj1Properties->currentState._velocity = impulse * obj1Properties->massInverse() * obj1Properties->damping();
-		obj1Properties->currentState._angularVelocity = angularImpulse1 * obj1Properties->angularDamping();
-
-		obj2Properties->currentState._velocity = -impulse * obj2Properties->massInverse() * obj2Properties->damping();
-		obj2Properties->currentState._angularVelocity = -angularImpulse2 * obj2Properties->angularDamping();
+		if (obj1Properties->isResting())
+		{
+			obj1Properties->currentState._position = obj1Properties->previousState._position;
+			obj1Properties->currentState._orientation = obj1Properties->previousState._orientation;
+			obj1Properties->currentState._velocity = Vec3Zeros;
+			obj1Properties->currentState._angularVelocity = Vec3Zeros;
+		}
+		else
+		{
+			obj1Properties->currentState._velocity = -impulse * obj1Properties->massInverse() * obj1Properties->damping();
+			obj1Properties->currentState._angularVelocity = -angularImpulse1 * obj1Properties->angularDamping();
+		}
+		
+		if (obj2Properties->isResting())
+		{
+			obj2Properties->currentState._position = obj2Properties->previousState._position;
+			obj2Properties->currentState._orientation = obj2Properties->previousState._orientation;
+			obj2Properties->currentState._velocity = Vec3Zeros;
+			obj2Properties->currentState._angularVelocity = Vec3Zeros;
+		}
+		else
+		{
+			obj2Properties->currentState._velocity = impulse * obj2Properties->massInverse() * obj2Properties->damping();
+			obj2Properties->currentState._angularVelocity = angularImpulse2 * obj2Properties->angularDamping();
+		}
 
 		addFriction(obj1Properties, obj2Properties, relativeVel, collisionNormal , rayToContactObj1, rayToContactObj2, j, details);
 
-		obj1Properties->currentState._acceleration = ZERO_FLOAT;
-		obj1Properties->currentState._torque = ZERO_FLOAT;
+		obj1Properties->currentState._acceleration = Vec3Zeros;
+		obj1Properties->currentState._torque = Vec3Zeros;
 
-		obj2Properties->currentState._acceleration = ZERO_FLOAT;
-		obj2Properties->currentState._torque = ZERO_FLOAT;
+		obj2Properties->currentState._acceleration = Vec3Zeros;
+		obj2Properties->currentState._torque = Vec3Zeros;
 	}
 
 }

@@ -140,22 +140,98 @@ namespace NAMESPACE_PHYSICS
 		collisionResponseGPU->fetchCollisions(result->indexes);
 	}
 
+	void SpPhysicSimulator::groupCollisions(const SweepAndPruneResult& sapResult, SpCollisionGroups* collisionGroups)
+	{
+		for (sp_uint i = 0; i < sapResult.length; i++)
+		{
+			sp_uint id = sapResult.indexes[multiplyBy2(i)];
+
+			// TODO: REMOVE !! ignora o indice 0 pq eh o chao!
+			//if (id == 0) continue;
+
+			sp_uint groupId = collisionGroups->mapper[id];
+
+			if (groupId == SP_UINT_MAX) // if does not has allocated group, create
+			{
+				groupId = collisionGroups->groupLength++;
+				collisionGroups->mapper[id] = groupId;
+				collisionGroups->groups[groupId].id = id;
+			}
+
+			collisionGroups->groups[groupId].addElement(sapResult.indexes[multiplyBy2(i) + 1]);
+		}
+	}
+
+	sp_uint pairsLeaf(const SpCollisionGroups& groups, const SpCollisionGroup& group, sp_uint* output)
+	{
+		sp_uint pairsLength = ZERO_UINT;
+
+		for (sp_uint i = 0; i < group.elementsLength; i++)
+		{
+			sp_uint element = group.elements[i];
+			sp_uint index = groups.mapper[element];
+
+			if (index == SP_UINT_MAX)
+			{
+				output[pairsLength++] = group.id;
+				output[pairsLength++] = element;
+			}
+			else
+				pairsLength += pairsLeaf(groups, groups.groups[index], &output[pairsLength]);
+		}
+
+		return pairsLength;
+	}
+
 	void SpPhysicSimulator::run()
 	{
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
-
-		//findCollisionsCpu(&sapResult);
+		findCollisionsCpu(&sapResult);
 
 		updateDataOnGPU();
-		findCollisionsGpu(&sapResult);
+		//findCollisionsGpu(&sapResult);
 		updateDataOnCPU();
+
+		SpThreadPool* threadPool = SpThreadPool::instance();
+		const sp_float elapsedTime = Timer::physicTimer()->elapsedTime();
+
+		/*
+		SpCollisionGroups groups(_objectsLength, multiplyBy2(sapResult.length));
+		groupCollisions(sapResult, &groups);
+
+		sp_uint taskIndex = ZERO_UINT;
+		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, multiplyBy4(_objectsLength));
+		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, multiplyBy4(_objectsLength));
+
+		for (sp_uint i = 0; i < groups.groupLength; i++)
+		{
+			sp_uint* pairs = ALLOC_ARRAY(sp_uint, multiplyBy2(50));
+			sp_uint pairsLength = pairsLeaf(groups, groups.groups[i], pairs);
+
+			for (sp_uint j = 0; j < pairsLength; j+=2)
+			{
+				detailsArray[taskIndex].objIndex1 = pairs[j];
+				detailsArray[taskIndex].objIndex2 = pairs[j + 1];
+				detailsArray[taskIndex].timeStep = elapsedTime;
+				detailsArray[taskIndex].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[taskIndex].objIndex1)->meshIndex)->vertexesMesh->length());
+				detailsArray[taskIndex].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[taskIndex].objIndex2)->meshIndex)->vertexesMesh->length());
+
+				tasks[taskIndex].func = &SpPhysicSimulator::handleCollisionCPU;
+				//tasks[taskIndex].func = &SpPhysicSimulator::handleCollisionGPU;
+				tasks[taskIndex].parameter = &detailsArray[taskIndex];
+
+				threadPool->schedule(&tasks[taskIndex]);
+				//handleCollisionCPU(&detailsArray[taskIndex]);
+				taskIndex++;
+			}
+
+			ALLOC_RELEASE(pairs);
+		}
+		*/
 
 		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
 		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
-		SpThreadPool* threadPool = SpThreadPool::instance();
-		const sp_float elapsedTime = Timer::physicTimer()->elapsedTime();
-		
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
@@ -164,8 +240,8 @@ namespace NAMESPACE_PHYSICS
 			detailsArray[i].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex1)->meshIndex)->vertexesMesh->length());
 			detailsArray[i].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex2)->meshIndex)->vertexesMesh->length());
 
-			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
-			tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
+			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
+			//tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
 			tasks[i].parameter = &detailsArray[i];
 			
 			threadPool->schedule(&tasks[i]);

@@ -264,9 +264,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpMesh* mesh2 = simulator->mesh(1u);
 		
 		SpCollisionDetectorCache cache;
-		cache.cacheMesh1 = ALLOC_NEW(SpMeshCache)(mesh1->vertexesMesh->length());
-		cache.cacheMesh2 = ALLOC_NEW(SpMeshCache)(mesh2->vertexesMesh->length());
-		
 		const SpCollisionDetector collisionDetector;
 
 		SpCollisionDetails details = newCollisionDetails();

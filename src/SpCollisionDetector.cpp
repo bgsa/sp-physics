@@ -1,5 +1,5 @@
 #include "SpCollisionDetector.h"
-#include "SpMapleExporter.h"
+#include "SpWavefrontExporter.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -331,7 +331,7 @@ namespace NAMESPACE_PHYSICS
 			if (collisionStatusCache(cache, contactPoint, details))
 				return CollisionStatus::INSIDE;
 
-		sp_bool hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, contactPoint, cache, cache->cacheMesh1, cache->cacheMesh2, details);
+		sp_bool hasCollision = findCollisionEdgeFace(details->objIndex1, details->objIndex2, &details->vertexIndexObj1, contactPoint, cache, details->cacheObj1, details->cacheObj2, details);
 		
 		if (hasCollision)
 		{
@@ -339,7 +339,7 @@ namespace NAMESPACE_PHYSICS
 			return CollisionStatus::INSIDE;
 		}
 
-		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, contactPoint, cache, cache->cacheMesh2, cache->cacheMesh1, details);
+		hasCollision = findCollisionEdgeFace(details->objIndex2, details->objIndex1, &details->vertexIndexObj2, contactPoint, cache, details->cacheObj2, details->cacheObj1, details);
 
 		if (hasCollision)
 		{
@@ -377,6 +377,12 @@ namespace NAMESPACE_PHYSICS
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
+		SpPhysicProperties* physicObj1 = simulator->physicProperties(details->objIndex1);
+		SpPhysicProperties* physicObj2 = simulator->physicProperties(details->objIndex2);
+
+		sp_bool isObj1Resting = physicObj1->isResting();
+		sp_bool isObj2Resting = physicObj2->isResting();
+
 		sp_bool hasIntersection = false;
 		const sp_float _epsilon = 0.1f;
 		sp_float previousElapsedTime = details->timeStep;
@@ -384,20 +390,33 @@ namespace NAMESPACE_PHYSICS
 		sp_float elapsedTime = details->timeStep * HALF_FLOAT;
 		sp_float wasInsideAt = ZERO_FLOAT;
 		
+		SpCollisionDetectorCache cache;
 		Vec3 contact;
+
+		if (isObj1Resting)
+			details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+
+		if (isObj2Resting)
+			details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
 
 		while ((!hasIntersection || diff > _epsilon) && diff > 0.01f)
 		{
-			simulator->backToTime(details->objIndex1);
-			simulator->integrator->execute(details->objIndex1, elapsedTime);
-			details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+			if (!isObj1Resting)
+			{
+				simulator->backToTime(details->objIndex1);
+				simulator->integrator->execute(details->objIndex1, elapsedTime);
+				details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+			}
 
-			simulator->backToTime(details->objIndex2);
-			simulator->integrator->execute(details->objIndex2, elapsedTime);
-			details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
+			if (!isObj2Resting)
+			{
+				simulator->backToTime(details->objIndex2);
+				simulator->integrator->execute(details->objIndex2, elapsedTime);
+				details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
+			}
 
-			hasIntersection = hasCollision(details->objIndex1, details->objIndex2, details);
-			//hasIntersection = collisionStatus(&contact, cache, details) == CollisionStatus::INSIDE;
+			//hasIntersection = hasCollision(details->objIndex1, details->objIndex2, details);
+			hasIntersection = collisionStatus(&contact, &cache, details) == CollisionStatus::INSIDE;
 
 			diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
@@ -423,22 +442,27 @@ namespace NAMESPACE_PHYSICS
 			{
 				elapsedTime = wasInsideAt;
 
-				simulator->backToTime(details->objIndex1);
-				simulator->integrator->execute(details->objIndex1, elapsedTime);
-				details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+				if (!isObj1Resting)
+				{
+					simulator->backToTime(details->objIndex1);
+					simulator->integrator->execute(details->objIndex1, elapsedTime);
+					details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+				}
 
-				simulator->backToTime(details->objIndex2);
-				simulator->integrator->execute(details->objIndex2, elapsedTime);
-				details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
+				if (!isObj2Resting)
+				{
+					simulator->backToTime(details->objIndex2);
+					simulator->integrator->execute(details->objIndex2, elapsedTime);
+					details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
+				}
 
-				hasCollision(details->objIndex1, details->objIndex2, details);
+				//hasCollision(details->objIndex1, details->objIndex2, details);
 			}
 		}
 
-		/*
-		collisionStatus(&contact, cache, details);
+		collisionStatus(&contact, &cache, details);
 
-		if (cache->searchOnObj1)
+		if (cache.searchOnObj1)
 		{
 			details->vertexIndexObj1 = mesh1->findClosest(contact, *simulator->transforms(details->objIndex1))->index();
 			details->vertexIndexObj2 = mesh2->vertexesMesh->get(details->vertexIndexObj2)->findClosest(contact, *simulator->transforms(details->objIndex2))->index();
@@ -448,8 +472,7 @@ namespace NAMESPACE_PHYSICS
 			details->vertexIndexObj2 = mesh2->findClosest(contact, *simulator->transforms(details->objIndex2))->index();
 			details->vertexIndexObj1 = mesh1->vertexesMesh->get(details->vertexIndexObj1)->findClosest(contact, *simulator->transforms(details->objIndex1))->index();
 		}
-		*/
-
+		
 		details->timeOfCollision = elapsedTime;
 
 		sp_assert(details->objIndex1 < simulator->objectsLength(), "InvalidArgumentException");
@@ -465,7 +488,21 @@ namespace NAMESPACE_PHYSICS
 		timeOfCollision(details);
 
 		if (details->ignoreCollision) // if they are not colliding in geometry
+		{
+			if (details->objIndex1 != 0 && details->objIndex2 != 0)
+			{
+				SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+				Wavefront::SpWavefrontExporter exporter;
+				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red");
+				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue");
+				exporter.save("temp.obj");
+
+				sp_log_info1s("ignorando colisao: geometria nao colide");
+				sp_log_newline();
+			}
+
 			return;
+		}
 
 		fillCollisionDetails(details);
 	}
@@ -566,15 +603,15 @@ namespace NAMESPACE_PHYSICS
 			return;
 	
 		// TODO: REMOVER!!
-		details->ignoreCollision = true;
-		return;
+		//details->ignoreCollision = true;
+		//return;
+		
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		sp_char text[16000];
-		sp_uint index = ZERO_UINT;
-		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red", text, &index);
-		Maple::convert(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue", text, &index);
-		Maple::display("mesh1", "mesh2", text, &index);
-	
+		Wavefront::SpWavefrontExporter exporter;
+		exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red");
+		exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue");
+		exporter.save("temp.obj");
+
 		sp_assert(details->ignoreCollision == false, "ApplicationException");
 		sp_assert(details->type != SpCollisionType::None, "ApplicationException");
 	}
@@ -605,10 +642,10 @@ namespace NAMESPACE_PHYSICS
 		const SpTransform transform2 = *simulator->transforms(details->objIndex2);
 
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
-		SpVertexMesh* vertex1 = mesh1->vertexesMesh->data()[details->vertexIndexObj1];
+		SpVertexMesh* vertex1 = mesh1->vertexesMesh->get(details->vertexIndexObj1);
 		
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
-		SpVertexMesh* vertex2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];
+		SpVertexMesh* vertex2 = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 		
 		sp_uint facesIndexesMesh1[MAX_PARALLEL_FACES];
 		sp_uint facesIndexesMesh1Length = ZERO_UINT;
