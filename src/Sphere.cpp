@@ -43,8 +43,8 @@ namespace NAMESPACE_PHYSICS
 
 	Sphere::Sphere()
 	{
-		this->center = Vec3(0.0f);
-		this->ray = 1.0f;
+		this->center = Vec3Zeros;
+		this->ray = ONE_FLOAT;
 	}
 
 	Sphere::Sphere(const Vec3 &center, sp_float ray)
@@ -154,7 +154,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_float distanceToPoint = distance(center, point);
 		
-		if (isCloseEnough(distanceToPoint, ray))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(distanceToPoint, ray))
 			return CollisionStatus::INLINE;
 
 		if (distanceToPoint > ray)
@@ -172,7 +172,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float diameter = ray + sphere.ray;
 		sp_float squaredDiameter = diameter * diameter;
 
-		if (isCloseEnough(squaredDistance, squaredDiameter))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(squaredDistance, squaredDiameter))
 			return CollisionStatus::INLINE;
 
 		if (squaredDistance > squaredDiameter)
@@ -201,7 +201,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float d = plane.getDcomponent();
 		sp_float distanceToPlane = center.dot(plane.normalVector) + d;
 
-		if (isCloseEnough(distanceToPlane, ray))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(distanceToPlane, ray))
 			return CollisionStatus::INLINE;
 
 		if (distanceToPlane > ray)

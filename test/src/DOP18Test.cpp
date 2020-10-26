@@ -86,7 +86,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, collisionStatus_plane)
 	{
 		DOP18 kdop = DOP18();
-		Plane3D plane = Plane3D(Vec3(0.0f), Vec3(0.0f, 1.0f, 0.0f));
+		Plane3D plane = Plane3D(Vec3Zeros, Vec3Up);
 
 		CollisionStatus result = kdop.collisionStatus(plane);
 		Assert::AreEqual(CollisionStatus::INSIDE, result, L"Wrong value.", LINE_INFO());
@@ -100,7 +100,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, collisionStatus_point)
 	{
 		DOP18 kdop = DOP18();
-		Vec3 point = Vec3(0.0f);
+		Vec3 point = Vec3Zeros;
 
 		CollisionStatus result = kdop.collisionStatus(point);
 		Assert::AreEqual(CollisionStatus::INSIDE, result, L"Wrong value.", LINE_INFO());

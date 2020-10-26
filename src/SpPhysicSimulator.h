@@ -11,7 +11,6 @@
 #include "Timer.h"
 #include "SpPhysicSettings.h"
 #include "SpCollisionDetails.h"
-#include "Ray.h"
 #include "SpThreadPool.h"
 #include "SpCollisionResponseGPU.h"
 #include "SpCollisionFeatures.h"
@@ -20,6 +19,7 @@
 #include "SpCollisionResponse.h"
 #include "SpPhysicIntegrator.h"
 #include "SpCollisionGroup.h"
+#include "SpDOP18Factory.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -38,6 +38,7 @@ namespace NAMESPACE_PHYSICS
 		SpTransform* _transforms;
 		SpCollisionFeatures* _collisionFeatures;
 		SpArray<SpMesh*>* _meshes;
+		SpArray<SpMeshCache*>* _meshesCache;
 
 		cl_event lastEvent;
 		cl_mem _transformsGPU;
@@ -86,7 +87,8 @@ namespace NAMESPACE_PHYSICS
 		static void handleCollisionCPU(void* collisionParamter);
 		static void handleCollisionGPU(void* collisionParamter);
 
-		
+		void buildDOP18() const;
+
 	public:
 		SpPhysicIntegrator* integrator;
 
@@ -161,7 +163,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline SpMesh* mesh(const sp_uint index) const
 		{
-			return _meshes->data()[index];
+			return _meshes->get(index);
 		}
 
 		API_INTERFACE inline void mesh(const sp_uint index, SpMesh* mesh)
@@ -169,6 +171,14 @@ namespace NAMESPACE_PHYSICS
 			_meshes->data()[index] = mesh;
 		}
 
+		API_INTERFACE inline SpMeshCache* meshCache(const sp_uint index) const
+		{
+			return _meshesCache->get(index);
+		}
+
+		API_INTERFACE inline void initMeshCache();
+		API_INTERFACE inline void updateMeshCache();
+		
 		API_INTERFACE inline SpGpuTextureBuffer* transformsGPU() const
 		{
 			return _transformsGPUBuffer;

@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 
 			newAproximation = newAproximation - std::pow(newAproximation1 - newAproximation, TWO_FLOAT) / divisor;
 
-			if (isCloseEnough(newAproximation, approximation))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(newAproximation, approximation))
 				return newAproximation;
 
 			approximation = newAproximation;

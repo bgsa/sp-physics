@@ -95,7 +95,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		triangle.point1 = Vec3( 1.835786f, 0.0f, 1.0f );
 		triangle.point2 = Vec3(1.835786f, 0.0f, -1.0f);
 		triangle.point3 = Vec3(3.249994f, -1.414214f, -1.0f);
-		target = Vec3(ZERO_FLOAT);
+		target = Vec3Zeros;
 		expected = Vec3(1.83578598f, 0.0f, 0.0f);
 		triangle.closestPoint(target, &result);
 		Assert::IsTrue(isCloseEnough(expected, result), L"Wrong value.");

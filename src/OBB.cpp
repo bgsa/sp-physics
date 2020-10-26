@@ -5,7 +5,7 @@ namespace NAMESPACE_PHYSICS
 	OBB::OBB(const Vec3& center)
 	{
 		this->center = center;
-		this->halfWidth = Vec3(0.5f);
+		this->halfWidth = Vec3(0.5f, 0.5f, 0.5f);
 		this->orientation = Mat3::identity();
 	}
 

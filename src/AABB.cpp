@@ -4,7 +4,7 @@ namespace NAMESPACE_PHYSICS
 {
 	AABB::AABB()
 	{
-		this->minPoint = Vec3(-0.5f);
+		this->minPoint = Vec3(-0.5f, -0.5f, -0.5f);
 		this->maxPoint = -this->minPoint;
 	}
 
@@ -122,7 +122,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float distanceToSphere = squaredDistance(sphere.center);
 		sp_float squaredRay = sphere.ray * sphere.ray;
 		
-		if (isCloseEnough(distanceToSphere, squaredRay))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(distanceToSphere, squaredRay))
 			return CollisionStatus::INLINE;
 
 		if (distanceToSphere < squaredRay)

@@ -9,7 +9,7 @@ namespace NAMESPACE_PHYSICS
 
 		Vec3 tangent = relativeVel - (collisionNormal * relativeVel.dot(collisionNormal));
 
-		if (isCloseEnough(length(tangent), ZERO_FLOAT))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(length(tangent), ZERO_FLOAT))
 			return;
 
 		normalize(&tangent);
@@ -31,7 +31,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_float jt = (-relativeVel.dot(tangent)) / denominator;
 
-		if (isCloseEnough(jt, ZERO_FLOAT))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(jt, ZERO_FLOAT))
 			return;
 		else
 			jt /= details->contactPointsLength;

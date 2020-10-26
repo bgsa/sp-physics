@@ -8,7 +8,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_float newApproximation = functor(approximation);
 
-			if (isCloseEnough(newApproximation, approximation))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(newApproximation, approximation))
 				return newApproximation;
 
 			approximation = newApproximation;

@@ -2,25 +2,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	
-	Vec3::Vec3(const sp_float defaultValue) {
-		x = defaultValue;
-		y = defaultValue;
-		z = defaultValue;
-	}
-	
-	Vec3::Vec3(const sp_float x, const sp_float y, const sp_float z) {
-		this->x = x;
-		this->y = y;
-		this->z = z;
-	}
-	
-	Vec3::Vec3(const Vec3& value)
-	{
-		x = value.x;
-		y = value.y;
-		z = value.z;
-	}
 
 	Vec3::Vec3(Vec2 vector2D, sp_float z) {
 		x = vector2D[0];
@@ -231,9 +212,9 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Vec3::operator==(const Vec3& vector) const
 	{
-		return isCloseEnough(x, vector.x)
-			&& isCloseEnough(y, vector.y)
-			&& isCloseEnough(z, vector.z);
+		return NAMESPACE_FOUNDATION::isCloseEnough(x, vector.x)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(y, vector.y)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(z, vector.z);
 	}
 
 	sp_bool Vec3::operator==(const sp_float value) const

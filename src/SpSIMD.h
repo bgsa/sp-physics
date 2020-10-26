@@ -94,7 +94,7 @@ namespace NAMESPACE_PHYSICS
 
 	#define sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, contact_simd, hasIntersection) \
 		const __m128 _angle = sp_vec3_dot_simd(normal_simd, ray_direction_simd); \
-		if (isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT)) \
+		if (NAMESPACE_FOUNDATION::isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT)) \
 				hasIntersection = false; \
 		else { \
 			hasIntersection = true;														\
@@ -110,7 +110,7 @@ namespace NAMESPACE_PHYSICS
 		const __m128 _angle = sp_vec3_dot_simd(normal_simd, line_direction_simd);				 \
 		hasIntersection = false;																 \
 	\
-		if (!isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT))										 \
+		if (!NAMESPACE_FOUNDATION::isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT))										 \
 		{																						 \
 			__m128 temp1 = sp_vec3_dot_simd(normal_simd, line_point1_simd);						 \
 			temp1 = sp_vec3_sub_simd(d_simd, temp1);	 										 \
@@ -152,12 +152,12 @@ namespace NAMESPACE_PHYSICS
 		temp = sp_vec3_length_simd(sp_vec3_cross_simd(ab_simd, ac_simd));			\
 		sum_area = sp_vec3_add_simd(sum_area, sp_vec3_mult_simd(temp, half_simd));	\
 		\
-		output = isCloseEnough(total_simd.m128_f32[0], sum_area.m128_f32[0], total_simd.m128_f32[0] * _epsilon);
+		output = NAMESPACE_FOUNDATION::isCloseEnough(total_simd.m128_f32[0], sum_area.m128_f32[0], total_simd.m128_f32[0] * _epsilon);
 
 
 	// Line3D
 	#define sp_line3D_isPerpendicular_simd(line1_point1, line1_point2, line2_point1, line2_point2) \
-		isCloseEnough( \
+		NAMESPACE_FOUNDATION::isCloseEnough( \
 			sp_vec3_dot_simd( \
 				sp_vec3_sub_simd(sp_vec3_convert_simd(line1_point2), sp_vec3_convert_simd(line1_point1)), \
 				sp_vec3_sub_simd(sp_vec3_convert_simd(line2_point2), sp_vec3_convert_simd(line2_point1))  \
@@ -165,7 +165,7 @@ namespace NAMESPACE_PHYSICS
 			, ZERO_FLOAT, _epsilon)
 
 	#define sp_line3D_isPerpendicular2_simd(line_point1, line_point2, direction) \
-		isCloseEnough( \
+		NAMESPACE_FOUNDATION::isCloseEnough( \
 			sp_vec3_dot_simd( \
 				sp_vec3_sub_simd(sp_vec3_convert_simd(line_point2), sp_vec3_convert_simd(line_point1)), \
 				direction																				\

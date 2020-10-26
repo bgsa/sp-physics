@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 
 			sp_float newAproximation = (sp_float) (approximation - ((aproximation1 - approximation) * (aproximation1 - approximation)) / divisor);
 
-			if (isCloseEnough(newAproximation, approximation))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(newAproximation, approximation))
 				return approximation;
 
 			approximation = newAproximation;

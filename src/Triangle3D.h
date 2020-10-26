@@ -90,7 +90,7 @@ namespace NAMESPACE_PHYSICS
 			output[0].z = (d00 * d21 - d01 * d20) * denom;
 			output[0].x = 1.0f - output->y - output->z;
 
-			sp_assert(isCloseEnough(output->x + output->y + output->z, ONE_FLOAT), "InvalidOperationException");
+			sp_assert(NAMESPACE_FOUNDATION::isCloseEnough(output->x + output->y + output->z, ONE_FLOAT), "InvalidOperationException");
 		}
 
 		/// <summary>

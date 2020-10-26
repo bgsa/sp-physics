@@ -11,7 +11,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_float newApproximation = approximation - (firstDetivedFunction(approximation) / secondDerivedFunctor(approximation));
 
-			if (isCloseEnough(newApproximation, approximation, _epsilon))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(newApproximation, approximation, _epsilon))
 				return newApproximation;
 
 			approximation = newApproximation;
@@ -48,7 +48,7 @@ namespace NAMESPACE_PHYSICS
 				f_x2 = f_x1;
 			}
 
-			if (isCloseEnough(f_x1, f_x3, _epsilon))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(f_x1, f_x3, _epsilon))
 				break;
 
 			x1 = x3;

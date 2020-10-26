@@ -17,15 +17,32 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Default construct
 		/// </summary>
-		API_INTERFACE Vec3(const sp_float defaultValue = ZERO_FLOAT);
+		API_INTERFACE inline Vec3()
+		{
+			x = ZERO_FLOAT;
+			y = ZERO_FLOAT;
+			z = ZERO_FLOAT;
+		}
+		
 		/// <summary>
 		/// Construct with args
 		/// </summary>
-		API_INTERFACE Vec3(const sp_float x, const sp_float y, const sp_float z);
+		API_INTERFACE inline Vec3(const sp_float x, const sp_float y, const sp_float z)
+		{
+			this->x = x;
+			this->y = y;
+			this->z = z;
+		}
+
 		/// <summary>
 		/// Default construct
 		/// </summary>
-		API_INTERFACE Vec3(const Vec3& value);
+		API_INTERFACE inline Vec3(const Vec3& value)
+		{
+			x = value.x;
+			y = value.y;
+			z = value.z;
+		}
 		
 		/// <summary>
 		/// Construct with args
@@ -367,8 +384,15 @@ namespace NAMESPACE_PHYSICS
 
 	};
 
-	const Vec3 Vec3Zeros = Vec3(ZERO_FLOAT);
-	const Vec3 Vec3Ones = Vec3(ONE_FLOAT);
+	const Vec3 Vec3Zeros = Vec3(ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+	const Vec3 Vec3Ones = Vec3(ONE_FLOAT, ONE_FLOAT, ONE_FLOAT);
+	
+	const Vec3 Vec3Up = Vec3(ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT);
+	const Vec3 Vec3Down = Vec3(ZERO_FLOAT, -ONE_FLOAT, ZERO_FLOAT);
+	const Vec3 Vec3Left = Vec3(-ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+	const Vec3 Vec3Right = Vec3(ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+	const Vec3 Vec3Front = Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
+	const Vec3 Vec3Depth = Vec3(ZERO_FLOAT, ZERO_FLOAT, -ONE_FLOAT);
 
 	API_INTERFACE inline void abs(Vec3* vec)
 	{
@@ -590,7 +614,7 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>True if they are perpendicular, or else False</returns>
 	API_INTERFACE inline sp_bool isPerpendicular(const Vec3& ray1, const Vec3& ray2, const sp_float _epsilon = DefaultErrorMargin)
 	{
-		return isCloseEnough(ray1.dot(ray2), ZERO_FLOAT, _epsilon);
+		return NAMESPACE_FOUNDATION::isCloseEnough(ray1.dot(ray2), ZERO_FLOAT, _epsilon);
 	}
 
 	/// <summary>

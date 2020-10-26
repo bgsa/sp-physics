@@ -169,19 +169,19 @@ namespace NAMESPACE_PHYSICS
 
 			simulator->translate(details->objIndex1, obj1Properties->previousState.position() - obj1Properties->currentState.position());
 			obj1Properties->currentState.position(obj1Properties->previousState.position());
-			obj1Properties->currentState.velocity(Vec3(ZERO_FLOAT));
-			obj1Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
+			obj1Properties->currentState.velocity(Vec3Zeros);
+			obj1Properties->currentState.acceleration(Vec3Zeros);
 			obj1Properties->currentState.orientation(obj1Properties->previousState.orientation());
-			obj1Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
-			obj1Properties->currentState.torque(Vec3(ZERO_FLOAT));
+			obj1Properties->currentState.angularVelocity(Vec3Zeros);
+			obj1Properties->currentState.torque(Vec3Zeros);
 
 			simulator->translate(details->objIndex2, obj2Properties->previousState.position() - obj2Properties->currentState.position());
 			obj2Properties->currentState.position(obj2Properties->previousState.position());
-			obj2Properties->currentState.velocity(Vec3(ZERO_FLOAT));
-			obj2Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
+			obj2Properties->currentState.velocity(Vec3Zeros);
+			obj2Properties->currentState.acceleration(Vec3Zeros);
 			obj2Properties->currentState.orientation(obj2Properties->previousState.orientation());
-			obj2Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
-			obj2Properties->currentState.torque(Vec3(ZERO_FLOAT));
+			obj2Properties->currentState.angularVelocity(Vec3Zeros);
+			obj2Properties->currentState.torque(Vec3Zeros);
 
 			details->ignoreCollision = true;
 			return;
@@ -191,11 +191,11 @@ namespace NAMESPACE_PHYSICS
 		{
 			simulator->translate(details->objIndex2, obj2Properties->previousState.position() - obj2Properties->currentState.position());
 			obj2Properties->currentState.position(obj2Properties->previousState.position());
-			obj2Properties->currentState.velocity(Vec3(ZERO_FLOAT));
-			obj2Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
+			obj2Properties->currentState.velocity(Vec3Zeros);
+			obj2Properties->currentState.acceleration(Vec3Zeros);
 			obj2Properties->currentState.orientation(obj2Properties->previousState.orientation());
-			obj2Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
-			obj2Properties->currentState.torque(Vec3(ZERO_FLOAT));
+			obj2Properties->currentState.angularVelocity(Vec3Zeros);
+			obj2Properties->currentState.torque(Vec3Zeros);
 
 			details->ignoreCollision = true;
 			return;
@@ -205,11 +205,11 @@ namespace NAMESPACE_PHYSICS
 		{
 			simulator->translate(details->objIndex1, obj1Properties->previousState.position() - obj1Properties->currentState.position());
 			obj1Properties->currentState.position(obj1Properties->previousState.position());
-			obj1Properties->currentState.velocity(Vec3(ZERO_FLOAT));
-			obj1Properties->currentState.acceleration(Vec3(ZERO_FLOAT));
+			obj1Properties->currentState.velocity(Vec3Zeros);
+			obj1Properties->currentState.acceleration(Vec3Zeros);
 			obj1Properties->currentState.orientation(obj1Properties->previousState.orientation());
-			obj1Properties->currentState.angularVelocity(Vec3(ZERO_FLOAT));
-			obj1Properties->currentState.torque(Vec3(ZERO_FLOAT));
+			obj1Properties->currentState.angularVelocity(Vec3Zeros);
+			obj1Properties->currentState.torque(Vec3Zeros);
 
 			details->ignoreCollision = true;
 			return;
@@ -252,7 +252,7 @@ namespace NAMESPACE_PHYSICS
 				Plane3D plane(face);
 				cache->distance = plane.distance(edge.point1);
 
-				if (cache->distance < ZERO_FLOAT || isCloseEnough(cache->distance, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
+				if (cache->distance < ZERO_FLOAT || NAMESPACE_FOUNDATION::isCloseEnough(cache->distance, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 					vertexIndexObj1[0] = edges[i]->vertexIndex1;
 				else
 				{
@@ -394,10 +394,10 @@ namespace NAMESPACE_PHYSICS
 		Vec3 contact;
 
 		if (isObj1Resting)
-			details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+			details->cacheObj1->update(mesh1, simulator->transforms(details->objIndex1));
 
 		if (isObj2Resting)
-			details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
+			details->cacheObj2->update(mesh2, simulator->transforms(details->objIndex2));
 
 		while ((!hasIntersection || diff > _epsilon) && diff > 0.01f)
 		{
@@ -405,14 +405,14 @@ namespace NAMESPACE_PHYSICS
 			{
 				simulator->backToTime(details->objIndex1);
 				simulator->integrator->execute(details->objIndex1, elapsedTime);
-				details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+				details->cacheObj1->update(mesh1, simulator->transforms(details->objIndex1));
 			}
 
 			if (!isObj2Resting)
 			{
 				simulator->backToTime(details->objIndex2);
 				simulator->integrator->execute(details->objIndex2, elapsedTime);
-				details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
+				details->cacheObj2->update(mesh2, simulator->transforms(details->objIndex2));
 			}
 
 			//hasIntersection = hasCollision(details->objIndex1, details->objIndex2, details);
@@ -446,14 +446,14 @@ namespace NAMESPACE_PHYSICS
 				{
 					simulator->backToTime(details->objIndex1);
 					simulator->integrator->execute(details->objIndex1, elapsedTime);
-					details->cacheObj1->update(mesh1, *simulator->transforms(details->objIndex1));
+					details->cacheObj1->update(mesh1, simulator->transforms(details->objIndex1));
 				}
 
 				if (!isObj2Resting)
 				{
 					simulator->backToTime(details->objIndex2);
 					simulator->integrator->execute(details->objIndex2, elapsedTime);
-					details->cacheObj2->update(mesh2, *simulator->transforms(details->objIndex2));
+					details->cacheObj2->update(mesh2, simulator->transforms(details->objIndex2));
 				}
 
 				//hasCollision(details->objIndex1, details->objIndex2, details);
@@ -922,12 +922,12 @@ namespace NAMESPACE_PHYSICS
 
 				const sp_float distancePoint1 = fabsf(face1AsPlane.distance(edge2.point1));
 				
-				if (!isCloseEnough(distancePoint1, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
+				if (!NAMESPACE_FOUNDATION::isCloseEnough(distancePoint1, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 					continue;
 
 				const sp_float distancePoint2 = fabsf(face1AsPlane.distance(edge2.point2));
 
-				if (!isCloseEnough(distancePoint1, distancePoint2, ERROR_MARGIN_PHYSIC))
+				if (!NAMESPACE_FOUNDATION::isCloseEnough(distancePoint1, distancePoint2, ERROR_MARGIN_PHYSIC))
 					continue;
 
 				if (!face1AsTriangle.isInside(edge2.point1, ERROR_MARGIN_PHYSIC) 
@@ -991,11 +991,11 @@ namespace NAMESPACE_PHYSICS
 
 				// if the distance is greater or the contact is far away, discard
 				if (sqDistance >= smallestDistance ||
-					!isCloseEnough(std::fabsf(sqDistance), ZERO_FLOAT, 0.4f))
+					!NAMESPACE_FOUNDATION::isCloseEnough(std::fabsf(sqDistance), ZERO_FLOAT, 0.4f))
 					continue;
 
 				// if the contact is at extreme of edge, it is vertex-edge collison...
-				if (isCloseEnough(sqDistance, ZERO_FLOAT, 0.009f))
+				if (NAMESPACE_FOUNDATION::isCloseEnough(sqDistance, ZERO_FLOAT, 0.009f))
 				{
 					if (isCloseEnough(line2.point1, p2, ERROR_MARGIN_PHYSIC) 
 						|| isCloseEnough(line2.point2, p2, ERROR_MARGIN_PHYSIC))
@@ -1030,7 +1030,7 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		if (isCloseEnough(smallestDistance, ZERO_FLOAT, 0.009f))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(smallestDistance, ZERO_FLOAT, 0.009f))
 		{
 			details->type = SpCollisionType::EdgeEdge;
 			details->contactPointsLength = 1u;

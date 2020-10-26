@@ -267,48 +267,48 @@ namespace NAMESPACE_PHYSICS_TEST
 		const SpCollisionDetector collisionDetector;
 
 		SpCollisionDetails details = newCollisionDetails();
-		details.cacheObj1->update(mesh1, *simulator->transforms(0u));
-		details.cacheObj2->update(mesh2, *simulator->transforms(1u));
+		details.cacheObj1->update(mesh1, simulator->transforms(0u));
+		details.cacheObj2->update(mesh2, simulator->transforms(1u));
 		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 1.0f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 1.0f, 0.0f);
 		sp_bool result = collisionDetector.hasCollision(0u, 1u, &details);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
 
 		details = newCollisionDetails();
-		details.cacheObj1->update(mesh1, *simulator->transforms(0u));
-		details.cacheObj2->update(mesh2, *simulator->transforms(1u));
+		details.cacheObj1->update(mesh1, simulator->transforms(0u));
+		details.cacheObj2->update(mesh2, simulator->transforms(1u));
 		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 0.5f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 0.5f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
 
 		details = newCollisionDetails();
-		details.cacheObj1->update(mesh1, *simulator->transforms(0u));
-		details.cacheObj2->update(mesh2, *simulator->transforms(1u));
+		details.cacheObj1->update(mesh1, simulator->transforms(0u));
+		details.cacheObj2->update(mesh2, simulator->transforms(1u));
 		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 1.5f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 1.5f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
 
 		details = newCollisionDetails();
-		details.cacheObj1->update(mesh1, *simulator->transforms(0u));
-		details.cacheObj2->update(mesh2, *simulator->transforms(1u));
+		details.cacheObj1->update(mesh1, simulator->transforms(0u));
+		details.cacheObj2->update(mesh2, simulator->transforms(1u));
 		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 2.0f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 2.0f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
 
 		details = newCollisionDetails();
-		details.cacheObj1->update(mesh1, *simulator->transforms(0u));
-		details.cacheObj2->update(mesh2, *simulator->transforms(1u));
+		details.cacheObj1->update(mesh1, simulator->transforms(0u));
+		details.cacheObj2->update(mesh2, simulator->transforms(1u));
 		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 2.5f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 2.5f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details);
 		Assert::IsFalse(result, L"Wrong value.", LINE_INFO());
 		
 		details = newCollisionDetails();
-		details.cacheObj1->update(mesh1, *simulator->transforms(0u));
-		details.cacheObj2->update(mesh2, *simulator->transforms(1u));
+		details.cacheObj1->update(mesh1, simulator->transforms(0u));
+		details.cacheObj2->update(mesh2, simulator->transforms(1u));
 		simulator->physicProperties(1u)->currentState.position(Vec3(3000.0f, 0.0f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(3000.0f, 0.0f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details);
@@ -832,8 +832,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 		propertiesObj1->mass(ZERO_FLOAT);
-		propertiesObj1->currentState.position(ZERO_FLOAT);
-		propertiesObj1->previousState.position(ZERO_FLOAT);
+		propertiesObj1->currentState.position(Vec3Zeros);
+		propertiesObj1->previousState.position(Vec3Zeros);
 		propertiesObj2->mass(8.0f);
 		propertiesObj2->currentState.position(Vec3(10.0f, 0.0f, 0.0f));
 		propertiesObj2->previousState.position(Vec3(10.0f, 0.0f, 0.0f));

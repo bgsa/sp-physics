@@ -82,7 +82,7 @@ namespace NAMESPACE_PHYSICS
 		element->currentState._angularVelocity = newAngularVelocity;
 
 		element->previousState._force = element->currentState.force();
-		element->currentState._force = ZERO_FLOAT;
+		element->currentState._force = Vec3Zeros;
 
 		element->previousState._torque = element->currentState.torque();
 		element->currentState._torque = newAngularAcceleration;
@@ -126,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 		element->currentState._position = newPosition;
 
 		element->previousState._force = element->currentState.force();
-		element->currentState._force = ZERO_FLOAT;
+		element->currentState._force = Vec3Zeros;
 
 		element->previousState._angularVelocity = element->currentState.angularVelocity();
 		element->currentState._angularVelocity = newAngularVelocity;
@@ -135,7 +135,7 @@ namespace NAMESPACE_PHYSICS
 		element->currentState._orientation = newOrientation;
 
 		element->previousState._torque = element->currentState.torque();
-		element->currentState._torque = ZERO_FLOAT;
+		element->currentState._torque = Vec3Zeros;
 	}
 
 }

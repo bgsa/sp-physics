@@ -145,7 +145,7 @@ namespace NAMESPACE_PHYSICS
 	Mat3 Vec3List::covariance() const
 	{
 		sp_float oon = 1.0f / count; 
-		Vec3 centerOfMass = Vec3(0.0f); 
+		Vec3 centerOfMass = Vec3Zeros; 
 		sp_float e00 = 0.0f, e11 = 0.0f, e22 = 0.0f, e01 = 0.0f, e02 = 0.0f, e12 = 0.0f;
 		
 		// Compute the center of mass (centroid) of the points 

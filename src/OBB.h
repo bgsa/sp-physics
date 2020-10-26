@@ -18,14 +18,14 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Build a new unit OBB with width, height and depth 1.0 and orientation aligned to axis located on coordinates (0,0,0) 
 		/// </summary>
-		API_INTERFACE OBB(const Vec3& center = Vec3(0.0f));
+		API_INTERFACE OBB(const Vec3& center = Vec3Zeros);
 
 		/// <summary>
 		/// Not Implemented !!
 		/// </summary>
 		API_INTERFACE Vec3 centerOfBoundingVolume() const override
 		{
-			return Vec3(0.0f); // Not Implemented
+			return Vec3Zeros; // Not Implemented
 		}
 
 		/// <summary>

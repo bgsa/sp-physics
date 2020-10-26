@@ -9,6 +9,44 @@ namespace NAMESPACE_PHYSICS
 		return _instance;
 	}
 
+	void SpPhysicSimulator::initMeshCache()
+	{
+		PoolMemoryAllocator::main()->enableMemoryAlignment();
+
+		_meshesCache = sp_mem_new(SpArray<SpMeshCache*>)(_objectsLength, _objectsLength);
+
+		for (sp_uint i = 0; i < _objectsLength; i++)
+		{
+			const sp_uint verteLength = mesh(collisionFeatures(i)->meshIndex)->vertexesMesh->length();
+
+			_meshesCache->data()[i] = sp_mem_new(SpMeshCache)(verteLength);
+		}
+		
+		PoolMemoryAllocator::main()->disableMemoryAlignment();
+	}
+
+	void SpPhysicSimulator::updateMeshCache()
+	{
+		for (sp_uint i = 0; i < _objectsLength; i++)
+		{
+			SpMesh* mesh = this->mesh(collisionFeatures(i)->meshIndex);
+			SpTransform* transformation = transforms(i);
+
+			_meshesCache->get(i)->update(mesh, transformation);
+		}
+	}
+
+	void SpPhysicSimulator::buildDOP18() const
+	{
+		for (sp_uint i = 0; i < _objectsLength; i++)
+		{
+			SpMesh* mesh = this->mesh(collisionFeatures(i)->meshIndex);
+			SpMeshCache* cache = _meshesCache->get(i);
+			
+			SpDOP18Factory::build(mesh, cache, transforms(i)->position, &_boundingVolumes[i]);
+		}
+	}
+
 	SpPhysicSimulator::SpPhysicSimulator(sp_uint objectsLength)
 	{
 		sp_assert(instanceGpuRendering != nullptr, "NullPointerException");
@@ -25,8 +63,8 @@ namespace NAMESPACE_PHYSICS
 		_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
 		_transforms = sp_mem_new_array(SpTransform, objectsLength);
 		_collisionFeatures = sp_mem_new_array(SpCollisionFeatures, objectsLength);
-		_meshes = sp_mem_new(SpArray<SpMesh*>)(objectsLength);
-
+		_meshes = sp_mem_new(SpArray<SpMesh*>)(objectsLength, objectsLength);
+		
 		gpu = GpuContext::instance()->defaultDevice();
 		
 		_transformsGPUBuffer = instanceGpuRendering->createTextureBuffer();
@@ -185,6 +223,9 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::run()
 	{
+		updateMeshCache();
+		buildDOP18();
+
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
 		findCollisionsCpu(&sapResult);

@@ -88,7 +88,7 @@ namespace NAMESPACE_PHYSICS
 
 			const sp_float newDistance = plane.distance(currentVertex);
 
-			if (isCloseEnough(distance, newDistance, _epsilon))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(distance, newDistance, _epsilon))
 			{
 				sp_uint vertexFound = false;
 				// if vertex is already added on list, ignore
@@ -129,7 +129,7 @@ namespace NAMESPACE_PHYSICS
 			
 			const sp_float newDistance = plane.distance(currentVertex);
 
-			if (isCloseEnough(distance, newDistance, _epsilon))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(distance, newDistance, _epsilon))
 			{
 				sp_uint vertexFound = false;
 				// if vertex is already added on list, ignore
@@ -260,7 +260,7 @@ namespace NAMESPACE_PHYSICS
 				// faces should be parallel and opposite normals (front-face agains front-face)
 				if (plane1.isParallel(plane2, _epsilon) 
 					&& (plane1.normalVector - plane2.normalVector) != ZERO_FLOAT
-					&& isCloseEnough(plane1.distance(plane2), ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
+					&& NAMESPACE_FOUNDATION::isCloseEnough(plane1.distance(plane2), ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 				{
 					if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh1, facesIndexesMesh1Length[0], facesVertex1[i]))
 					{
@@ -333,7 +333,7 @@ namespace NAMESPACE_PHYSICS
 				// faces should be parallel and opposite normals (front-face agains front-face)
 				if (plane1.isParallel(plane2, _epsilon)
 					&& (plane1.normalVector - plane2.normalVector) != ZERO_FLOAT
-					&& isCloseEnough(plane1.distance(plane2), ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
+					&& NAMESPACE_FOUNDATION::isCloseEnough(plane1.distance(plane2), ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 				{
 					if (!NAMESPACE_FOUNDATION::contains(facesIndexesMesh1, facesIndexesMesh1Length[0], facesVertex1[i]))
 					{

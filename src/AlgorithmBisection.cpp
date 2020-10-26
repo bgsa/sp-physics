@@ -11,7 +11,7 @@ namespace NAMESPACE_PHYSICS
 		
 		while (maxOfInteration != 0)
 		{
-			if (isCloseEnough(valueMidPoint, ZERO_FLOAT))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(valueMidPoint, ZERO_FLOAT))
 				return midPoint;
 
 			if (sign(valueA) * sign(valueMidPoint) > 0)

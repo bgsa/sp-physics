@@ -9,7 +9,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_float newApproximation = approximation - (functor(approximation) / derivedFunctor(approximation));
 
-			if (isCloseEnough(newApproximation, approximation))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(newApproximation, approximation))
 				return newApproximation;
 
 			approximation = newApproximation;

@@ -164,13 +164,13 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>void</returns>
 		API_INTERFACE inline void reset()
 		{
-			_force = Vec3(ZERO_FLOAT);
-			_torque = Vec3(ZERO_FLOAT);
-			_position = Vec3(ZERO_FLOAT);
-			_velocity = Vec3(ZERO_FLOAT);
-			_acceleration = Vec3(ZERO_FLOAT);
+			_force = Vec3Zeros;
+			_torque = Vec3Zeros;
+			_position = Vec3Zeros;
+			_velocity = Vec3Zeros;
+			_acceleration = Vec3Zeros;
 			_orientation = Quat::identity();
-			_angularVelocity = Vec3(ZERO_FLOAT);
+			_angularVelocity = Vec3Zeros;
 		}
 
 	};

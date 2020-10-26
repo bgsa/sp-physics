@@ -40,7 +40,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Create a particle with optional arguments
 		/// </summary>
-		API_INTERFACE Particle(const Vec3& position = Vec3(0.0f), const Vec3& velocity = Vec3(0.0f), const float inverseMass = 0.8f, const float velocityDamping = 1.0f, const float coeficientOfRestitution = 0.9f);
+		API_INTERFACE Particle(const Vec3& position = Vec3Zeros, const Vec3& velocity = Vec3Zeros, const float inverseMass = 0.8f, const float velocityDamping = 1.0f, const float coeficientOfRestitution = 0.9f);
 
 		/// <summary>
 		/// Add a force/impulse to a particle

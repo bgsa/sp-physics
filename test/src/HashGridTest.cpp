@@ -11233,8 +11233,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, HashGrid_findCell_Test)
 	{
 		HashGrid grid(10);
-		Vec3 point = {0.0f, 0.0f, 0.0f};
-		Vec3 expected = Vec3(0.0f);
+		Vec3 point = Vec3Zeros;
+		Vec3 expected = Vec3Zeros;
 		Vec3 result;
 
 		for (float x = 0; x < 10; x++)

@@ -19,8 +19,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		OBB obb = OBB();
 
-		Assert::AreEqual(Vec3(0.0f), obb.center, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3(0.5f), obb.halfWidth, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Zeros, obb.center, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3(0.5f, 0.5f, 0.5f), obb.halfWidth, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(Mat3::identity() == obb.orientation, L"Wrong value.", LINE_INFO());
 	}
 

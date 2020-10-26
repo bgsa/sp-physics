@@ -92,7 +92,7 @@ namespace NAMESPACE_PHYSICS
 			Vec3 crossedVector;
 			NAMESPACE_PHYSICS::cross(direction2, direction1, &crossedVector);
 
-			return isCloseEnough(crossedVector, ZERO_FLOAT, _epsilon);
+			return isCloseEnough(crossedVector, Vec3Zeros, _epsilon);
 		}
 		
 		/// <summary>
@@ -124,7 +124,7 @@ namespace NAMESPACE_PHYSICS
 			Vec3 _direction2;
 			direction(&_direction2);
 
-			return isCloseEnough(_direction.dot(_direction2), ZERO_FLOAT, _epsilon);
+			return NAMESPACE_FOUNDATION::isCloseEnough(_direction.dot(_direction2), ZERO_FLOAT, _epsilon);
 		}
 
 		///<summary>

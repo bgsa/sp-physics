@@ -13,18 +13,18 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline SpMeshCache(const sp_uint vertexesLength)
 		{
-			vertexes = ALLOC_NEW_ARRAY(Vec3, vertexesLength);
+			vertexes = sp_mem_new_array(Vec3, vertexesLength);
 		}
 
-		API_INTERFACE inline SpMeshCache(const SpMesh* mesh, const SpTransform& transformation);
+		API_INTERFACE inline SpMeshCache(const SpMesh* mesh, SpTransform* transformation);
 
-		API_INTERFACE inline void update(const SpMesh* mesh, const SpTransform& transformation);
+		API_INTERFACE inline void update(const SpMesh* mesh, SpTransform* transformation);
 
 		inline ~SpMeshCache()
 		{
 			if (vertexes != nullptr)
 			{
-				ALLOC_RELEASE(vertexes);
+				sp_mem_release(vertexes);
 				vertexes = nullptr;
 			}
 		}

@@ -65,7 +65,7 @@ namespace NAMESPACE_PHYSICS
 			rotateAndTranslate(orientation, scaled, position, output);
 		}
 
-		API_INTERFACE inline Mat4 toMat4(const Vec3& initialPosition = Vec3(ZERO_FLOAT)) const
+		API_INTERFACE inline Mat4 toMat4(const Vec3& initialPosition = Vec3Zeros) const
 		{
 			return Mat4::createTranslate(position)
 				* orientation.toMat4()
@@ -80,8 +80,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void reset()
 		{
 			orientation = Quat::identity();
-			position = Vec3(ZERO_FLOAT);
-			scaleVector = Vec3(ONE_FLOAT);
+			position = Vec3Zeros;
+			scaleVector = Vec3Ones;
 		}
 
 	};

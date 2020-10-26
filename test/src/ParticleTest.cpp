@@ -20,21 +20,21 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Particle particle = Particle();
 
-		Assert::AreEqual(Vec3(0), particle.position, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3(0), particle.velocity, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3(0), particle.acceleration, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3(0), particle.force, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Zeros, particle.position, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Zeros, particle.velocity, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Zeros, particle.acceleration, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Zeros, particle.force, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(0.8f, particle.inverseMass, L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Particle_constructor_withParameters)
 	{
-		Particle particle = Particle(Vec3(1), Vec3(2), 2.5f);
+		Particle particle = Particle(Vec3Ones, Vec3(2.0f, 2.0f, 2.0f), 2.5f);
 
-		Assert::AreEqual(Vec3(1), particle.position, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3(2), particle.velocity, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3(0), particle.acceleration, L"Wrong value.", LINE_INFO());
-		Assert::AreEqual(Vec3(0), particle.force, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Ones, particle.position, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3(2.0f, 2.0f, 2.0f), particle.velocity, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Zeros, particle.acceleration, L"Wrong value.", LINE_INFO());
+		Assert::AreEqual(Vec3Zeros, particle.force, L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(2.5f, particle.inverseMass, L"Wrong value.", LINE_INFO());
 	}
 

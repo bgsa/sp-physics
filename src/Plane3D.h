@@ -19,8 +19,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE Plane3D()
 		{
-			point = Vec3(0.0f);
-			normalVector = Vec3(0.0f, 1.0f, 0.0f);
+			point = Vec3Zeros;
+			normalVector = Vec3Up;
 			distanceFromOrigin = normalVector.dot(point);
 		}
 
@@ -29,7 +29,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE Plane3D(const Vec3& point, const Vec3& normal)
 		{
-			sp_assert(isCloseEnough(length(normal), ONE_FLOAT, 0.009f), "InvalidArgumentException");
+			//sp_assert(NAMESPACE_FOUNDATION::isCloseEnough(length(normal), ONE_FLOAT, 0.009f), "InvalidArgumentException");
 
 			this->point = point;
 			this->normalVector = normal;
@@ -183,7 +183,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			Vec3 temp;
 			cross(normalVector, plane.normalVector, &temp);
-			return isCloseEnough(temp, ZERO_FLOAT, _epsilon);
+			return isCloseEnough(temp, Vec3Zeros, _epsilon);
 		}
 
 		/// <summary>
@@ -191,7 +191,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_bool isPerpendicular(const Plane3D& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
-			return isCloseEnough(normalVector.dot(plane.normalVector), ZERO_FLOAT, _epsilon);
+			return NAMESPACE_FOUNDATION::isCloseEnough(normalVector.dot(plane.normalVector), ZERO_FLOAT, _epsilon);
 		}
 
 		/// <summary>

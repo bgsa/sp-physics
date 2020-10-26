@@ -6506,6 +6506,9 @@
     <ClInclude Include="src\SpWavefrontExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SpDOP18Factory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

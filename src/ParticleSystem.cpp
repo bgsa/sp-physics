@@ -9,7 +9,7 @@ namespace NAMESPACE_PHYSICS
 		this->particles = ALLOC_NEW_ARRAY(Particle, particlesCount);
 		this->particlesCount = particlesCount;
 		this->orientation = Mat3::identity();
-		this->angularVelocity = Vec3(0.0f);
+		this->angularVelocity = Vec3Zeros;
 	}
 
 	ParticleSystem::ParticleSystem(Particle* particles, sp_size particlesCount)

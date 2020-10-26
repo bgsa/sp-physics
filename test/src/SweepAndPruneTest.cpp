@@ -78,7 +78,7 @@ DOP18* getRandomKDOPs(sp_uint length, sp_uint spaceSize = 10000u)
 		sp_float y = randomizer.randInt() / 100.0f;
 		sp_float z = randomizer.randInt() / 100.0f;
 
-		kdops[i].scale(Vec3(3.0f));
+		kdops[i].scale(Vec3(3.0f, 3.0f, 3.0f));
 		kdops[i].translate({ x, 0.5f, z });
 	}
 

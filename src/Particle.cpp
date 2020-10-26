@@ -12,8 +12,8 @@ namespace NAMESPACE_PHYSICS
 		this->velocityDamping = velocityDamping;
 		this->coeficientOfRestitution = coeficientOfRestitution;
 
-		acceleration = Vec3(0.0f);
-		force = Vec3(0.0f);
+		acceleration = Vec3Zeros;
+		force = Vec3Zeros;
 		lifeTime = FLT_MAX;
 	}
 

@@ -42,7 +42,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 temp;
 		NAMESPACE_PHYSICS::cross(dif, point, &temp);
 
-		return isCloseEnough(temp, ZERO_FLOAT, _epsilon);
+		return isCloseEnough(temp, Vec3Zeros, _epsilon);
 	}
 
 	sp_bool Line3D::isOnSegment(const Vec3& point) const
@@ -255,7 +255,7 @@ namespace NAMESPACE_PHYSICS
 
 		Vec3 intersectionPoint1 = point1 + lineDirection * t1;
 		
-		if (isCloseEnough(discriminant, ZERO_FLOAT))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(discriminant, ZERO_FLOAT))
 			return DetailedCollisionStatus(CollisionStatus::INLINE, intersectionPoint1);
 
 		// discriminant > T(0)  =>  the quadratic equation has 2 real root, then the ray intersect in 2 points
