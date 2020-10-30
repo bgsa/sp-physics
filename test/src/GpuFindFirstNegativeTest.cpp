@@ -1,14 +1,13 @@
 #ifdef OPENCL_ENABLED
 
-#ifndef GPU_FIND_MIN_MAX_TEST_HEADER
-#define GPU_FIND_MIN_MAX_TEST_HEADER
+#ifndef GPU_FIRST_NEGATIVE_TEST_HEADER
+#define GPU_FIRST_NEGATIVE_TEST_HEADER
 
 #include "SpectrumPhysicsTest.h"
-#include "Randomizer.h"
-#include <GpuFindMinMax.h>
+#include "GpuDevice.h"
 #include "GpuContext.h"
-#include <limits>
-#include <AABB.h>
+#include "Randomizer.h"
+#include "FileSystem.h"
 
 #define CLASS_NAME GpuFindFirstNegativeTest
 
@@ -151,6 +150,6 @@ namespace NAMESPACE_PHYSICS_TEST
 
 }
 
-#endif // GPU_FIND_MIN_MAX_TEST_HEADER
+#endif // GPU_FIRST_NEGATIVE_TEST_HEADER
 
 #endif // OPENCL

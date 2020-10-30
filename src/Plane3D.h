@@ -13,10 +13,10 @@ namespace NAMESPACE_PHYSICS
 	{
 
 	public:
+		Vec3 point;
 		Vec3 normalVector;
 		sp_float distanceFromOrigin;
-		Vec3 point;
-
+		
 		API_INTERFACE Plane3D()
 		{
 			point = Vec3Zeros;

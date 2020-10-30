@@ -11,6 +11,8 @@
 #define GROUP_ID            get_group_id(0)
 #define GROUP_LENGTH        get_num_groups(0)
 
+#define SP_EPSILON_NUMBER 0.0009f
+
 #define isEven(value) value % 2 == 0
 #define isOdd(value)  value % 2 != 0
 
@@ -62,6 +64,11 @@ typedef double         sp_double;
 #define ONE_DOUBLE   1.0
 #define TWO_DOUBLE   2.0
 #define TEN_DOUBLE  10.0
+
+#define SP_FLOAT_MAX FLT_MAX
+#define SP_FLOAT_MIN FLT_MIN
+#define SP_DOUBLE_MAX DBL_MAX
+#define SP_DOUBLE_MIN DBL_MIN
 
 #define SET_ARRAY_10_ELEMENTS(_name, _value)\
             _name[0] = _value;  \

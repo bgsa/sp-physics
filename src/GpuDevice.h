@@ -80,26 +80,9 @@ namespace NAMESPACE_PHYSICS
 			return memoryBuffer;
 		}
 
-		API_INTERFACE inline cl_mem createBuffer(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, sp_bool writeValueOnDevice = true)
-		{		
-			cl_int errorCode;
-			cl_mem memoryBuffer = clCreateBuffer(deviceContext, memoryFlags, sizeOfValue, value, &errorCode);
-			HANDLE_OPENCL_ERROR(errorCode);
+		API_INTERFACE cl_mem createBuffer(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, sp_bool writeValueOnDevice = true);
 
-			if (writeValueOnDevice)
-				HANDLE_OPENCL_ERROR(clEnqueueWriteBuffer(commandManager->commandQueue, memoryBuffer, CL_FALSE, 0, sizeOfValue, value, 0, NULL, NULL));
-
-			return memoryBuffer;
-		}
-
-		API_INTERFACE inline cl_mem createSubBuffer(cl_mem buffer, cl_buffer_region* region, cl_mem_flags memoryFlags)
-		{
-			cl_int errorCode;
-			cl_mem subBuffer = clCreateSubBuffer(buffer, memoryFlags, CL_BUFFER_CREATE_TYPE_REGION, region, &errorCode);
-			HANDLE_OPENCL_ERROR(errorCode);
-
-			return subBuffer;
-		}
+		API_INTERFACE cl_mem createSubBuffer(cl_mem buffer, cl_buffer_region* region, cl_mem_flags memoryFlags);
 
 		API_INTERFACE inline cl_mem createBufferFromOpenGL(SpGpuBuffer* buffer, cl_mem_flags memoryFlags = CL_MEM_READ_WRITE)
 		{

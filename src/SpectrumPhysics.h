@@ -77,6 +77,14 @@ namespace NAMESPACE_PHYSICS
 	class SpVertexMesh;
 	class SpEdgeMesh;
 	class SpFaceMesh;
+
+#ifdef OPENCL_ENABLED
+	class GpuDevice;
+	class GpuBufferOpenCL;
+	class GpuCommand;
+	class GpuCommandManager;
+#endif
+
 }
 
 #include "Vec2.h"

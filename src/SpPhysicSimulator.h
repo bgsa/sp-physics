@@ -20,6 +20,7 @@
 #include "SpPhysicIntegrator.h"
 #include "SpCollisionGroup.h"
 #include "SpDOP18Factory.h"
+#include "GpuBufferOpenCL.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -39,7 +40,7 @@ namespace NAMESPACE_PHYSICS
 		SpCollisionFeatures* _collisionFeatures;
 		SpArray<SpMesh*>* _meshes;
 		SpArray<SpMeshCache*>* _meshesCache;
-
+		
 		cl_event lastEvent;
 		cl_mem _transformsGPU;
 		SpGpuTextureBuffer* _transformsGPUBuffer;
@@ -49,6 +50,11 @@ namespace NAMESPACE_PHYSICS
 		cl_mem _collisionIndexesLengthGPU;
 		cl_mem _sapCollisionIndexesGPU;
 		cl_mem _sapCollisionIndexesLengthGPU;
+		GpuBufferOpenCL* _inputLengthGPU;
+		GpuBufferOpenCL* _meshCacheGPU;
+		GpuBufferOpenCL* _meshCacheIndexesGPU;
+		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
+		SpDOP18Factory dop18Factory;
 
 		Timer timerToPhysic;
 
@@ -70,18 +76,19 @@ namespace NAMESPACE_PHYSICS
 		
 		void updateDataOnGPU()
 		{
-			//gpu->commandManager->updateBuffer(_boundingVolumesGPU, sizeof(DOP18) * _objectsLengthAllocated, _boundingVolumes, ONE_UINT, &lastEvent);
-			//lastEvent = gpu->commandManager->updateBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLengthAllocated, _physicProperties, ONE_UINT, &lastEvent);
-			sap->updateBoundingVolumes(_boundingVolumes);
+			//updateTransformsOnGPU();
+			updateTransformsOnGPUOpenCL();
+
+			//gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
+			//sap->updateBoundingVolumes(_boundingVolumes);
 			sap->updatePhysicProperties(_physicProperties);
 		}
 
 		void updateDataOnCPU()
 		{
-			gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
-			cl_event evt = 
-				gpu->commandManager->readBuffer(_boundingVolumesGPU, DOP18_SIZE * _objectsLength, _boundingVolumes);
-			gpu->waitEvents(ONE_UINT, &evt);
+			cl_event evt1 = gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
+			//cl_event evt2 = gpu->commandManager->readBuffer(_boundingVolumesGPU, DOP18_SIZE * _objectsLength, _boundingVolumes);
+			gpu->waitEvents(ONE_UINT, &evt1);
 		}
 
 		static void handleCollisionCPU(void* collisionParamter);
@@ -93,6 +100,13 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicIntegrator* integrator;
 
 		API_INTERFACE static SpPhysicSimulator* instance();
+
+		API_INTERFACE void inline updateTransformsOnGPUOpenCL()
+		{
+			gpu->commandManager->acquireGLObjects(_transformsGPU);
+			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * 4, _transforms);
+			gpu->commandManager->releaseGLObjects(_transformsGPU);
+		}
 
 		API_INTERFACE inline void updateTransformsOnGPU()
 		{
@@ -106,9 +120,13 @@ namespace NAMESPACE_PHYSICS
 				else
 					size += SIZEOF_TWO_WORDS;
 			
+			gpu->commandManager->acquireGLObjects(_transformsGPU);
+
 			_transformsGPUBuffer
 				->use()
 				->updateData(size, _transforms);
+
+			gpu->commandManager->releaseGLObjects(_transformsGPU);
 		}
 
 		API_INTERFACE static SpPhysicSimulator* init(sp_uint objectsLength);

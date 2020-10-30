@@ -8,12 +8,76 @@ typedef struct Vec3
 	sp_float x, y, z;
 } Vec3;
 
+#define vec3_up_left(vec) \
+	vec.x = -1.0f; \
+	vec.y = 1.0f;  \
+	vec.z = 0.0f;
+
+#define vec3_right_down(vec) \
+	vec.x = 1.0f;  \
+	vec.y = -1.0f; \
+	vec.z = 0.0f;
+
+#define vec3_up_right(vec) \
+	vec.x = 0.707f;  \
+	vec.y = 0.707f; \
+	vec.z = 0.0f;
+
+#define vec3_down_left(vec) \
+	vec.x = -0.707f;  \
+	vec.y = -0.707f; \
+	vec.z = 0.0f;
+
+#define vec3_up_front(vec) \
+	vec.x = 0.0f;   \
+	vec.y = 0.707f; \
+	vec.z = 0.707f;
+
+#define vec3_down_depth(vec) \
+	vec.x = 0.0f;    \
+	vec.y = -0.707f; \
+	vec.z = -0.707f;
+
+#define vec3_up_depth(vec) \
+	vec.x = 0.0f; \
+	vec.y = 1.0f; \
+	vec.z = -1.0f;
+
+#define vec3_down_front(vec) \
+	vec.x = 0.0f;  \
+	vec.y = -1.0f; \
+	vec.z = 1.0f;
+
+#define vec3_left_depth(vec) \
+	vec.x = -0.707f;  \
+	vec.y = 0.0f; \
+	vec.z = -0.707f;
+
+#define vec3_right_front(vec) \
+	vec.x = 0.707f;  \
+	vec.y = 0.0f; \
+	vec.z = 0.707f;
+
+#define vec3_right_depth(vec) \
+	vec.x = 1.0f;  \
+	vec.y = 0.0f;  \
+	vec.z = -1.0f;
+
+#define vec3_left_front(vec) \
+	vec.x = -1.0f;  \
+	vec.y = 0.0f;  \
+	vec.z = 1.0f;
+
+
 inline void vec3_abs(const Vec3 vec, Vec3* result)
 {
 	result->x = fabs(vec.x);
 	result->y = fabs(vec.y);
 	result->z = fabs(vec.z);
 }
+
+#define vec3_dot_vec3(vector1, vector2) \
+	vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z
 
 inline void vec3_multiply_float(const Vec3 vec, const sp_float value, Vec3* result)
 {

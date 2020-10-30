@@ -5,6 +5,10 @@
 #include "DOP18.h"
 #include "SpMesh.h"
 
+#ifdef OPENCL_ENABLED
+	#include "GpuCommand.h"
+#endif
+
 namespace NAMESPACE_PHYSICS
 {
 
@@ -13,6 +17,36 @@ namespace NAMESPACE_PHYSICS
 	/// </summary>
 	class SpDOP18Factory
 	{
+	private:
+
+#ifdef OPENCL_ENABLED
+		GpuCommand* command;
+		sp_size globalWorkSize[3] = { 0, 0, 0 };
+		sp_size localWorkSize[3] = { 0, 0, 0 };
+		cl_program program;
+
+		void initProgram(GpuDevice* gpu)
+		{
+			SpDirectory* filename = SpDirectory::currentDirectory()
+				->add(SP_DIRECTORY_OPENCL_SOURCE)
+				->add("BoundingVolumeFactory.cl");
+
+			SP_FILE file;
+			file.open(filename->name()->data(), std::ios::in);
+			sp_mem_delete(filename, SpDirectory);
+			sp_size fileSize = file.length();
+			sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+			file.read(source, fileSize);
+			file.close();
+
+			const sp_char* buildOptions = nullptr;
+
+			sp_uint programIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
+			ALLOC_RELEASE(source);
+			program = gpu->commandManager->cachedPrograms[programIndex];
+		}
+#endif
+
 	public:
 
 		/// <summary>
@@ -23,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="position">Center of object</param>
 		/// <param name="output">18-DOP created</param>
 		/// <returns>void</returns>
-		API_INTERFACE static inline void build(SpMesh* mesh, SpMeshCache* cache, const Vec3& position, DOP18* output)
+		API_INTERFACE static void build(SpMesh* mesh, SpMeshCache* cache, const Vec3& position, DOP18* output)
 		{
 			SpVertexMesh* vertex1 = mesh->vertexesMesh->get(0);
 
@@ -107,6 +141,36 @@ namespace NAMESPACE_PHYSICS
 			vertex = cache->vertexes[indexLeftFront];
 			output->min[DOP18_AXIS_RIGHT_DEPTH] = vertex.x + (position.z - vertex.z);
 		}
+
+#ifdef OPENCL_ENABLED
+
+		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
+		{
+			initProgram(gpu);
+
+			globalWorkSize[0] = inputLength;
+			localWorkSize[0] = gpu->getGroupLength(inputLength, inputLength);
+
+			command = gpu->commandManager->createCommand()
+				->setInputParameter(inputLengthGPU)
+				->setInputParameter(meshCacheIndexes)
+				->setInputParameter(meshCacheVertexesLength)
+				->setInputParameter(meshCacheGPU)
+				->setInputParameter(transformationsGPU, inputLength * sizeof(SpTransform))
+				->setInputParameter(output, inputLength * sizeof(DOP18))
+				->buildFromProgram(program, "buildDOP18");
+		}
+
+		API_INTERFACE void buildGPU(GpuDevice* gpu, cl_mem transformationsGPU) const
+		{
+			gpu->commandManager->acquireGLObjects(transformationsGPU);
+
+			command->execute(1u, globalWorkSize, localWorkSize);
+
+			gpu->commandManager->releaseGLObjects(transformationsGPU);
+		}
+
+#endif
 
 	};
 

@@ -193,6 +193,7 @@
     <ClCompile Include="src\CollisionResponse.cpp" />
     <ClCompile Include="src\DetailedCollisionStatus.cpp" />
     <ClCompile Include="src\DOP18.cpp" />
+    <ClCompile Include="src\GpuBufferOpenCL.cpp" />
     <ClCompile Include="src\GpuCommand.cpp" />
     <ClCompile Include="src\GpuCommandManager.cpp" />
     <ClCompile Include="src\GpuComposedCommand.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="src\CollisionResponse.h" />
     <ClInclude Include="src\DetailedCollisionStatus.h" />
     <ClInclude Include="src\DOP18.h" />
+    <ClInclude Include="src\GpuBufferOpenCL.h" />
     <ClInclude Include="src\GpuCommand.h" />
     <ClInclude Include="src\GpuCommandManager.h" />
     <ClInclude Include="src\GpuComposedCommand.h" />
@@ -332,6 +334,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
+    <None Include="resources\opencl\src\BoundingVolumeFactory.cl" />
     <None Include="resources\opencl\src\CollisionResponse.cl" />
     <None Include="resources\opencl\src\DOP18.cl" />
     <None Include="resources\opencl\src\FindFirstNegative.cl" />
@@ -339,12 +342,14 @@
     <None Include="resources\opencl\src\InsertionSorting.cl" />
     <None Include="resources\opencl\src\Mat3.cl" />
     <None Include="resources\opencl\src\OpenCLBase.cl" />
+    <None Include="resources\opencl\src\Plane3D.cl" />
     <None Include="resources\opencl\src\Quat.cl" />
     <None Include="resources\opencl\src\RadixSorting.cl" />
     <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
     <None Include="resources\opencl\src\RadixSortingByThread.cl" />
     <None Include="resources\opencl\src\Reverse.cl" />
     <None Include="resources\opencl\src\SpPhysicProperties.cl" />
+    <None Include="resources\opencl\src\SpTransformation.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />
     <None Include="resources\opencl\src\Vec3.cl" />
   </ItemGroup>

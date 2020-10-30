@@ -140,6 +140,27 @@ namespace NAMESPACE_PHYSICS
 		return groupLength;
 	}
 
+	cl_mem GpuDevice::createBuffer(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, sp_bool writeValueOnDevice)
+	{
+		cl_int errorCode;
+		cl_mem memoryBuffer = clCreateBuffer(deviceContext, memoryFlags, sizeOfValue, value, &errorCode);
+		HANDLE_OPENCL_ERROR(errorCode);
+
+		if (writeValueOnDevice)
+			HANDLE_OPENCL_ERROR(clEnqueueWriteBuffer(commandManager->commandQueue, memoryBuffer, CL_FALSE, 0, sizeOfValue, value, 0, NULL, NULL));
+
+		return memoryBuffer;
+	}
+	
+	cl_mem GpuDevice::createSubBuffer(cl_mem buffer, cl_buffer_region* region, cl_mem_flags memoryFlags)
+	{
+		cl_int errorCode;
+		cl_mem subBuffer = clCreateSubBuffer(buffer, memoryFlags, CL_BUFFER_CREATE_TYPE_REGION, region, &errorCode);
+		HANDLE_OPENCL_ERROR(errorCode);
+
+		return subBuffer;
+	}
+
 	GpuDevice::~GpuDevice()
 	{
 		if (commandManager != nullptr)

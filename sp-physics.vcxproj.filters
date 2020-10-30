@@ -3129,6 +3129,9 @@
     <ClCompile Include="src\SpOptimization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\GpuBufferOpenCL.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AlgorithmAitken.h">
@@ -6509,6 +6512,9 @@
     <ClInclude Include="src\SpDOP18Factory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GpuBufferOpenCL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
@@ -6560,6 +6566,15 @@
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
     <None Include="resources\opencl\src\Mat3.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
+    <None Include="resources\opencl\src\BoundingVolumeFactory.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
+    <None Include="resources\opencl\src\Plane3D.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
+    <None Include="resources\opencl\src\SpTransformation.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
   </ItemGroup>

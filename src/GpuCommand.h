@@ -5,6 +5,7 @@
 
 #include "SpectrumPhysics.h"
 #include "GpuLog.hpp"
+#include "GpuBufferOpenCL.h"
 #include "CL/cl.h"
 
 namespace NAMESPACE_PHYSICS
@@ -44,6 +45,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuCommand* setInputParameter(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, bool keepBuffer = false);
 		API_INTERFACE GpuCommand* setInputParameter(void* value, sp_size sizeOfValue);
 		API_INTERFACE GpuCommand* setInputParameter(cl_mem buffer, sp_size sizeOfValue);
+		API_INTERFACE GpuCommand* setInputParameter(GpuBufferOpenCL* buffer);
 
 		API_INTERFACE GpuCommand* updateInputParameterValue(sp_uint index, const void* value);
 		API_INTERFACE GpuCommand* updateInputParameterValueAsync(sp_uint index, const void* value);

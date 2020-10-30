@@ -25,6 +25,15 @@ namespace NAMESPACE_PHYSICS
 		return this;
 	}
 
+	GpuCommand* GpuCommand::setInputParameter(GpuBufferOpenCL* buffer)
+	{
+		inputParameters.emplace_back(buffer->buffer());
+		inputParametersSize.emplace_back(buffer->size());
+		inputParametersKeep.emplace_back(true);
+
+		return this;
+	}
+
 	GpuCommand* GpuCommand::setInputParameter(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, bool keepBuffer)
 	{
 		/* if (value == NULL)
