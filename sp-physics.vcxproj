@@ -306,6 +306,7 @@
     <ClInclude Include="src\Sphere.h" />
     <ClInclude Include="src\SpInertiaTensor.h" />
     <ClInclude Include="src\SpMeshCache.h" />
+    <ClInclude Include="src\SpMeshCacheUpdaterGPU.h" />
     <ClInclude Include="src\SpOptimization.h" />
     <ClInclude Include="src\SpPhysicIntegrator.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
@@ -348,6 +349,7 @@
     <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
     <None Include="resources\opencl\src\RadixSortingByThread.cl" />
     <None Include="resources\opencl\src\Reverse.cl" />
+    <None Include="resources\opencl\src\SpMeshCache.cl" />
     <None Include="resources\opencl\src\SpPhysicProperties.cl" />
     <None Include="resources\opencl\src\SpTransformation.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />

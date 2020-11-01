@@ -17,14 +17,8 @@ __kernel void buildDOP18 (
     if (THREAD_ID + 1u > *meshCacheLength)
         return;
 
-    const sp_uint vertexIndex = BOUNDING_VOLUME_OFFSET + meshCacheIndexes[THREAD_ID];
-    const sp_uint vertexLength = meshCacheVertexesLength[THREAD_ID];
-    const sp_uint positionIndex = THREAD_ID * SP_TRANSFORMATION_STRIDER + SP_TRANSFORMATION_POSITION_OFFSET;
-
     Vec3 position;
-    position.x = transformations[positionIndex    ];
-    position.y = transformations[positionIndex + 1];
-    position.z = transformations[positionIndex + 2];
+    sp_transformation_get_position(transformations, THREAD_ID * SP_TRANSFORMATION_STRIDER, &position);
 
     Vec3 orientationUpLeft;
     vec3_up_left(orientationUpLeft);
@@ -80,14 +74,15 @@ __kernel void buildDOP18 (
         distanceRightDepth = SP_FLOAT_MAX,
         distanceLeftFront = SP_FLOAT_MIN;
 
+    const sp_uint vertexLength = meshCacheVertexesLength[THREAD_ID];
+    sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
+
     for (sp_uint i = 0u; i < vertexLength; i++)
     {
-        const sp_uint index = vertexIndex + (3u * i);
-
         Vec3 vertex;
-        vertex.x = meshCache[index     ];
-        vertex.y = meshCache[index + 1u];
-        vertex.z = meshCache[index + 2u];
+        vertex.x = meshCache[vertexIndex     ];
+        vertex.y = meshCache[vertexIndex + 1u];
+        vertex.z = meshCache[vertexIndex + 2u];
 
         if (vertex.x > right) right = vertex.x;
         if (vertex.y > up) up = vertex.y;
@@ -174,6 +169,8 @@ __kernel void buildDOP18 (
             leftFront = vertex.x + (position.z - vertex.z);
             distanceLeftFront = newDistance;
         }
+
+        vertexIndex += 3;
     }
 
     if (isCloseEnough(up, down, SP_EPSILON_NUMBER))

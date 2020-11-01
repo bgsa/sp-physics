@@ -163,11 +163,15 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void buildGPU(GpuDevice* gpu, cl_mem transformationsGPU) const
 		{
-			gpu->commandManager->acquireGLObjects(transformationsGPU);
-
 			command->execute(1u, globalWorkSize, localWorkSize);
 
-			gpu->commandManager->releaseGLObjects(transformationsGPU);
+			/* test
+			sp_uint* indexes = ALLOC_ARRAY(sp_uint, 100);
+			command->fetchInOutParameter(indexes, 1u);
+
+			sp_float* c = ALLOC_ARRAY(sp_float, 10000);
+			command->fetchInOutParameter(c, 3u);
+			*/
 		}
 
 #endif

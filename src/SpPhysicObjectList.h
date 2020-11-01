@@ -16,7 +16,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint listLength;
 		sp_uint physicIndex;
 		DOP18* _boundingVolumes;
-		SpCollisionFeatures* _collisionFeatures;
+		SpCollisionFeatures* _objectMapper;
 		SpPhysicProperties* _physicProperties;
 
 	public:
@@ -30,7 +30,7 @@ namespace NAMESPACE_PHYSICS
 			physicIndex = SpPhysicSimulator::instance()->alloc(length);
 			_boundingVolumes = SpPhysicSimulator::instance()->boundingVolumes(physicIndex);
 			_physicProperties = SpPhysicSimulator::instance()->physicProperties(physicIndex);
-			_collisionFeatures = SpPhysicSimulator::instance()->collisionFeatures(physicIndex);
+			_objectMapper = SpPhysicSimulator::instance()->collisionFeatures(physicIndex);
 		}
 
 		/// <summary>
@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index)
 		{
 			sp_assert(index < listLength, "IndexOutOfRangeException");
-			return &_collisionFeatures[index];
+			return &_objectMapper[index];
 		}
 
 		/// <summary>

@@ -21,6 +21,7 @@
 #include "SpCollisionGroup.h"
 #include "SpDOP18Factory.h"
 #include "GpuBufferOpenCL.h"
+#include "SpMeshCacheUpdaterGPU.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -37,7 +38,7 @@ namespace NAMESPACE_PHYSICS
 		DOP18* _boundingVolumes;
 		SpPhysicProperties* _physicProperties;
 		SpTransform* _transforms;
-		SpCollisionFeatures* _collisionFeatures;
+		SpCollisionFeatures* _objectMapper;
 		SpArray<SpMesh*>* _meshes;
 		SpArray<SpMeshCache*>* _meshesCache;
 		
@@ -51,10 +52,14 @@ namespace NAMESPACE_PHYSICS
 		cl_mem _sapCollisionIndexesGPU;
 		cl_mem _sapCollisionIndexesLengthGPU;
 		GpuBufferOpenCL* _inputLengthGPU;
+		GpuBufferOpenCL* _meshesGPU;
+		GpuBufferOpenCL* _meshesIndexesGPU;
 		GpuBufferOpenCL* _meshCacheGPU;
 		GpuBufferOpenCL* _meshCacheIndexesGPU;
 		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
+		GpuBufferOpenCL* _objectMapperGPU;
 		SpDOP18Factory dop18Factory;
+		SpMeshCacheUpdaterGPU _meshCacheUpdater;
 
 		Timer timerToPhysic;
 
@@ -74,20 +79,21 @@ namespace NAMESPACE_PHYSICS
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpu(SweepAndPruneResult* result);
 		
+		/// <summary>
+		/// Update transformations and physicproperties on GPU
+		/// </summary>
 		void updateDataOnGPU()
 		{
-			//updateTransformsOnGPU();
-			updateTransformsOnGPUOpenCL();
-
-			//gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
-			//sap->updateBoundingVolumes(_boundingVolumes);
+			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * 4, _transforms);
 			sap->updatePhysicProperties(_physicProperties);
 		}
 
+		/// <summary>
+		/// Update physic properties changed by GPU filter response
+		/// </summary>
 		void updateDataOnCPU()
 		{
 			cl_event evt1 = gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
-			//cl_event evt2 = gpu->commandManager->readBuffer(_boundingVolumesGPU, DOP18_SIZE * _objectsLength, _boundingVolumes);
 			gpu->waitEvents(ONE_UINT, &evt1);
 		}
 
@@ -96,17 +102,12 @@ namespace NAMESPACE_PHYSICS
 
 		void buildDOP18() const;
 
+		void initMeshCacheIndexes();
+
 	public:
 		SpPhysicIntegrator* integrator;
 
 		API_INTERFACE static SpPhysicSimulator* instance();
-
-		API_INTERFACE void inline updateTransformsOnGPUOpenCL()
-		{
-			gpu->commandManager->acquireGLObjects(_transformsGPU);
-			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * 4, _transforms);
-			gpu->commandManager->releaseGLObjects(_transformsGPU);
-		}
 
 		API_INTERFACE inline void updateTransformsOnGPU()
 		{
@@ -136,7 +137,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint allocated = _objectsLength;
 			
 			for (sp_uint i = _objectsLength; i < _objectsLength + length; i++)
-				_collisionFeatures[i].meshIndex = _objectsLength;
+				_objectMapper[i].meshIndex = _objectsLength;
 			
 			_objectsLength += length;
 
@@ -172,11 +173,11 @@ namespace NAMESPACE_PHYSICS
 		
 		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index) const
 		{
-			return &_collisionFeatures[index];
+			return &_objectMapper[index];
 		}
 		API_INTERFACE inline void collisionFeatures(const sp_uint index, const sp_uint meshIndex)
 		{
-			_collisionFeatures[index].meshIndex = meshIndex;
+			_objectMapper[index].meshIndex = meshIndex;
 		}
 
 		API_INTERFACE inline SpMesh* mesh(const sp_uint index) const
@@ -196,6 +197,12 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void initMeshCache();
 		API_INTERFACE inline void updateMeshCache();
+
+		/// <summary>
+		/// Update MeshCache structure on GPU, using transformations objects
+		/// </summary>
+		/// <returns>MeshCache structure updated on GPU </returns>
+		API_INTERFACE inline void updateMeshCacheGPU();
 		
 		API_INTERFACE inline SpGpuTextureBuffer* transformsGPU() const
 		{
