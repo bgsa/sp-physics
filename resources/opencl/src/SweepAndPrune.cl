@@ -90,3 +90,47 @@ __kernel void sweepAndPruneSingleAxis(
         }
     }
 }
+
+
+__kernel void sweepAndPruneSingleAxisAABB(
+    __global   sp_float* input,
+    __global   sp_float* physicProperties,
+    __constant sp_uint* indexesLength,
+    __global   sp_uint* indexes,
+    __global   sp_uint* outputLength,
+    __global   sp_uint* output)
+{
+    __private const sp_uint axis = THREAD_OFFSET;
+    __private const sp_uint index = THREAD_ID - THREAD_OFFSET;
+
+    if (index + 1u > * indexesLength)
+        return;
+
+    const sp_uint objIndex1 = indexes[index];
+    const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
+
+    //const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, objIndex1 * SP_PHYSIC_PROPERTY_SIZE);
+
+    for (sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
+    {
+        const sp_uint objIndex2 = indexes[j];
+        const sp_uint dopIndex2 = objIndex2 * INPUT_STRIDE;
+
+        if (MAX_POINT < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
+            return;
+
+        if ((maxPointX >= MIN_POINT_NEXT_ELEMENT_X && minPointX <= MAX_POINT_NEXT_ELEMENT_X)
+            && (maxPointY >= MIN_POINT_NEXT_ELEMENT_Y && minPointY <= MAX_POINT_NEXT_ELEMENT_Y)
+            && (maxPointZ >= MIN_POINT_NEXT_ELEMENT_Z && minPointZ <= MAX_POINT_NEXT_ELEMENT_Z)
+        )
+        {
+            //const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, objIndex2 * SP_PHYSIC_PROPERTY_SIZE);
+            //if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
+            //    continue;
+
+            const sp_uint temp = atomic_add(outputLength, 2);
+            output[temp] = objIndex1;
+            output[temp + 1] = objIndex2;
+        }
+    }
+}

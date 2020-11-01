@@ -87,6 +87,7 @@ namespace NAMESPACE_PHYSICS
 		_meshCacheUpdater.setParameters(_inputLengthGPU, _objectMapperGPU, _meshesGPU, _meshesIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
 
 		dop18Factory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
+		aabbFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
 #endif
 
 		ALLOC_RELEASE(meshCacheIndexes);
@@ -106,6 +107,17 @@ namespace NAMESPACE_PHYSICS
 			SpMeshCache* cache = _meshesCache->get(i);
 			
 			dop18Factory.build(mesh, cache, transforms(i)->position, &_boundingVolumes[i]);
+		}
+	}
+
+	void SpPhysicSimulator::buildAABB() const
+	{
+		for (sp_uint i = 0; i < _objectsLength; i++)
+		{
+			SpMesh* mesh = this->mesh(collisionFeatures(i)->meshIndex);
+			SpMeshCache* cache = _meshesCache->get(i);
+
+			aabbFactory.build(mesh, cache, transforms(i)->position, &_boundingVolumes[i]);
 		}
 	}
 
@@ -156,10 +168,15 @@ namespace NAMESPACE_PHYSICS
 			<< " -DINPUT_OFFSET=" << 0
 			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
-		sap = sp_mem_new(SweepAndPrune)();
-		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters(_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU);
+		sapDOP18 = sp_mem_new(SweepAndPrune)();
+		sapDOP18->init(gpu, buildOptions.str().c_str());
+		sapDOP18->setParameters(_boundingVolumesGPU, objectsLength,
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
+
+		sapAABB = sp_mem_new(SweepAndPrune)();
+		sapAABB->init(gpu, buildOptions.str().c_str());
+		sapAABB->setParameters(_boundingVolumesGPU, objectsLength,
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
 
 		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
 		collisionResponseGPU->init(gpu, nullptr);
@@ -226,18 +243,30 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint i = ZERO_UINT; i < _objectsLength; i++)
 			sortedIndexes[i] = i;
 
-		sap->findCollisions(_boundingVolumes, sortedIndexes, _objectsLength, result);
+		sapDOP18->findCollisions(_boundingVolumes, sortedIndexes, _objectsLength, result);
 
 		ALLOC_RELEASE(sortedIndexes);
 	}
 
-	void SpPhysicSimulator::findCollisionsGpu(SweepAndPruneResult* result)
+	void SpPhysicSimulator::findCollisionsGpuDOP18(SweepAndPruneResult* result)
 	{
-		sap->execute(ONE_UINT, &sap->lastEvent);
+		sapDOP18->execute(ONE_UINT, &sapDOP18->lastEvent);
 
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, _boundingVolumes, _physicProperties);
 
-		collisionResponseGPU->execute(ONE_UINT, &sap->lastEvent);
+		collisionResponseGPU->execute(ONE_UINT, &sapDOP18->lastEvent);
+		lastEvent = collisionResponseGPU->lastEvent;
+
+		collisionResponseGPU->fetchCollisionLength(&result->length);
+		collisionResponseGPU->fetchCollisions(result->indexes);
+	}
+	void SpPhysicSimulator::findCollisionsGpuAABB(SweepAndPruneResult* result)
+	{
+		sapAABB->execute(ONE_UINT, &sapAABB->lastEvent);
+
+		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, _boundingVolumes, _physicProperties);
+
+		collisionResponseGPU->execute(ONE_UINT, &sapAABB->lastEvent);
 		lastEvent = collisionResponseGPU->lastEvent;
 
 		collisionResponseGPU->fetchCollisionLength(&result->length);
@@ -289,6 +318,9 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::run()
 	{
+		SweepAndPruneResult sapResult;
+		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
+
 		// get GPU Buffer access shared OpenCL and OpenGL 
 		gpu->commandManager->acquireGLObjects(_transformsGPU);
 
@@ -297,23 +329,31 @@ namespace NAMESPACE_PHYSICS
 		// update mesh cache vertexes
 		_meshCacheUpdater.execute();
 
-		// build bounding volumes
+		// build bounding volumes AABB
+		aabbFactory.buildGPU(gpu, _transformsGPU);
+
+		// find collisions pair on GPU using Bounding Volume
+		findCollisionsGpuAABB(&sapResult);
+
+		const sp_uint collisionsWithAABB = sapResult.length;
+
+		// build bounding volumes 18-DOP
 		dop18Factory.buildGPU(gpu, _transformsGPU);
+
+		// find collisions pair on GPU using Bounding Volume
+		findCollisionsGpuDOP18(&sapResult);
+
+		const sp_uint collisionsWith18DOP = sapResult.length;
 
 		// release GPU shared buffer OpenCL and OpenGL
 		gpu->commandManager->releaseGLObjects(_transformsGPU);
 
-		SweepAndPruneResult sapResult;
-		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
-
-		/* Run on CPU way
-		updateMeshCache();
-		buildDOP18();
-		findCollisionsCpu(&sapResult);
+		/* // Run on CPU way
+		//updateMeshCache();
+		//buildDOP18();
+		//buildAABB();
+		//findCollisionsCpu(&sapResult);
 		*/
-
-		// find collisions pair on GPU using Bounding Volume
-		findCollisionsGpu(&sapResult);
 
 		updateDataOnCPU();
 
@@ -427,10 +467,16 @@ namespace NAMESPACE_PHYSICS
 			_objectMapperGPU = nullptr;
 		}
 
-		if (sap != nullptr)
+		if (sapDOP18 != nullptr)
 		{
-			sp_mem_delete(sap, SweepAndPrune);
-			sap = nullptr;
+			sp_mem_delete(sapDOP18, SweepAndPrune);
+			sapDOP18 = nullptr;
+		}
+
+		if (sapAABB != nullptr)
+		{
+			sp_mem_delete(sapAABB, SweepAndPrune);
+			sapAABB = nullptr;
 		}
 
 		if (collisionResponseGPU != nullptr)

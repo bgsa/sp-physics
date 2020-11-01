@@ -200,7 +200,7 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem input;
 	sp_uint inputLenLen;
-	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex)
+	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName)
 	{
 		input = inputGpu; // TODO: REMOVER debug
 		inputLenLen = inputLength;
@@ -221,7 +221,7 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(indexesGPU, inputLength * SIZEOF_UINT)
 			->setInputParameter(outputIndexLength, SIZEOF_UINT)
 			->setInputParameter(outputIndex, collisionsSize)
-			->buildFromProgram(sapProgram, "sweepAndPruneSingleAxis");
+			->buildFromProgram(sapProgram, commandName);
 	}
 
 	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents)

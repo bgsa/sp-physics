@@ -12,8 +12,6 @@ __kernel void buildDOP18 (
     __global   sp_float* output
 )
 {
-#define BOUNDING_VOLUME_OFFSET 4u
-
     if (THREAD_ID + 1u > *meshCacheLength)
         return;
 
@@ -211,7 +209,74 @@ __kernel void buildDOP18 (
     output[outputIndex + DOP18_AXIS_UP_DEPTH] = downFront;
     output[outputIndex + DOP18_AXIS_LEFT_DEPTH] = rightFront;
     output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = leftFront;
-
-#undef BOUNDING_VOLUME_OFFSET
 }
     
+
+__kernel void buildAABB(
+    __global   sp_uint* meshCacheLength,
+    __constant sp_uint* meshCacheIndexes,
+    __constant sp_uint* meshCacheVertexesLength,
+    __global   sp_float* meshCache,
+    __global   sp_float* transformations,
+    __global   sp_float* output
+)
+{
+    if (THREAD_ID + 1u > *meshCacheLength)
+        return;
+
+    sp_float
+        right = SP_FLOAT_MIN,
+        up = SP_FLOAT_MIN,
+        front = SP_FLOAT_MIN,
+        left = SP_FLOAT_MAX,
+        down = SP_FLOAT_MAX,
+        depth = SP_FLOAT_MAX;
+
+    const sp_uint vertexLength = meshCacheVertexesLength[THREAD_ID];
+    sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
+
+    for (sp_uint i = 0u; i < vertexLength; i++)
+    {
+        Vec3 vertex;
+        vertex.x = meshCache[vertexIndex     ];
+        vertex.y = meshCache[vertexIndex + 1u];
+        vertex.z = meshCache[vertexIndex + 2u];
+
+        if (vertex.x > right) right = vertex.x;
+        if (vertex.y > up) up = vertex.y;
+        if (vertex.z > front) front = vertex.z;
+
+        if (vertex.x < left) left = vertex.x;
+        if (vertex.y < down) down = vertex.y;
+        if (vertex.z < depth) depth = vertex.z;
+
+        vertexIndex += 3;
+    }
+
+    if (isCloseEnough(up, down, SP_EPSILON_NUMBER))
+    {
+        down -= 0.1f;
+        up += 0.1f;
+    }
+    if (isCloseEnough(front, depth, SP_EPSILON_NUMBER))
+    {
+        depth -= 0.1f;
+        front += 0.1f;
+    }
+    if (isCloseEnough(left, right, SP_EPSILON_NUMBER))
+    {
+        left -= 0.1f;
+        right += 0.1f;
+    }
+
+    sp_uint outputIndex = THREAD_ID * DOP18_STRIDE;
+
+    output[outputIndex + DOP18_AXIS_X] = left;
+    output[outputIndex + DOP18_AXIS_Y] = down;
+    output[outputIndex + DOP18_AXIS_Z] = depth;
+    
+    outputIndex += DOP18_ORIENTATIONS;
+    output[outputIndex + DOP18_AXIS_X] = right;
+    output[outputIndex + DOP18_AXIS_Y] = up;
+    output[outputIndex + DOP18_AXIS_Z] = front;
+}

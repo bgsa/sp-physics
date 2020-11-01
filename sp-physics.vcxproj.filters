@@ -6518,6 +6518,9 @@
     <ClInclude Include="src\SpMeshCacheUpdaterGPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SpAABBFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

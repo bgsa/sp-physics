@@ -20,6 +20,7 @@
 #include "SpPhysicIntegrator.h"
 #include "SpCollisionGroup.h"
 #include "SpDOP18Factory.h"
+#include "SpAABBFactory.h"
 #include "GpuBufferOpenCL.h"
 #include "SpMeshCacheUpdaterGPU.h"
 
@@ -29,7 +30,8 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		GpuDevice* gpu;
-		SweepAndPrune* sap;
+		SweepAndPrune* sapDOP18;
+		SweepAndPrune* sapAABB;
 		SpCollisionResponseGPU* collisionResponseGPU;
 
 		sp_uint _objectsLengthAllocated;
@@ -58,6 +60,7 @@ namespace NAMESPACE_PHYSICS
 		GpuBufferOpenCL* _meshCacheIndexesGPU;
 		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
 		GpuBufferOpenCL* _objectMapperGPU;
+		SpAABBFactory aabbFactory;
 		SpDOP18Factory dop18Factory;
 		SpMeshCacheUpdaterGPU _meshCacheUpdater;
 
@@ -77,7 +80,8 @@ namespace NAMESPACE_PHYSICS
 		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
-		void findCollisionsGpu(SweepAndPruneResult* result);
+		void findCollisionsGpuDOP18(SweepAndPruneResult* result);
+		void findCollisionsGpuAABB(SweepAndPruneResult* result);
 		
 		/// <summary>
 		/// Update transformations and physicproperties on GPU
@@ -85,7 +89,8 @@ namespace NAMESPACE_PHYSICS
 		void updateDataOnGPU()
 		{
 			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * 4, _transforms);
-			sap->updatePhysicProperties(_physicProperties);
+			sapDOP18->updatePhysicProperties(_physicProperties);
+			sapAABB->updatePhysicProperties(_physicProperties);
 		}
 
 		/// <summary>
@@ -101,6 +106,7 @@ namespace NAMESPACE_PHYSICS
 		static void handleCollisionGPU(void* collisionParamter);
 
 		void buildDOP18() const;
+		void buildAABB() const;
 
 		void initMeshCacheIndexes();
 
