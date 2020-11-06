@@ -88,7 +88,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		void updateDataOnGPU()
 		{
-			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * 4, _transforms);
+			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
 			sapDOP18->updatePhysicProperties(_physicProperties);
 			sapAABB->updatePhysicProperties(_physicProperties);
 		}

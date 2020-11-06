@@ -2389,7 +2389,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu);
+		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, 
+			physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu, "");
 
 		PerformanceCounter counter; counter.start();
 		SweepAndPruneResult result1 = SweepAndPrune::findCollisions(aabbs1, count);
@@ -2443,7 +2444,8 @@ namespace NAMESPACE_PHYSICS_TEST
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, axis, DOP18_ORIENTATIONS, physcPropertiesGpu, physicPropertySize, outputLengthGpu, outputGpu);
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, axis, DOP18_ORIENTATIONS, physcPropertiesGpu,
+			physicPropertySize, outputLengthGpu, outputGpu, "");
 
 		performanceCounter.start();
 

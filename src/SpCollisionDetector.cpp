@@ -489,6 +489,7 @@ namespace NAMESPACE_PHYSICS
 
 		if (details->ignoreCollision) // if they are not colliding in geometry
 		{
+			/*
 			if (details->objIndex1 != 0 && details->objIndex2 != 0)
 			{
 				SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
@@ -500,6 +501,7 @@ namespace NAMESPACE_PHYSICS
 				sp_log_info1s("ignorando colisao: geometria nao colide");
 				sp_log_newline();
 			}
+			*/
 
 			return;
 		}
@@ -860,14 +862,12 @@ namespace NAMESPACE_PHYSICS
 		if (intersectionPointsLength < 2u)
 			return false;
 
+		// all facesIndexesMesh1 are parallel, so get the first one
+		rotate(transform1.orientation, allFacesObj1[facesIndexesMesh1[0]]->faceNormal, &details->collisionNormal);
+
 		if (intersectionPointsLength == 2u)
 		{
 			details->type = SpCollisionType::EdgeFace;
-
-			cross(intersectionPoints[0u], intersectionPoints[1u], &details->collisionNormalObj1);
-			normalize(&details->collisionNormalObj1);
-			details->collisionNormalObj2 = -details->collisionNormalObj1;
-
 			details->contactPointsLength = 2u;
 			details->contactPoints[0u] = intersectionPoints[0u];
 			details->contactPoints[1u] = intersectionPoints[1u];
@@ -877,10 +877,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_assert(intersectionPointsLength > MIN_INTERSECTION_POINTS, "InvalidOperationException");
 
-		details->type = SpCollisionType::FaceFace;
-		rotate(transform1.orientation, allFacesObj1[facesIndexesMesh1[0]]->faceNormal, &details->collisionNormalObj1);
-		details->collisionNormalObj2 = -details->collisionNormalObj1;
-
+		details->type = SpCollisionType::FaceFace;		
 		for (sp_uint i = 0; i < intersectionPointsLength; i++)
 		{
 			details->centerContactPoint += intersectionPoints[i];
@@ -1004,9 +1001,12 @@ namespace NAMESPACE_PHYSICS
 						details->contactPointsLength = 1u;
 						details->contactPoints[0] = p2;
 						details->centerContactPoint = p2;
-						cross(line2.point1, line2.point2, &details->collisionNormalObj1);
-						normalize(&details->collisionNormalObj1);
-						details->collisionNormalObj2 = -details->collisionNormalObj1;
+
+						// get the first face from edge and this will be the collision normal
+						SpFaceMesh* face = mesh1->faces->get(edgeObj1->faces[0]);
+						SpTransform* transformation = simulator->transforms(details->objIndex1);
+						details->collisionNormal = transformation->orientation.rotate(face->faceNormal);
+
 						return true;
 					}
 
@@ -1017,16 +1017,19 @@ namespace NAMESPACE_PHYSICS
 						details->contactPointsLength = 1u;
 						details->contactPoints[0] = p1;
 						details->centerContactPoint = p1;
-						cross(line1.point1, line1.point2, &details->collisionNormalObj1);
-						normalize(&details->collisionNormalObj1);
-						details->collisionNormalObj2 = -details->collisionNormalObj1;
+						
+						// get the first face from edge and this will be the collision normal
+						SpFaceMesh* face = mesh2->faces->get(edgeObj2->faces[0]);
+						SpTransform* transformation = simulator->transforms(details->objIndex2);
+						details->collisionNormal = transformation->orientation.rotate(face->faceNormal);
+
 						return true;
 					}
 				}
 
 				smallestDistance = sqDistance;
 				contact = p1;
-				line1.cross(line2, &details->collisionNormalObj1);
+				line1.cross(line2, &details->collisionNormal);
 			}
 		}
 
@@ -1037,8 +1040,7 @@ namespace NAMESPACE_PHYSICS
 			details->contactPoints[0] = contact;
 			details->centerContactPoint = contact;
 
-			normalize(&details->collisionNormalObj1);
-			details->collisionNormalObj2 = -details->collisionNormalObj1;
+			normalize(&details->collisionNormal);
 
 			return true;
 		}
@@ -1091,8 +1093,7 @@ namespace NAMESPACE_PHYSICS
 						details->contactPoints[0] = line.point2;
 
 					details->type = SpCollisionType::VertexFace;
-					details->collisionNormalObj1 = faceContact.normalVector;
-					details->collisionNormalObj2 = -faceContact.normalVector;
+					details->collisionNormal = faceContact.normalVector;
 
 					return true;
 				}
@@ -1117,16 +1118,15 @@ namespace NAMESPACE_PHYSICS
 				if (line.intersection(triangle, &details->centerContactPoint, ERROR_MARGIN_PHYSIC))
 				{
 					Plane3D faceContact(triangle);
-					
+
+					details->type = SpCollisionType::VertexFace;
+					details->collisionNormal = faceContact.normalVector;
 					details->contactPointsLength = ONE_UINT;
+
 					if (faceContact.isBackFace(line.point1))
 						details->contactPoints[0] = line.point1;
 					else
 						details->contactPoints[0] = line.point2;
-
-					details->type = SpCollisionType::VertexFace;
-					details->collisionNormalObj1 = -faceContact.normalVector;
-					details->collisionNormalObj2 = faceContact.normalVector;
 
 					return true;
 				}
@@ -1226,15 +1226,11 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(contactsLength == MAX_CONTACTS, "IndexOutOfRangeException");
 			
 			details->type = SpCollisionType::EdgeFace;
-
 			details->contactPointsLength = 2u;
 			details->contactPoints[0] = contacts[0];
 			details->contactPoints[1] = contacts[1];
-
 			details->centerContactPoint = (contacts[0] + contacts[1]) * HALF_FLOAT;
-
-			details->collisionNormalObj1 = faceAsPlane.normalVector;
-			details->collisionNormalObj2 = -faceAsPlane.normalVector;
+			details->collisionNormal = faceAsPlane.normalVector;
 
 			return true;
 #undef MAX_PARALLEL_FACES
@@ -1330,15 +1326,11 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
 
 			details->type = SpCollisionType::EdgeFace;
-
 			details->contactPointsLength = 2u;
 			details->contactPoints[0] = contacts[0];
 			details->contactPoints[1] = contacts[1];
-
 			details->centerContactPoint = (contacts[0] + contacts[1]) * HALF_FLOAT;
-
-			details->collisionNormalObj1 = -faceAsPlane.normalVector;
-			details->collisionNormalObj2 = faceAsPlane.normalVector;
+			details->collisionNormal = faceAsPlane.normalVector;
 
 			return true;
 #undef MAX_PARALLEL_FACES

@@ -9,7 +9,7 @@ namespace NAMESPACE_PHYSICS
 
 		Vec3 tangent = relativeVel - (collisionNormal * relativeVel.dot(collisionNormal));
 
-		if (NAMESPACE_FOUNDATION::isCloseEnough(length(tangent), ZERO_FLOAT))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(length(tangent), ZERO_FLOAT, SP_EPSILON_TWO_DIGITS))
 			return;
 
 		normalize(&tangent);
@@ -51,7 +51,8 @@ namespace NAMESPACE_PHYSICS
 		Vec3 tangentImpuse = tangent * jt;
 
 		cross(rayToContactObj1, tangentImpuse, &temp1);
-		cross(rayToContactObj2, tangentImpuse, &temp2);
+		//cross(rayToContactObj2, tangentImpuse, &temp2);
+		cross(tangentImpuse, rayToContactObj2, &temp2);
 
 		if (obj1Properties->isResting())
 		{
@@ -62,7 +63,7 @@ namespace NAMESPACE_PHYSICS
 		}
 		else 
 		{
-			obj1Properties->currentState._velocity -= tangentImpuse;
+			obj1Properties->currentState._velocity += tangentImpuse;
 			obj1Properties->currentState._angularVelocity += (temp1 * jt) * obj1Properties->angularDamping();
 		}
 
@@ -75,7 +76,7 @@ namespace NAMESPACE_PHYSICS
 		}
 		else
 		{
-			obj2Properties->currentState._velocity += tangentImpuse;
+			obj2Properties->currentState._velocity -= tangentImpuse;
 			obj2Properties->currentState._angularVelocity += (temp2 * -jt) * obj2Properties->angularDamping();
 		}
 	}
@@ -90,30 +91,38 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
 		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
-		const Vec3 collisionNormal = details->collisionNormalObj1;
+		const Vec3 collisionNormal = details->collisionNormal;
 
 		const Vec3 centerObj1 = simulator->transforms(details->objIndex1)->position;
 		const Vec3 centerObj2 = simulator->transforms(details->objIndex2)->position;
+
+		Plane3D contactFace(details->centerContactPoint, collisionNormal);
 
 		Vec3 rayToContactObj1, rayToContactObj2, angularCrossContactRayObj1, angularCrossContactRayObj2;
 		diff(details->centerContactPoint, centerObj1, &rayToContactObj1);
 		diff(details->centerContactPoint, centerObj2, &rayToContactObj2);
 
 		// get relative velocity
-		cross(obj1Properties->currentState.angularVelocity(), rayToContactObj1, &angularCrossContactRayObj1);
-		cross(obj2Properties->currentState.angularVelocity(), rayToContactObj2, &angularCrossContactRayObj2);
+		cross(rayToContactObj1, obj1Properties->currentState.angularVelocity(), &angularCrossContactRayObj1);
+		cross(rayToContactObj2, obj2Properties->currentState.angularVelocity(), &angularCrossContactRayObj2);
 
 		Vec3 pointVelocityObj1, pointVelocityObj2;
 		add(obj1Properties->currentState.velocity(), angularCrossContactRayObj1, &pointVelocityObj1);
 		add(obj2Properties->currentState.velocity(), angularCrossContactRayObj2, &pointVelocityObj2);
 
 		Vec3 relativeVel;
-		diff(pointVelocityObj2, pointVelocityObj1, &relativeVel);
+		sp_float relativeVelocityAtNormal;
 
-		sp_float relativeVelocityAtNormal = relativeVel.dot(collisionNormal);
+		sp_bool obj2IsPositiveNormal = contactFace.distance(centerObj2) > ZERO_FLOAT;
+		
+		if (obj2IsPositiveNormal)
+			diff(pointVelocityObj1, pointVelocityObj2, &relativeVel);
+		else
+			diff(pointVelocityObj2, pointVelocityObj1, &relativeVel);
 
-		//Since object 1 is on the positive side of the normal 
-		if (relativeVelocityAtNormal < ZERO_FLOAT) // check objects are moving away
+		relativeVelocityAtNormal = relativeVel.dot(collisionNormal);
+
+		if (relativeVelocityAtNormal < ZERO_FLOAT) // check if objects are moving away
 		{
 			details->ignoreCollision = true;
 			return;
@@ -138,13 +147,6 @@ namespace NAMESPACE_PHYSICS
 		else
 			j = (numerator / denominator) / (sp_float)details->contactPointsLength;
 
-		cross(rayToContactObj1, collisionNormal, &angularCrossContactRayObj1);
-		cross(rayToContactObj2, collisionNormal, &angularCrossContactRayObj2);
-
-		const Vec3 angularImpulse1 = (obj1Properties->inertialTensorInverse() * angularCrossContactRayObj1) * j;
-		const Vec3 angularImpulse2 = (obj2Properties->inertialTensorInverse() * angularCrossContactRayObj2) * j;
-
-		const Vec3 impulse = collisionNormal * j;
 		
 		if (obj1Properties->isResting())
 		{
@@ -155,8 +157,20 @@ namespace NAMESPACE_PHYSICS
 		}
 		else
 		{
-			obj1Properties->currentState._velocity = -impulse * obj1Properties->massInverse() * obj1Properties->damping();
-			obj1Properties->currentState._angularVelocity = -angularImpulse1 * obj1Properties->angularDamping();
+			Vec3 angularImpulse1;
+			cross(rayToContactObj1, collisionNormal, &angularImpulse1);
+
+
+			if (obj2IsPositiveNormal)
+			{
+				obj1Properties->currentState._velocity = (collisionNormal * j) * obj1Properties->massInverse() * obj1Properties->damping();
+				obj1Properties->currentState._angularVelocity = angularImpulse1 * obj1Properties->angularDamping();
+			}
+			else
+			{
+				obj1Properties->currentState._velocity = (collisionNormal * -j) * obj1Properties->massInverse() * obj1Properties->damping();
+				obj1Properties->currentState._angularVelocity = -angularImpulse1 * obj1Properties->angularDamping();
+			}
 		}
 		
 		if (obj2Properties->isResting())
@@ -168,11 +182,22 @@ namespace NAMESPACE_PHYSICS
 		}
 		else
 		{
-			obj2Properties->currentState._velocity = impulse * obj2Properties->massInverse() * obj2Properties->damping();
-			obj2Properties->currentState._angularVelocity = angularImpulse2 * obj2Properties->angularDamping();
+			Vec3 angularImpulse2;
+			cross(rayToContactObj2, collisionNormal, &angularImpulse2);
+			
+			if (obj2IsPositiveNormal)
+			{
+				obj2Properties->currentState._velocity = (collisionNormal * -j) * obj2Properties->massInverse() * obj2Properties->damping();
+				obj2Properties->currentState._angularVelocity = -angularImpulse2 * obj2Properties->angularDamping();
+			}
+			else
+			{
+				obj2Properties->currentState._velocity = (collisionNormal * j) * obj2Properties->massInverse() * obj2Properties->damping();
+				obj2Properties->currentState._angularVelocity = angularImpulse2 * obj2Properties->angularDamping();
+			}
 		}
 
-		addFriction(obj1Properties, obj2Properties, relativeVel, collisionNormal , rayToContactObj1, rayToContactObj2, j, details);
+		//addFriction(obj1Properties, obj2Properties, relativeVel, collisionNormal , rayToContactObj1, rayToContactObj2, j, details);
 
 		obj1Properties->currentState._acceleration = Vec3Zeros;
 		obj1Properties->currentState._torque = Vec3Zeros;

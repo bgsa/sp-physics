@@ -31,8 +31,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_uint vertexIndexObj1;
 		sp_uint vertexIndexObj2;
-		Vec3 collisionNormalObj1;
-		Vec3 collisionNormalObj2;
+		Vec3 collisionNormal;
 
 		Vec3 contactPoints[8];
 		sp_uint contactPointsLength;

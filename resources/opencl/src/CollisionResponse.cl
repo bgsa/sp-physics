@@ -5,7 +5,6 @@
 __kernel void handleCollision(
     __constant sp_uint * indexes,
 	__constant sp_uint * indexesLength,
-    __global   sp_float* dops,
     __global   sp_float* physicProperties,
     //__global   sp_float* transforms,
     __global   sp_uint * outputIndexesLength,
@@ -50,7 +49,6 @@ __kernel void handleCollision(
         if (!isStaticObj1 && !isStaticObj2)
             return;
 
-        dop18_translate(dops, index1, translationObj1);
         SpPhysicProperties_setPosition(physicProperties, physicIndex1, previousPositionObj1);
         SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
         SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);
@@ -58,7 +56,6 @@ __kernel void handleCollision(
         SpPhysicProperties_setAngVelocity(physicProperties, physicIndex1, VEC3_ZERO);
         SpPhysicProperties_setTorque(physicProperties, physicIndex1, VEC3_ZERO);
 
-        dop18_translate(dops, index2, translationObj2);
         SpPhysicProperties_setPosition(physicProperties, physicIndex2, previousPositionObj2);
         SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
         SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
@@ -70,7 +67,6 @@ __kernel void handleCollision(
 
     if (isStaticObj1 && isRestingObj2)
     {
-        dop18_translate(dops, index2, translationObj2);
         SpPhysicProperties_setPosition(physicProperties, physicIndex2, previousPositionObj2);
         SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
         SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
@@ -82,7 +78,6 @@ __kernel void handleCollision(
 
     if (isStaticObj2 && isRestingObj1)
     {
-        dop18_translate(dops, index1, translationObj1);
         SpPhysicProperties_setPosition(physicProperties, physicIndex1, previousPositionObj1);
         SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
         SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);

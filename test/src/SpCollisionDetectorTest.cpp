@@ -896,8 +896,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
-		Asserts::isCloseEnough(details.collisionNormalObj1, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC);
-		Asserts::isCloseEnough(details.collisionNormalObj2, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC);
+		Asserts::isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC);
 
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.0f, -1.0f, -1.0f ), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(1.0f, -1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -941,9 +940,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-
+		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.0f, -0.5f, 0.5f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(1.0f, 1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[2], Vec3(1.0f, -0.5f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -1045,9 +1042,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(0.0f, 1.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(0.0f, -1.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-
+		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(0.0f, 1.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.0f, 1.0f, 1.0f ), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(-1.0f, 1.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[2], Vec3(-1.0f, 1.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -1129,9 +1125,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 6u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(0.0f, 0.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-
+		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(-0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[2], Vec3(-0.5f, 0.5f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -1197,9 +1192,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 3u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(0.0f, 0.0f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-
+		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(0.0f, 0.5f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(-0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[2], Vec3(0.5f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -1245,9 +1239,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::EdgeFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-
+		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		
 		Assert::IsTrue(details.contactPointsLength == 2u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.0f, 0.5f, -1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[1], Vec3(1.0f, 0.5f, 0.5f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -1297,9 +1290,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::EdgeEdge, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-
+		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		
 		Assert::IsTrue(details.contactPointsLength == 1u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.414214f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.centerContactPoint, Vec3(1.413911f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
@@ -1349,9 +1341,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(details.type == SpCollisionType::VertexFace, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 1u, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj1, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(isCloseEnough(details.collisionNormalObj2, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
-
+		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
+		
 		Assert::IsTrue(isCloseEnough(details.contactPoints[0], Vec3(1.0f, -0.127f, 0.127f), ERROR_MARGIN_PHYSIC), L"Wrong value", LINE_INFO());
 		
 		TestPhysic::unlock();
