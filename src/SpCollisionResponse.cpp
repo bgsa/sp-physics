@@ -14,70 +14,44 @@ namespace NAMESPACE_PHYSICS
 
 		normalize(&tangent);
 
-		Vec3 temp1, temp2;
-		cross(tangent, rayToContactObj1, &temp1);
-		cross(tangent, rayToContactObj2, &temp2);
-
-		Vec3 d2;
+		Vec3 temp1, temp2, d2, d3;
+		cross(rayToContactObj1, tangent, &temp1);
+		cross(rayToContactObj2, tangent, &temp2);
 		cross(obj1Properties->inertialTensorInverse() * temp1, rayToContactObj1, &d2);
-
-		Vec3 d3;
 		cross(obj2Properties->inertialTensorInverse() * temp2, rayToContactObj2, &d3);
 
-		sp_float denominator = invMassSum + tangent.dot(d2 + d3);
+		const sp_float denominator = invMassSum + tangent.dot(d2 + d3);
 
-		if (denominator == ZERO_FLOAT)
-			return;
-
-		sp_float jt = (-relativeVel.dot(tangent)) / denominator;
+		sp_float jt = -(relativeVel.dot(tangent)) / denominator;
 
 		if (NAMESPACE_FOUNDATION::isCloseEnough(jt, ZERO_FLOAT))
 			return;
-		else
-			jt /= details->contactPointsLength;
+
+		jt /= details->contactPointsLength;
 
 		const sp_float friction = sqrtf(obj1Properties->coeficientOfFriction() * obj2Properties->coeficientOfFriction());
 
-		/* commented ?!
-		if (jt > j * friction) {
+		if (jt > j * friction) 
 			jt = j * friction;
-		}
-		else if (jt < -j * friction) {
+		else if (jt < -j * friction) 
 			jt = -j * friction;
-		}
-		*/
-		jt *= friction;
 
-		Vec3 tangentImpuse = tangent * jt;
+		const Vec3 tangentImpuse = tangent * jt;
 
-		cross(rayToContactObj1, tangentImpuse, &temp1);
-		//cross(rayToContactObj2, tangentImpuse, &temp2);
-		cross(tangentImpuse, rayToContactObj2, &temp2);
-
-		if (obj1Properties->isResting())
+		if (!obj1Properties->isResting())
 		{
-			obj1Properties->currentState._position = obj1Properties->previousState._position;
-			obj1Properties->currentState._orientation = obj1Properties->previousState._orientation;
-			obj1Properties->currentState._velocity = Vec3Zeros;
-			obj1Properties->currentState._angularVelocity = Vec3Zeros;
-		}
-		else 
-		{
-			obj1Properties->currentState._velocity += tangentImpuse;
-			obj1Properties->currentState._angularVelocity += (temp1 * jt) * obj1Properties->angularDamping();
+			obj1Properties->currentState._velocity += tangentImpuse * obj1Properties->massInverse();
+			
+			cross(rayToContactObj1, tangentImpuse, &temp1);
+			obj1Properties->currentState._angularVelocity -= obj1Properties->inertialTensorInverse() * temp1;	
 		}
 
-		if (obj2Properties->isResting())
+		if (!obj2Properties->isResting())
 		{
-			obj2Properties->currentState._position = obj2Properties->previousState._position;
-			obj2Properties->currentState._orientation = obj2Properties->previousState._orientation;
-			obj2Properties->currentState._velocity = Vec3Zeros;
-			obj2Properties->currentState._angularVelocity = Vec3Zeros;
-		}
-		else
-		{
-			obj2Properties->currentState._velocity -= tangentImpuse;
-			obj2Properties->currentState._angularVelocity += (temp2 * -jt) * obj2Properties->angularDamping();
+			obj2Properties->currentState._velocity -= tangentImpuse * obj2Properties->massInverse();
+
+			cross(rayToContactObj2, tangentImpuse, &temp1);
+			obj2Properties->currentState._angularVelocity += obj2Properties->inertialTensorInverse() * temp1;
 		}
 	}
 
@@ -197,7 +171,7 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		//addFriction(obj1Properties, obj2Properties, relativeVel, collisionNormal , rayToContactObj1, rayToContactObj2, j, details);
+		addFriction(obj1Properties, obj2Properties, relativeVel, collisionNormal , rayToContactObj1, rayToContactObj2, j, details);
 
 		obj1Properties->currentState._acceleration = Vec3Zeros;
 		obj1Properties->currentState._torque = Vec3Zeros;
