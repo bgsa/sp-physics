@@ -342,20 +342,6 @@ namespace NAMESPACE_PHYSICS
 		// build bounding volumes 18-DOP
 		dop18Factory.buildGPU(gpu, _transformsGPU);
 
-		/*
-		// TODO: REMOVER DEBUG
-		const sp_uint bvLength = 8u;
-		DOP18* bvs = ALLOC_NEW_ARRAY(DOP18, bvLength);
-		gpu->commandManager->readBuffer(_boundingVolumesGPU, sizeof(DOP18) * bvLength, bvs);
-		//sp_float* mins = bvs[2].min;
-		//sp_float* maxs = bvs[2].max;
-		//sp_log_info1s("MIN: "); sp_log_info3f(mins[0], mins[1], mins[2]); sp_log_newline();
-		//sp_log_info1s("MAX: "); sp_log_info3f(maxs[0], maxs[1], maxs[2]); sp_log_newline();
-
-		//Vec3 va = _physicProperties[2].currentState.angularVelocity();
-		//sp_log_info1s("ANG VEL: "); sp_log_info3f(va.x, va.y, va.z); sp_log_newline();
-		*/
-
 		// find collisions pair on GPU using Bounding Volume
 		findCollisionsGpuDOP18(&sapResult);
 

@@ -54,17 +54,6 @@ namespace NAMESPACE_PHYSICS
 		simulator->transforms(index)->position = newPosition;
 		simulator->transforms(index)->orientation = newOrientation;
 
-		/*
-		// TODO: REMOVER
-		sp_log_info1s("PREVIOUS POS: ");
-		sp_log_info3f(element->currentState._position.x, element->currentState._position.y, element->currentState._position.z);
-		sp_log_info1s("    NEW POS: ");
-		sp_log_info3f(newPosition.x, newPosition.y, newPosition.z);
-		sp_log_info1s("    TIME STEP: ");
-		sp_log_info1f(elapsedTime);
-		sp_log_newline();
-		*/
-
 		// update physic properties state
 		element->previousState._acceleration = element->currentState.acceleration();
 		element->currentState._acceleration = newAcceleration;

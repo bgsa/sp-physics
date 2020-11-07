@@ -198,13 +198,8 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
-	cl_mem input;
-	sp_uint inputLenLen;
 	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName)
 	{
-		input = inputGpu; // TODO: REMOVER debug
-		inputLenLen = inputLength;
-
 		globalWorkSize[0] = inputLength;
 		localWorkSize[0] = 1u;
 
