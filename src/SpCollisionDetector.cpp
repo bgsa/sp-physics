@@ -605,8 +605,8 @@ namespace NAMESPACE_PHYSICS
 			return;
 	
 		// TODO: REMOVER!!
-		//details->ignoreCollision = true;
-		//return;
+		details->ignoreCollision = true;
+		return;
 		
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		Wavefront::SpWavefrontExporter exporter;

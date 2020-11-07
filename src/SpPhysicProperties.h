@@ -207,7 +207,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE SpPhysicProperties()
 		{
 			_damping = 0.95f;
-			_angularDamping = 0.95f;
+			_angularDamping = 0.70f;
 			_coeficientOfRestitution = 0.60f;
 			_coeficientOfFriction = 0.80f;
 			_inverseMass = ZERO_FLOAT;
