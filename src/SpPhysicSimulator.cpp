@@ -220,12 +220,16 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
 	{
+		Timer timeDebug;
+		timeDebug.start();
+
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
 		sp_assert(details != nullptr, "InvalidArgumentException");
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
 
 		SpCollisionDetector collisionDetector;
 		collisionDetector.collisionDetails(details);
+		sp_log_debug1sfnl("Collision Details: ", timeDebug.elapsedTime());
 
 		if (details->ignoreCollision)
 			return;
@@ -233,8 +237,12 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
 		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
 
+		timeDebug.update();
 		SpCollisionResponse collisionResponse;
 		collisionResponse.handleCollisionResponse(details);
+		sp_log_debug1sfnl("Collision Response: ", timeDebug.elapsedTime());
+
+		sp_log_debug1sfnl("TASK END: ", timeDebug.elapsedTime());
 	}
 
 	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
@@ -316,6 +324,7 @@ namespace NAMESPACE_PHYSICS
 		return pairsLength;
 	}
 
+	Timer tt;
 	void SpPhysicSimulator::run()
 	{
 		SweepAndPruneResult sapResult;
@@ -325,7 +334,7 @@ namespace NAMESPACE_PHYSICS
 		gpu->commandManager->acquireGLObjects(_transformsGPU);
 
 		updateDataOnGPU();
-		
+
 		// update mesh cache vertexes
 		_meshCacheUpdater.execute();
 
@@ -400,6 +409,9 @@ namespace NAMESPACE_PHYSICS
 
 		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
 		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
+		std::thread** threads = ALLOC_ARRAY(std::thread*, sapResult.length);
+		tt.update();
+
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
@@ -408,15 +420,26 @@ namespace NAMESPACE_PHYSICS
 			detailsArray[i].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex1)->meshIndex)->vertexesMesh->length());
 			detailsArray[i].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex2)->meshIndex)->vertexesMesh->length());
 
-			tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
-			//tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
+			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
+			tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
 			tasks[i].parameter = &detailsArray[i];
 			
-			threadPool->schedule(&tasks[i]);
-			//handleCollisionCPU(&detailsArray[i]);
+			//threadPool->schedule(&tasks[i]);
+
+			//std::thread* t = ALLOC_NEW(std::thread(SpPhysicSimulator::handleCollisionGPU, &detailsArray[i]));
+			//threads[i] = t;
+			//t.detach();
+
+			SpPhysicSimulator::handleCollisionGPU(&detailsArray[i]);
 		}
-		SpThreadPool::instance()->waitToFinish();
-		
+		/*
+		for (sp_uint i = 0; i < sapResult.length; i++)
+			if (threads[i]->joinable())
+				threads[i]->join();
+*/
+		//SpThreadPool::instance()->waitToFinish();
+		sp_log_debug1sfnl("Wait Tasks: ", tt.elapsedTime());
+
 		/* dispatch collision events
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)
