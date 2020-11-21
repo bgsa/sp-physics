@@ -70,7 +70,11 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE sp_uint findEdge(const sp_uint vertexIndex1, const sp_uint vertexIndex2) const;
 	
+		API_INTERFACE sp_uint findVertex(const Vec3 value) const;
+
 		API_INTERFACE void convert(Vec3* vertexes, const SpTransform& transform) const;
+
+		API_INTERFACE void surfaceSquareSubdivision();
 
 	};
 

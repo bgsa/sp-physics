@@ -4,6 +4,185 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	void SpMesh::surfaceSquareSubdivision()
+	{
+		SpArray<SpEdgeMesh*> edgesToDivide(edges->length());
+		sp_uint facesLength = multiplyBy2(edges->length());
+		sp_uint* facesToSubdivide = ALLOC_ARRAY(sp_uint, facesLength);
+		
+		for (sp_uint i = 0; i < edges->length(); i++)
+		{
+			SpEdgeMesh* edge = edges->get(i);
+
+			if (!edge->isBoundaryEdge()) 
+			{
+				edgesToDivide.add(edge);
+
+				sp_uint faceIndex = multiplyBy2(edgesToDivide.length());
+				facesToSubdivide[faceIndex     ] = edge->faces[0];
+				facesToSubdivide[faceIndex + 1u] = edge->faces[1];
+			}	
+		}
+
+		SpMesh* newMesh = sp_mem_new(SpMesh);
+		newMesh->vertexesMesh = sp_mem_new(SpArray<SpVertexMesh*>)(vertexesMesh->length() + 5u * edgesToDivide.length());
+		newMesh->faces = sp_mem_new(SpArray<SpFaceMesh*>)(faces->length() + 6u * edgesToDivide.length());
+		newMesh->edges = sp_mem_new(SpArray<SpEdgeMesh*>)(edges->length() + 4u * edgesToDivide.length());
+
+		sp_uint vertexIndex = ZERO_UINT;
+		for (; vertexIndex < vertexesMesh->length(); vertexIndex++)
+		{
+			SpVertexMesh* newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex, vertexesMesh->get(0)->value());
+			newMesh->vertexesMesh->add(newVertex);
+		}
+
+		for (sp_uint i = 0; i < faces->length(); i++)
+		{
+			SpFaceMesh* face = faces->get(i);
+			sp_uint* vertexIndexes = face->vertexesIndexes;
+
+			sp_uint index = NAMESPACE_FOUNDATION::indexOf(facesToSubdivide, facesLength, face->index());
+			if (index != SP_UINT_MAX)
+			{
+				SpEdgeMesh* edge1 = edges->get(face->edgesIndexes[0]);
+				SpEdgeMesh* edge2 = edges->get(face->edgesIndexes[1]);
+				SpEdgeMesh* edge3 = edges->get(face->edgesIndexes[2]);
+
+				Vec3 vertex1 = vertexesMesh->get(edge1->vertexIndex1)->value();
+				Vec3 vertex2 = vertexesMesh->get(edge1->vertexIndex2)->value();
+				Vec3 newVertexValue;
+				diff(vertex2, vertex1, &newVertexValue);
+				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+
+				SpVertexMesh* newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
+				newMesh->vertexesMesh->add(newVertex);
+
+				vertex1 = vertexesMesh->get(edge2->vertexIndex1)->value();
+				vertex2 = vertexesMesh->get(edge2->vertexIndex2)->value();
+				diff(vertex2, vertex1, &newVertexValue);
+				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+
+				newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
+				newMesh->vertexesMesh->add(newVertex);
+
+				vertex1 = vertexesMesh->get(edge3->vertexIndex1)->value();
+				vertex2 = vertexesMesh->get(edge3->vertexIndex2)->value();
+				diff(vertex2, vertex1, &newVertexValue);
+				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+
+				newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
+				newMesh->vertexesMesh->add(newVertex);
+
+				sp_uint face2Index;
+				SpEdgeMesh* internalEdge = nullptr;
+
+				if (!edge1->isBoundaryEdge())
+				{
+					internalEdge = edge1;
+					face2Index = edge1->faces.get(0);
+
+					if (face2Index == face->index())
+						face2Index = edge1->faces.get(1);
+				}
+				else
+					if (!edge2->isBoundaryEdge())
+					{
+						internalEdge = edge2;
+						face2Index = edge2->faces.get(0);
+
+						if (face2Index == face->index())
+							face2Index = edge2->faces.get(1);
+					}
+					else
+						if (!edge3->isBoundaryEdge())
+						{
+							internalEdge = edge3;
+							face2Index = edge3->faces.get(0);
+
+							if (face2Index == face->index())
+								face2Index = edge3->faces.get(1);
+						}
+
+				SpFaceMesh* face2 = faces->get(face2Index);
+
+				if (face2->edgesIndexes[0] == internalEdge->index())
+				{
+					SpEdgeMesh* e = edges->get(face2->edgesIndexes[1]);
+					vertex1 = vertexesMesh->get(e->vertexIndex1)->value();
+					vertex2 = vertexesMesh->get(e->vertexIndex2)->value();
+					diff(vertex2, vertex1, &newVertexValue);
+					newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+
+					newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
+					newMesh->vertexesMesh->add(newVertex);
+
+					e = edges->get(face2->edgesIndexes[2]);
+					vertex1 = vertexesMesh->get(e->vertexIndex1)->value();
+					vertex2 = vertexesMesh->get(e->vertexIndex2)->value();
+					diff(vertex2, vertex1, &newVertexValue);
+					newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+
+					newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
+					newMesh->vertexesMesh->add(newVertex);
+				}
+
+				facesToSubdivide[index] = SP_UINT_MAX;
+				index = NAMESPACE_FOUNDATION::indexOf(facesToSubdivide, facesLength, face2->index());
+				sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
+				facesToSubdivide[index] = SP_UINT_MAX;
+			}
+		}
+
+		sp_uint faceIndex = ZERO_UINT;
+		for (sp_uint i = 0; i < faces->length(); i++)
+		{
+			SpFaceMesh* currentFace = faces->get(i);
+
+			if (NAMESPACE_FOUNDATION::contains(facesToSubdivide, facesLength, currentFace->index()))
+			{
+				sp_uint* edgesIndexes = currentFace->edgesIndexes;
+				SpEdgeMesh* edge1 = edges->get(edgesIndexes[0]);
+				SpEdgeMesh* edge2 = edges->get(edgesIndexes[1]);
+				SpEdgeMesh* edge3 = edges->get(edgesIndexes[2]);
+
+				Vec3 newVertexValue;
+				Vec3 vertex1 = vertexesMesh->get(edge1->vertexIndex1)->value();
+				Vec3 vertex2 = vertexesMesh->get(edge1->vertexIndex2)->value();
+				diff(vertex2, vertex1, &newVertexValue);
+				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+				sp_uint newVertexIndex1 = newMesh->findVertex(newVertexValue);
+
+				vertex1 = vertexesMesh->get(edge2->vertexIndex1)->value();
+				vertex2 = vertexesMesh->get(edge2->vertexIndex2)->value();
+				diff(vertex2, vertex1, &newVertexValue);
+				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+				sp_uint newVertexIndex2 = newMesh->findVertex(newVertexValue);
+
+				vertex1 = vertexesMesh->get(edge3->vertexIndex1)->value();
+				vertex2 = vertexesMesh->get(edge3->vertexIndex2)->value();
+				diff(vertex2, vertex1, &newVertexValue);
+				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
+				sp_uint newVertexIndex3 = newMesh->findVertex(newVertexValue);
+
+				SpFaceMesh* newFace = sp_mem_new(SpFaceMesh)(newMesh, faceIndex++, newVertexIndex1, newVertexIndex2, newVertexIndex3);
+				newMesh->faces->add(newFace);
+
+
+			}
+			else
+			{
+				sp_uint* currentIndexes = currentFace->vertexesIndexes;
+				SpFaceMesh* newFace = sp_mem_new(SpFaceMesh)(newMesh, faceIndex++, currentIndexes[0], currentIndexes[1], currentIndexes[2]);
+				newMesh->faces->add(newFace);
+			}
+		}
+
+
+		newMesh->init();
+
+		ALLOC_RELEASE(facesToSubdivide);
+	}
+
 	void SpMesh::vertex(const sp_uint index, Vec3* output) const
 	{
 		sp_assert(index < vertexesMesh->length(), "IndexOutOfRangeException");
@@ -111,6 +290,17 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint i = 0; i < edges->length(); i++)
 			if ((_edges[i]->vertexIndex1 == vertexIndex1 && _edges[i]->vertexIndex2 == vertexIndex2)
 				|| (_edges[i]->vertexIndex1 == vertexIndex2 && _edges[i]->vertexIndex2 == vertexIndex1))
+				return i;
+
+		return SP_UINT_MAX;
+	}
+
+	sp_uint SpMesh::findVertex(const Vec3 value) const
+	{
+		SpVertexMesh** _vertexes = vertexesMesh->data();
+
+		for (sp_uint i = 0; i < vertexesMesh->length(); i++)
+			if (_vertexes[i]->value() == value)
 				return i;
 
 		return SP_UINT_MAX;
