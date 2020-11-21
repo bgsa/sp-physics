@@ -8,81 +8,42 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
-
 		SP_TEST_METHOD_DEF(Mat4_constructorEmpty_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_constructorValues_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_constructor_4vec4_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_getValues_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_getValue_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_xAxis_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_yAxis_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_zAxis_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_wAxis_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_primaryDiagonal_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_secondaryDiagonal_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_identity_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_determinant_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_determinantIJ_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_cofactorIJ_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_transpose_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_multiply_MajorColumnOrder1_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_createScaled_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_scale_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_createRotate_Test);
-	
 		SP_TEST_METHOD_DEF(Mat4_createTranslate_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_divide_equal_operator_Test);
-		
-		SP_TEST_METHOD_DEF(Mat4_sizeInBytes_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_clone_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_toMat3_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorMultiplyValue_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorPlusValue_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorPlusMatrix_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorMinusMatrix_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorMinus_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorMinus_scalar_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorEqualValue_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorEqualMatrix_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorNotEqualMatrix_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_operatorIndex_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_divide_operator_Test);
-
 		SP_TEST_METHOD_DEF(Mat4_multiply_MajorColumnOrder2_Test);
-
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_constructorEmpty_Test)
@@ -375,7 +336,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_identity_Test)
 	{
-		Mat4 result = Mat4::identity();
+		Mat4 result = Mat4Identity;
 
 		for (int i = 0; i < MAT4_LENGTH; i++)
 			if (i % (MAT4_ROW_LENGTH+1) == 0)
@@ -671,14 +632,6 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 #endif
-
-	SP_TEST_METHOD(CLASS_NAME, Mat4_sizeInBytes_Test)
-	{
-		size_t result = Mat4::identity().sizeInBytes();
-		size_t expected = 4*16;
-
-		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
-	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_clone_Test)
 	{

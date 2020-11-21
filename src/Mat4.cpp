@@ -203,23 +203,6 @@ namespace NAMESPACE_PHYSICS
 		};
 	}
 
-	
-	Mat4 Mat4::identity()
-	{
-		static sp_float identityMatrix[MAT4_LENGTH] = {
-			ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
-			ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
-			ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT,
-			ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
-		};
-
-		Mat4 result;
-		std::memcpy(&result, identityMatrix, sizeof(values));
-
-		return result;
-	}
-
-	
 	Mat4 Mat4::transpose() const
 	{
 		Mat4 result;
@@ -483,7 +466,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float mag = sqrtf(x*x + y * y + z * z);
 
 		if (mag == 0.0f)
-			return Mat4::identity();
+			return Mat4Identity;
 
 		// Rotation matrix is normalized
 		const sp_float x1 = x / mag;
@@ -531,7 +514,7 @@ namespace NAMESPACE_PHYSICS
 	
 	Mat4 Mat4::createTranslate(const sp_float x, const sp_float y, const sp_float z)
 	{
-		Mat4 result = Mat4::identity();
+		Mat4 result = Mat4Identity;
 
 	#if MAJOR_COLUMN_ORDER
 		result[12] = x;
@@ -549,7 +532,7 @@ namespace NAMESPACE_PHYSICS
 	
 	Mat4 Mat4::createTranslate(const Vec3& position)
 	{
-		Mat4 result = Mat4::identity();
+		Mat4 result = Mat4Identity;
 
 #if MAJOR_COLUMN_ORDER
 		result[12] = position.x;
@@ -567,7 +550,7 @@ namespace NAMESPACE_PHYSICS
 	
 	Mat4 Mat4::createOrthographicMatrix(const sp_float xMin, const sp_float xMax, const sp_float yMin, const sp_float yMax, const sp_float zMin, const sp_float zMax)
 	{
-		Mat4 projectionMatrix = Mat4::identity();
+		Mat4 projectionMatrix = Mat4Identity;
 
 		projectionMatrix[0] = TWO_FLOAT / (xMax - xMin);
 		projectionMatrix[5] = TWO_FLOAT / (yMax - yMin);
@@ -578,12 +561,6 @@ namespace NAMESPACE_PHYSICS
 		projectionMatrix[15] = ONE_FLOAT;
 
 		return projectionMatrix;
-	}
-
-	
-	sp_size Mat4::sizeInBytes() const
-	{
-		return MAT4_LENGTH * sizeof(sp_float);
 	}
 
 	
@@ -781,7 +758,7 @@ namespace NAMESPACE_PHYSICS
 	
 	Mat4* Mat4::decomposeLU() const
 	{
-		Mat4 lowerMatrix = Mat4::identity();
+		Mat4 lowerMatrix = Mat4Identity;
 		Mat4 upperMatrix = this->clone();
 		Mat4* result = ALLOC_ARRAY(Mat4, 2);
 
@@ -802,7 +779,7 @@ namespace NAMESPACE_PHYSICS
 			for (sp_int row = 0; row < rowSize; row++)
 				upperMatrix[row * rowSize + column] *= pivotOperator;
 
-			elementarInverseMatrix = Mat4::identity();
+			elementarInverseMatrix = Mat4Identity;
 			elementarInverseMatrix[pivotRowIndex * rowSize + column] = pivot;
 			elementarInverseMatrixes.push_back(elementarInverseMatrix);
 
@@ -814,7 +791,7 @@ namespace NAMESPACE_PHYSICS
 				for (int row = 0; row < rowSize; row++)
 					upperMatrix[row * rowSize + lowerColumns] += pivotOperator * upperMatrix[row * rowSize + column];
 
-				elementarInverseMatrix = Mat4::identity();
+				elementarInverseMatrix = Mat4Identity;
 				elementarInverseMatrix[pivotRowIndex * rowSize + lowerColumns] = pivot;
 				elementarInverseMatrixes.push_back(elementarInverseMatrix);
 			}
@@ -868,7 +845,7 @@ namespace NAMESPACE_PHYSICS
 	
 	Mat4* Mat4::decomposeLDU() const
 	{
-		Mat4 diagonalMatrix = Mat4::identity();
+		Mat4 diagonalMatrix = Mat4Identity;
 		Mat4* result = ALLOC_ARRAY(Mat4, 3);
 
 		Mat4* lowerAndUpperMatrixes = decomposeLU();

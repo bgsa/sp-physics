@@ -70,28 +70,24 @@ namespace NAMESPACE_PHYSICS
 
 	Vec3 SystemOfLinearEquations::getLineEquation(const Vec2& point1, const Vec2& point2)
 	{
-		Vec3 result;
-			
 		Mat3 matrix = {
 			ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
 			point1.x, point1.y, ONE_FLOAT,
 			point2.x, point2.y, ONE_FLOAT
 		};
 
-		sp_float a = matrix.cofactorIJ(0, 0);
-		sp_float b = matrix.cofactorIJ(0, 1);
-		sp_float c = matrix.cofactorIJ(0, 2);
-
-		return Vec3(a, b, c);
+		return Vec3(
+			matrix.cofactorIJ(0, 0), 
+			matrix.cofactorIJ(0, 1),
+			matrix.cofactorIJ(0, 2)
+		);
 	}
 
 	Vec4 SystemOfLinearEquations::getCircleEquation(const Vec2& point1, const Vec2& point2, const Vec2& point3)
 	{
-		Vec4 result;
-
-		sp_float m21 = pow(point1.x, 2) + pow(point1.y, 2);
-		sp_float m31 = pow(point2.x, 2) + pow(point2.y, 2);
-		sp_float m41 = pow(point3.x, 2) + pow(point3.y, 2);
+		const sp_float m21 = powf(point1.x, 2) + powf(point1.y, 2);
+		const sp_float m31 = powf(point2.x, 2) + powf(point2.y, 2);
+		const sp_float m41 = powf(point3.x, 2) + powf(point3.y, 2);
 
 		Mat4 matrix = {
 			ONE_FLOAT, ONE_FLOAT, ONE_FLOAT, ONE_FLOAT,
@@ -100,11 +96,11 @@ namespace NAMESPACE_PHYSICS
 			m41, point3.x, point3.y, ONE_FLOAT
 		};
 
-		sp_float a = matrix.cofactorIJ(0, 0);
-		sp_float b = matrix.cofactorIJ(0, 1);
-		sp_float c = matrix.cofactorIJ(0, 2);
-		sp_float d = matrix.cofactorIJ(0, 3);
-
-		return Vec4(a, b, c, d);
+		return Vec4(
+			matrix.cofactorIJ(0, 0),
+			matrix.cofactorIJ(0, 1), 
+			matrix.cofactorIJ(0, 2),
+			matrix.cofactorIJ(0, 3)
+		);
 	}
 }

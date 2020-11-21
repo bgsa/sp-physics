@@ -89,11 +89,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Vec4 secondaryDiagonal() const;
 
 		/// <summary>
-		/// Load a identity matrix
-		/// </summary>
-		API_INTERFACE static Mat4 identity();
-
-		/// <summary>
 		/// Transpose matrix - swap rows by columns
 		/// </summary>
 		API_INTERFACE Mat4 transpose() const;
@@ -165,11 +160,6 @@ namespace NAMESPACE_PHYSICS
 		/// Craete a orthographic matrix projection
 		/// </summary>
 		API_INTERFACE static Mat4 createOrthographicMatrix(const sp_float xMin, const sp_float xMax, const sp_float yMin, const sp_float yMax, const sp_float zMin, const sp_float zMax);
-
-		/// <summary>
-		/// Get the size in Bytes of Mat4
-		/// </summary>
-		API_INTERFACE sp_size sizeInBytes() const;
 
 		/// <summary>
 		/// Clone this matrix
@@ -303,6 +293,13 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE Mat3 toNormalMatrix();
 		*/
+	};
+
+	const Mat4 Mat4Identity = {
+		ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
+		ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT,
+		ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT,
+		ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
 	};
 
 }

@@ -5,11 +5,11 @@
 
 namespace NAMESPACE_PHYSICS_TEST
 {
-	float funcFixedPoint(float x)
+	sp_float funcFixedPoint(float x)
 	{
-		float numerator = powf(x, 3) + 4 * pow(x, 2) - 10;
+		sp_float numerator = powf(x, 3) + 4.0f * powf(x, 2) - 10.0f;
 
-		float numeratorDerived = 3 * pow(x, 2) + 8 * x;
+		sp_float numeratorDerived = 3.0f * powf(x, 2) + 8.0f * x;
 
 		return x - (numerator / numeratorDerived);
 	}
