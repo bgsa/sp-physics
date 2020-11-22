@@ -47,6 +47,9 @@ namespace NAMESPACE_PHYSICS
 			ignoreCollision = false;
 			type = SpCollisionType::None;
 			contactPointsLength = ZERO_UINT;
+		
+			vertexIndexObj1 = SP_UINT_MAX;
+			vertexIndexObj2 = SP_UINT_MAX;
 		}
 
 	};

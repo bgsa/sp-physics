@@ -88,7 +88,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const;
 		
-		API_INTERFACE sp_bool hasCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details) const;
+		API_INTERFACE sp_bool hasCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
 
 	};
 

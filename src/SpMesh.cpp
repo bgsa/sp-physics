@@ -224,6 +224,48 @@ namespace NAMESPACE_PHYSICS
 		return findExtremeVertexDirection(startingFrom, orientation, cache, center);
 	}
 
+	SpVertexMesh* SpMesh::findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpMeshCache* cache, const Vec3& center) const
+	{
+		const Plane3D plane(center, orientation);
+
+		const sp_float distance = plane.distance(cache->vertexes[from->index()]);
+
+		for (sp_uint i = 0; i < from->edgeLength(); i++)
+		{
+			const sp_uint newIndex = from->edgeVertexIndex(i);
+			const sp_float newDistance = plane.distance(cache->vertexes[newIndex]);
+
+			if (newDistance > distance)
+				return findExtremeVertexDirection(vertexesMesh->get(newIndex), orientation, cache, center);
+		}
+
+		return from;
+	}
+
+	SpVertexMesh* SpMesh::findExtremeVertexPoint(const Vec3& target, const SpMeshCache* cache, const Vec3& center, SpVertexMesh* startingFrom) const
+	{
+		if (startingFrom == nullptr)
+			startingFrom = vertexesMesh->get(0);
+
+		return findExtremeVertexPoint(startingFrom, target, cache, center);
+	}
+
+	SpVertexMesh* SpMesh::findExtremeVertexPoint(SpVertexMesh* from, const Vec3& target, const SpMeshCache* cache, const Vec3& center) const
+	{
+		const sp_float distance = target.squaredDistance(cache->vertexes[from->index()]);
+
+		for (sp_uint i = 0; i < from->edgeLength(); i++)
+		{
+			const sp_uint newIndex = from->edgeVertexIndex(i);
+			const sp_float newDistance = target.squaredDistance(cache->vertexes[newIndex]);
+
+			if (newDistance < distance)
+				return findExtremeVertexPoint(vertexesMesh->get(newIndex), target, cache, center);
+		}
+
+		return from;
+	}
+
 	void SpMesh::findAllClosestDetails(const Vec3& target, const SpMeshCache* cache, const Vec3& center,
 		Vec3* closestPoint, 
 		sp_uint* closestVertexMesh, sp_uint* closestEdgeMesh, sp_uint* closestFaceMesh,
@@ -484,24 +526,6 @@ namespace NAMESPACE_PHYSICS
 
 			if (newDistance > distance)
 				return findExtremeVertexDirection(vertexesMesh->get(newIndex), orientation, transform);
-		}
-
-		return from;
-	}
-
-	SpVertexMesh* SpMesh::findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpMeshCache* cache, const Vec3& center) const
-	{
-		const Plane3D plane(center, orientation);
-
-		const sp_float distance = plane.distance(cache->vertexes[from->index()]);
-
-		for (sp_uint i = 0; i < from->edgeLength(); i++)
-		{
-			const sp_uint newIndex = from->edgeVertexIndex(i);
-			const sp_float newDistance = plane.distance(cache->vertexes[newIndex]);
-
-			if (newDistance > distance)
-				return findExtremeVertexDirection(vertexesMesh->get(newIndex), orientation, cache, center);
 		}
 
 		return from;

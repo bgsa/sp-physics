@@ -19,6 +19,8 @@ namespace NAMESPACE_PHYSICS
 		SpVertexMesh* findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const;
 		SpVertexMesh* findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpMeshCache* cache, const Vec3& center) const;
 
+		SpVertexMesh* findExtremeVertexPoint(SpVertexMesh* from, const Vec3& target, const SpMeshCache* cache, const Vec3& center) const;
+
 		sp_bool containsEdge(sp_uint* edge, sp_uint* vertexesIndexes, sp_uint* length) const;
 
 	public:
@@ -51,7 +53,9 @@ namespace NAMESPACE_PHYSICS
 	
 		API_INTERFACE SpVertexMesh* findExtremeVertexDirection(const Vec3& orientation, const SpTransform& transform, SpVertexMesh* from = nullptr) const;
 		API_INTERFACE SpVertexMesh* findExtremeVertexDirection(const Vec3& orientation, const SpMeshCache* cache, const Vec3& center, SpVertexMesh* startingFrom) const;
-		
+
+		API_INTERFACE SpVertexMesh* findExtremeVertexPoint(const Vec3& target, const SpMeshCache* cache, const Vec3& center, SpVertexMesh* startingFrom) const;
+
 		API_INTERFACE void findAllClosestDetails(const Vec3& target, const SpMeshCache* cache, const Vec3& center,
 			Vec3* closestPoint,
 			sp_uint* closestVertexMesh, sp_uint* closestEdgeMesh, sp_uint* closestFaceMesh,
