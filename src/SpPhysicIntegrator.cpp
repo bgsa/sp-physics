@@ -47,9 +47,6 @@ namespace NAMESPACE_PHYSICS
 				+ element->currentState.torque() * newElapsedTime * halfElapsedTime);
 		normalize(&newOrientation);
 
-		// update/sync bounding volume
-		simulator->boundingVolumes(index)->translate(newPosition - element->currentState.position());
-
 		// update/sync transform
 		simulator->transforms(index)->position = newPosition;
 		simulator->transforms(index)->orientation = newOrientation;

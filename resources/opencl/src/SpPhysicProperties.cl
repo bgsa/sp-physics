@@ -209,14 +209,15 @@ inline sp_bool SpPhysicProperties_isResting(__global sp_float* properties, const
     const Vec3 angVelocity = SpPhysicProperties_getAngVelocity(properties, stride);
     const Vec3 prevAngVelocity = SpPhysicProperties_getPreviousAngVelocity(properties, stride);
     */
+
     const Vec3 position = SpPhysicProperties_getPosition(properties, stride);
     const Vec3 prevPosition = SpPhysicProperties_getPreviousPosition(properties, stride);
-    const Vec3 orientation = SpPhysicProperties_getOrientation(properties, stride);
-    const Vec3 prevOrientation = SpPhysicProperties_getPreviousOrientation(properties, stride);
+    const Quat orientation = SpPhysicProperties_getOrientation(properties, stride);
+    const Quat prevOrientation = SpPhysicProperties_getPreviousOrientation(properties, stride);
 
     return 
         vec3_isCloseEnough_vec3(position, prevPosition, SP_PHYSIC_RESTING_VELOCITY)
-        && vec3_isCloseEnough_vec3(orientation, prevOrientation, SP_PHYSIC_RESTING_VELOCITY)
+        && quat_isCloseEnough_quat(orientation, prevOrientation, SP_PHYSIC_RESTING_VELOCITY)
         //&& vec3_isCloseEnough_vec3(velocity, prevVelocity, SP_PHYSIC_RESTING_VELOCITY)
         //&& vec3_isCloseEnough_vec3(angVelocity, prevAngVelocity, SP_PHYSIC_RESTING_VELOCITY)
         //&& vec3_isCloseEnough_vec3(acc, restingAcc, SP_PHYSIC_RESTING_VELOCITY)

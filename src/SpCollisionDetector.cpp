@@ -36,10 +36,13 @@ namespace NAMESPACE_PHYSICS
 		const Vec3 position2 = simulator->transforms(objIndex2)->position;
 
 		Vec3 _direction;
-		direction(position1, position2, &_direction);
+		//direction(position1, position2, &_direction);
+		direction(position2, position1, &_direction);
 
 		SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexDirection(_direction, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
 		SpVertexMesh* extremeVertex2 = mesh2->findExtremeVertexDirection(-_direction, details->cacheObj2, position2, mesh2->vertexesMesh->get(0));
+		//SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexPoint(position2, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
+		//SpVertexMesh* extremeVertex2 = mesh2->findExtremeVertexPoint(position1, details->cacheObj2, position2, mesh2->vertexesMesh->get(0));
 
 		details->vertexIndexObj1 = extremeVertex1->index();
 		details->vertexIndexObj2 = extremeVertex2->index();
@@ -388,7 +391,16 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			hasIntersection = hasCollision(details->objIndex1, details->objIndex2, details, &cache);
-			
+
+			if (false)
+			{
+				SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+				Wavefront::SpWavefrontExporter exporter;
+				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red");
+				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue");
+				exporter.save("temp.obj");
+			}
+
 			_diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
 

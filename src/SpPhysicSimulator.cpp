@@ -259,7 +259,7 @@ namespace NAMESPACE_PHYSICS
 	void SpPhysicSimulator::findCollisionsGpuDOP18(SweepAndPruneResult* result)
 	{
 		sapDOP18->execute(ONE_UINT, &sapDOP18->lastEvent);
-
+		
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
 
 		collisionResponseGPU->execute(ONE_UINT, &sapDOP18->lastEvent);
@@ -325,8 +325,9 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	Timer tt;
-	void SpPhysicSimulator::run()
+	void SpPhysicSimulator::run(const sp_float elapsedTime)
 	{
+		SpPhysicSettings* physicSettings = SpPhysicSettings::instance();
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
 
@@ -360,18 +361,15 @@ namespace NAMESPACE_PHYSICS
 		// release GPU shared buffer OpenCL and OpenGL
 		gpu->commandManager->releaseGLObjects(_transformsGPU);
 
-		/* // Run on CPU way
+		// Run on CPU way
 		//updateMeshCache();
 		//buildDOP18();
 		//buildAABB();
 		//findCollisionsCpu(&sapResult);
-		*/
 
 		updateDataOnCPU();
 
 		SpThreadPool* threadPool = SpThreadPool::instance();
-
-		const sp_float elapsedTime = Timer::physicTimer()->elapsedTime();
 
 		/*
 		SpCollisionGroups groups(_objectsLength, multiplyBy2(sapResult.length));

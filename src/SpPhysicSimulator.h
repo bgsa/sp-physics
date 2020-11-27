@@ -292,7 +292,7 @@ namespace NAMESPACE_PHYSICS
 			_physicProperties[index].currentState.orientation(newOrientation);
 		}
 
-		API_INTERFACE void run();
+		API_INTERFACE void run(const sp_float elapsedTime);
 
 		API_INTERFACE void groupCollisions(const SweepAndPruneResult& sapResult, SpCollisionGroups* collisionGroups);
 

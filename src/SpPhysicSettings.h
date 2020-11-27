@@ -12,13 +12,13 @@ namespace NAMESPACE_PHYSICS
 	private:
 		sp_float _physicVelocity;
 		sp_float _restingVelocityEpsilon;
-		sp_bool _simulationEnabled;
+		sp_size _frameId;
 		Vec3 _gravityForce;
+		sp_bool _simulationEnabled;
 
 		SpPhysicSettings()
 		{
-			//_physicVelocity = 0.009f;
-			//_physicVelocity = 0.01f;
+			_frameId = ZERO_SIZE;
 			_physicVelocity = 0.005f;
 			_gravityForce = Vec3(0.0f, -9.8f, 0.0f);
 			_restingVelocityEpsilon = 0.09f;
@@ -33,7 +33,12 @@ namespace NAMESPACE_PHYSICS
 			return _settings;
 		}
 
-		API_INTERFACE inline sp_float physicVelocity()
+		API_INTERFACE inline sp_size frameId() const
+		{
+			return _frameId;
+		}
+
+		API_INTERFACE inline sp_float physicVelocity() const
 		{
 			return _physicVelocity;
 		}
@@ -43,7 +48,7 @@ namespace NAMESPACE_PHYSICS
 			_physicVelocity = newVelocity;
 		}
 
-		API_INTERFACE inline Vec3 gravityForce()
+		API_INTERFACE inline Vec3 gravityForce() const
 		{
 			return _gravityForce;
 		}
@@ -53,12 +58,12 @@ namespace NAMESPACE_PHYSICS
 			_gravityForce = newGravityForce;
 		}
 
-		API_INTERFACE inline sp_float restingVelocityEpsilon()
+		API_INTERFACE inline sp_float restingVelocityEpsilon() const
 		{
 			return _restingVelocityEpsilon;
 		}
 
-		API_INTERFACE inline sp_bool isSimulationEnabled()
+		API_INTERFACE inline sp_bool isSimulationEnabled() const
 		{
 			return _simulationEnabled;
 		}
@@ -73,6 +78,10 @@ namespace NAMESPACE_PHYSICS
 			_simulationEnabled = false;
 		}
 
+		API_INTERFACE inline void nextFrame()
+		{
+			_frameId++;
+		}
 	};
 }
 

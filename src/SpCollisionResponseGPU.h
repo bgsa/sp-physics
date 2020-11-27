@@ -14,6 +14,7 @@ namespace NAMESPACE_PHYSICS
 	class SpCollisionResponseGPU
 		: public Object
 	{
+#define SP_MAX_COLLISION_PER_OBJECT 8
 	private:
 		GpuDevice* gpu = nullptr;
 		GpuCommand* command = nullptr;
@@ -58,8 +59,9 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE void setParameters(cl_mem indexesGPU, cl_mem indexesLengthGPU, sp_uint indexesLength, cl_mem physicPropertiesGPU, cl_mem outputIndexesGPU, cl_mem outputIndexLengthGPU, sp_size outputIndexSize)
 		{
-			globalWorkSize[0] = indexesLength;
-			localWorkSize[0] = gpu->getGroupLength(indexesLength, indexesLength);
+			sp_size threadLength = indexesLength * SP_MAX_COLLISION_PER_OBJECT;
+			globalWorkSize[0] = threadLength;
+			localWorkSize[0] = gpu->getGroupLength(threadLength, indexesLength);
 
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(indexesGPU, outputIndexSize)
@@ -133,6 +135,7 @@ namespace NAMESPACE_PHYSICS
 
 		~SpCollisionResponseGPU() { dispose(); }
 
+#undef SP_MAX_COLLISION_PER_OBJECT
 	};
 
 }
