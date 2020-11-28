@@ -36,9 +36,8 @@ namespace NAMESPACE_PHYSICS
 		const Vec3 position2 = simulator->transforms(objIndex2)->position;
 
 		Vec3 _direction;
-		//direction(position1, position2, &_direction);
-		direction(position2, position1, &_direction);
-
+		direction(position1, position2, &_direction);
+		
 		SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexDirection(_direction, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
 		SpVertexMesh* extremeVertex2 = mesh2->findExtremeVertexDirection(-_direction, details->cacheObj2, position2, mesh2->vertexesMesh->get(0));
 		//SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexPoint(position2, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
