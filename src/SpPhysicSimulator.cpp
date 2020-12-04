@@ -220,8 +220,8 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
 	{
-		Timer timeDebug;
-		timeDebug.start();
+		//Timer timeDebug;
+		//timeDebug.start();
 
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
 		sp_assert(details != nullptr, "InvalidArgumentException");
@@ -229,7 +229,7 @@ namespace NAMESPACE_PHYSICS
 
 		SpCollisionDetector collisionDetector;
 		collisionDetector.collisionDetails(details);
-		sp_log_debug1sfnl("Collision Details: ", timeDebug.elapsedTime());
+		//sp_log_debug1sfnl("Collision Details: ", timeDebug.elapsedTime());
 
 		if (details->ignoreCollision)
 			return;
@@ -237,12 +237,12 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
 		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
 
-		timeDebug.update();
+		//timeDebug.update();
 		SpCollisionResponse collisionResponse;
 		collisionResponse.handleCollisionResponse(details);
-		sp_log_debug1sfnl("Collision Response: ", timeDebug.elapsedTime());
+		//sp_log_debug1sfnl("Collision Response: ", timeDebug.elapsedTime());
 
-		sp_log_debug1sfnl("TASK END: ", timeDebug.elapsedTime());
+		//sp_log_debug1sfnl("TASK END: ", timeDebug.elapsedTime());
 	}
 
 	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
@@ -410,6 +410,8 @@ namespace NAMESPACE_PHYSICS
 		std::thread** threads = ALLOC_ARRAY(std::thread*, sapResult.length);
 		tt.update();
 
+		sp_log_debug1sfnl("Collisions: ", (sp_float)sapResult.length);
+
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
 			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
@@ -426,16 +428,18 @@ namespace NAMESPACE_PHYSICS
 
 			//std::thread* t = ALLOC_NEW(std::thread(SpPhysicSimulator::handleCollisionGPU, &detailsArray[i]));
 			//threads[i] = t;
-			//t.detach();
+			//t->detach();
 
 			SpPhysicSimulator::handleCollisionGPU(&detailsArray[i]);
 		}
+		//SpThreadPool::instance()->waitToFinish();
+
 		/*
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (threads[i]->joinable())
 				threads[i]->join();
 */
-		//SpThreadPool::instance()->waitToFinish();
+
 		sp_log_debug1sfnl("Wait Tasks: ", tt.elapsedTime());
 
 		/* dispatch collision events

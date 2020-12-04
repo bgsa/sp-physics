@@ -16,6 +16,7 @@ namespace NAMESPACE_PHYSICS
 	public:
 		sp_uint edgeIndex;
 		sp_uint faceIndex;
+		sp_bool edgeIndexOnObj1;
 		sp_bool searchOnObj1;
 		sp_float distance;
 
@@ -28,6 +29,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			edgeIndex = SP_UINT_MAX;
 			faceIndex = SP_UINT_MAX;
+			edgeIndexOnObj1 = true;
 			searchOnObj1 = false;
 		}
 
@@ -89,6 +91,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_bool areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const;
 		
 		API_INTERFACE sp_bool hasCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
+
+		API_INTERFACE sp_bool hasCollisionCache(const SpMesh* mesh1, const SpMesh* mesh2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
 
 	};
 

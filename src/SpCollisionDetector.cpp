@@ -9,16 +9,61 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		const SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(objIndex1)->meshIndex);
 		const SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(objIndex2)->meshIndex);
-		const Vec3 position1 = simulator->transforms(objIndex1)->position;
 		const Vec3 position2 = simulator->transforms(objIndex2)->position;
-
-		Vec3 _direction(0.0f, -1.0f, 0.0f);
+		SpVertexMesh* startingFrom = nullptr;
 		
-		SpVertexMesh* extremeVertex = mesh2->findExtremeVertexDirection(_direction, details->cacheObj2, position2, nullptr);
+		if (details->vertexIndexObj2 != SP_UINT_MAX) // if the previous vertex was vertexIndexObj2, start searching from that vertex
+			startingFrom = mesh2->vertexesMesh->get(details->vertexIndexObj2);
+
+		SpVertexMesh* extremeVertex = mesh2->findExtremeVertexDirection(Vec3Down, details->cacheObj2, position2, startingFrom);
+
 		details->vertexIndexObj2 = extremeVertex->index();
+
 		Vec3 vertex = details->cacheObj2->vertexes[extremeVertex->index()];
 
 		return vertex.y <= ZERO_FLOAT;
+	}
+
+	sp_bool SpCollisionDetector::hasCollisionCache(const SpMesh* mesh1, const SpMesh* mesh2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
+	{
+		if (cache->edgeIndexOnObj1)
+		{
+			SpEdgeMesh* edge = mesh1->edges->get(cache->edgeIndex);
+			Line3D line;
+			line.point1 = details->cacheObj1->vertexes[edge->vertexIndex1];
+			line.point2 = details->cacheObj1->vertexes[edge->vertexIndex2];
+
+			sp_uint* indexes = mesh2->faces->get(cache->faceIndex)->vertexesIndexes;
+			Triangle3D face(
+				details->cacheObj2->vertexes[indexes[0]],
+				details->cacheObj2->vertexes[indexes[1]],
+				details->cacheObj2->vertexes[indexes[2]]
+			);
+
+			Vec3 contact;
+			if (line.intersection(face, &contact))
+				return true;
+		}
+		else
+		{
+			SpEdgeMesh* edge = mesh2->edges->get(cache->edgeIndex);
+			Line3D line;
+			line.point1 = details->cacheObj1->vertexes[edge->vertexIndex1];
+			line.point2 = details->cacheObj1->vertexes[edge->vertexIndex2];
+
+			sp_uint* indexes = mesh1->faces->get(cache->faceIndex)->vertexesIndexes;
+			Triangle3D face(
+				details->cacheObj2->vertexes[indexes[0]],
+				details->cacheObj2->vertexes[indexes[1]],
+				details->cacheObj2->vertexes[indexes[2]]
+			);
+
+			Vec3 contact;
+			if (line.intersection(face, &contact))
+				return true;
+		}
+
+		return false;
 	}
 
 	sp_bool SpCollisionDetector::hasCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
@@ -32,6 +77,10 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		const SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(objIndex1)->meshIndex);
 		const SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(objIndex2)->meshIndex);
+		
+		if (cache->hasCache()) // check if cache is available
+			hasCollisionCache(mesh1, mesh2, details, cache);
+
 		const Vec3 position1 = simulator->transforms(objIndex1)->position;
 		const Vec3 position2 = simulator->transforms(objIndex2)->position;
 
@@ -77,8 +126,15 @@ namespace NAMESPACE_PHYSICS
 
 				// check if has intersection
 				Vec3 contact;
-				if (line.intersection(face, &contact))
+				if (line.intersection(face, &contact)) 
+				{
+					// store the result on cache
+					cache->edgeIndexOnObj1 = true;
+					cache->edgeIndex = edgeMesh1->index();
+					cache->faceIndex = faceMesh2->index();
+
 					return true;
+				}	
 			}
 		}
 
@@ -105,7 +161,14 @@ namespace NAMESPACE_PHYSICS
 				// check if has intersection
 				Vec3 contact;
 				if (line.intersection(face, &contact))
+				{
+					// store the result on cache
+					cache->edgeIndexOnObj1 = false;
+					cache->edgeIndex = edgeMesh2->index();
+					cache->faceIndex = faceMesh1->index();
+				
 					return true;
+				}	
 			}
 		}
 
@@ -367,7 +430,7 @@ namespace NAMESPACE_PHYSICS
 		SpCollisionDetectorCache cache;
 		Vec3 contact;
 
-		if (isObj1Resting)
+		if (isObj1Resting && details->objIndex1 != ZERO_UINT) // ignore if obj1 is the plane
 			details->cacheObj1->update(mesh1, transformation1);
 
 		if (isObj2Resting)
@@ -390,15 +453,6 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			hasIntersection = hasCollision(details->objIndex1, details->objIndex2, details, &cache);
-
-			if (false)
-			{
-				SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-				Wavefront::SpWavefrontExporter exporter;
-				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red");
-				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue");
-				exporter.save("temp.obj");
-			}
 
 			_diff = std::fabsf(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
@@ -483,28 +537,21 @@ namespace NAMESPACE_PHYSICS
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
+		//Timer timeDebug;
+		//timeDebug.start();
+
 		timeOfCollision(details);
 
+		//sp_log_debug1sfnl("Time of Collision: ", timeDebug.elapsedTime());
+
 		if (details->ignoreCollision) // if they are not colliding in geometry
-		{
-			/*
-			if (details->objIndex1 != 0 && details->objIndex2 != 0)
-			{
-				SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-				Wavefront::SpWavefrontExporter exporter;
-				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red");
-				exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue");
-				exporter.save("temp.obj");
-
-				sp_log_info1s("ignorando colisao: geometria nao colide");
-				sp_log_newline();
-			}
-			*/
-
 			return;
-		}
+
+		//timeDebug.update();
 
 		fillCollisionDetails(details);
+
+		//sp_log_debug1sfnl("Collision Details: ", timeDebug.elapsedTime());
 	}
 
 	sp_bool SpCollisionDetector::fillCollisionDetailsEdgeEdge(const Line3D& edge, SpVertexMesh* vertex, const SpTransform& vertexTransform, sp_uint* edgeIndexOutput, const sp_float _epsilon)
