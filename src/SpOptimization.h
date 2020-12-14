@@ -2,7 +2,9 @@
 #define SP_OPTIMIZATION_HEADER
 
 #include "SpectrumPhysics.h"
+#include "SystemOfLinearEquations.h"
 #include "Randomizer.h"
+#include "SpPair.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -98,18 +100,101 @@ namespace NAMESPACE_PHYSICS
 			const sp_float xmin, const sp_float xmax, const sp_float ymin, const sp_float ymax, sp_uint iterations,
 			sp_float* outputX, sp_float* outputY) const;
 
-		/*
 		/// <summary>
-		/// Optimize a linear function in format Ax=b
+		/// Check if the simplex solution is feasible
 		/// </summary>
-		/// <param name="function">Function as Matrix</param>
-		/// <param name="functionLength">Coeficient length of the function</param>
-		/// <param name="constraints">Constraints as matrix</param>
-		/// <param name="constraintsLength">Rows of contraints</param>
-		/// <param name="output">Optimized values</param>
-		/// <returns>void</returns>
-		API_INTERFACE void simplex(sp_float* function, sp_uint functionLength, sp_float* constraints, sp_uint constraintsLength, sp_float* output) const;
-		*/
+		/// <param name="matrix">Matrix</param>
+		/// <param name="rowLength">Row Length</param>
+		/// <param name="columnLength">Column Length</param>
+		/// <returns>True if the solution is feasible or else false</returns>
+		inline sp_bool isFeasible(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength) const
+		{
+			for (register sp_uint row = 0; row < rowLength; row++)
+				if (matrix[row * columnLength + columnLength - ONE_UINT] < ZERO_FLOAT)
+					return false;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Check if the simplex solution is global optimum
+		/// </summary>
+		/// <param name="matrix">Matrix</param>
+		/// <param name="rowLength">Row Length</param>
+		/// <param name="columnLength">Column Length</param>
+		/// <returns></returns>
+		inline sp_bool isOptimum(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength) const
+		{
+			for (register sp_uint column = 0; column < columnLength; column++)
+				if (matrix[(rowLength - 1u) * columnLength + column] < ZERO_FLOAT)
+					return false;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Select the pivot
+		/// </summary>
+		/// <param name="matrix">Matrix</param>
+		/// <param name="rowLength">Row Length</param>
+		/// <param name="columnLength">Column Length</param>
+		/// <param name="pivotColumnIndex">Pivot Column Index Output</param>
+		/// <param name="pivotRowIndex">Pivot Column Index Output</param>
+		/// <returns>pivotColumnIndex, pivotRowIndex</returns>
+		inline void pivotSelector(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength, sp_uint* pivotColumnIndex, sp_uint* pivotRowIndex) const
+		{
+			const sp_uint lastRow = (rowLength - 1u) * columnLength;
+			register sp_float minimumValue = SP_FLOAT_MAX;
+
+			for (register sp_uint column = 0u; column < columnLength; column++)
+				if (matrix[lastRow + column] < minimumValue)
+				{
+					minimumValue = matrix[lastRow + column];
+					pivotColumnIndex[0] = column;
+				}
+
+			minimumValue = SP_FLOAT_MAX;
+
+			for (register sp_uint row = 0u; row < rowLength; row++)
+			{
+				if (matrix[row * columnLength + *pivotColumnIndex] == ZERO_FLOAT) // avoid zero division
+					continue;
+
+				const sp_float value = matrix[row * columnLength + columnLength - 1u] / matrix[row * columnLength + *pivotColumnIndex];
+				if (value > ZERO_FLOAT && value < minimumValue)
+				{
+					minimumValue = value;
+					pivotRowIndex[0] = row;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Check if the simplex solution is unbounded
+		/// </summary>
+		/// <param name="matrix">Matrix</param>
+		/// <param name="rowLength">Row Length</param>
+		/// <param name="columnLength">Column Length</param>
+		/// <param name="pivotColumnIndex">Pivot Column Index</param>
+		/// <returns>True if the solution is unbounded or else false</returns>
+		inline sp_bool isUnbouded(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength, const sp_uint pivotColumnIndex) const
+		{
+			for (register sp_uint row = 0; row < rowLength; row++)
+				if (matrix[row * columnLength + pivotColumnIndex] > ZERO_FLOAT)
+					return false;
+
+			return true;
+		}
+
+		/// <summary>
+		/// Minimize a linear function in format Ax=b
+		/// </summary>
+		/// <param name="matrix">Function + Constraints</param>
+		/// <param name="rowLength">Row Length</param>
+		/// <param name="columnLength">Column Length</param>
+		/// <param name="output">Pair[VariableIndex, VariableValue] where VariableIndex = x1, x4, xIndex</param>
+		/// <returns>output</returns>
+		API_INTERFACE void simplex(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength, SpPair<sp_uint, sp_float>* output) const;
 
 	};
 }

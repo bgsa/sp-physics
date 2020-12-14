@@ -711,7 +711,8 @@ namespace NAMESPACE_PHYSICS
 		// if obj 1 is plane
 		if (details->objIndex2 == ZERO_UINT)
 		{
-			sp_assert(false, "FAZER!!");
+			//TODO: FAZER
+			//sp_assert(false, "FAZER!!");
 		}
 #undef MAX_PARALLEL_FACES
 

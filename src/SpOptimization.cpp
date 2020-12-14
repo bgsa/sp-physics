@@ -187,61 +187,41 @@ namespace NAMESPACE_PHYSICS
 		return maxF_xy;
 	}
 
-	/*
-	void SpOptimization::simplex(sp_float* function, sp_uint functionsLength, sp_float* constraints, sp_uint constraintsLength, sp_float* output) const
+	void SpOptimization::simplex(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength, SpPair<sp_uint, sp_float>* output) const
 	{
-		const sp_uint rowLength = constraintsLength + ONE_UINT;
-		const sp_uint columnLength = functionsLength + constraintsLength + ONE_UINT;
-		const sp_uint elementsLength = rowLength * columnLength;
+#define isSolutionUnbounded (pivotRowIndex == SP_UINT_MAX)
+		sp_float* newMatrix = ALLOC_NEW_ARRAY(sp_float, rowLength * columnLength);
+		std::memcpy(newMatrix, matrix, rowLength * columnLength * sizeof(sp_float));
 
-		// step 1:
-		// if any equation is '>=', change to '<=' by multiplying all values by -1
-		
-		sp_float* matrix = ALLOC_NEW_ARRAY(sp_float, elementsLength);
-		std::memset(matrix, ZERO_INT, elementsLength * SIZEOF_FLOAT);
-
-		for (sp_uint i = 0; i < constraintsLength; i++)
+		for (register sp_uint row = 0; row < rowLength - ONE_UINT; row++)
 		{
-			const sp_uint constraintIndex = functionsLength * i;
-			const sp_uint rowIndex = i * columnLength;
-
-			std::memcpy(&matrix[rowIndex], &constraints[constraintIndex], (functionsLength - ONE_UINT) * SIZEOF_FLOAT);
-			matrix[rowIndex + columnLength - ONE_UINT] = constraints[constraintIndex + functionsLength - ONE_UINT];
-			matrix[rowIndex + functionsLength + i - ONE_UINT] = ONE_FLOAT;
+#define slackVariableLength (columnLength - rowLength - 1u)
+			output[row].key = slackVariableLength + row;
+			output[row].value = newMatrix[row * columnLength + columnLength - 1u];
+#undef slackVariableLength
 		}
 
-		sp_float* functionInMatrix = &matrix[elementsLength - columnLength];
+		SystemOfLinearEquations linearEquation;
 
-		for (sp_uint i = 0; i < functionsLength; i++)
-			functionInMatrix[i] = -function[i];
+		while (!isOptimum(newMatrix, rowLength, columnLength))
+		{
+			sp_uint pivotRowIndex = SP_UINT_MAX, pivotColumnIndex = SP_UINT_MAX;
+			pivotSelector(newMatrix, rowLength, columnLength, &pivotColumnIndex, &pivotRowIndex);
 
-		matrix[elementsLength - TWO_UINT] = ONE_FLOAT;
-		matrix[elementsLength - ONE_UINT] = function[functionsLength - 1];
+			if (isSolutionUnbounded)
+				break;
 
-		std::string s = Mat::toString(matrix, rowLength, columnLength);
-		sp_log_info1s(s.c_str());
+			linearEquation.pivot(newMatrix, rowLength, columnLength, pivotColumnIndex, pivotRowIndex);
 
-		sp_float minimumFunctionValue = functionInMatrix[0];
-		sp_uint minimumIndex = ZERO_UINT;
-		for (sp_uint i = 1u; i < functionsLength - ONE_UINT; i++)
-			if (functionInMatrix[i] < minimumFunctionValue)
-			{
-				minimumFunctionValue = functionInMatrix[i];
-				minimumIndex = i;
-			}
+			output[pivotRowIndex].key = pivotColumnIndex;
+			for (sp_uint row = 0; row < rowLength - 1u; row++)
+				output[row].value = newMatrix[row * columnLength + columnLength - 1u];
 
-		if (minimumFunctionValue >= ZERO_FLOAT)
-			return; // TERMINADO !!!!
+			//isFeasible(newMatrix, rowLength, columnLength)
+		}
 
-		sp_float minimumRestrictionValue = matrix[columnLength - ONE_UINT];
-		sp_uint minimumRestrictionIndex = ZERO_UINT;
-		for (sp_uint i = 1u; i < functionsLength - ONE_UINT; i++)
-			if (functionInMatrix[i * columnLength + columnLength - ONE_UINT] < minimumRestrictionValue)
-			{
-				minimumRestrictionValue = functionInMatrix[i];
-				minimumRestrictionIndex = i;
-			}
+		ALLOC_RELEASE(newMatrix);
+#undef isSolutionUnbounded
 	}
-	*/
 
 }

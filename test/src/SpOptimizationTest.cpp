@@ -1,4 +1,5 @@
 #include "SpectrumPhysicsTest.h"
+#include "SystemOfLinearEquations.h"
 #include <SpOptimization.h>
 
 #define CLASS_NAME SpOptimizationTest
@@ -44,7 +45,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(newton);
 		SP_TEST_METHOD_DEF(scan);
 		SP_TEST_METHOD_DEF(arbitrarySearch);
-		//SP_TEST_METHOD_DEF(simplex);
+		SP_TEST_METHOD_DEF(simplex);
+		SP_TEST_METHOD_DEF(simplex_unbouded);
+		SP_TEST_METHOD_DEF(simplex_infinity);
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, aurea)
@@ -131,33 +134,87 @@ namespace NAMESPACE_PHYSICS_TEST
 		// Values should be closed to F_xy = 1.25f, x = -1.0f, y = 1.5f
 	}
 
-	/*
 	SP_TEST_METHOD(CLASS_NAME, simplex)
 	{
 		SpOptimization optimization;
 
-		/*
-		sp_float function[3] = { 150.0f, 175.0f, 0.0f };
-		sp_float linearConstraints[12] = {
-			7.0f, 11.0f, 77.0f,
-			10.0f, 8.0f, 80.0f,
-			1.0f, 0.0f, 9.0f,
-			0.0f, 1.0f, 6.0f
+		sp_float matrix[32] = {
+			 2.0f,  1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 2.0f,
+			 2.0f, -1.0f,  5.0f, 0.0f, 1.0f, 0.0f, 0.0f, 6.0f,
+			 4.0f,  1.0f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 6.0f,
+			-1.0f, -2.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f
 		};
-		sp_float result[4];
-		/
 
-		sp_float function[4] = { 1.0f, 2.0f, 1.0f, 0.0f };
-		sp_float linearConstraints[12] = {
-			2.0f, 1.0f, -1.0f, 2.0f,
-			2.0f, -1.0f, 5.0f, 6.0f,
-			4.0f, 1.0f, 1.0f, 6.0f
+		SpPair<sp_uint, sp_float> result[3];
+
+		optimization.simplex(matrix, 4u, 8u, result);
+
+		SpPair<sp_uint, sp_float> expected[3] = {
+			{1u, 4.0f},
+			{2u, 2.0f},
+			{5u, 0.0f}
 		};
-		sp_float result[4];
 
-		optimization.simplex(function, 4u, linearConstraints, 3u, result);
+		for (sp_uint i = 0; i < 3; i++)
+		{
+			Assert::AreEqual(expected[i].key, result[i].key, L"Wrong value.", LINE_INFO());
+			Assert::AreEqual(expected[i].value, result[i].value, L"Wrong value.", LINE_INFO());
+		}
 	}
-	*/
+
+	SP_TEST_METHOD(CLASS_NAME, simplex_unbouded)
+	{
+		SpOptimization optimization;
+
+		sp_float matrix[18] = {
+			 1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+			 3.0f, -2.0f, 0.0f, 1.0f, 0.0f, 6.0f,
+			-3.0f, -2.0f, 0.0f, 0.0f, 1.0f, 0.0f
+		};
+
+		SpPair<sp_uint, sp_float> result[2];
+
+		optimization.simplex(matrix, 3u, 6u, result);
+
+		SpPair<sp_uint, sp_float> expected[2] = {
+			{0u, 4.0f},
+			{1u, 3.0f}
+		};
+
+		for (sp_uint i = 0; i < 2; i++)
+		{
+			Assert::AreEqual(expected[i].key, result[i].key, L"Wrong value.", LINE_INFO());
+			Assert::AreEqual(expected[i].value, result[i].value, L"Wrong value.", LINE_INFO());
+		}
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, simplex_infinity)
+	{
+		SpOptimization optimization;
+
+		sp_float matrix[28] = {
+			 10.0f,    5.0f, 1.0f, 0.0f, 0.0f, 0.0f, 2500.0f,
+			  4.0f,   10.0f, 0.0f, 1.0f, 0.0f, 0.0f, 2000.0f,
+			  2.0f,    3.0f, 0.0f, 0.0f, 1.0f, 0.0f, 900.0f,
+			-40.0f, -100.0f, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f,
+		};
+
+		SpPair<sp_uint, sp_float> result[3];
+
+		optimization.simplex(matrix, 4u, 7u, result);
+
+		SpPair<sp_uint, sp_float> expected[3] = {
+			{2u, 1500.0f},
+			{1u,  200.0f},
+			{4u,  300.0f}
+		};
+
+		for (sp_uint i = 0; i < 2; i++)
+		{
+			Assert::AreEqual(expected[i].key, result[i].key, L"Wrong value.", LINE_INFO());
+			Assert::AreEqual(expected[i].value, result[i].value, L"Wrong value.", LINE_INFO());
+		}
+	}
 }
 
 #undef CLASS_NAME

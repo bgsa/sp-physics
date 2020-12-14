@@ -68,6 +68,23 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
+	void SystemOfLinearEquations::pivot(sp_float* matrix, const sp_uint rowLength, register const sp_uint columnLength, const sp_uint pivotColumnIndex, const sp_uint pivotRowIndex) const
+	{
+		sp_float pivotValue = ONE_FLOAT / matrix[pivotRowIndex * columnLength + pivotColumnIndex];
+
+		for (register sp_uint column = 0u; column < columnLength; column++)
+			matrix[pivotRowIndex * columnLength + column] *= pivotValue;
+
+		for (register sp_uint row = ZERO_UINT; row < rowLength; row++)
+			if (row != pivotRowIndex)
+			{
+				pivotValue = matrix[row * columnLength + pivotColumnIndex];
+
+				for (register sp_uint column = ZERO_UINT; column < columnLength; column++)
+					matrix[row * columnLength + column] -= pivotValue * matrix[pivotRowIndex * columnLength + column];
+			}
+	}
+
 	Vec3 SystemOfLinearEquations::getLineEquation(const Vec2& point1, const Vec2& point2)
 	{
 		Mat3 matrix = {

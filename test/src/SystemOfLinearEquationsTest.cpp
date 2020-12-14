@@ -8,18 +8,35 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
-
 		SP_TEST_METHOD_DEF(solve_2varaibles_Test);
-
 		SP_TEST_METHOD_DEF(solve_3varaibles_Test);
-
 		SP_TEST_METHOD_DEF(solve_4varaibles_Test);
-
 		SP_TEST_METHOD_DEF(getLineEquation_Test);
-
 		SP_TEST_METHOD_DEF(getCircleEquation_Test);
-
+		SP_TEST_METHOD_DEF(canonicalForm);
 	};
+
+
+	SP_TEST_METHOD(CLASS_NAME, canonicalForm)
+	{
+		sp_float matrix[15] = {
+			2.0f, 3.0f, -2.0f, -7.0f, 1.0f,
+			1.0f, 1.0f, 1.0f, 3.0f, 6.0f,
+			1.0f, -1.0f, 1.0f, 5.0f, 4.0f
+		};
+
+		SystemOfLinearEquations system;
+		system.canonicalForm(matrix, 3, 5);
+
+		sp_float expected[15] = {
+			1.0f, 0.0f, 0.0f, 1.0f, 2.0f,
+			0.0f, 1.0f, 0.0f, -1.0f, 1.0f,
+			0.0f, 0.0f, 1.0f, 3.0f, 3.0f
+		};
+
+		for (sp_uint i = 0; i < 15; i++)
+			Assert::AreEqual(expected[i], matrix[i], L"Value wrong", LINE_INFO());
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, solve_2varaibles_Test)
 	{
