@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint physicIndex;
 		DOP18* _boundingVolumes;
 		SpCollisionFeatures* _objectMapper;
-		SpPhysicProperties* _physicProperties;
+		SpRigidBody* _rigidBodies;
 
 	public:
 
@@ -29,17 +29,17 @@ namespace NAMESPACE_PHYSICS
 			listLength = length;
 			physicIndex = SpPhysicSimulator::instance()->alloc(length);
 			_boundingVolumes = SpPhysicSimulator::instance()->boundingVolumes(physicIndex);
-			_physicProperties = SpPhysicSimulator::instance()->physicProperties(physicIndex);
+			_rigidBodies = SpPhysicSimulator::instance()->rigidBodies(physicIndex);
 			_objectMapper = SpPhysicSimulator::instance()->collisionFeatures(physicIndex);
 		}
 
 		/// <summary>
 		/// Get physic properties data from list
 		/// </summary>
-		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) 
+		API_INTERFACE inline SpRigidBody* rigidBodies(const sp_uint index)
 		{
 			sp_assert(index < listLength, "IndexOutOfRangeException");
-			return &_physicProperties[index]; 
+			return &_rigidBodies[index];
 		}
 
 		/// <summary>

@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(indexesGPU, outputIndexSize)
 				->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
-				->setInputParameter(physicPropertiesGPU, indexesLength * sizeof(SpPhysicProperties))
+				->setInputParameter(physicPropertiesGPU, indexesLength * sizeof(SpRigidBody))
 				->setInputParameter(outputIndexLengthGPU, SIZEOF_UINT)
 				->setInputParameter(outputIndexesGPU, outputIndexSize)
 				->buildFromProgram(program, "handleCollision");

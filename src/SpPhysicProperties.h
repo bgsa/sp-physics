@@ -6,11 +6,11 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpPhysicPropertiesState
+	class SpRigidBodyState
 	{
 		friend class SpPhysicObject;
 		friend class SpPhysicObjectList;
-		friend class SpPhysicProperties;
+		friend class SpRigidBody;
 		friend class SpPhysicSimulator;
 		friend class SpCollisionResponse;
 		friend class SpPhysicIntegratorEuler;
@@ -31,7 +31,7 @@ namespace NAMESPACE_PHYSICS
 		/// Default constructor
 		/// </summary>
 		/// <returns>void</returns>
-		API_INTERFACE SpPhysicPropertiesState()
+		API_INTERFACE SpRigidBodyState()
 		{
 			reset();
 		}
@@ -175,12 +175,11 @@ namespace NAMESPACE_PHYSICS
 
 	};
 
-	class SpPhysicProperties
+	class SpRigidBody
 	{
 		friend class SpPhysicObject;
 		friend class SpPhysicObjectList;
 		friend class SpPhysicSimulator;
-		friend class SpPhysicProperties;
 		friend class SpCollisionResponse;
 	private:
 		
@@ -198,13 +197,13 @@ namespace NAMESPACE_PHYSICS
 		}
 
 	public:
-		SpPhysicPropertiesState currentState;
-		SpPhysicPropertiesState previousState;
+		SpRigidBodyState currentState;
+		SpRigidBodyState previousState;
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		API_INTERFACE SpPhysicProperties()
+		API_INTERFACE SpRigidBody()
 		{
 			_damping = 0.95f;
 			_angularDamping = 0.70f;
@@ -380,7 +379,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void rollbackState()
 		{
-			std::memcpy(&currentState, &previousState, sizeof(SpPhysicPropertiesState));
+			std::memcpy(&currentState, &previousState, sizeof(SpRigidBodyState));
 		}
 
 	};

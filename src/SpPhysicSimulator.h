@@ -38,7 +38,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _objectsLength;
 		
 		DOP18* _boundingVolumes;
-		SpPhysicProperties* _physicProperties;
+		SpRigidBody* _rigidBodies;
 		SpTransform* _transforms;
 		SpCollisionFeatures* _objectMapper;
 		SpArray<SpMesh*>* _meshes;
@@ -48,7 +48,7 @@ namespace NAMESPACE_PHYSICS
 		cl_mem _transformsGPU;
 		SpGpuTextureBuffer* _transformsGPUBuffer;
 		cl_mem _boundingVolumesGPU;
-		cl_mem _physicPropertiesGPU;
+		cl_mem _rigidBodiesGPU;
 		cl_mem _collisionIndexesGPU;
 		cl_mem _collisionIndexesLengthGPU;
 		cl_mem _sapCollisionIndexesGPU;
@@ -77,7 +77,7 @@ namespace NAMESPACE_PHYSICS
 			SpEventDispatcher::instance()->push(evt);
 		}
 
-		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
+		void addFriction(SpRigidBody* obj1Properties, SpRigidBody* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpuDOP18(SweepAndPruneResult* result);
@@ -89,8 +89,8 @@ namespace NAMESPACE_PHYSICS
 		void updateDataOnGPU()
 		{
 			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
-			sapDOP18->updatePhysicProperties(_physicProperties);
-			sapAABB->updatePhysicProperties(_physicProperties);
+			sapDOP18->updatePhysicProperties(_rigidBodies);
+			sapAABB->updatePhysicProperties(_rigidBodies);
 		}
 
 		/// <summary>
@@ -98,7 +98,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		void updateDataOnCPU()
 		{
-			cl_event evt1 = gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
+			cl_event evt1 = gpu->commandManager->readBuffer(_rigidBodiesGPU, sizeof(SpRigidBody) * _objectsLength, _rigidBodies);
 			gpu->waitEvents(ONE_UINT, &evt1);
 		}
 
@@ -167,9 +167,9 @@ namespace NAMESPACE_PHYSICS
 			return &_boundingVolumes[index];
 		}
 
-		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) const
+		API_INTERFACE inline SpRigidBody* rigidBodies(const sp_uint index) const
 		{
-			return &_physicProperties[index];
+			return &_rigidBodies[index];
 		}
 
 		API_INTERFACE inline SpTransform* transforms(const sp_uint index) const
@@ -220,7 +220,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void backToTime(const sp_uint index)
 		{
-			SpPhysicProperties* element = &_physicProperties[index];
+			SpRigidBody* element = &_rigidBodies[index];
 
 			Vec3 translation;
 			diff(element->previousState.position(), element->currentState.position(), &translation);
@@ -242,7 +242,7 @@ namespace NAMESPACE_PHYSICS
 
 			_boundingVolumes[index].translate(translation);
 			_transforms[index].translate(translation);
-			_physicProperties[index].currentState.translate(translation);
+			_rigidBodies[index].currentState.translate(translation);
 		}
 
 		API_INTERFACE void scale(const sp_uint index, const Vec3& scaleVector)
@@ -264,7 +264,7 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_transforms[index].orientation *= quat;
-			_physicProperties[index].currentState.orientation(_transforms[index].orientation);
+			_rigidBodies[index].currentState.orientation(_transforms[index].orientation);
 		}
 
 		API_INTERFACE void position(const sp_uint index, const Vec3& newPosition)
@@ -278,7 +278,7 @@ namespace NAMESPACE_PHYSICS
 
 			_boundingVolumes[index].translate(diff);
 			_transforms[index].position = newPosition;
-			_physicProperties[index].currentState.position(newPosition);
+			_rigidBodies[index].currentState.position(newPosition);
 		}
 
 		API_INTERFACE void orientation(const sp_uint index, const Quat& newOrientation)
@@ -289,7 +289,7 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_transforms[index].orientation = newOrientation;
-			_physicProperties[index].currentState.orientation(newOrientation);
+			_rigidBodies[index].currentState.orientation(newOrientation);
 		}
 
 		API_INTERFACE void run(const sp_float elapsedTime);
@@ -300,14 +300,14 @@ namespace NAMESPACE_PHYSICS
 		{
 			for (sp_uint i = 0; i < _objectsLength; i++)
 			{
-				if (_physicProperties[i].isStatic())
+				if (_rigidBodies[i].isStatic())
 					continue;
 
 				DOP18 bv1 = _boundingVolumes[i];
 
 				for (sp_uint j = i + 1u; j < _objectsLength; j++)
 				{
-					if (_physicProperties[j].isStatic())
+					if (_rigidBodies[j].isStatic())
 						continue;
 
 					if (bv1.collisionStatus(_boundingVolumes[j]) != CollisionStatus::OUTSIDE)

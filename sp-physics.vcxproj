@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -316,7 +316,9 @@
     <ClInclude Include="src\SpPhysicSettings.h" />
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />
+    <ClInclude Include="src\SpSpring.h" />
     <ClInclude Include="src\SpSIMD.h" />
+    <ClInclude Include="src\SpSoftBody.h" />
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SpVertexMesh.h" />
     <ClInclude Include="src\SpEdgeMesh.h" />

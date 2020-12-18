@@ -131,7 +131,7 @@ namespace NAMESPACE_PHYSICS
 
 		_objectsLength = ZERO_UINT;
 		_objectsLengthAllocated = objectsLength;
-		_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
+		_rigidBodies = sp_mem_new_array(SpRigidBody, objectsLength);
 		_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
 		_transforms = sp_mem_new_array(SpTransform, objectsLength);
 		_objectMapper = sp_mem_new_array(SpCollisionFeatures, objectsLength);
@@ -155,7 +155,7 @@ namespace NAMESPACE_PHYSICS
 		_objectMapperGPU->init(sizeof(SpCollisionFeatures) * _objectsLengthAllocated, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
 		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
-		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
+		_rigidBodiesGPU = gpu->createBuffer(_rigidBodies, sizeof(SpRigidBody) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
 		_collisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		_collisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		
@@ -171,16 +171,16 @@ namespace NAMESPACE_PHYSICS
 		sapDOP18 = sp_mem_new(SweepAndPrune)();
 		sapDOP18->init(gpu, buildOptions.str().c_str());
 		sapDOP18->setParameters(_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _rigidBodiesGPU, sizeof(SpRigidBody), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
 
 		sapAABB = sp_mem_new(SweepAndPrune)();
 		sapAABB->init(gpu, buildOptions.str().c_str());
 		sapAABB->setParameters(_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _rigidBodiesGPU, sizeof(SpRigidBody), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
 
 		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
 		collisionResponseGPU->init(gpu, nullptr);
-		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _physicPropertiesGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU, outputIndexSize);
+		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _rigidBodiesGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU, outputIndexSize);
 	}
 
 	SpPhysicSimulator* SpPhysicSimulator::init(sp_uint objectsLength)
@@ -460,10 +460,10 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumes = nullptr;
 		}
 
-		if (_physicProperties != nullptr)
+		if (_rigidBodies != nullptr)
 		{
-			sp_mem_release(_physicProperties);
-			_physicProperties = nullptr;
+			sp_mem_release(_rigidBodies);
+			_rigidBodies = nullptr;
 		}
 
 		if (_boundingVolumesGPU != nullptr)
@@ -472,10 +472,10 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumesGPU = nullptr;
 		}
 
-		if (_physicPropertiesGPU != nullptr)
+		if (_rigidBodiesGPU != nullptr)
 		{
-			gpu->releaseBuffer(_physicPropertiesGPU);
-			_physicPropertiesGPU = nullptr;
+			gpu->releaseBuffer(_rigidBodiesGPU);
+			_rigidBodiesGPU = nullptr;
 		}
 
 		if (_collisionIndexesGPU != nullptr)

@@ -178,8 +178,8 @@ namespace NAMESPACE_PHYSICS
 	void SpCollisionDetector::filterCollision(SpCollisionDetails* details) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		SpPhysicProperties* obj1Properties = simulator->physicProperties(details->objIndex1);
-		SpPhysicProperties* obj2Properties = simulator->physicProperties(details->objIndex2);
+		SpRigidBody* obj1Properties = simulator->rigidBodies(details->objIndex1);
+		SpRigidBody* obj2Properties = simulator->rigidBodies(details->objIndex2);
 
 		const sp_bool isObj1Static = obj1Properties->isStatic();
 		const sp_bool isObj2Static = obj2Properties->isStatic();
@@ -411,8 +411,8 @@ namespace NAMESPACE_PHYSICS
 		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
-		SpPhysicProperties* physicObj1 = simulator->physicProperties(details->objIndex1);
-		SpPhysicProperties* physicObj2 = simulator->physicProperties(details->objIndex2);
+		SpRigidBody* physicObj1 = simulator->rigidBodies(details->objIndex1);
+		SpRigidBody* physicObj2 = simulator->rigidBodies(details->objIndex2);
 
 		sp_bool isObj1Resting = physicObj1->isResting();
 		sp_bool isObj2Resting = physicObj2->isResting();
@@ -748,8 +748,8 @@ namespace NAMESPACE_PHYSICS
 	sp_bool SpCollisionDetector::areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		const SpPhysicProperties* obj1Properties = simulator->physicProperties(objIndex1);
-		const SpPhysicProperties* obj2Properties = simulator->physicProperties(objIndex2);
+		const SpRigidBody* obj1Properties = simulator->rigidBodies(objIndex1);
+		const SpRigidBody* obj2Properties = simulator->rigidBodies(objIndex2);
 
 		Vec3 lineOfAction = obj2Properties->currentState.position() - obj1Properties->currentState.position();
 		const Vec3 velocityToObject2 = obj1Properties->currentState.velocity() * lineOfAction;
