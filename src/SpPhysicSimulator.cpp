@@ -70,13 +70,13 @@ namespace NAMESPACE_PHYSICS
 		_meshesGPU->init(lastMemoryAddress - initialMemoryIndex, _meshes->data()[0], CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
 		_meshesIndexesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_meshesIndexesGPU->init(_objectsLength * 3u * SIZEOF_UINT, meshesIndexes, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		_meshesIndexesGPU->init(_objectsLength * 3u * SIZEOF_UINT, meshesIndexes, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
 		_meshCacheGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 		_meshCacheGPU->init(vertexCounter * VEC3_SIZE);
 
 		_meshCacheIndexesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_meshCacheIndexesGPU->init(_objectsLength * SIZEOF_UINT, meshCacheIndexes, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		_meshCacheIndexesGPU->init(_objectsLength * SIZEOF_UINT, meshCacheIndexes, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
 		_meshCacheVertexesLengthGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 		_meshCacheVertexesLengthGPU->init(_objectsLength * SIZEOF_UINT, meshCacheVertexesLength, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR);
