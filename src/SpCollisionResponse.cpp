@@ -135,7 +135,8 @@ namespace NAMESPACE_PHYSICS
 		if (denominator == ZERO_FLOAT)
 			j = ZERO_FLOAT;
 		else
-			j = (numerator / denominator) / (sp_float)details->contactPointsLength;
+			//j = (numerator / denominator) / (sp_float)details->contactPointsLength;
+			j = numerator / denominator;
 
 		
 		if (obj1Properties->isResting())

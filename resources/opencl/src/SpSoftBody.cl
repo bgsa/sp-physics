@@ -1,0 +1,14 @@
+#ifndef SP_SOFT_BODY_OPENCL_HEADER
+#define SP_SOFT_BODY_OPENCL_HEADER
+
+#include "OpenCLBase.cl"
+
+#define SP_SOFT_BODY_SIZE                  (28)
+#define SP_SOFT_BODY_POSITION_INDEX        (00)
+#define SP_SOFT_BODY_PARTICLE_LENGTH_INDEX (03)
+#define SP_SOFT_BODY_PARTICLE_INDEX        (04)
+#define SP_SOFT_BODY_SPRING_LENGTH_INDEX   (05)
+#define SP_SOFT_BODY_SPRING_INDEX          (06)
+
+
+#endif // SP_SOFT_BODY_OPENCL_HEADER

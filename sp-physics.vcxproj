@@ -227,6 +227,7 @@
     <ClCompile Include="src\SpOptimization.cpp" />
     <ClCompile Include="src\SpPhysicIntegrator.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
+    <ClCompile Include="src\SpRigidBodyState.h" />
     <ClCompile Include="src\SpVertexMesh.cpp" />
     <ClCompile Include="src\SpEdgeMesh.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
@@ -283,12 +284,12 @@
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpAABBFactory.h" />
     <ClInclude Include="src\SpAlgorithms.h" />
+    <ClInclude Include="src\SpBody.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
-    <ClInclude Include="src\SpCollisionFeatures.h" />
+    <ClInclude Include="src\SpRigidBodyMapper.h" />
     <ClInclude Include="src\SpCollisionGroup.h" />
     <ClInclude Include="src\SpCollisionResponse.h" />
-    <ClInclude Include="src\SpCollisionResponseGPU.h" />
     <ClInclude Include="src\SpDOP18Factory.h" />
     <ClInclude Include="src\SpFaceMesh.h" />
     <ClInclude Include="src\SpMapleExporter.h" />
@@ -339,7 +340,6 @@
   <ItemGroup>
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
     <None Include="resources\opencl\src\BoundingVolumeFactory.cl" />
-    <None Include="resources\opencl\src\CollisionResponse.cl" />
     <None Include="resources\opencl\src\DOP18.cl" />
     <None Include="resources\opencl\src\FindFirstNegative.cl" />
     <None Include="resources\opencl\src\FindMinMax.cl" />
@@ -352,8 +352,11 @@
     <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
     <None Include="resources\opencl\src\RadixSortingByThread.cl" />
     <None Include="resources\opencl\src\Reverse.cl" />
+    <None Include="resources\opencl\src\SpBodyMapper.cl" />
     <None Include="resources\opencl\src\SpMeshCache.cl" />
-    <None Include="resources\opencl\src\SpPhysicProperties.cl" />
+    <None Include="resources\opencl\src\SpParticle.cl" />
+    <None Include="resources\opencl\src\SpRigidBody.cl" />
+    <None Include="resources\opencl\src\SpSoftBody.cl" />
     <None Include="resources\opencl\src\SpTransformation.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />
     <None Include="resources\opencl\src\Vec3.cl" />

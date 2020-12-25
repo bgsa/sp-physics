@@ -32,8 +32,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		NAMESPACE_RENDERING::SpOpenGL::initOffScreenRendering();
 		NAMESPACE_RENDERING::SpGpuRenderingFactoryOpenGL::init();
 		GpuContext::init();
-		SpPhysicSimulator::init(1024u);
-		SpPhysicSimulator::instance()->alloc(1024u);
+		SpPhysicSimulator::init(10u, 10u);
 	}
 
 	TEST_MODULE_CLEANUP(ModuleCleanup)

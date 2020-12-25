@@ -1100,7 +1100,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, 0, facesIndex.x, facesIndex.y, facesIndex.z));
 		mesh->init();
 		simulator->mesh(1u, mesh);
-		simulator->collisionFeatures(1u, 1u);
+		simulator->rigidBodyMapperMesh(1u, 1u);
 		Vec3 positionObj2;
 		midpoint(vertexes2[0], vertexes2[1], vertexes2[2], &positionObj2);
 
@@ -1175,7 +1175,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		mesh->faces->add(sp_mem_new(SpFaceMesh)(mesh, 0, facesIndex.x, facesIndex.y, facesIndex.z));
 		mesh->init();
 		simulator->mesh(1u, mesh);
-		simulator->collisionFeatures(1u, 1u);
+		simulator->rigidBodyMapperMesh(1u, 1u);
 
 
 		resetObject(0u);
@@ -1333,8 +1333,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_char text[16000];
 		sp_uint index = ZERO_UINT;
-		Maple::convert(*simulator->mesh(simulator->collisionFeatures(0u)->meshIndex), *simulator->transforms(0u), "mesh1", "red", text, &index);
-		Maple::convert(*simulator->mesh(simulator->collisionFeatures(1u)->meshIndex), *simulator->transforms(1u), "mesh2", "blue", text, &index);
+		Maple::convert(*simulator->mesh(simulator->rigidBodyMapper(0u)->meshIndex), *simulator->transforms(0u), "mesh1", "red", text, &index);
+		Maple::convert(*simulator->mesh(simulator->rigidBodyMapper(1u)->meshIndex), *simulator->transforms(1u), "mesh2", "blue", text, &index);
 		Maple::display("mesh1", "mesh2", text, &index);
 
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());

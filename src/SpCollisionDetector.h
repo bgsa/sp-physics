@@ -5,7 +5,7 @@
 #include "SpCollisionDetails.h"
 #include "SpThreadPool.h"
 #include "SpPhysicSimulator.h"
-#include "SpCollisionFeatures.h"
+#include "SpRigidBodyMapper.h"
 #include "SpArray.h"
 #include "SpMeshCache.h"
 

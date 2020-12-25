@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 		cl_program program;
-
+		
 		void initProgram(GpuDevice* gpu)
 		{
 			SpDirectory* filename = SpDirectory::currentDirectory()
@@ -48,6 +48,7 @@ namespace NAMESPACE_PHYSICS
 #endif
 
 	public:
+		cl_event lastEvent = nullptr;
 
 		/// <summary>
 		/// Create a 18-DOP using the mesh provided and the cache
@@ -144,7 +145,7 @@ namespace NAMESPACE_PHYSICS
 
 #ifdef OPENCL_ENABLED
 
-		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
+		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, GpuBufferOpenCL* bodyMapperGPU, GpuBufferOpenCL* rigidBodiesGPU, GpuBufferOpenCL* softBodiesGPU, GpuBufferOpenCL* softBodyIndexesGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
 		{
 			initProgram(gpu);
 
@@ -153,6 +154,10 @@ namespace NAMESPACE_PHYSICS
 
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(inputLengthGPU)
+				->setInputParameter(bodyMapperGPU)
+				->setInputParameter(rigidBodiesGPU)
+				->setInputParameter(softBodiesGPU)
+				->setInputParameter(softBodyIndexesGPU)
 				->setInputParameter(meshCacheIndexes)
 				->setInputParameter(meshCacheVertexesLength)
 				->setInputParameter(meshCacheGPU)
@@ -161,16 +166,20 @@ namespace NAMESPACE_PHYSICS
 				->buildFromProgram(program, "buildDOP18");
 		}
 
-		API_INTERFACE void buildGPU(GpuDevice* gpu, cl_mem transformationsGPU) const
+		API_INTERFACE void buildGPU(GpuDevice* gpu, cl_mem transformationsGPU)
 		{
 			command->execute(1u, globalWorkSize, localWorkSize);
 
+			lastEvent = command->lastEvent;
+
 			/* test
-			sp_uint* indexes = ALLOC_ARRAY(sp_uint, 100);
-			command->fetchInOutParameter(indexes, 1u);
+			sp_uint* p = ALLOC_ARRAY(sp_uint, 10000);
+			command->fetchInOutParameter(p, 0u);
+
+			command->fetchInOutParameter(p, 1u);
 
 			sp_float* c = ALLOC_ARRAY(sp_float, 10000);
-			command->fetchInOutParameter(c, 3u);
+			command->fetchInOutParameter(c, 9u);
 			*/
 		}
 

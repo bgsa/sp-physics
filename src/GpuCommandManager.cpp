@@ -30,6 +30,13 @@ namespace NAMESPACE_PHYSICS
 		return sp_mem_new(GpuCommand)(deviceId, deviceContext, commandQueue);
 	}
 
+	cl_event GpuCommandManager::readBuffer(GpuBufferOpenCL* gpuBuffer, void* cpuBuffer, sp_uint eventsLength, cl_event* eventsToWait)
+	{
+		cl_event evt;
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, gpuBuffer->buffer(), true, 0, gpuBuffer->size(), cpuBuffer, eventsLength, eventsToWait, &evt));
+		return evt;
+	}
+
 	sp_uint GpuCommandManager::cacheProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions)
 	{
 		cl_int errorCode;

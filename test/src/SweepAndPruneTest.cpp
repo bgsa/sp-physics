@@ -2,7 +2,6 @@
 #include <SweepAndPrune.h>
 #include "Randomizer.h"
 #include "DOP18.h"
-#include "SpPhysicProperties.h"
 
 #define CLASS_NAME SweepAndPruneTest
 
@@ -2376,11 +2375,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem outputGpu = gpu->createBuffer(sizeof(AABB) * count * 2, CL_MEM_READ_ONLY);
 		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
-		SpRigidBody* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody, count);
-		for (sp_uint i = 0; i < count; i++)
-			physicProperties[i].mass(8.0f);
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody) * count, CL_MEM_READ_WRITE, true);
-
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count
 					<< " -DINPUT_STRIDE=" << AABB_STRIDER
@@ -2389,8 +2383,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, 
-			physcPropertiesGpu, sizeof(SpRigidBody), outputGpu, outputLengthGpu, "");
+		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, outputGpu, outputLengthGpu, "");
 
 		PerformanceCounter counter; counter.start();
 		SweepAndPruneResult result1 = SweepAndPrune::findCollisions(aabbs1, count);
@@ -2427,13 +2420,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
 		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		
-		const sp_size physicPropertySize = sizeof(SpRigidBody);
-		SpRigidBody* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody, length);
-		for (sp_uint i = 0; i < length; i++)
-			physicProperties[i].mass(8.0f);
-
 		const sp_size axis = ZERO_UINT;
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, physicPropertySize * length, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR , true);
+		
 		cl_mem outputGpu = gpu->createBuffer(SIZEOF_UINT * length * SP_SAP_MAX_COLLISION_PER_OBJECT, CL_MEM_READ_ONLY);
 		cl_mem outputLengthGpu = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_ONLY);
 
@@ -2444,8 +2432,7 @@ namespace NAMESPACE_PHYSICS_TEST
 					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, axis, DOP18_ORIENTATIONS, physcPropertiesGpu,
-			physicPropertySize, outputLengthGpu, outputGpu, "");
+		sap.setParameters(inputGpu, length, DOP18_STRIDER, axis, DOP18_ORIENTATIONS, outputLengthGpu, outputGpu, "");
 
 		performanceCounter.start();
 

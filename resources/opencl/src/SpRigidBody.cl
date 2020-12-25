@@ -1,3 +1,6 @@
+#ifndef SP_RIGID_BODY_OPENCL_HEADER
+#define SP_RIGID_BODY_OPENCL_HEADER
+
 #include "OpenCLBase.cl"
 #include "Vec3.cl"
 #include "Mat3.cl"
@@ -341,3 +344,5 @@ __kernel void fetch(
     output[SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX + 1] = prevTorque.y;
     output[SP_PHYSIC_PROPERTY_PREV_TORQUE_INDEX + 2] = prevTorque.z;
 }
+
+#endif // SP_RIGID_BODY_OPENCL_HEADER

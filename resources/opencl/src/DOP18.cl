@@ -1,8 +1,9 @@
-#include "OpenCLBase.cl"
-#include "Vec3.cl"
-
 #ifndef DOP18_OPENCL_HEADER
 #define DOP18_OPENCL_HEADER
+
+#include "OpenCLBase.cl"
+#include "Vec3.cl"
+#include "SpBodyMapper.cl"
 
 #define DOP18_ORIENTATIONS (9)
 #define DOP18_STRIDE (18)

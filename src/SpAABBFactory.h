@@ -97,7 +97,7 @@ namespace NAMESPACE_PHYSICS
 
 #ifdef OPENCL_ENABLED
 
-		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
+		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, GpuBufferOpenCL* bodyMapperGPU, GpuBufferOpenCL* rigidBodyGPU, GpuBufferOpenCL* softBodyGPU, GpuBufferOpenCL* softBodyIndexesGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
 		{
 			initProgram(gpu);
 
@@ -106,6 +106,10 @@ namespace NAMESPACE_PHYSICS
 
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(inputLengthGPU)
+				->setInputParameter(bodyMapperGPU)
+				->setInputParameter(rigidBodyGPU)
+				->setInputParameter(softBodyGPU)
+				->setInputParameter(softBodyIndexesGPU)
 				->setInputParameter(meshCacheIndexes)
 				->setInputParameter(meshCacheVertexesLength)
 				->setInputParameter(meshCacheGPU)

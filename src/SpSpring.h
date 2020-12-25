@@ -39,6 +39,23 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Reset the values in the spring
+		/// </summary>
+		/// <param name="particle1">Particle 1</param>
+		/// <param name="particle2">Particle 2</param>
+		/// <param name="restingLength">Equilibium of the spring</param>
+		/// <param name="stifiness">Stifiness</param>
+		/// <returns></returns>
+		API_INTERFACE inline void init(Particle* particle1, Particle* particle2, const sp_float restingLength = ONE_FLOAT, const sp_float stifiness = 0.8f)
+		{
+			this->particle1 = particle1;
+			this->particle2 = particle2;
+			this->stiffness = stifiness;
+			this->restingLength = restingLength;
+			friction = 0.95f;
+		}
+
+		/// <summary>
 		/// Apply the forces in the particles using the spring
 		/// </summary>
 		/// <returns>void</returns>

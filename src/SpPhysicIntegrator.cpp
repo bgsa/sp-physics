@@ -10,7 +10,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 		sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-		sp_assert(index < simulator->objectsLength(), "IndexOutOfRangeException");
+		sp_assert(index < simulator->objectsMaxLength(), "IndexOutOfRangeException");
 
 		SpPhysicSettings* settings = SpPhysicSettings::instance();
 		SpRigidBody* element = simulator->rigidBodies(index);
@@ -80,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 		sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-		sp_assert(index < simulator->objectsLength(), "IndexOutOfRangeException");
+		sp_assert(index < simulator->objectsMaxLength(), "IndexOutOfRangeException");
 
 		SpPhysicSettings* settings = SpPhysicSettings::instance();
 		SpRigidBody* element = simulator->rigidBodies(index);
