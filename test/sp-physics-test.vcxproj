@@ -33,6 +33,7 @@
     <ClCompile Include="src\AlgorithmLagrangecpp.cpp" />
     <ClCompile Include="src\AlgorithmNewtonTest.cpp" />
     <ClCompile Include="src\GpuFindFirstNegativeTest.cpp" />
+    <ClCompile Include="src\MatTest.cpp" />
     <ClCompile Include="src\SpCollisionResponseGPUTest.cpp" />
     <ClCompile Include="src\SpDOP18FactoryTest.cpp" />
     <ClCompile Include="src\SpOptimizationTest.cpp" />

@@ -369,7 +369,7 @@ namespace NAMESPACE_PHYSICS
 
 		updateDataOnCPU();
 
-		SpThreadPool* threadPool = SpThreadPool::instance();
+		//SpThreadPool* threadPool = SpThreadPool::instance();
 
 		/*
 		SpCollisionGroups groups(_objectsLength, multiplyBy2(sapResult.length));
@@ -405,48 +405,75 @@ namespace NAMESPACE_PHYSICS
 		}
 		*/
 
-		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
-		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
-		std::thread** threads = ALLOC_ARRAY(std::thread*, sapResult.length);
+
 		tt.update();
 
-		sp_log_debug1sfnl("Collisions: ", (sp_float)sapResult.length);
+		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
+		//SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
+		//std::thread** threads = ALLOC_ARRAY(std::thread*, sapResult.length);
+
+		SpCollisionResponseShapeMatching shapeMatching;
+
+		SpMeshCache** caches = ALLOC_NEW_ARRAY(SpMeshCache*, _objectsLength);
+		std::memset(caches, ZERO_INT, SIZEOF_WORD * _objectsLength);
+
+		SpRigidBodyShapeMatch** shapes = ALLOC_NEW_ARRAY(SpRigidBodyShapeMatch*, _objectsLength);
+		std::memset(shapes, ZERO_INT, SIZEOF_INT * _objectsLength);
+
+		// init shapes
+		for (sp_uint i = 0; i < sapResult.length; i++)
+		{
+			const sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
+			const sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1u];
+
+			if (shapes[obj1] == nullptr)
+			{
+				shapes[obj1] = ALLOC_NEW(SpRigidBodyShapeMatch)();
+				shapeMatching.initShape(obj1, shapes[obj1]);
+			}
+
+			if (shapes[obj2] == nullptr)
+			{
+				shapes[obj2] = ALLOC_NEW(SpRigidBodyShapeMatch)();
+				shapeMatching.initShape(obj2, shapes[obj2]);
+			}
+		}
+		// many shape match iterations
+		for (sp_uint iterations = 0u; iterations < 10u; iterations++)
+		{
+			for (sp_uint i = 0u; i < sapResult.length; i++)
+				shapeMatching.solve(
+					shapes[sapResult.indexes[multiplyBy2(i)]], 
+					shapes[sapResult.indexes[multiplyBy2(i) + 1u]]
+				);
+		}
 
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
-			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
-			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
-			detailsArray[i].timeStep = elapsedTime;
-			detailsArray[i].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex1)->meshIndex)->vertexesMesh->length());
-			detailsArray[i].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[i].objIndex2)->meshIndex)->vertexesMesh->length());
+			sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
+			sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1];
 
-			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
-			tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
-			tasks[i].parameter = &detailsArray[i];
-			
-			//threadPool->schedule(&tasks[i]);
+			if (shapes[obj1]->isDirty && physicProperties(obj1)->isDynamic())
+			{
+				shapeMatching.updateFromShape(obj1, &detailsArray[i], shapes[obj1]);
+				shapes[obj1]->isDirty = false;
+			}
 
-			//std::thread* t = ALLOC_NEW(std::thread(SpPhysicSimulator::handleCollisionGPU, &detailsArray[i]));
-			//threads[i] = t;
-			//t->detach();
-
-			SpPhysicSimulator::handleCollisionGPU(&detailsArray[i]);
+			if (shapes[obj2]->isDirty && physicProperties(obj2)->isDynamic())
+			{
+				shapeMatching.updateFromShape(obj2, &detailsArray[i], shapes[obj2]);
+				shapes[obj2]->isDirty = false;
+			}
 		}
-		//SpThreadPool::instance()->waitToFinish();
-
-		/*
-		for (sp_uint i = 0; i < sapResult.length; i++)
-			if (threads[i]->joinable())
-				threads[i]->join();
-*/
-
-		sp_log_debug1sfnl("Wait Tasks: ", tt.elapsedTime());
 
 		/* dispatch collision events
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)
 				dispatchEvent(&detailsArray[i]);
 		*/
+
+		sp_float et = tt.elapsedTime();
+		sp_log_debug1sfnl("TIME: ", et);
 
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;

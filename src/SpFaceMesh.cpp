@@ -128,4 +128,46 @@ namespace NAMESPACE_PHYSICS
 		return triangle.isInside(vertex, _epsilon);
 	}
 
+	void SpFaceMesh::parallelFaces(sp_uint* outputIndexes, sp_uint* outputIndexesLength) const
+	{
+		outputIndexes[*outputIndexesLength] = _index;
+		outputIndexesLength[0] ++;
+
+		for (sp_uint i = 0; i < SP_FACE_MESH_MAX_EDGES; i++)
+		{
+			SpEdgeMesh* e = mesh->edges->get(edgesIndexes[i]);
+
+			if (!e->isBoundaryEdge())
+			{
+				sp_uint newParallelFaceIndex = e->faces.get(0);
+			
+				if (newParallelFaceIndex != _index)
+				{
+					if (NAMESPACE_FOUNDATION::contains(outputIndexes, *outputIndexesLength, newParallelFaceIndex))
+					{
+						outputIndexes[*outputIndexesLength] = newParallelFaceIndex;
+						outputIndexesLength[0] ++;
+
+						mesh->faces->get(newParallelFaceIndex)->parallelFaces(outputIndexes, outputIndexesLength);
+					}
+				}
+				else
+				{
+					newParallelFaceIndex = e->faces.get(1);
+
+					if (newParallelFaceIndex != _index && e->faces.length() > ONE_UINT)
+					{
+						if (NAMESPACE_FOUNDATION::contains(outputIndexes, *outputIndexesLength, newParallelFaceIndex))
+						{
+							outputIndexes[*outputIndexesLength] = newParallelFaceIndex;
+							outputIndexesLength[0] ++;
+
+							mesh->faces->get(newParallelFaceIndex)->parallelFaces(outputIndexes, outputIndexesLength);
+						}
+					}
+				}
+			}
+		}
+	}
+
 }

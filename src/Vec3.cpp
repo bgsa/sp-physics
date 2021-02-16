@@ -45,7 +45,13 @@ namespace NAMESPACE_PHYSICS
 		y *= scale;
 		z *= scale;
 	}
-	
+
+	void Vec3::tripleProduct(const Vec3& B, const Vec3& C, Vec3* output) const
+	{
+		// A x B x C = -A(B.C) + B(A.C)
+		std::memcpy(output, -(*this * B.dot(C)) + (B * dot(C)), VEC3_SIZE);
+	}
+
 	Vec3 Vec3::rotateX(sp_float angle)
 	{
 		return Vec3(

@@ -2,52 +2,44 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	template <typename T>
-	T* AlgorithmHorner<T>::polynomialDivision(T x0, T* polynomial, int polynomialDegree)
+	void AlgorithmHorner::polynomialDivision(sp_float x0, sp_float* polynomial, sp_uint polynomialDegree, sp_float* output)
 	{
-		T* result = ALLOC_ARRAY(T, polynomialDegree);
-		result[0] = polynomial[0];
+		output[0] = polynomial[0];
 
-		for (int i = 1; i < polynomialDegree; i++)
-			result[i] = polynomial[i] + result[i - 1] * x0; //Bk = Ak + Bk + 1 * x0;
+		for (sp_uint i = 1u; i < polynomialDegree; i++)
+			output[i] = polynomial[i] + output[i - 1u] * x0; //Bk = Ak + Bk + 1 * x0;
+	}
+
+	sp_float solvePolynomial(sp_float* coefficients, sp_uint polynomialDegree, sp_float x)
+	{
+		sp_float result = ZERO_FLOAT;
+
+		for (sp_uint i = polynomialDegree - 1; i != ZERO_UINT; i--)
+			result += coefficients[polynomialDegree - i - 1] * powf(x, (sp_float)i);
+			
+		result += coefficients[polynomialDegree - 1];
 
 		return result;
 	}
 
-	template <typename T>
-	T solvePolynomial(T* coefficients, int polynomialDegree, T x)
+	void AlgorithmHorner::findRoots(sp_float x0, sp_float* polynomial, sp_uint polynomialDegree, sp_float* output)
 	{
-		T result = T(0);
-
-		for (int i = polynomialDegree - 1; i >= 0; i--)
-			result += T(coefficients[polynomialDegree - i - 1] * std::pow(x, i));
-
-		return result;
-	}
-
-	template <typename T>
-	T* AlgorithmHorner<T>::findRoots(T x0, T* polynomial, int polynomialDegree)
-	{
-		T* result = ALLOC_ARRAY(T, polynomialDegree);
-		result[0] = x0;
+		output[0] = x0;
 		
-		for (int i = 0; i < polynomialDegree - 1; i++)
+		for (sp_uint i = 0; i < polynomialDegree - 1; i++)
 		{
-			T* dividedPolynomial = polynomialDivision(result[i], polynomial, polynomialDegree);
+			sp_float* dividedPolynomial = ALLOC_NEW_ARRAY(sp_float, polynomialDegree);
+			
+			polynomialDivision(output[i], polynomial, polynomialDegree, dividedPolynomial);
 
-			T value = dividedPolynomial[polynomialDegree - 1];
+			const sp_float value = dividedPolynomial[polynomialDegree - 1];
 
-			T valueDerived = solvePolynomial(dividedPolynomial, polynomialDegree - 1, result[i]);
+			const sp_float valueDerived = solvePolynomial(dividedPolynomial, polynomialDegree - 1, output[i]);
 				
-			result[i + 1] = result[i] - value / valueDerived;
+			output[i + 1] = output[i] - value / valueDerived;
 
 			ALLOC_RELEASE(dividedPolynomial);
 		}
-		
-		return result;
 	}
 
-	template class AlgorithmHorner<int>;
-	template class AlgorithmHorner<float>;
-	template class AlgorithmHorner<double>;
 }

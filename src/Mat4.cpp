@@ -1,8 +1,28 @@
 #include "Mat4.h"
 
+#define M11 (0)
+#define M12 (1)
+#define M13 (2)
+#define M14 (3)
+
+#define M21 (4)
+#define M22 (5)
+#define M23 (6)
+#define M24 (7)
+
+#define M31 (8)
+#define M32 (9)
+#define M33 (10)
+#define M34 (11)
+
+#define M41 (12)
+#define M42 (13)
+#define M43 (14)
+#define M44 (15)
+
 namespace NAMESPACE_PHYSICS
 {
-	
+
 	Mat4::Mat4(const sp_float defaultValue)
 	{
 		for (sp_ushort i = 0; i < MAT4_LENGTH; i++)
@@ -905,6 +925,79 @@ namespace NAMESPACE_PHYSICS
 		return AutoValueAutoVector4{ autovalue, { autovector.x, autovector.y, autovector.z, autovector.w} };
 	}
 
+	void Mat4::tridiagonal(Mat4* output) const
+	{
+		sp_assert(isSymetric(), "InvalidOperationException");
+
+		sp_float alpha = -sign(values[M21]) 
+			* sqrtf(values[M21] * values[M21] 
+				+ values[M31] * values[M31] 
+				+ values[M41] * values[M41]);
+	
+		sp_float r = sqrtf((alpha * alpha) * HALF_FLOAT - values[M21] * alpha * HALF_FLOAT);
+		sp_float two_r = ONE_FLOAT / (r * TWO_FLOAT);
+
+		Vec4 w;
+		w.x = ZERO_FLOAT;
+		w.y = (values[M21] - alpha) * two_r;
+		w.z = values[M31] * two_r;
+		w.w = values[M41] * two_r;
+
+		Mat4 temp;
+		NAMESPACE_PHYSICS::multiply(w, w, &temp);
+
+		Mat4 H = Mat4Identity - (temp * TWO_FLOAT);
+
+		Mat4 A = H * *this * H;
+
+		
+		alpha = -sign(A.values[M32]) * sqrtf(A.values[M32] * A.values[M32] + A.values[M42] * A.values[M42]);
+		r = sqrtf((alpha * alpha) * HALF_FLOAT - A.values[M32] * alpha * HALF_FLOAT);
+		two_r = ONE_FLOAT / (r * TWO_FLOAT);
+
+		w.x = ZERO_FLOAT;
+		w.y = ZERO_FLOAT;
+		w.z = (A.values[M32] - alpha) * two_r;
+		w.w = A.values[M42] * two_r;
+
+		NAMESPACE_PHYSICS::multiply(w, w, &temp);
+
+		H = Mat4Identity - (temp * TWO_FLOAT);
+
+		A = H * A * H;
+
+		std::memcpy(output, A, sizeof(Mat4));
+
+		sp_assert(output->isTridiagonal(), "InvalidOperationException");
+	}
+
+	void Mat4::polyname(sp_float* output) const
+	{
+		const sp_float s1 = trace();
+		const sp_float a1 = s1;
+
+		Mat4 AxA = multiply(*this);
+
+		const sp_float s2 = AxA.trace();
+		const sp_float a2 = HALF_FLOAT * (s2 - a1 * s1);
+
+		Mat4 AxAxA = this->multiply(AxA);
+
+		const sp_float s3 = AxAxA.trace();
+		const sp_float a3 = ONE_OVER_THREE * (s3 - a1 * s2 - a2 * s1);
+
+		Mat4 AxAxAxA = this->multiply(AxAxA);
+
+		const sp_float s4 = AxAxAxA.trace();
+		const sp_float a4 = ONE_OVER_FOUR * (s4 - a1 * s3 - a2 * s2 - a3 * s1);
+
+		output[0] = -ONE_FLOAT;
+		output[1] = a1;
+		output[2] = a2;
+		output[3] = a3;
+		output[4] = a4;
+	}
+	
 	/*
 	Mat3 Mat4::toNormalMatrix()
 	{
@@ -913,3 +1006,23 @@ namespace NAMESPACE_PHYSICS
 	*/
 
 }
+
+#undef M11
+#undef M12
+#undef M13
+#undef M14
+
+#undef M21
+#undef M22
+#undef M23
+#undef M24
+
+#undef M31
+#undef M32
+#undef M33
+#undef M34
+
+#undef M41
+#undef M42
+#undef M43
+#undef M44

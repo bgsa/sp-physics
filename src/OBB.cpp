@@ -30,7 +30,7 @@ namespace NAMESPACE_PHYSICS
 		// Compute rotation matrix expressing b in a�s coordinate frame 
 		for (sp_int i = 0; i < MAT3_ROW_LENGTH; i++) 
 			for (sp_int j = 0; j < MAT3_ROW_LENGTH; j++)
-				R[i * MAT3_ROW_LENGTH + j] = orientation.getAxis(i).dot(obb.orientation.getAxis(j));
+				R[i * MAT3_ROW_LENGTH + j] = orientation.axis(i).dot(obb.orientation.axis(j));
 
 		// Compute translation vector t 
 		Vec3 t = obb.center - center; 

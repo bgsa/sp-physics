@@ -44,7 +44,51 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Mat4_operatorIndex_Test);
 		SP_TEST_METHOD_DEF(Mat4_divide_operator_Test);
 		SP_TEST_METHOD_DEF(Mat4_multiply_MajorColumnOrder2_Test);
+		SP_TEST_METHOD_DEF(polyname);
+		SP_TEST_METHOD_DEF(tridiagonal);
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, tridiagonal)
+	{
+		Mat4 matrix = {
+			4.0f, 1.0f, -2.0f, 2.0f,
+			1.0f, 2.0f, 0.0f, 1.0f,
+			-2.0f, 0.0f, 3.0f, -2.0f,
+			2.0f, 1.0f, -2.0f, -1.0f
+		};
+
+		Mat4 result;
+		matrix.tridiagonal(&result);
+
+		Mat4 expected = {
+			4.0f, -3.0f, 0.0f, 0.0f,
+			-3.0f, 3.33f, -1.66f, 0.0f,
+			0.0f, -1.66f, -1.32f, 0.9f,
+			0.0f ,0.0f, 0.9f, 1.986f
+		};
+
+		for (sp_uint i = 0; i < MAT4_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i], SP_EPSILON_TWO_DIGITS), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, polyname)
+	{
+		Mat4 matrix = {
+			1.0f, 2.0f, 3.0f, 4.0f,
+			2.0f, 1.0f, 2.0f, 3.0f,
+			3.0f, 2.0f, 1.0f, 2.0f,
+			4.0f ,3.0f, 2.0f, 1.0f
+		};
+
+		sp_float result[5];
+		matrix.polyname(result);
+
+		Assert::IsTrue(isCloseEnough(-1.0f, result[0]), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(4.0f, result[1]), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(40.0f, result[2]), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(56.0f, result[3]), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(20.0f, result[4]), L"Wrong value", LINE_INFO());
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat4_constructorEmpty_Test)
 	{

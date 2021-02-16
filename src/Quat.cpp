@@ -46,7 +46,7 @@ namespace NAMESPACE_PHYSICS
 
 	Quat Quat::createRotate(sp_float angle, const Vec3& axis)
 	{
-		sp_assert(axis <= ONE_FLOAT, "InvalidArgumentException");
+		sp_assert(axis <= ONE_FLOAT + SP_EPSILON_THREE_DIGITS, "InvalidArgumentException");
 
 		sp_float halfAngle = angle * HALF_FLOAT;
 		sp_float sinHalfAngle = sinf(halfAngle);

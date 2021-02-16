@@ -227,6 +227,10 @@ namespace NAMESPACE_PHYSICS
 
 	};
 
+	API_INTERFACE void multiply(const Vec4& vectorA, const Vec4& vectorB, Mat4* output);
+
 }
+
+
 
 #endif // VEC4_HEADER

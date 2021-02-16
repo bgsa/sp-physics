@@ -1,4 +1,5 @@
 #include "SpectrumPhysicsTest.h"
+#include "Asserts.h"
 #include <Mat3.h>
 
 #define CLASS_NAME Mat3Test
@@ -8,130 +9,210 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
-
-		SP_TEST_METHOD_DEF(Mat3_constructorEmpty_Test);
-
-		SP_TEST_METHOD_DEF(Mat3_constructorValues_Test);
-
-		SP_TEST_METHOD_DEF(Mat3_getValues_Test);
-
-		SP_TEST_METHOD_DEF(Mat3_getValue_Test);
-
+		SP_TEST_METHOD_DEF(Mat3_index_Test);
 		SP_TEST_METHOD_DEF(Mat3_getAxisX_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_getAxisY_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_getAxisZ_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_xAxis_Test);
-		
 		SP_TEST_METHOD_DEF(Mat3_yAxis_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_zAxis_Test);
-
-		SP_TEST_METHOD_DEF(Mat3_multiply_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_createTranslate_Test);
-
-		SP_TEST_METHOD_DEF(Mat3_decomposeLU_Test);
-
-		SP_TEST_METHOD_DEF(Mat3_decomposeLDU_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_primaryDiagonal_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_secondaryDiagonal_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_identity_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_transpose_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_createScaled_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_createRotate_Test);
-		
 		SP_TEST_METHOD_DEF(Mat3_scale_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_determinant_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_sizeInBytes_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_clone_Test);
-
-		SP_TEST_METHOD_DEF(Mat3_getAutovalueAndAutovector_Test);
-
+		SP_TEST_METHOD_DEF(eigenValueAndVectorMax);
+		SP_TEST_METHOD_DEF(eigenValues);
+		SP_TEST_METHOD_DEF(eigenValuesAndVectors);
 		SP_TEST_METHOD_DEF(Mat3_operatorMinus_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorMinus_matrix3_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorSum_matrix3_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorDivide_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorDivideEqual_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorEqual_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorNotEqual_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_operatorEqual_Value_Test);
-
 		SP_TEST_METHOD_DEF(Mat3_isIdentity_Test);
-			
+		SP_TEST_METHOD_DEF(multiply_Vec3xVec3);
+		SP_TEST_METHOD_DEF(multiply_Mat3xMat3);
+		SP_TEST_METHOD_DEF(diagonalize);
+		SP_TEST_METHOD_DEF(isSymetric);
+		SP_TEST_METHOD_DEF(isDiagonallyDominant);
+		SP_TEST_METHOD_DEF(isPositiveDefinite);
+		SP_TEST_METHOD_DEF(polyname_1);
+		SP_TEST_METHOD_DEF(polyname_2);
+		SP_TEST_METHOD_DEF(sqrt);
+		SP_TEST_METHOD_DEF(decomposeLU);
+		SP_TEST_METHOD_DEF(decomposeLDU);
+		SP_TEST_METHOD_DEF(decomposeLLt);
+		SP_TEST_METHOD_DEF(convert);
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, Mat3_constructorEmpty_Test)
+	SP_TEST_METHOD(CLASS_NAME, sqrt)
 	{
+		Mat3 matrix(
+			2.0f, 3.0f, 3.0f,
+			3.0f, 2.0f, 3.0f,
+			3.0f, 3.0f, 1.0f
+		);
+		Mat3 expected(
+			1.4142f, 0.0f, 0.0f,
+			0.4142f, 1.4142f, 0.4142f,
+			-0.4142f, 0.0f, 1.0f
+		);
+
 		Mat3 result;
+		matrix.sqrt(&result);
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(0.0f, result[i], L"Value shoud be 0", LINE_INFO());
+		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Mat3_constructorValues_Test)
+	SP_TEST_METHOD(CLASS_NAME, polyname_1)
 	{
-		float emptyMatrix[MAT3_LENGTH] = {
+		Mat3 matrix(
+			3.0f, 1.0f, 5.0f,
+			3.0f, 3.0f, 1.0f,
+			4.0f, 6.0f, 4.0f
+		);
+
+		Vec4 result;
+		matrix.polyname(&result);
+
+		Assert::IsTrue(isCloseEnough(-1.0f, result.x), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(10.0f, result.y), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(-4.0f, result.z), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(40.0f, result.w), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, polyname_2)
+	{
+		Mat3 matrix(
+			5.0f, 3.0f, 2.0f,
+			1.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f
+		);
+
+		Vec4 result;
+		matrix.polyname(&result);
+
+		Assert::IsTrue(isCloseEnough(-1.0f, result.x), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(5.0f, result.y), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(3.0f, result.z), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(2.0f, result.w), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, isSymetric)
+	{
+		Mat3 matrix(
+			4.0f, 2.0f, 0.0f,
+			2.0f, 5.0f, 3.0f,
+			0.0f, 3.0f, 6.0f
+		);
+		Assert::IsTrue(matrix.isSymetric(), L"Value shoud be 0", LINE_INFO());
+
+		matrix[0] = 1.0f;
+		Assert::IsTrue(matrix.isSymetric(), L"Value shoud be 0", LINE_INFO());
+
+		matrix[1] = 1.0f;
+		Assert::IsFalse(matrix.isSymetric(), L"Value shoud be 0", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, isDiagonallyDominant)
+	{
+		Mat3 matrix(
+			7.0f, 2.0f, 0.0f,
+			3.0f, 5.0f, -1.0f,
+			0.0f, 5.0f, -6.0f
+		);
+		Assert::IsTrue(matrix.isDiagonallyDominant(), L"", LINE_INFO());
+
+		matrix = {
+			 6.0f,  4.0f, -3.0f,
+			 4.0f, -2.0f,  0.0f,
+			-3.0f,  0.0f,  1.0f
+		};
+		Assert::IsFalse(matrix.isDiagonallyDominant(), L"Value shoud be 0", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, isPositiveDefinite)
+	{
+		Mat3 matrix(
+			2.0f, -1.0f, 0.0f,
+			-1.0f, 2.0f, -1.0f,
+			0.0f, -1.0f, 2.0f
+		);
+		Assert::IsTrue(matrix.isPositiveDefinite(), L"", LINE_INFO());
+
+		matrix = {
+			 6.0f,  4.0f, -3.0f,
+			 4.0f, -2.0f,  0.0f,
+			-3.0f,  0.0f,  1.0f
+		};
+		Assert::IsFalse(matrix.isPositiveDefinite(), L"Value shoud be 0", LINE_INFO());
+	}
+	
+	SP_TEST_METHOD(CLASS_NAME, diagonalize)
+	{
+		Mat3 matrix(
+			4.0f, 2.0f, 0.0f,
+			2.0f, 5.0f, 3.0f,
+			0.0f, 3.0f, 6.0f
+		);
+
+		Vec3 expected(4.63f, 1.45f, 8.90f);
+
+		sp_uint iterations;
+		Mat3 result;
+		matrix.diagonalize(result, iterations, SP_EPSILON_TWO_DIGITS);
+
+		Vec3 temp = result.primaryDiagonal();
+
+		for (sp_uint i = 0; i < VEC3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], temp[i], SP_EPSILON_TWO_DIGITS), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, multiply_Vec3xVec3)
+	{
+		Vec3 v1 = { 1.0f, 2.0f, 3.0f };
+		Vec3 v2 = { 4.0f, 5.0f, 6.0f };
+		Mat3 result;
+		
+		multiply(v1, v2, &result);
+
+		Mat3 expected = {
+			4.0f, 5.0f, 6.0f,
+			8.0f, 10.0f, 12.0f,
+			12.0f, 15.0f, 18.0f
+		};
+
+		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
+			Assert::IsTrue(expected[i] == result[i], L"Value shoud be 0", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, Mat3_index_Test)
+	{
+		Mat3 matrix = {
 			1.0f, 2.0f, 3.0f,
 			4.0f, 5.0f, 6.0f,
 			7.0f, 8.0f, 9.0f
 		};
 
-		Mat3 result = Mat3(emptyMatrix);
-
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(emptyMatrix[i], result[i], L"Value shoud be 0", LINE_INFO());
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, Mat3_getValues_Test)
-	{
-		Mat3 matrix = {
-			1.0f, 2.0f, 3.0f,
-			4.0f, 5.0f, 6.0f,
-			7.0f, 8.0f, -9.0f
-		};
-
-		float* result = matrix.getValues();
-
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(matrix[i], result[i], L"Value shoud be 0", LINE_INFO());
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, Mat3_getValue_Test)
-	{
-		Mat3 matrix = {
-			1.0f, 2.0f, 3.0f,
-			4.0f, 5.0f, 6.0f,
-			7.0f, 8.0f, 9.0f
-		};
-
-		Assert::AreEqual(1.0f, matrix.getValue(1, 1), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(4.0f, matrix.getValue(1, 2), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(7.0f, matrix.getValue(1, 3), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(2.0f, matrix.getValue(2, 1), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(5.0f, matrix.getValue(2, 2), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(8.0f, matrix.getValue(2, 3), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(3.0f, matrix.getValue(3, 1), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(6.0f, matrix.getValue(3, 2), L"Wrong value", LINE_INFO());
-		Assert::AreEqual(9.0f, matrix.getValue(3, 3), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(1.0f, matrix.index(1, 1), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(4.0f, matrix.index(1, 2), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(7.0f, matrix.index(1, 3), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(2.0f, matrix.index(2, 1), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(5.0f, matrix.index(2, 2), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(8.0f, matrix.index(2, 3), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(3.0f, matrix.index(3, 1), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(6.0f, matrix.index(3, 2), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(9.0f, matrix.index(3, 3), L"Wrong value", LINE_INFO());
 	}
 
 #ifdef MAJOR_COLUMN_ORDER
@@ -144,7 +225,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3 axis = matrix.getAxis(0);
+		Vec3 axis = matrix.axis(0);
 
 		Assert::AreEqual(1.0f, axis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(4.0f, axis[1], L"Wrong value", LINE_INFO());
@@ -159,7 +240,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3 axis = matrix.getAxis(1);
+		Vec3 axis = matrix.axis(1);
 
 		Assert::AreEqual(2.0f, axis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(5.0f, axis[1], L"Wrong value", LINE_INFO());
@@ -174,7 +255,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			7.0f, 8.0f, 9.0f
 		};
 
-		Vec3 axis = matrix.getAxis(2);
+		Vec3 axis = matrix.axis(2);
 
 		Assert::AreEqual(3.0f, axis[0], L"Wrong value", LINE_INFO());
 		Assert::AreEqual(6.0f, axis[1], L"Wrong value", LINE_INFO());
@@ -226,7 +307,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(9.0f, zAxis[2], L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Mat3_multiply_Test)
+	SP_TEST_METHOD(CLASS_NAME, multiply_Mat3xMat3)
 	{
 		Mat3 matrixA = {
 			2.0f, 3.0f, 4.0f,
@@ -246,7 +327,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = matrixA.multiply(matrixB);
 
-		for (int i = 0; i < 9; i++)
+		for (sp_int i = 0; i < 9; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
+
+		multiply(matrixA, matrixB, result);
+
+		for (sp_int i = 0; i < 9; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 	
@@ -260,90 +346,116 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = Mat3::createTranslate(5.0f, 2.0f, -3.0f);
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Mat3_decomposeLU_Test)
+	SP_TEST_METHOD(CLASS_NAME, decomposeLU)
 	{
 		Mat3 matrix = {
-			2.0f, -3.0f,  4.0f,
-			6.0f, -8.0f,  9.0f,
-			2.0f,  0.0f,  2.0f
+			6.0f, -2.0f,  0.0f,
+			9.0f, -1.0f,  1.0f,
+			3.0f,  7.0f,  5.0f
 		};
 
-		Mat3 lowerMatrixExpected = {
-			2.0f,  -3.0f,  4.0f,
-			0.0f,  1.0f,  -3.0f,
-			0.0f, 0.0f,  7.0f
+		Mat3 upperExpected = {
+			1.0f,  -0.3333f,  0.0f,
+			0.0f,  1.0f,  0.5f,
+			0.0f, 0.0f,  1.0f
+		};
+		
+		Mat3 lowerExpected = {
+			6.0f, 0.0f, 0.0f,
+			9.0f, 2.0f, 0.0f,
+			3.0f, 8.0f, 1.0f
 		};
 
-		Mat3 upperMatrixExpected = {
-			1.0f, 0.0f, 0.0f,
-			3.0f, 1.0f, 0.0f,
-			1.0f, 3.0f, 1.0f
-		};
+		Mat3 L, U;
+		matrix.decomposeLU(&L, &U);
 
-		Mat3* decomposeLU = matrix.decomposeLU();
-		Mat3 lowerMatrixResult = decomposeLU[0];
-		Mat3 upperMatrixResult = decomposeLU[1];
-		Mat3 result = lowerMatrixResult * upperMatrixResult;
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(lowerExpected[i], L[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(upperExpected[i], U[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
-
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(upperMatrixResult[i], upperMatrixExpected[i], L"Wrong number", LINE_INFO());
+		Mat3 result = U * L;
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(matrix[i], result[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Mat3_decomposeLDU_Test)
+	SP_TEST_METHOD(CLASS_NAME, decomposeLDU)
 	{
 		Mat3 matrix = {
-			2.0f, -3.0f,  4.0f,
-			6.0f, -8.0f,  9.0f,
-			2.0f,  0.0f,  2.0f
+			6.0f, -2.0f,  0.0f,
+			9.0f, -1.0f,  1.0f,
+			3.0f,  7.0f,  5.0f
 		};
 
-		Mat3 lowerMatrixExpected = {
-			2.0f,  -3.0f,  4.0f,
-			0.0f,  1.0f,  -3.0f,
-			0.0f, 0.0f,  7.0f
+		Mat3 upperExpected = {
+			1.0f,  -0.3333f,  0.0f,
+			0.0f,  1.0f,  0.5f,
+			0.0f, 0.0f,  1.0f
 		};
 
-		Mat3 diagonalMatrixExpected = {
-			1.0f, 0.0f, 0.0f,
-			0.0f, 1.0f, 0.0f,
+		Mat3 diagonalExpected = {
+			6.0f, 0.0f, 0.0f,
+			0.0f, 2.0f, 0.0f,
 			0.0f, 0.0f, 1.0f
 		};
 
-		Mat3 upperMatrixExpected = {
+		Mat3 lowerExpected = {
 			1.0f, 0.0f, 0.0f,
-			3.0f, 1.0f, 0.0f,
-			1.0f, 3.0f, 1.0f
+			1.5f, 1.0f, 0.0f,
+			0.5f, 4.0f, 1.0f
 		};
 
-		Mat3* decomposeLDU = matrix.decomposeLDU();
-		Mat3 lowerMatrixResult = decomposeLDU[0];
-		Mat3 diagonalMatrixResult = decomposeLDU[1];
-		Mat3 upperMatrixResult = decomposeLDU[2];
-		Mat3 result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
+		Mat3 L, D, U;
+		matrix.decomposeLDU(&L, &D, &U);
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(lowerExpected[i], L[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(upperExpected[i], U[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(upperMatrixResult[i], upperMatrixExpected[i], L"Wrong number", LINE_INFO());
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(diagonalExpected[i], D[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
-			Assert::AreEqual(diagonalMatrixResult[i], diagonalMatrixExpected[i], L"Wrong number", LINE_INFO());
+		Mat3 result = U * D * L;
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(matrix[i], result[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 	}
 
+	SP_TEST_METHOD(CLASS_NAME, decomposeLLt)
+	{
+		Mat3 matrix = {
+			 4.0f, -1.00f,  1.00f,
+			-1.0f,  4.25f,  2.75f,
+			 1.0f,  2.75f,  3.50f
+		};
+
+		Mat3 lowerExpected = {
+			 2.0f, 0.0f, 0.0f,
+			-0.5f, 2.0f, 0.0f,
+			 0.5f, 1.5f, 1.0f
+		};
+		Mat3 lowerTransposed = lowerExpected.transpose();
+
+		Mat3 L, Lt;
+		matrix.decomposeLLt(&L, &Lt);
+
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(lowerExpected[i], L[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(lowerTransposed[i], Lt[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+
+		Mat3 result = Lt * L;
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(matrix[i], result[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+	}
+	
 #endif
 
 #ifdef MAJOR_ROW_ORDER
@@ -426,7 +538,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = Mat3::createTranslate(5.0f, 2.0f, -3.0f);
 
-		for (size_t i = 0; i < MAT3_LENGTH; i++)
+		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -454,14 +566,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		Mat3 lowerMatrixResult = decomposeLU[0];
 		Mat3 upperMatrixResult = decomposeLU[1];
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(upperMatrixResult[i], upperMatrixExpected[i], L"Wrong number", LINE_INFO());
 
 		Mat3 result = lowerMatrixResult * upperMatrixResult;
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -496,17 +608,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		Mat3 diagonalMatrixResult = decomposeLDU[1];
 		Mat3 upperMatrixResult = decomposeLDU[2];
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(lowerMatrixResult[i], lowerMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(upperMatrixResult[i], upperMatrixExpected[i], L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(diagonalMatrixResult[i], diagonalMatrixExpected[i], L"Wrong number", LINE_INFO());
 
 		Mat3 result = lowerMatrixResult * diagonalMatrixResult * upperMatrixResult;
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(result[i], matrix[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -546,7 +658,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Mat3 result = Mat3::identity();
 		
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			if (i % 4 == 0)
 				Assert::AreEqual(1.0f, result[i], L"Value shoud be 0", LINE_INFO()); 
 			else
@@ -562,13 +674,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		};
 		Mat3 result = matrix.transpose();
 
-		float expected[MAT3_LENGTH] = {
+		sp_float expected[MAT3_LENGTH] = {
 			1.0f, 4.0f, 7.0f,
 			2.0f, 5.0f, 8.0f,
 			3.0f, 6.0f, 9.0f
 		};
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value", LINE_INFO());
 	}
 
@@ -582,7 +694,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = Mat3::createScale(2.0f, 4.0f, -3.0f);
 
-		for (int i = 0; i < 9; i++)
+		for (sp_int i = 0; i < 9; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -601,7 +713,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		matrixA.scale(2.0f, 4.0f, -3.0f);
 
-		for (int i = 0; i < 9; i++)
+		for (sp_int i = 0; i < 9; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -613,11 +725,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.0f, -0.5f, 0.866025388f
 		};
 
-		float angle = (float) degreesToRadians(30);
+		sp_float angle = (sp_float) degreesToRadians(30);
 
 		Mat3 result = Mat3::createRotate(angle, 1.0f, 0.0f, 0.0f);
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong number", LINE_INFO());
 	}
 
@@ -628,16 +740,16 @@ namespace NAMESPACE_PHYSICS_TEST
 			1.0f, 6.0f, 7.0f,
 			-1.0f, 2.0f, 3.0f
 		};
-		float expected = 6.0f;
-		float result = matrix.determinant();
+		sp_float expected = 6.0f;
+		sp_float result = matrix.determinant();
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_sizeInBytes_Test)
 	{
-		size_t result = Mat3::identity().sizeInBytes();
-		size_t expected = 36;
+		sp_size result = Mat3::identity().sizeInBytes();
+		sp_size expected = 36;
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
 	}
@@ -650,13 +762,90 @@ namespace NAMESPACE_PHYSICS_TEST
 			7.0f, 8.0f, -9.0f
 		};
 
-		Mat3 result = matrix.clone();
+		Mat3 result;
+		matrix.clone(&result);
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(matrix[i], result[i], L"Wrong number", LINE_INFO());
 	}
+	
+	SP_TEST_METHOD(CLASS_NAME, eigenValues)
+	{
+		Mat3 matrix = {
+			3.0f, 1.0f, 0.0f,
+			1.0f, 3.0f, 1.0f,
+			0.0f, 1.0f, 3.0f
+		};
 
-	SP_TEST_METHOD(CLASS_NAME, Mat3_getAutovalueAndAutovector_Test)
+		Vec3 result;
+		sp_uint iterations;
+		matrix.eigenValues(result, iterations, SP_EPSILON_THREE_DIGITS);
+
+		Assert::IsTrue(isCloseEnough(4.414f, result[0], SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(3.0f, result[1], SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(1.585f, result[2], SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+
+		matrix = {
+			2.0f, 0.0f, 0.0f,
+			0.0f, 3.0f, 4.0f,
+			0.0f, 4.0f, 9.0f
+		};
+
+		matrix.eigenValues(result, iterations, SP_EPSILON_THREE_DIGITS);
+
+		Assert::IsTrue(isCloseEnough(2.0f, result[0]), L"Wrong number", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(11.0f, result[1]), L"Wrong number", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(1.0f, result[2]), L"Wrong number", LINE_INFO());
+
+		matrix = {
+			 2.0f, 0.0f, 0.0f,
+			 1.0f, 2.0f, 1.0f,
+			-1.0f, 0.0f, 1.0f
+		};
+
+		//Mat3 temp = matrix.transpose() * matrix;
+		Mat3 temp =  matrix * matrix.transpose();
+
+		//matrix.diagonalize(&temp, &iterations, SP_EPSILON_THREE_DIGITS);
+
+		Mat3 a;
+		Mat::householder(temp, 3u, a);
+
+		a.eigenValues(result, iterations, SP_EPSILON_THREE_DIGITS);
+
+		Asserts::isCloseEnough(7.464f, result[0], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(4.0f, result[1], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(0.535f, result[2], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, eigenValuesAndVectors)
+	{
+		Mat3 matrix = {
+			0.0f, 0.0f, -2.0f,
+			1.0f, 2.0f, 1.0f,
+			1.0f, 0.0f, 3.0f
+		};
+
+		Vec3 eigenValues;
+		Mat3 eigenVectors;
+		sp_uint iterations;
+		matrix.eigenValuesAndVectors(eigenValues, eigenVectors, iterations);
+
+		Vec3 expected[3] = {
+			Vec3(-2.0f, 1.0f, 1.0f),
+			Vec3(),
+			Vec3()
+		};
+
+		for (sp_uint i = 0; i < 3u; i++)
+		{
+			Assert::IsTrue(isCloseEnough(expected[i].x, eigenVectors[i * 3 + 0], SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(expected[i].y, eigenVectors[i * 3 + 1], SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+			Assert::IsTrue(isCloseEnough(expected[i].z, eigenVectors[i * 3 + 2], SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+		}
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, eigenValueAndVectorMax)
 	{
 		Mat3 matrix = {
 			528.2f, 547.6f, 156.4f,
@@ -664,14 +853,17 @@ namespace NAMESPACE_PHYSICS_TEST
 			78.2f, 98.0f, 39.0f
 		};
 
-		float expectedValue = 849.1f;
+		sp_float expectedValue = 849.1f;
 		Vec3 expectedVector = Vec3{ 1.0f, 0.54f , 0.1619f };
-		AutoValueAutoVector3 result = matrix.getAutovalueAndAutovector();
+		
+		sp_float eigenValue;
+		Vec3 eigenVector;
+		matrix.eigenValuesAndVectorsMax(eigenValue, eigenVector);
 
-		Assert::AreEqual(ceilf(expectedValue), ceilf(result.autoValue), L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(expectedValue, eigenValue, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
-		for (int i = 0; i < MAT3_ROW_LENGTH; i++)
-			Assert::AreEqual(ceil(expectedVector[i]), ceil(result.autoVector[i]), L"Wrong number", LINE_INFO());
+		for (sp_int i = 0; i < MAT3_ROW_LENGTH; i++)
+			Asserts::isCloseEnough(expectedVector[i], eigenVector[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_operatorMinus_Test)
@@ -689,7 +881,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = -matrixA;
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -713,7 +905,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = matrixA - matrixB;
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -737,7 +929,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = matrixA + matrixB;
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -756,7 +948,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 result = matrixA / 2.0f;
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -775,7 +967,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		matrixA /= 2.0f;
 
-		for (int i = 0; i < MAT3_LENGTH; i++)
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::AreEqual(expected[i], matrixA[i], L"Wrong number", LINE_INFO());
 	}
 
@@ -792,7 +984,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			7.0f, 8.0f, -9.0f
 		};
 
-		bool result = matrixA == matrixB;
+		sp_bool result = matrixA == matrixB;
 		Assert::IsTrue(result, L"Wrong number", LINE_INFO());
 
 		matrixB[6] = 6.5f;
@@ -813,7 +1005,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			7.0f, 8.0f, -9.0f
 		};
 
-		bool result = matrixA != matrixB;
+		sp_bool result = matrixA != matrixB;
 		Assert::IsFalse(result, L"Wrong number", LINE_INFO());
 
 		matrixB[6] = 6.5f;
@@ -829,7 +1021,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			3.0f, 3.0f, 3.0f
 		};
 
-		bool result = matrixA == 3.0f;
+		sp_bool result = matrixA == 3.0f;
 		Assert::IsTrue(result, L"Wrong number", LINE_INFO());
 
 		matrixA[6] = 6.5f;
@@ -841,12 +1033,42 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Mat3 matrixA = Mat3::identity();
 
-		bool result = matrixA.isIdentity();
+		sp_bool result = matrixA.isIdentity();
 		Assert::IsTrue(result, L"Wrong number", LINE_INFO());
 
 		matrixA[6] = 1.0f;
 		result = matrixA.isIdentity();
 		Assert::IsFalse(result, L"Wrong number", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, convert)
+	{
+		Mat3 input = { 
+			0.5771f, 0.4228f, -0.6986f,
+			0.4228f, 0.5771f, 0.6986f,
+			0.6986f, -0.6986f, 0.1542f
+		};
+		Quat result;
+
+		input.convert(result);
+
+		Quat expected = Quat(0.7596f, -0.4598f, -0.45982f, -0.0f);
+
+		Asserts::isCloseEnough(expected.w, result.w, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(expected.x, result.x, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(expected.y, result.y, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(expected.z, result.z, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+
+
+		input = Mat3Identity;
+		input.convert(result);
+
+		expected = Quat(1.0f, 0.0f, 0.0f, 0.0f);
+
+		Asserts::isCloseEnough(expected.w, result.w, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(expected.x, result.x, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(expected.y, result.y, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		Asserts::isCloseEnough(expected.z, result.z, SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 	}
 
 }

@@ -34,17 +34,21 @@ namespace NAMESPACE_PHYSICS
 			+ (element->currentState.acceleration() + newAcceleration) * halfElapsedTime
 			  ) * element->damping();
 
-		const Quat newAngularAcceleration(ZERO_FLOAT, element->inertialTensorInverse() * element->currentState.torque());
+		Vec3 angularAcceleration;
+		element->inertialTensorInverse().multiply(element->currentState.torque(), angularAcceleration);
+
+		const Quat newAngularAcceleration(ZERO_FLOAT, angularAcceleration);
 
 		const Vec3 newAngularVelocity 
 			= (element->currentState.angularVelocity()
 			+ ((element->currentState.torque() + newAngularAcceleration) * halfElapsedTime)
 			  ) * element->angularDamping();
 
-		Quat newOrientation 
-			= element->currentState.orientation() 
-			+ Quat(ZERO_FLOAT, element->currentState.angularVelocity() * newElapsedTime
-				+ element->currentState.torque() * newElapsedTime * halfElapsedTime);
+		Quat temp = Quat(ZERO_FLOAT, 
+			element->currentState.angularVelocity() * newElapsedTime
+			+ element->currentState.torque() * newElapsedTime * halfElapsedTime);
+
+		Quat newOrientation = element->currentState.orientation() + temp;
 		normalize(&newOrientation);
 
 		// update/sync transform
@@ -92,7 +96,9 @@ namespace NAMESPACE_PHYSICS
 			* element->damping();
 		const Vec3 newPosition = element->currentState.position() + newVelocity * newElapsedTime;
 
-		const Vec3 newAngularAcceleration = element->inertialTensorInverse() * element->currentState.torque();
+		Vec3 newAngularAcceleration;
+		element->inertialTensorInverse().multiply(element->currentState.torque(), newAngularAcceleration);
+		
 		const Vec3 newAngularVelocity = (element->currentState.angularVelocity() + newAngularAcceleration * newElapsedTime)
 			* element->angularDamping();
 		const Quat newOrientation = element->currentState.orientation() + Quat(0.0f, newAngularVelocity * newElapsedTime);

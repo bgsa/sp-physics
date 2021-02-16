@@ -5,9 +5,9 @@
 
 namespace NAMESPACE_PHYSICS_TEST
 {
-	float funcBisection(float x)
+	sp_float funcBisection(sp_float x)
 	{
-		return powf(x, 3) + 4 * pow(x, 2) - 10;
+		return powf(x, 3) + 4.0f * powf(x, 2) - 10.0f;
 	}
 
 	SP_TEST_CLASS(CLASS_NAME)

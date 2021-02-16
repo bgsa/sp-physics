@@ -91,8 +91,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DEBUG;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ARMA_USE_LAPACK;DEBUG;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\Program Files (x86)\IntelSWTools\sw_dev_tools\compilers_and_libraries_2020.0.166\windows\mkl\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
@@ -220,7 +220,9 @@
     <ClCompile Include="src\SpAlgorithms.cpp" />
     <ClCompile Include="src\SpCollisionDetector.cpp" />
     <ClCompile Include="src\SpCollisionResponse.cpp" />
+    <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp" />
     <ClCompile Include="src\SpFaceMesh.cpp" />
+    <ClCompile Include="src\SpGJK.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpMesh.cpp" />
     <ClCompile Include="src\SpMeshCache.cpp" />
@@ -285,13 +287,17 @@
     <ClInclude Include="src\SpAlgorithms.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
+    <ClInclude Include="src\SpCollisionDetectorCache.h" />
     <ClInclude Include="src\SpCollisionFeatures.h" />
     <ClInclude Include="src\SpCollisionGroup.h" />
     <ClInclude Include="src\SpCollisionResponse.h" />
     <ClInclude Include="src\SpCollisionResponseGPU.h" />
+    <ClInclude Include="src\SpCollisionResponseShapeMatching.h" />
     <ClInclude Include="src\SpDOP18Factory.h" />
     <ClInclude Include="src\SpFaceMesh.h" />
+    <ClInclude Include="src\SpGJK.h" />
     <ClInclude Include="src\SpMapleExporter.h" />
+    <ClInclude Include="src\SpMatlabExporter.h" />
     <ClInclude Include="src\SpMesh.h" />
     <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />

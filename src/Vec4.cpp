@@ -436,4 +436,27 @@ namespace NAMESPACE_PHYSICS
 		return (sp_float*) this;
 	}
 
+	void multiply(const Vec4& vectorA, const Vec4& vectorB, Mat4* output)
+	{
+		output[0][0] = vectorA.x * vectorB.x;
+		output[0][1] = vectorA.x * vectorB.y;
+		output[0][2] = vectorA.x * vectorB.z;
+		output[0][3] = vectorA.x * vectorB.w;
+
+		output[0][4] = vectorA.y * vectorB.x;
+		output[0][5] = vectorA.y * vectorB.y;
+		output[0][6] = vectorA.y * vectorB.z;
+		output[0][7] = vectorA.y * vectorB.w;
+
+		output[0][8] = vectorA.z * vectorB.x;
+		output[0][9] = vectorA.z * vectorB.y;
+		output[0][10] = vectorA.z * vectorB.z;
+		output[0][11] = vectorA.z * vectorB.w;
+
+		output[0][12] = vectorA.w * vectorB.x;
+		output[0][13] = vectorA.w * vectorB.y;
+		output[0][14] = vectorA.w * vectorB.z;
+		output[0][15] = vectorA.w * vectorB.w;
+	}
+
 }

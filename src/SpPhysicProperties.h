@@ -207,7 +207,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE SpPhysicProperties()
 		{
 			_damping = 0.95f;
-			_angularDamping = 0.70f;
+			_angularDamping = 0.95f;
 			_coeficientOfRestitution = 0.60f;
 			_coeficientOfFriction = 0.80f;
 			_inverseMass = ZERO_FLOAT;
@@ -249,7 +249,10 @@ namespace NAMESPACE_PHYSICS
 			Vec3 torqueTemp;
 			cross((point - currentState._position), force, &torqueTemp);
 
-			currentState._angularVelocity += _inertialTensorInverse * torqueTemp;
+			Vec3 temp;
+			_inertialTensorInverse.multiply(torqueTemp, temp);
+
+			currentState._angularVelocity += temp;
 		}
 
 		/// <summary>

@@ -14,11 +14,15 @@ namespace NAMESPACE_PHYSICS
 
 		normalize(&tangent);
 
-		Vec3 temp1, temp2, d2, d3;
+		Vec3 temp1, temp2, d2, d3, temp;
 		cross(rayToContactObj1, tangent, &temp1);
 		cross(rayToContactObj2, tangent, &temp2);
-		cross(obj1Properties->inertialTensorInverse() * temp1, rayToContactObj1, &d2);
-		cross(obj2Properties->inertialTensorInverse() * temp2, rayToContactObj2, &d3);
+
+		obj1Properties->inertialTensorInverse().multiply(temp1, temp);
+		cross(temp, rayToContactObj1, &d2);
+
+		obj2Properties->inertialTensorInverse().multiply(temp2, temp);
+		cross(temp, rayToContactObj2, &d3);
 
 		const sp_float denominator = invMassSum + tangent.dot(d2 + d3);
 
@@ -44,13 +48,17 @@ namespace NAMESPACE_PHYSICS
 			{
 				obj1Properties->currentState._velocity -= tangentImpuse * obj1Properties->massInverse() * obj1Properties->damping();
 				cross(rayToContactObj1, tangentImpuse, &temp1);
-				obj1Properties->currentState._angularVelocity -= obj1Properties->inertialTensorInverse() * temp1 * obj1Properties->angularDamping();
+
+				obj1Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj1Properties->currentState._angularVelocity -= temp * obj1Properties->angularDamping();
 			}
 			else
 			{
 				obj1Properties->currentState._velocity += tangentImpuse * obj1Properties->massInverse() * obj1Properties->damping();
 				cross(rayToContactObj1, tangentImpuse, &temp1);
-				obj1Properties->currentState._angularVelocity += obj1Properties->inertialTensorInverse() * temp1 * obj1Properties->angularDamping();
+
+				obj1Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj1Properties->currentState._angularVelocity += temp * obj1Properties->angularDamping();
 			}
 		}
 
@@ -60,13 +68,17 @@ namespace NAMESPACE_PHYSICS
 			{
 				obj2Properties->currentState._velocity += tangentImpuse * obj2Properties->massInverse() * obj2Properties->damping();
 				cross(rayToContactObj2, tangentImpuse, &temp1);
-				obj2Properties->currentState._angularVelocity += obj2Properties->inertialTensorInverse() * temp1 * obj2Properties->angularDamping();
+
+				obj2Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj2Properties->currentState._angularVelocity += temp * obj2Properties->angularDamping();
 			}
 			else
 			{
 				obj2Properties->currentState._velocity -= tangentImpuse * obj2Properties->massInverse() * obj2Properties->damping();
 				cross(rayToContactObj2, tangentImpuse, &temp1);
-				obj2Properties->currentState._angularVelocity -= obj2Properties->inertialTensorInverse() * temp1 * obj2Properties->angularDamping();
+
+				obj2Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj2Properties->currentState._angularVelocity -= temp * obj2Properties->angularDamping();
 			}
 		}
 	}
@@ -123,11 +135,13 @@ namespace NAMESPACE_PHYSICS
 		cross(rayToContactObj1, collisionNormal, &angularCrossContactRayObj1);
 		cross(rayToContactObj2, collisionNormal, &angularCrossContactRayObj2);
 
-		Vec3 d2;
-		cross(obj1Properties->inertialTensorInverse() * angularCrossContactRayObj1, rayToContactObj1, &d2);
+		Vec3 d2, temp;
+		obj1Properties->inertialTensorInverse().multiply(angularCrossContactRayObj1, temp);
+		cross(temp, rayToContactObj1, &d2);
 
 		Vec3 d3;
-		cross(obj2Properties->inertialTensorInverse() * angularCrossContactRayObj2, rayToContactObj2, &d3);
+		obj2Properties->inertialTensorInverse().multiply(angularCrossContactRayObj2, temp);
+		cross(temp, rayToContactObj2, &d3);
 
 		const sp_float denominator = invMassSum + collisionNormal.dot(d2 + d3);
 		sp_float j;
@@ -161,7 +175,14 @@ namespace NAMESPACE_PHYSICS
 				obj1Properties->currentState._angularVelocity = -angularImpulse1 * obj1Properties->angularDamping();
 			}
 		}
-		
+
+		/*
+		Vec3 n;
+		normalize(rayToContactObj2, &n);
+		sp_float angle = collisionNormal.dot(-n);
+		sp_bool isSloped = angle != 1.0f;
+		*/
+
 		if (obj2Properties->isResting())
 		{
 			obj2Properties->currentState._position = obj2Properties->previousState._position;

@@ -12,13 +12,6 @@ namespace NAMESPACE_PHYSICS
 		sp_float autoVector[2];
 	};
 
-	class AutoValueAutoVector3
-	{
-	public:
-		sp_float autoValue;
-		sp_float autoVector[3];
-	};
-
 	class AutoValueAutoVector4
 	{
 	public:

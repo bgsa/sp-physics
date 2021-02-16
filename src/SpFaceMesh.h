@@ -7,6 +7,8 @@
 
 namespace NAMESPACE_PHYSICS
 {
+#define SP_FACE_MESH_MAX_EDGES (3)
+
 	class SpFaceMesh
 	{
 	private:
@@ -15,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 		
 	public:
 		sp_uint vertexesIndexes[3];
-		sp_uint edgesIndexes[3];
+		sp_uint edgesIndexes[SP_FACE_MESH_MAX_EDGES];
 		Vec3 faceNormal;
 
 		API_INTERFACE inline sp_uint index() const
@@ -52,6 +54,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_bool intersection(const SpFaceMesh* face, const SpTransform& meshTransform, sp_uint* edgeIndex) const;
 
 		API_INTERFACE sp_bool isInside(const Vec3& vertex, const SpTransform& transformFace, const sp_float _epsilon = DefaultErrorMargin) const;
+
+		API_INTERFACE void parallelFaces(sp_uint* outputIndexes, sp_uint* outputIndexesLength) const;
 
 	};
 

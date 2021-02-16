@@ -4,7 +4,7 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	sp_bool SpCollisionDetector::hasPlaneCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details) const
+	sp_bool SpCollisionDetector::hasPlaneCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		const SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(objIndex1)->meshIndex);
@@ -15,13 +15,48 @@ namespace NAMESPACE_PHYSICS
 		if (details->vertexIndexObj2 != SP_UINT_MAX) // if the previous vertex was vertexIndexObj2, start searching from that vertex
 			startingFrom = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 
-		SpVertexMesh* extremeVertex = mesh2->findExtremeVertexDirection(Vec3Down, details->cacheObj2, position2, startingFrom);
+		SpVertexMesh* extremeVertex = mesh2->support(Vec3Down, details->cacheObj2->vertexes, startingFrom);
 
 		details->vertexIndexObj2 = extremeVertex->index();
 
-		Vec3 vertex = details->cacheObj2->vertexes[extremeVertex->index()];
+		const Vec3 vertex = details->cacheObj2->vertexes[extremeVertex->index()];
 
-		return vertex.y <= ZERO_FLOAT;
+		if (vertex.y > ZERO_FLOAT)
+			return false;
+
+		cache->edgeIndexOnObj1 = false;
+		cache->faceIndex = 0u; // take whaever face from plane
+
+		// find penetrated edge to fill cache
+		sp_float offset = ZERO_FLOAT;
+		do_again:
+		for (sp_uint i = 0; i < extremeVertex->edgeLength(); i++)
+		{
+			SpEdgeMesh* e = extremeVertex->edges(i);
+			const Vec3 v1 = details->cacheObj2->vertexes[e->vertexIndex1];
+			const Vec3 v2 = details->cacheObj2->vertexes[e->vertexIndex2];
+
+			// check this edge cross the plane
+			if ((v1.y + offset <= ZERO_FLOAT && v2.y + offset > ZERO_FLOAT)
+				|| (v2.y + offset <= ZERO_FLOAT && v1.y + offset > ZERO_FLOAT))
+			{
+				cache->edgeIndex = e->index();
+				details->depth = -(v1.y < ZERO_FLOAT ? v1.y : v2.y);
+				break;
+			}
+		}
+
+		if (cache->edgeIndex == SP_UINT_MAX)
+		{
+			offset += HALF_FLOAT;
+			goto do_again;
+		}
+
+		details->collisionNormal = Vec3Up;
+
+		sp_assert(cache->edgeIndex != SP_UINT_MAX, "ApplicationException");
+
+		return true;
 	}
 
 	sp_bool SpCollisionDetector::hasCollisionCache(const SpMesh* mesh1, const SpMesh* mesh2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
@@ -71,7 +106,7 @@ namespace NAMESPACE_PHYSICS
 		if (objIndex1 == ZERO_UINT)
 		{
 			cache->searchOnObj1 = true;
-			return hasPlaneCollision(objIndex1, objIndex2, details);
+			return hasPlaneCollision(objIndex1, objIndex2, details, cache);
 		}
 
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
@@ -87,8 +122,8 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _direction;
 		direction(position1, position2, &_direction);
 		
-		SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexDirection(_direction, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
-		SpVertexMesh* extremeVertex2 = mesh2->findExtremeVertexDirection(-_direction, details->cacheObj2, position2, mesh2->vertexesMesh->get(0));
+		SpVertexMesh* extremeVertex1 = mesh1->support(_direction, details->cacheObj1->vertexes, mesh1->vertexesMesh->get(0));
+		SpVertexMesh* extremeVertex2 = mesh2->support(-_direction, details->cacheObj2->vertexes, mesh2->vertexesMesh->get(0));
 		//SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexPoint(position2, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
 		//SpVertexMesh* extremeVertex2 = mesh2->findExtremeVertexPoint(position1, details->cacheObj2, position2, mesh2->vertexesMesh->get(0));
 
@@ -133,6 +168,13 @@ namespace NAMESPACE_PHYSICS
 					cache->edgeIndex = edgeMesh1->index();
 					cache->faceIndex = faceMesh2->index();
 
+					face.normalFace(&details->collisionNormal);
+
+					Plane3D plane(face.point1, details->collisionNormal);
+					details->depth = plane.distance(line.point1);
+					if (details->depth > ZERO_FLOAT)
+						details->depth = plane.distance(line.point2);
+
 					return true;
 				}	
 			}
@@ -166,7 +208,14 @@ namespace NAMESPACE_PHYSICS
 					cache->edgeIndexOnObj1 = false;
 					cache->edgeIndex = edgeMesh2->index();
 					cache->faceIndex = faceMesh1->index();
-				
+
+					face.normalFace(&details->collisionNormal);
+
+					Plane3D plane(face.point1, details->collisionNormal);
+					details->depth = plane.distance(line.point1);
+					if (details->depth > ZERO_FLOAT)
+						details->depth = plane.distance(line.point2);
+
 					return true;
 				}	
 			}
@@ -508,7 +557,7 @@ namespace NAMESPACE_PHYSICS
 				: startingFrom = mesh1->vertexesMesh->get(details->vertexIndexObj1);
 
 			if (details->objIndex2 == ZERO_UINT) // if plane...
-				details->vertexIndexObj1 = mesh1->findExtremeVertexDirection(Vec3Down, details->cacheObj1, transformation1->position, startingFrom)->index();
+				details->vertexIndexObj1 = mesh1->support(Vec3Down, details->cacheObj1->vertexes, startingFrom)->index();
 			else
 				details->vertexIndexObj1 = mesh1->findExtremeVertexPoint(transformation2->position, details->cacheObj1, transformation1->position, startingFrom)->index();
 		}
@@ -520,7 +569,7 @@ namespace NAMESPACE_PHYSICS
 				: startingFrom = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 
 			if (details->objIndex1 == ZERO_UINT) // if plane...
-				details->vertexIndexObj2 = mesh2->findExtremeVertexDirection(Vec3Down, details->cacheObj2, transformation2->position, startingFrom)->index();
+				details->vertexIndexObj2 = mesh2->support(Vec3Down, details->cacheObj2->vertexes, startingFrom)->index();
 			else
 				details->vertexIndexObj2 = mesh2->findExtremeVertexPoint(transformation1->position, details->cacheObj2, transformation2->position, startingFrom)->index();
 		}

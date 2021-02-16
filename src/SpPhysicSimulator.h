@@ -23,6 +23,7 @@
 #include "SpAABBFactory.h"
 #include "GpuBufferOpenCL.h"
 #include "SpMeshCacheUpdaterGPU.h"
+#include "SpCollisionResponseShapeMatching.h"
 
 namespace NAMESPACE_PHYSICS
 {

@@ -154,6 +154,15 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_float orientation(const Vec3& vertex1, const Vec3& vertex2) const;
 
 		/// <summary>
+		/// Get the triple product A x B x C
+		/// </summary>
+		/// <param name="B"></param>
+		/// <param name="C"></param>
+		/// <param name="output">Result</param>
+		/// <returns>output</returns>
+		API_INTERFACE void tripleProduct(const Vec3& B, const Vec3& C, Vec3* output) const;
+
+		/// <summary>
 		/// Compute the SQUARED distance from this vector/point to another one
 		/// The difference is the squared root is not applied on the result
 		/// </summary>
@@ -427,6 +436,13 @@ namespace NAMESPACE_PHYSICS
 		output->x = vec1.x * vec2.x;
 		output->y = vec1.y * vec2.y;
 		output->z = vec1.z * vec2.z;
+	}
+
+	API_INTERFACE inline void multiply(const Vec3& vector, const sp_float value, Vec3& output)
+	{
+		output.x = vector.x * value;
+		output.y = vector.y * value;
+		output.z = vector.z * value;
 	}
 
 	/// <summary>

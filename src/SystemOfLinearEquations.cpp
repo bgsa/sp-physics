@@ -3,69 +3,67 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	sp_float* SystemOfLinearEquations::solve(sp_float* matrix, sp_uint rowSize, sp_uint colSize)
+	sp_bool SystemOfLinearEquations::solve(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength, sp_float* output)
 	{
-		sp_float* result = ALLOC_ARRAY(sp_float, colSize - 1);
+		sp_assert(rowLength + 1u == columnLength, "MatrixFormatException"); // matrix must be NxN
+		std::memset(output, ZERO_INT, SIZEOF_FLOAT * (columnLength - ONE_UINT));
 
-		sp_float* upperMatrix = ALLOC_ARRAY(sp_float, rowSize * colSize);
-		std::memcpy(upperMatrix, matrix, sizeof(upperMatrix) * rowSize * colSize);
+#define pivotColumnIndex row
+		sp_float* upperMatrix = ALLOC_ARRAY(sp_float, rowLength * columnLength);
+		std::memcpy(upperMatrix, matrix, rowLength * columnLength * SIZEOF_FLOAT);
 
-		sp_uint pivotColumnIndex = 0;
-
-		for (sp_uint line = 0; line < rowSize; line++)
+		for (register sp_uint row = 0u; row < rowLength - 1u; row++)
 		{
-			sp_float pivot = upperMatrix[line * colSize + pivotColumnIndex];
+			sp_log_debug1snl(printMatrix(upperMatrix, rowLength, columnLength).c_str());
 
-			if (pivot == 0.0f) 
+			sp_uint newPivotRowIndex;
+			register sp_float pivot = maxValueInColumn(upperMatrix, rowLength, columnLength, pivotColumnIndex, &newPivotRowIndex, row);
+
+			if (NAMESPACE_FOUNDATION::isCloseEnough(pivot, ZERO_FLOAT)) // system is undertemined!!
 			{
-				for (sp_uint i = line + 1; i < rowSize; i++)
-				{
-					pivot = upperMatrix[i * colSize + pivotColumnIndex];
-
-					if (pivot != 0.0f) 
-					{
-						//troca linha
-						for (sp_uint column = 0; column < colSize; column++)
-						{
-							sp_float temp = upperMatrix[line * colSize + column];
-							upperMatrix[line * colSize + column] = upperMatrix[i * colSize + column];
-							upperMatrix[i * colSize + column] = temp;
-						}
-
-						break;
-					}
-				}
-			}			
-
-			sp_float pivotOperator = 1 / pivot;
-
-			for (sp_uint column = 0; column < colSize; column++)
-				upperMatrix[line * colSize + column] *= pivotOperator;
-				
-			for (sp_uint lowerLines = line + 1; lowerLines < rowSize; lowerLines++)
-			{
-				pivot = upperMatrix[lowerLines * colSize + pivotColumnIndex];
-				pivotOperator = -pivot;
-
-				for (sp_uint column = 0; column < colSize; column++)
-					upperMatrix[lowerLines * colSize + column] += pivotOperator * upperMatrix[line * colSize + column];
+				// output[newPivotRowIndex] can have any value (system undertemined)
+				output[newPivotRowIndex] = ONE_FLOAT;
+				continue;
 			}
 
-			pivotColumnIndex++;
+			if (row != newPivotRowIndex)
+				swapLines(upperMatrix, rowLength, columnLength, row, newPivotRowIndex);
+		
+			sp_log_debug1snl(printMatrix(upperMatrix, rowLength, columnLength).c_str());
+
+			divideRow(upperMatrix, columnLength, row, pivot, pivotColumnIndex);
+
+			sp_log_debug1snl(printMatrix(upperMatrix, rowLength, columnLength).c_str());
+
+			const sp_uint lineIndex = row * columnLength;
+			for (sp_uint lowerLines = row + 1u; lowerLines < rowLength; lowerLines++)
+			{
+				const sp_float pivotOperator = -upperMatrix[lowerLines * columnLength + pivotColumnIndex];
+
+				for (sp_uint column = 0; column < columnLength; column++)
+					upperMatrix[lowerLines * columnLength + column] += pivotOperator * upperMatrix[lineIndex + column];
+			}
+
+			sp_log_debug1snl(printMatrix(upperMatrix, rowLength, columnLength).c_str());
 		}
 
-		//string content = printMatrix(upperMatrix, rowSize, colSize);
+		sp_log_debug1snl(printMatrix(upperMatrix, rowLength, columnLength).c_str());
 
-		for (sp_int row = rowSize - 1; row >= 0; row--)
+		for (sp_uint row = rowLength - 1u; row != SP_UINT_MAX; row--)
 		{			
-			result[row] = upperMatrix[row * colSize + colSize - 1];
-
-			for (sp_int column = colSize - 1; column > row + 1; column--)
-				result[row] -= upperMatrix[row * colSize + column - ONE_UINT] * result[column - ONE_UINT];
+			for (sp_int column = columnLength - 2u; column != row; column--)
+				output[row] += output[column] * upperMatrix[row * columnLength + column];
+			
+			output[row] 
+				= NAMESPACE_FOUNDATION::isCloseEnough(upperMatrix[row * columnLength + row], ZERO_FLOAT)
+				? ZERO_FLOAT
+				: div((upperMatrix[row * columnLength + columnLength - ONE_UINT] - output[row])
+					, upperMatrix[row * columnLength + row]);
 		}
 			
 		ALLOC_RELEASE(upperMatrix);
-		return result;
+		return true;
+#undef pivotColumnIndex
 	}
 
 	void SystemOfLinearEquations::pivot(sp_float* matrix, const sp_uint rowLength, register const sp_uint columnLength, const sp_uint pivotColumnIndex, const sp_uint pivotRowIndex) const

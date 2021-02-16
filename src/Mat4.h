@@ -3,6 +3,7 @@
 
 #include "SpectrumPhysics.h"
 #include "AutoValueAutoVector.h"
+#include "Vec4.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -41,6 +42,28 @@ namespace NAMESPACE_PHYSICS
 			const sp_float value12, const sp_float value22, const sp_float value32, const sp_float value42,
 			const sp_float value13, const sp_float value23, const sp_float value33, const sp_float value43,
 			const sp_float value14, const sp_float value24, const sp_float value34, const sp_float value44);
+
+		/// <summary>
+		/// Check this matrix is symetric
+		/// </summary>
+		API_INTERFACE inline sp_bool isSymetric(const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			return NAMESPACE_FOUNDATION::isCloseEnough(values[1], values[4], _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[2], values[8], _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[3], values[12], _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[11], values[14], _epsilon);
+		}
+
+		API_INTERFACE inline sp_bool isTridiagonal(const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			return isSymetric()
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[2], ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[3], ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[7], ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[8], ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[12], ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(values[13], ZERO_FLOAT, _epsilon);
+		}
 
 		/// <summary>
 		/// Get the values from current matrix
@@ -87,6 +110,16 @@ namespace NAMESPACE_PHYSICS
 		/// Get the antidiagonal / counter / minor / secondary diagonal from matrix
 		/// </summary>
 		API_INTERFACE Vec4 secondaryDiagonal() const;
+
+		/// <summary>
+		/// The trace of a squared matrix is the sum of the primary diagonal elements
+		/// </summary>
+		/// <param name="output">Result</param>
+		/// <returns>output parameter</returns>
+		API_INTERFACE inline sp_float trace() const
+		{
+			return values[0] + values[5] + values[10] + values[15];
+		}
 
 		/// <summary>
 		/// Transpose matrix - swap rows by columns
@@ -286,6 +319,20 @@ namespace NAMESPACE_PHYSICS
 		/// Get the autovalue of the matrix
 		/// </summary>
 		API_INTERFACE AutoValueAutoVector4 getAutovalueAndAutovector(const sp_short maxIteration = 5) const;
+
+		/// <summary>
+		/// Find the characteristic polyname of this matrix using Leverrier Method
+		/// </summary>
+		/// <param name="output"></param>
+		/// <returns>5 floats</returns>
+		API_INTERFACE void polyname(sp_float* output) const;
+
+		/// <summary>
+		/// Convert this matrix to Tridiagonal matrix using Householder Method
+		/// </summary>
+		/// <param name="output">Matrix</param>
+		/// <returns>output</returns>
+		API_INTERFACE void tridiagonal(Mat4* output) const;
 
 		/*
 		/// <summary>
