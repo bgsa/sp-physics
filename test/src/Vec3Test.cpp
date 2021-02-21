@@ -107,14 +107,14 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, abs)
 	{
 		Vec3 vector = { -2.0f, -5.0f, 9.0f };
-		NAMESPACE_PHYSICS::abs(&vector);
+		vector.abs();
 		Vec3 expected = { 2.0f, 5.0f, 9.0f };
 
 		for (int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	
 		vector = { 2.0f, -5.0f, -9.0f };
-		NAMESPACE_PHYSICS::abs(vector, &vector);
+		vector.abs();
 		for (int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
@@ -148,7 +148,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float expected[3] = { 1.0f, 3.0f, -12.0f };
 
 		Vec3 result;
-		NAMESPACE_PHYSICS::diff(vector, vector2, &result);
+		NAMESPACE_PHYSICS::diff(vector, vector2, result);
 
 		for (int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Length value wrong.", LINE_INFO());

@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 	sp_bool Line3D::isOnLine(const Vec3& point, const sp_float _epsilon) const
 	{
 		Vec3 dif;
-		diff(point2, point1, &dif);
+		diff(point2, point1, dif);
 
 		Vec3 temp;
 		NAMESPACE_PHYSICS::cross(dif, point, &temp);
@@ -144,7 +144,7 @@ namespace NAMESPACE_PHYSICS
 	void Line3D::closestPointOnTheLine(const Vec3& target, Vec3* output) const
 	{
 		Vec3 lineDirection;
-		diff(point2, point1, &lineDirection);
+		diff(point2, point1, lineDirection);
 		
 		// Project target onto lineDirection, computing parameterized position closestPoint(t) = point1 + t*(point2 � point1) 
 		sp_float t = (target - point1).dot(lineDirection) / lineDirection.dot(lineDirection);

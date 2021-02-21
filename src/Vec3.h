@@ -89,6 +89,13 @@ namespace NAMESPACE_PHYSICS
 			return value;
 		}
 
+		API_INTERFACE inline void abs()
+		{
+			x = std::fabsf(x);
+			y = std::fabsf(y);
+			z = std::fabsf(z);
+		}
+
 		/// <summary>
 		/// Add a vector from current vector
 		/// </summary>
@@ -403,32 +410,32 @@ namespace NAMESPACE_PHYSICS
 	const Vec3 Vec3Front = Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
 	const Vec3 Vec3Depth = Vec3(ZERO_FLOAT, ZERO_FLOAT, -ONE_FLOAT);
 
-	API_INTERFACE inline void abs(Vec3* vec)
+	API_INTERFACE inline void abs(Vec3& output)
 	{
-		vec->x = std::fabsf(vec->x);
-		vec->y = std::fabsf(vec->y);
-		vec->z = std::fabsf(vec->z);
+		output.x = std::fabsf(output.x);
+		output.y = std::fabsf(output.y);
+		output.z = std::fabsf(output.z);
 	}
 
-	API_INTERFACE inline void abs(const Vec3& input, Vec3* output)
+	API_INTERFACE inline void abs(const Vec3& input, Vec3& output)
 	{
-		output->x = std::fabsf(input.x);
-		output->y = std::fabsf(input.y);
-		output->z = std::fabsf(input.z);
+		output.x = std::fabsf(input.x);
+		output.y = std::fabsf(input.y);
+		output.z = std::fabsf(input.z);
 	}
 
-	API_INTERFACE inline void add(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	API_INTERFACE inline void add(const Vec3& vec1, const Vec3& vec2, Vec3& output)
 	{
-		output->x = vec1.x + vec2.x;
-		output->y = vec1.y + vec2.y;
-		output->z = vec1.z + vec2.z;
+		output.x = vec1.x + vec2.x;
+		output.y = vec1.y + vec2.y;
+		output.z = vec1.z + vec2.z;
 	}
 	
-	API_INTERFACE inline void diff(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	API_INTERFACE inline void diff(const Vec3& vec1, const Vec3& vec2, Vec3& output)
 	{
-		output->x = vec1.x - vec2.x;
-		output->y = vec1.y - vec2.y;
-		output->z = vec1.z - vec2.z;
+		output.x = vec1.x - vec2.x;
+		output.y = vec1.y - vec2.y;
+		output.z = vec1.z - vec2.z;
 	}
 	
 	API_INTERFACE inline void multiply(const Vec3& vec1, const Vec3& vec2, Vec3* output)
@@ -454,8 +461,8 @@ namespace NAMESPACE_PHYSICS
 	API_INTERFACE inline sp_bool isCloseEnough(const Vec3& vector, const Vec3& compare, const sp_float _epsilon = DefaultErrorMargin)
 	{
 		Vec3 difff;
-		diff(vector, compare, &difff);
-		abs(&difff);
+		diff(vector, compare, difff);
+		difff.abs();
 
 		return difff.x <= _epsilon
 			&& difff.y <= _epsilon

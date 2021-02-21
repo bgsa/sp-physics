@@ -101,16 +101,16 @@ namespace NAMESPACE_PHYSICS
 		Plane3D contactFace(details->centerContactPoint, collisionNormal);
 
 		Vec3 rayToContactObj1, rayToContactObj2, angularCrossContactRayObj1, angularCrossContactRayObj2;
-		diff(details->centerContactPoint, centerObj1, &rayToContactObj1);
-		diff(details->centerContactPoint, centerObj2, &rayToContactObj2);
+		diff(details->centerContactPoint, centerObj1, rayToContactObj1);
+		diff(details->centerContactPoint, centerObj2, rayToContactObj2);
 
 		// get relative velocity
 		cross(rayToContactObj1, obj1Properties->currentState.angularVelocity(), &angularCrossContactRayObj1);
 		cross(rayToContactObj2, obj2Properties->currentState.angularVelocity(), &angularCrossContactRayObj2);
 
 		Vec3 pointVelocityObj1, pointVelocityObj2;
-		add(obj1Properties->currentState.velocity(), angularCrossContactRayObj1, &pointVelocityObj1);
-		add(obj2Properties->currentState.velocity(), angularCrossContactRayObj2, &pointVelocityObj2);
+		add(obj1Properties->currentState.velocity(), angularCrossContactRayObj1, pointVelocityObj1);
+		add(obj2Properties->currentState.velocity(), angularCrossContactRayObj2, pointVelocityObj2);
 
 		Vec3 relativeVel;
 		sp_float relativeVelocityAtNormal;
@@ -118,9 +118,9 @@ namespace NAMESPACE_PHYSICS
 		const sp_bool obj2IsPositiveNormal = contactFace.distance(centerObj2) > ZERO_FLOAT;
 		
 		if (obj2IsPositiveNormal)
-			diff(pointVelocityObj1, pointVelocityObj2, &relativeVel);
+			diff(pointVelocityObj1, pointVelocityObj2, relativeVel);
 		else
-			diff(pointVelocityObj2, pointVelocityObj1, &relativeVel);
+			diff(pointVelocityObj2, pointVelocityObj1, relativeVel);
 
 		relativeVelocityAtNormal = relativeVel.dot(collisionNormal);
 

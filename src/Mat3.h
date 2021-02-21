@@ -4,9 +4,6 @@
 #include "SpectrumPhysics.h"
 #include "AutoValueAutoVector.h"
 #include "SystemOfLinearEquations.h"
-#include <eigen/Dense>
-#include <eigen/Eigenvalues>
-#include <unsupported/Eigen/MatrixFunctions>
 
 namespace NAMESPACE_PHYSICS
 {
@@ -29,10 +26,10 @@ namespace NAMESPACE_PHYSICS
 
 	class Mat3
 	{
-	private:
-		sp_float values[MAT3_LENGTH];
-
 	public:
+		sp_float m11, m12, m13,
+				 m21, m22, m23,
+				 m31, m32, m33;
 
 		/// <summary>
 		/// Default constructor
@@ -47,12 +44,48 @@ namespace NAMESPACE_PHYSICS
 			const sp_float value12, const sp_float value22, const sp_float value32,
 			const sp_float value13, const sp_float value23, const sp_float value33);
 
+		API_INTERFACE inline sp_float* values() const
+		{
+			return (sp_float*)this;
+		}
+
 		/// <summary>
 		/// Get the value from current matrix
 		/// COLUMN MAJOR ORDER
 		/// X and Y: 1 index base
 		/// </summary>
-		API_INTERFACE sp_float index(const sp_int x, const sp_int y) const;
+		API_INTERFACE sp_float get(const sp_uint x, const sp_uint y) const;
+
+		/// <summary>
+		/// Check the matrix is lower
+		/// </summary>
+		/// <returns>True it the matrix is lower orelse False</returns>
+		API_INTERFACE inline sp_bool isLower(const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			return NAMESPACE_FOUNDATION::isCloseEnough(m12, ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m13, ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m23, ZERO_FLOAT, _epsilon);
+		}
+
+		/// <summary>
+		/// Check the matrix is upper
+		/// </summary>
+		/// <returns>True it the matrix is upper orelse False</returns>
+		API_INTERFACE inline sp_bool isUpper(const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			return NAMESPACE_FOUNDATION::isCloseEnough(m21, ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m31, ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m32, ZERO_FLOAT, _epsilon);
+		}
+
+		/// <summary>
+		/// Check the matrix is diagonal
+		/// </summary>
+		/// <returns>True it the matrix is diagonal orelse False</returns>
+		API_INTERFACE inline sp_bool isDiagonal(const sp_float _epsilon = DefaultErrorMargin) const
+		{
+			return isLower(_epsilon) && isUpper(_epsilon);
+		}
 
 		/// <summary>
 		/// Check the matrix is symetric
@@ -60,9 +93,9 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline sp_bool isSymetric(const sp_float _epsilon = DefaultErrorMargin) const
 		{
-			return NAMESPACE_FOUNDATION::isCloseEnough(values[1], values[3], _epsilon)
-				&& NAMESPACE_FOUNDATION::isCloseEnough(values[2], values[6], _epsilon)
-				&& NAMESPACE_FOUNDATION::isCloseEnough(values[5], values[7], _epsilon);
+			return NAMESPACE_FOUNDATION::isCloseEnough(m12, m21, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m13, m31, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m23, m32, _epsilon);
 		}
 
 		/// <summary>
@@ -72,9 +105,9 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_bool isDiagonallyDominant() const
 		{
 			return
-				   fabsf(values[M11]) > fabsf(values[M12]) + fabsf(values[M13])
-				&& fabsf(values[M22]) > fabsf(values[M21]) + fabsf(values[M23])
-				&& fabsf(values[M33]) > fabsf(values[M31]) + fabsf(values[M32]);
+				   fabsf(m11) > fabsf(m12) + fabsf(m13)
+				&& fabsf(m22) > fabsf(m21) + fabsf(m23)
+				&& fabsf(m33) > fabsf(m31) + fabsf(m32);
 		}
 
 		/// <summary>
@@ -91,14 +124,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_bool isTridiagonal(const sp_float _epsilon = DefaultErrorMargin) const
 		{
 			return isSymetric()
-				&& NAMESPACE_FOUNDATION::isCloseEnough(values[2], ZERO_FLOAT, _epsilon)
-				&& NAMESPACE_FOUNDATION::isCloseEnough(values[6], ZERO_FLOAT, _epsilon);
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m13, ZERO_FLOAT, _epsilon)
+				&& NAMESPACE_FOUNDATION::isCloseEnough(m31, ZERO_FLOAT, _epsilon);
 		}
 
 		/// <summary>
 		/// Get the axis
 		/// </summary>
-		API_INTERFACE Vec3 axis(const sp_int index) const;
+		API_INTERFACE Vec3 axis(const sp_uint index) const;
 
 		/// <summary>
 		/// Get the X axis
@@ -118,14 +151,9 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the main / principal / major / primary diagonal from matrix
 		/// </summary>
-		API_INTERFACE Vec3 primaryDiagonal() const;
-
-		/// <summary>
-		/// Get the main / principal / major / primary diagonal from matrix
-		/// </summary>
 		/// <param name="output">Result</param>
 		/// <returns>output parameter</returns>
-		API_INTERFACE inline void primaryDiagonal(Vec3* output) const;
+		API_INTERFACE inline void primaryDiagonal(Vec3& output) const;
 
 		/// <summary>
 		/// Get the antidiagonal / counter / minor / secondary diagonal from matrix
@@ -139,23 +167,23 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>output parameter</returns>
 		API_INTERFACE inline sp_float trace() const
 		{
-			return values[0] + values[4] + values[8];
+			return m11 + m22 + m33;
 		}
-
-		/// <summary>
-		/// Load a identity matrix
-		/// </summary>
-		API_INTERFACE static Mat3 identity();
 
 		/// <summary>
 		/// Transpose matrix - swap rows by columns
 		/// </summary>
-		API_INTERFACE Mat3 transpose() const;
+		API_INTERFACE inline void transpose()
+		{
+			std::swap(m12, m21);
+			std::swap(m13, m31);
+			std::swap(m23, m32);
+		}
 
 		/// <summary>
-		/// Multiply this matrix with the parametrized matrix => AxB
+		/// Transpose matrix - swap rows by columns
 		/// </summary>
-		API_INTERFACE Mat3 multiply(const Mat3& matrixB) const;
+		API_INTERFACE void transpose(Mat3& output) const;
 
 		/// <summary>
 		/// Multiply this matrix with the parametrized vector => AxB
@@ -170,6 +198,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_float matrixValues[4];
 			sp_uint index = 0u;
+			sp_float* v = values();
 
 			for (sp_uint row = 0u; row < MAT3_ROW_LENGTH; row++)
 			{
@@ -181,7 +210,7 @@ namespace NAMESPACE_PHYSICS
 					if (j == column)
 						continue;
 
-					matrixValues[index] = values[row * MAT3_ROW_LENGTH + column];
+					matrixValues[index] = v[row * MAT3_ROW_LENGTH + column];
 					index++;
 				}
 			}
@@ -190,10 +219,96 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Cofactor/minor of matrix over element m11
+		/// </summary>
+		/// <returns>Cofactor of element m11</returns>
+		API_INTERFACE inline sp_float cofactor11() const
+		{
+			return m22 * m33 - m23 * m32;
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m12
+		/// </summary>
+		/// <returns>Cofactor of element m12</returns>
+		API_INTERFACE inline sp_float cofactor12() const
+		{
+			return -(m21 * m33 - m23 * m31);
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m13
+		/// </summary>
+		/// <returns>Cofactor of element m13</returns>
+		API_INTERFACE inline sp_float cofactor13() const
+		{
+			return m21 * m32 - m22 * m31;
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m21
+		/// </summary>
+		/// <returns>Cofactor of element m21</returns>
+		API_INTERFACE inline sp_float cofactor21() const
+		{
+			return -(m12 * m33 - m13 * m32);
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m22
+		/// </summary>
+		/// <returns>Cofactor of element m22</returns>
+		API_INTERFACE inline sp_float cofactor22() const
+		{
+			return m11 * m33 - m13 * m31;
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m23
+		/// </summary>
+		/// <returns>Cofactor of element m23</returns>
+		API_INTERFACE inline sp_float cofactor23() const
+		{
+			return -(m11 * m32 - m12 * m31);
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m31
+		/// </summary>
+		/// <returns>Cofactor of element m31</returns>
+		API_INTERFACE inline sp_float cofactor31() const
+		{
+			return m12 * m23 - m13 * m22;
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m32
+		/// </summary>
+		/// <returns>Cofactor of element m32</returns>
+		API_INTERFACE inline sp_float cofactor32() const
+		{
+			return -(m11 * m23 - m13 * m21);
+		}
+
+		/// <summary>
+		/// Cofactor/minor of matrix over element m33
+		/// </summary>
+		/// <returns>Cofactor of element m33</returns>
+		API_INTERFACE inline sp_float cofactor33() const
+		{
+			return m11 * m22 - m12 * m21;
+		}
+
+		/// <summary>
 		/// Get the cofactor of the index i,j
 		/// Zero-Index based
 		/// </summary>
-		API_INTERFACE sp_float cofactorIJ(const sp_size i, const sp_size j) const;
+		API_INTERFACE inline sp_float cofactorIJ(const sp_uint row, const sp_uint column) const
+		{
+			return isOdd(row + column)
+				? -determinantIJ(row, column)
+				: determinantIJ(row, column);
+		}
 
 		/// <summary>
 		/// Create a scaled matrix
@@ -227,14 +342,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float determinant() const
 		{
 			return
-				(values[0] * values[4] * values[8]
-					+ values[1] * values[5] * values[6]
-					+ values[2] * values[3] * values[7]
+				(m11 * m22 * m33
+					+ m12 * m23 * m31
+					+ m13 * m21 * m32
 				)
 				-
-				(values[2] * values[4] * values[6]
-					+ values[0] * values[5] * values[7]
-					+ values[1] * values[3] * values[8]
+				(m13 * m22 * m31
+					+ m11 * m23 * m32
+					+ m12 * m21 * m33
 				);
 		}
 		
@@ -244,9 +359,41 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Mat3 invert() const;
 
 		/// <summary>
+		/// Get the Classical adjoint/conjugate matrix
+		/// Classical Adjoint of a square matrix is the transpose of its cofactor matrix
+		/// </summary>
+		/// <param name="output">Matrix</param>
+		/// <returns>void</returns>
+		API_INTERFACE void adjoint(Mat3& output) const
+		{
+			output.m11 = cofactor11();
+			output.m12 = cofactor21();
+			output.m13 = cofactor31();
+
+			output.m21 = cofactor12();
+			output.m22 = cofactor22();
+			output.m23 = cofactor32();
+
+			output.m31 = cofactor13();
+			output.m32 = cofactor23();
+			output.m33 = cofactor33();
+		}
+
+		/// <summary>
 		/// Check if the matrix is identity
 		/// </summary>
 		API_INTERFACE sp_bool isIdentity() const;
+
+		/// <summary>
+		/// Check the matrix is orthogonal
+		/// </summary>
+		/// <returns>True it the matrix is Orthogonal orelse False</returns>
+		API_INTERFACE sp_bool isOrthogonal() const;
+
+		/// <summary>
+		/// Check if the matrix Hermitian
+		/// </summary>
+		API_INTERFACE sp_bool isHermitian() const;
 
 		/// <summary>
 		/// Get the size in Bytes of Mat3
@@ -267,7 +414,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float& operator[](const sp_int index)
 		{
 			sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
-			return values[index];
+			return values()[index];
 		}
 
 		/// <summary>
@@ -276,7 +423,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float operator[](const sp_int index) const
 		{
 			sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
-			return values[index];
+			return values()[index];
 		}
 
 		/// <summary>
@@ -285,7 +432,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float& operator[](const sp_uint index)
 		{
 			sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
-			return values[index];
+			return values()[index];
 		}
 
 		/// <summary>
@@ -294,7 +441,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float operator[](const sp_uint index) const
 		{
 			sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
-			return values[index];
+			return values()[index];
 		}
 
 #if defined(WINDOWS) && defined(ENV_64BITS)
@@ -346,9 +493,9 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline Mat3 operator*(const sp_float value) const
 		{
 			return Mat3(
-				values[0] * value, values[1] * value, values[2] * value,
-				values[3] * value, values[4] * value, values[5] * value,
-				values[6] * value, values[7] * value, values[7] * value
+				m11 * value, m12 * value, m13 * value,
+				m21 * value, m22 * value, m23 * value,
+				m31 * value, m32 * value, m32 * value
 			);
 		}
 
@@ -362,17 +509,17 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE void operator+=(const Mat3& matrix)
 		{
-			values[0] += matrix[0];
-			values[1] += matrix[1];
-			values[2] += matrix[2];
+			m11 += matrix[0];
+			m12 += matrix[1];
+			m13 += matrix[2];
 
-			values[3] += matrix[3];
-			values[4] += matrix[4];
-			values[5] += matrix[5];
+			m21 += matrix[3];
+			m22 += matrix[4];
+			m23 += matrix[5];
 
-			values[6] += matrix[6];
-			values[7] += matrix[7];
-			values[8] += matrix[8];
+			m31 += matrix[6];
+			m32 += matrix[7];
+			m33 += matrix[8];
 		}
 
 		/// <summary>
@@ -414,12 +561,12 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Decompose the matrix to Lower and Upper matrix
 		/// </summary>
-		API_INTERFACE void decomposeLU(Mat3* lower, Mat3* upper) const;
+		API_INTERFACE void decomposeLU(Mat3& lower, Mat3& upper) const;
 
 		/// <summary>
 		/// Decompose the matrix to Lower, Diagonal Matrix and Upper matrix
 		/// </summary>
-		API_INTERFACE void decomposeLDU(Mat3* lower, Mat3* diagonal, Mat3* upper) const;
+		API_INTERFACE void decomposeLDU(Mat3& lower, Mat3& diagonal, Mat3& upper) const;
 
 		/// <summary>
 		/// Decompose the matrix to Lower and Lower Transposed using Cholesky Method
@@ -427,7 +574,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="lower">Lower Matrix</param>
 		/// <param name="lowerTransposed">Lower Transposed Matrix</param>
 		/// <returns>void</returns>
-		API_INTERFACE void decomposeLLt(Mat3* lower, Mat3* lowerTransposed) const;
+		API_INTERFACE void decomposeLLt(Mat3& lower, Mat3& lowerTransposed) const;
 		
 		/// <summary>
 		/// Find the characteristic polyname of this matrix using Leverrier Method
@@ -437,21 +584,30 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void polyname(Vec4* output) const;
 
 		/// <summary>
+		/// Get a symmetric matrix from this matrix
+		/// </summary>
+		/// <param name="output">Symmetric matrix</param>
+		/// <returns></returns>
+		API_INTERFACE inline void symmetric(Mat3& output) const;
+
+		/// <summary>
 		/// Get dominant (maximum) autovalue and auto vector of this matrix 
-		/// using Method of Powers
+		/// This method uses Method of Powers
 		/// </summary>
 		API_INTERFACE void eigenValuesAndVectorsMax(sp_float& eigenValue, Vec3& eigenVector, const sp_ushort maxIteration = 5) const;
 
 		/// <summary>
-		/// Get the Auto Values of this matrix using Decomposition QR
+		/// Get the EigenValues of this matrix using Jacobi Rotations
 		/// </summary>
-		/// <param name="values">Auto Values</param>
-		/// <param name="length">Length</param>
-		/// <returns>values</returns>
+		/// <param name="output">EigenValues</param>
+		/// <param name="iterations">Iteration taken to converge</param>
+		/// <param name="_epsilon">Default Margin Error</param>
+		/// <returns>output</returns>
 		API_INTERFACE void eigenValues(Vec3& output, sp_uint& iterations, const sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
 		/// Get the eigenvalues and eigenvectors of matrix
+		/// This method uses Jacobi Rotations
 		/// </summary>
 		/// <param name="eigenValues">EigenValues output</param>
 		/// <param name="eigenVectors">EigenVectors output</param>
@@ -465,12 +621,30 @@ namespace NAMESPACE_PHYSICS
 		/// This method is also called Jacobi rotations
 		/// </summary>
 		/// <param name="output">Result</param>
-		/// <param name="iterationCounter">Provide how many interations was needed</param>
-		/// <param name="errorMargin">Epsilon Error</param>
+		/// <param name="iterations">Provide how many interations was needed</param>
+		/// <param name="_epsilon">Epsilon Error</param>
 		/// <returns>output parameter</returns>
-		API_INTERFACE void diagonalize(Mat3& output, sp_uint& iterationCounter, const sp_float errorMargin = DefaultErrorMargin) const;
+		API_INTERFACE void diagonalize(Mat3& output, sp_uint& iterations, const sp_float _epsilon = DefaultErrorMargin) const;
 
-		API_INTERFACE void sqrt(Mat3* output) const;
+		/// <summary>
+		/// Apply Square Root to all elements of the matrix
+		/// </summary>
+		/// <param name="output">Matrix</param>
+		/// <returns>output</returns>
+		API_INTERFACE inline void sqrt(Mat3& output) const
+		{
+			output.m11 = sqrtf(m11);
+			output.m12 = sqrtf(m12);
+			output.m13 = sqrtf(m13);
+
+			output.m21 = sqrtf(m21);
+			output.m22 = sqrtf(m22);
+			output.m23 = sqrtf(m23);
+			
+			output.m31 = sqrtf(m31);
+			output.m32 = sqrtf(m32);
+			output.m33 = sqrtf(m33);
+		}
 
 		/// <summary>
 		/// Convert a Rotational Matrix to Quaternion
@@ -479,6 +653,23 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>output parameter</returns>
 		API_INTERFACE void convert(Quat& output) const;
 
+		/// <summary>
+		/// Negate all elements of the matrix
+		/// A = -A
+		/// </summary>
+		/// <returns>void</returns>
+		API_INTERFACE inline void negate()
+		{
+			m11 = -m11;
+			m12 = -m12;
+			m13 = -m13;
+			m21 = -m21;
+			m22 = -m22;
+			m23 = -m23;
+			m31 = -m31;
+			m32 = -m32;
+			m33 = -m33;
+		}
 	};
 
 	const Mat3 Mat3Zeros = {
@@ -493,37 +684,85 @@ namespace NAMESPACE_PHYSICS
 		ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
 	};
 	
-	API_INTERFACE inline sp_bool isCloseEnough(const Mat3& m1, const Mat3& m2, const sp_uint _epsilon = DefaultErrorMargin)
+	API_INTERFACE inline sp_bool isCloseEnough(const Mat3& A, const Mat3& B, const sp_float _epsilon = DefaultErrorMargin)
 	{
-		return NAMESPACE_FOUNDATION::isCloseEnough(m1[0], m2[0])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[1], m2[1])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[2], m2[2])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[3], m2[3])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[4], m2[4])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[5], m2[5])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[6], m2[6])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[7], m2[7])
-			&& NAMESPACE_FOUNDATION::isCloseEnough(m1[8], m2[8]);
+		return NAMESPACE_FOUNDATION::isCloseEnough(A.m11, B.m11, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m12, B.m12, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m13, B.m13, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m21, B.m21, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m22, B.m22, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m23, B.m23, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m31, B.m31, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m32, B.m32, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(A.m33, B.m33, _epsilon);
 	}
 
-	API_INTERFACE inline void transpose(const Mat3& input, Mat3* output)
+	API_INTERFACE inline void transpose(const Mat3& input, Mat3& output)
 	{
-		output[0][M11] = input[M11];
-		output[0][M12] = input[M21];
-		output[0][M13] = input[M31];
+		output[M11] = input[M11];
+		output[M12] = input[M21];
+		output[M13] = input[M31];
 		
-		output[0][M21] = input[M12];
-		output[0][M22] = input[M22];
-		output[0][M23] = input[M32];
+		output[M21] = input[M12];
+		output[M22] = input[M22];
+		output[M23] = input[M32];
 		
-		output[0][M31] = input[M13];
-		output[0][M32] = input[M23];
-		output[0][M33] = input[M33];
+		output[M31] = input[M13];
+		output[M32] = input[M23];
+		output[M33] = input[M33];
 	}
 
-	API_INTERFACE void multiply(const Vec3& v1, const Vec3& v2, Mat3* output);
+	/// <summary>
+	/// Create Matrix Rotation over X axis
+	/// </summary>
+	/// <param name="output">Rotation Matrix output</param>
+	/// <param name="cosTheta">Cosine angle theta</param>
+	/// <param name="sinTheta">Sine angle theta</param>
+	/// <returns>Output parameter</returns>
+	API_INTERFACE inline void rotationX(Mat3& output, const sp_float cosTheta, const sp_float sinTheta)
+	{
+		std::memcpy(output, Mat3Identity, sizeof(Mat3));
+		output.m22 = cosTheta;
+		output.m23 = -sinTheta;
+		output.m32 = sinTheta;
+		output.m33 = cosTheta;
+	}
 
-	API_INTERFACE void multiply(const Mat3& input, const sp_float value, Mat3* output);
+	/// <summary>
+	/// Create Matrix Rotation over Y axis
+	/// </summary>
+	/// <param name="output">Rotation Matrix output</param>
+	/// <param name="cosTheta">Cosine angle theta</param>
+	/// <param name="sinTheta">Sine angle theta</param>
+	/// <returns>Output parameter</returns>
+	API_INTERFACE inline void rotationY(Mat3& output, const sp_float cosTheta, const sp_float sinTheta)
+	{
+		std::memcpy(output, Mat3Identity, sizeof(Mat3));
+		output.m11 = cosTheta;
+		output.m13 = sinTheta;
+		output.m31 = -sinTheta;
+		output.m33 = cosTheta;
+	}
+
+	/// <summary>
+	/// Create Matrix Rotation over Z axis
+	/// </summary>
+	/// <param name="output">Rotation Matrix output</param>
+	/// <param name="cosTheta">Cosine angle theta</param>
+	/// <param name="sinTheta">Sine angle theta</param>
+	/// <returns>Output parameter</returns>
+	API_INTERFACE inline void rotationZ(Mat3& output, const sp_float cosTheta, const sp_float sinTheta)
+	{
+		std::memcpy(output, Mat3Identity, sizeof(Mat3));
+		output.m11 = cosTheta;
+		output.m12 = -sinTheta;
+		output.m21 = sinTheta;
+		output.m22 = cosTheta;
+	}
+
+	API_INTERFACE void multiply(const Vec3& v1, const Vec3& v2, Mat3& output);
+
+	API_INTERFACE void multiply(const Mat3& input, const sp_float value, Mat3& output);
 
 	API_INTERFACE void multiply(const Mat3& matrix, const Vec3& vector, Vec3& output);
 
@@ -538,10 +777,20 @@ namespace NAMESPACE_PHYSICS
 
 	API_INTERFACE void inverse(const Mat3& input, Mat3& output);
 
+	API_INTERFACE inline void givensRotation(Mat3& output, const sp_uint rowIndex, const sp_uint columnIndex, const sp_float sinTheta, const sp_float cosTheta);
+
 	/// <summary>
 	/// Rotate the given matrix using Jacobi Method
 	/// </summary>
-	API_INTERFACE void rotateJacobi(const Mat3& input, const sp_float sinTheta, const sp_float cosTheta, const sp_uint rowIndex, const sp_uint columnIndex, Mat3& output);
+	/// <param name="input">Matrix</param>
+	/// <param name="sinTheta">Sin</param>
+	/// <param name="cosTheta">Cos</param>
+	/// <param name="rowIndex">RowIndex</param>
+	/// <param name="columnIndex">ColumnIndex</param>
+	/// <param name="output">Rotated Matrix</param>
+	/// <param name="jacobiRotation">Jacobi Rotation used to rotate the matrix</param>
+	/// <returns>void</returns>
+	API_INTERFACE void jacobiRotation(const Mat3& input, const sp_float sinTheta, const sp_float cosTheta, const sp_uint rowIndex, const sp_uint columnIndex, Mat3& output, Mat3& jacobiRotation);
 
 	/// <summary>
 	/// Find the square root of Matrix

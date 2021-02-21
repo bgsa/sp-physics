@@ -6,7 +6,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		this->center = center;
 		this->halfWidth = Vec3(0.5f, 0.5f, 0.5f);
-		this->orientation = Mat3::identity();
+		this->orientation = Mat3Identity;
 	}
 
 	void OBB::translate(const Vec3& translation)

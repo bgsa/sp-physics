@@ -21,7 +21,7 @@ namespace NAMESPACE_PHYSICS
 			transformation->transform(mesh->vertexesMesh->get(i)->value(), &shape->particles[i]);
 
 			// fill the initial shape with local coordinates
-			diff(shape->particles[i], transformation->position, &shape->initialParticles[i]);
+			diff(shape->particles[i], transformation->position, shape->initialParticles[i]);
 		}
 	}
 
@@ -36,22 +36,27 @@ namespace NAMESPACE_PHYSICS
 		Vec3 centerOfMassAfterCollision;
 		shape->centerOfMass(centerOfMassAfterCollision);
 	
-		Mat3 matrixApq = Mat3Zeros;
 		const sp_float mass = ONE_FLOAT / physicProperties->massInverse();
+
+		Mat3 matrixApq;
+		std::memcpy(&matrixApq , &Mat3Zeros, sizeof(Mat3));
 		
 		for (sp_uint i = 0u; i < shape->particlesLength; i++)
 		{
 			Vec3 relativePosition;
-			diff(particles[i], centerOfMassAfterCollision, &relativePosition);
+			diff(particles[i], centerOfMassAfterCollision, relativePosition);
 
 			Mat3 tempMatrix;
-			multiply(relativePosition, shape->initialParticles[i], &tempMatrix);
-			multiply(tempMatrix, mass, &tempMatrix);
+			multiply(relativePosition, shape->initialParticles[i], tempMatrix);
+			multiply(tempMatrix, mass, tempMatrix);
 			matrixApq += tempMatrix;
 		}
 		
+		Mat3 matrixApqT;
+		matrixApq.transpose(matrixApqT);
+
 		Mat3 symetricMatrix;
-		multiply(matrixApq.transpose(), matrixApq, symetricMatrix);
+		multiply(matrixApqT, matrixApq, symetricMatrix);
 
 		sp_assert(symetricMatrix.isSymetric(), "ApplicationException");
 
@@ -70,25 +75,21 @@ namespace NAMESPACE_PHYSICS
 
 		Mat3 rotationMatrix;
 		multiply(matrixApq, sqrtSymetricInv, rotationMatrix);
-
-		//SystemOfLinearEquations system;
-		//sp_log_debug1s("Rotation: \n");
-		//sp_log_debug1s(system.printMatrix(rotationMatrix, 3, 3).c_str());
-
+		
+		/*
+		Mat3 rotationMatrix;
 		Eigen::MatrixXf matrxApqEigen = Eigen::Map<Eigen::MatrixXf>(matrixApq, 3, 3);
 		Eigen::MatrixXf symetricMatrixEgen = Eigen::Map<Eigen::MatrixXf>(symetricMatrix, 3, 3);
 		Eigen::MatrixXf inverseMatrixS = symetricMatrixEgen.sqrt().inverse();
-
 		Eigen::Map<Eigen::MatrixXf>(rotationMatrix, 3, 3) = matrxApqEigen * inverseMatrixS;
-		//sp_log_debug1s("Rotation Eigen: \n");
-		//sp_log_debug1s(system.printMatrix(rotationMatrix, 3, 3).c_str());
+		*/
 
 		for (sp_uint i = 0u; i < shape->particlesLength; i++)
 		{
 			Vec3 newPosition;
 			rotationMatrix.multiply(shape->initialParticles[i], newPosition);
 
-			shape->particles[i] = newPosition + centerOfMassAfterCollision;
+			add(newPosition, centerOfMassAfterCollision, shape->particles[i]);
 		}
 	}
 
@@ -101,45 +102,42 @@ namespace NAMESPACE_PHYSICS
 		Vec3 centerOfMassAfterCollision;
 		shape->centerOfMass(centerOfMassAfterCollision);
 
-		Mat3 matrixApq = Mat3Zeros;
 		const sp_float mass = ONE_FLOAT / physicProperties->massInverse();
+
+		Mat3 matrixApq;
+		std::memcpy(&matrixApq, &Mat3Zeros, sizeof(Mat3));
 
 		for (sp_uint i = 0u; i < shape->particlesLength; i++)
 		{
 			Vec3 relativePosition;
-			diff(particles[i], centerOfMassAfterCollision, &relativePosition);
+			diff(particles[i], centerOfMassAfterCollision, relativePosition);
 
 			Mat3 tempMatrix;
-			multiply(relativePosition, shape->initialParticles[i], &tempMatrix);
-			multiply(tempMatrix, mass, &tempMatrix);
+			multiply(relativePosition, shape->initialParticles[i], tempMatrix);
+			multiply(tempMatrix, mass, tempMatrix);
 			matrixApq += tempMatrix;
 		}
 
-		Mat3 symetricMatrix;
-		multiply(matrixApq.transpose(), matrixApq, symetricMatrix);
+		Mat3 temp;
+		matrixApq.transpose(temp);
 
-		Mat3 sqrtSymetric;
-		sqrtm(symetricMatrix, sqrtSymetric, 10);
+		Mat3 symetricMatrix;
+		multiply(temp, matrixApq, symetricMatrix);
+
+		sqrtm(symetricMatrix, temp);
 
 		Mat3 sqrtSymetricInv;
-		inverse(sqrtSymetric, sqrtSymetricInv);
+		inverse(temp, sqrtSymetricInv);
 
-		Mat3 MyrotationMatrix;
-		multiply(matrixApq, sqrtSymetricInv, MyrotationMatrix);
+		Mat3 rotationMatrix;
+		multiply(matrixApq, sqrtSymetricInv, rotationMatrix);
 
 		/*
-		SystemOfLinearEquations system;
-		sp_log_debug1s("Rotation: \n");
-		sp_log_debug1s(system.printMatrix(MyrotationMatrix, 3, 3).c_str());
-
 		Eigen::MatrixXf symetricMatrixEgen = Eigen::Map<Eigen::MatrixXf>(symetricMatrix, 3, 3);
 		Eigen::MatrixXf inverseMatrixS = symetricMatrixEgen.sqrt().inverse();
 		Eigen::MatrixXf matrxApqEigen = Eigen::Map<Eigen::MatrixXf>(matrixApq, 3, 3);		
 		Mat3 rotationMatrix;
 		Eigen::Map<Eigen::MatrixXf>(rotationMatrix, 3, 3) = matrxApqEigen * inverseMatrixS;
-
-		sp_log_debug1s("Rotation Eigen: \n");
-		sp_log_debug1s(system.printMatrix(rotationMatrix, 3, 3).c_str());
 		
 		for (sp_uint i = 0; i < 9; i++)
 			if (!NAMESPACE_FOUNDATION::isCloseEnough(MyrotationMatrix[i], rotationMatrix[i]))
@@ -147,7 +145,7 @@ namespace NAMESPACE_PHYSICS
 		*/
 
 		Quat newOrientation;
-		MyrotationMatrix.convert(newOrientation);
+		rotationMatrix.convert(newOrientation);
 
 		SpTransform* transformation = SpPhysicSimulator::instance()->transforms(shape->objectIndex);
 		transformation->orientation *= newOrientation;
@@ -338,7 +336,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			Vec3 directionObj1;
 			shape1->centerOfMass(directionObj1);
-			diff(shape1->particles[mesh1Points[0]->index()], directionObj1, &directionObj1);
+			diff(shape1->particles[mesh1Points[0]->index()], directionObj1, directionObj1);
 			normalize(&directionObj1);
 
 			if (directionObj1.dot(collisionManifold.collisionNormal) > ZERO_FLOAT)
@@ -354,7 +352,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			Vec3 directionObj2;
 			shape2->centerOfMass(directionObj2);
-			diff(shape2->particles[mesh2Points[0]->index()], directionObj2, &directionObj2);
+			diff(shape2->particles[mesh2Points[0]->index()], directionObj2, directionObj2);
 			normalize(&directionObj2);
 
 			if (directionObj2.dot(collisionManifold.collisionNormal) > ZERO_FLOAT)

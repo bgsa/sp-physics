@@ -224,7 +224,7 @@ namespace NAMESPACE_PHYSICS
 			SpPhysicProperties* element = &_physicProperties[index];
 
 			Vec3 translation;
-			diff(element->previousState.position(), element->currentState.position(), &translation);
+			diff(element->previousState.position(), element->currentState.position(), translation);
 
 			element->rollbackState();
 			

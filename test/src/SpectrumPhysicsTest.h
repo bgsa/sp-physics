@@ -3,6 +3,7 @@
 
 #include "SpectrumFoundationTest.h"
 #include <SpectrumPhysics.h>
+#include <SpLogger.h>
 
 #ifndef NAMESPACE_PHYSICS_TEST
 	#define NAMESPACE_PHYSICS_TEST  SpPhysicsTest

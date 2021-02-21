@@ -54,7 +54,7 @@ namespace NAMESPACE_PHYSICS
 			diff(
 				vertexesMesh2[mesh2->support(search_dir, vertexesMesh2)->index()], 
 				vertexesMesh1[mesh1->support(-search_dir, vertexesMesh1)->index()], 
-				&newSimplexPoint
+				newSimplexPoint
 			);
 
 			if (newSimplexPoint.dot(search_dir) - depth < SP_EPSILON_THREE_DIGITS)
@@ -159,10 +159,10 @@ namespace NAMESPACE_PHYSICS
 		*/
 
 		Vec3 ab;
-		diff(b, a, &ab);
+		diff(b, a, ab);
 
 		Vec3 ac;
-		diff(c, a, &ac);
+		diff(c, a, ac);
 
 		Vec3 n;
 		NAMESPACE_PHYSICS::cross(ab, ac, &n); //triangle's normal
@@ -217,10 +217,10 @@ namespace NAMESPACE_PHYSICS
 		//We know a priori that origin is above BCD and below a
 
 		Vec3 ab;
-		diff(b, a, &ab);
+		diff(b, a, ab);
 
 		Vec3 ac;
-		diff(c, a, &ac);
+		diff(c, a, ac);
 
 		//Get normals of three new faces ABC, ACD, ADB
 		Vec3 ABC;
@@ -240,7 +240,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		Vec3 ad;
-		diff(d, a, &ad);
+		diff(d, a, ad);
 
 		Vec3 ACD;
 		cross(ac, ad, &ACD);

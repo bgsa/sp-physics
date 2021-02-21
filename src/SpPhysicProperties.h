@@ -211,7 +211,7 @@ namespace NAMESPACE_PHYSICS
 			_coeficientOfRestitution = 0.60f;
 			_coeficientOfFriction = 0.80f;
 			_inverseMass = ZERO_FLOAT;
-			_inertialTensorInverse = Mat3::identity();
+			_inertialTensorInverse = Mat3Identity;
 		}
 
 		API_INTERFACE inline Mat3 inertialTensorInverse() const
@@ -225,12 +225,11 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void inertialTensor(const Mat3& tensor)
 		{
 			const Mat3 orientationAsMatrix = currentState._orientation.toMat3();
+			Mat3 orientationAsMatrixT;
+			orientationAsMatrix.transpose(orientationAsMatrixT);
 
 			// I^-1 = R * I^-1 * R^T
-			_inertialTensorInverse =
-				orientationAsMatrix.transpose()
-				* tensor
-				* orientationAsMatrix;
+			multiply(orientationAsMatrixT, tensor, orientationAsMatrix, _inertialTensorInverse);
 		}
 
 		/// <summary>

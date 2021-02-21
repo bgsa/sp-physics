@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 				Vec3 vertex1 = vertexesMesh->get(edge1->vertexIndex1)->value();
 				Vec3 vertex2 = vertexesMesh->get(edge1->vertexIndex2)->value();
 				Vec3 newVertexValue;
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 				SpVertexMesh* newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -59,7 +59,7 @@ namespace NAMESPACE_PHYSICS
 
 				vertex1 = vertexesMesh->get(edge2->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge2->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 				newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -67,7 +67,7 @@ namespace NAMESPACE_PHYSICS
 
 				vertex1 = vertexesMesh->get(edge3->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge3->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 				newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -110,7 +110,7 @@ namespace NAMESPACE_PHYSICS
 					SpEdgeMesh* e = edges->get(face2->edgesIndexes[1]);
 					vertex1 = vertexesMesh->get(e->vertexIndex1)->value();
 					vertex2 = vertexesMesh->get(e->vertexIndex2)->value();
-					diff(vertex2, vertex1, &newVertexValue);
+					diff(vertex2, vertex1, newVertexValue);
 					newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 					newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -119,7 +119,7 @@ namespace NAMESPACE_PHYSICS
 					e = edges->get(face2->edgesIndexes[2]);
 					vertex1 = vertexesMesh->get(e->vertexIndex1)->value();
 					vertex2 = vertexesMesh->get(e->vertexIndex2)->value();
-					diff(vertex2, vertex1, &newVertexValue);
+					diff(vertex2, vertex1, newVertexValue);
 					newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 					newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -148,19 +148,19 @@ namespace NAMESPACE_PHYSICS
 				Vec3 newVertexValue;
 				Vec3 vertex1 = vertexesMesh->get(edge1->vertexIndex1)->value();
 				Vec3 vertex2 = vertexesMesh->get(edge1->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 				sp_uint newVertexIndex1 = newMesh->findVertex(newVertexValue);
 
 				vertex1 = vertexesMesh->get(edge2->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge2->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 				sp_uint newVertexIndex2 = newMesh->findVertex(newVertexValue);
 
 				vertex1 = vertexesMesh->get(edge3->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge3->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 				sp_uint newVertexIndex3 = newMesh->findVertex(newVertexValue);
 
