@@ -7,26 +7,13 @@
 #include "SpPhysicSimulator.h"
 #include "SpMesh.h"
 #include "SpGJK.h"
+
+/*
 #include "SpMatlabExporter.h"
 #include <eigen/Dense>
 #include <eigen/Eigenvalues> 
 #include <Eigen/Jacobi> 
-
-/*
-#define ARMA_USE_LAPACK
-#define ARMA_USE_BLAS
-#define ARMA_DONT_USE_SUPERLU
-#define ARMA_DONT_USE_ARPACK
-#define ARMA_DONT_USE_WRAPPER
-#include <armandillo/armadillo>
 */
-
-//#include "mkl.h"
-//#include "mkl_cblas.h"
-
-//#include <blaze/Math.h>
-//using blaze::DynamicMatrix;
-//using blaze::DynamicVector;
 
 namespace NAMESPACE_PHYSICS
 {

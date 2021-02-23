@@ -124,7 +124,7 @@ namespace NAMESPACE_PHYSICS
 	void Mat3::symmetric(Mat3& output) const
 	{
 		Mat3 matrixT;
-		this->transpose(matrixT);
+		transpose(matrixT);
 		NAMESPACE_PHYSICS::multiply(*this, matrixT, output);
 	}
 

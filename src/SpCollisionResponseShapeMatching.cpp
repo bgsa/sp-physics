@@ -29,18 +29,16 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::shapeMatch(SpRigidBodyShapeMatch* shape)
 	{
-		SpPhysicProperties* physicProperties = SpPhysicSimulator::instance()->physicProperties(shape->objectIndex);
-		const Vec3* particles = shape->particles;
-		
-		// find new center of mass...
 		Vec3 centerOfMassAfterCollision;
 		shape->centerOfMass(centerOfMassAfterCollision);
 	
-		const sp_float mass = ONE_FLOAT / physicProperties->massInverse();
+		const sp_float mass = ONE_FLOAT / SpPhysicSimulator::instance()->physicProperties(shape->objectIndex)->massInverse();
 
 		Mat3 matrixApq;
 		std::memcpy(&matrixApq , &Mat3Zeros, sizeof(Mat3));
-		
+
+		const Vec3* particles = shape->particles;
+
 		for (sp_uint i = 0u; i < shape->particlesLength; i++)
 		{
 			Vec3 relativePosition;
@@ -51,21 +49,9 @@ namespace NAMESPACE_PHYSICS
 			multiply(tempMatrix, mass, tempMatrix);
 			matrixApq += tempMatrix;
 		}
-		
-		Mat3 matrixApqT;
-		matrixApq.transpose(matrixApqT);
 
 		Mat3 symetricMatrix;
-		multiply(matrixApqT, matrixApq, symetricMatrix);
-
-		sp_assert(symetricMatrix.isSymetric(), "ApplicationException");
-
-		/*
-		Mat3 diagonalizedMatrix;
-		symetricMatrix.diagonalize(&diagonalizedMatrix, &iterations, SP_EPSILON_TWO_DIGITS);
-		Vec3 eigenValues;
-		diagonalizedMatrix.primaryDiagonal(&eigenValues);
-		*/
+		matrixApq.symmetric(symetricMatrix);
 
 		Mat3 sqrtSymetric;
 		sqrtm(symetricMatrix, sqrtSymetric);
@@ -75,14 +61,6 @@ namespace NAMESPACE_PHYSICS
 
 		Mat3 rotationMatrix;
 		multiply(matrixApq, sqrtSymetricInv, rotationMatrix);
-		
-		/*
-		Mat3 rotationMatrix;
-		Eigen::MatrixXf matrxApqEigen = Eigen::Map<Eigen::MatrixXf>(matrixApq, 3, 3);
-		Eigen::MatrixXf symetricMatrixEgen = Eigen::Map<Eigen::MatrixXf>(symetricMatrix, 3, 3);
-		Eigen::MatrixXf inverseMatrixS = symetricMatrixEgen.sqrt().inverse();
-		Eigen::Map<Eigen::MatrixXf>(rotationMatrix, 3, 3) = matrxApqEigen * inverseMatrixS;
-		*/
 
 		for (sp_uint i = 0u; i < shape->particlesLength; i++)
 		{
@@ -171,55 +149,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		return false;
-
-		/*
-
-		Vec3* particles = shape2->particles;
-		sp_uint particleIndex = SP_UINT_MAX;
-		for (sp_uint i = 0; i < shape2->particlesLength; i++)
-			if (particles[i].y < ZERO_FLOAT)
-			{
-				particleIndex = i;
-				break;
-			}
-
-		if (particleIndex == SP_UINT_MAX)
-			return false;
-
-		SpVertexMesh* vertexMesh = mesh->vertexesMesh->get(particleIndex);
-
-		collisionManifold->edgeObjectIndex = shape2->objectIndex;
-
-		collisionManifold->faceObjectIndex = shape1->objectIndex;
-		collisionManifold->faceIndex = 0u;
-		collisionManifold->collisionNormal = Vec3Up;
-
-		// find penetrated edge to fill collision manifold
-		sp_float offset = ZERO_FLOAT;	
-		while (collisionManifold->edgeIndex == SP_UINT_MAX)
-		{
-			for (sp_uint i = 0; i < vertexMesh->edgeLength(); i++)
-			{
-				SpEdgeMesh* e = vertexMesh->edges(i);
-				const sp_float v1_y = particles[e->vertexIndex1].y;
-				const sp_float v2_y = particles[e->vertexIndex2].y;
-
-				// check this edge cross the plane
-				if ((v1_y + offset <= ZERO_FLOAT && v2_y + offset > ZERO_FLOAT)
-					|| (v2_y + offset <= ZERO_FLOAT && v1_y + offset > ZERO_FLOAT))
-				{
-					collisionManifold->edgeIndex = e->index();
-					collisionManifold->depth = -(v1_y < ZERO_FLOAT ? v1_y : v2_y);
-					break;
-				}
-			}
-			offset += HALF_FLOAT;
-		}
-
-		sp_assert(collisionManifold->edgeIndex != SP_UINT_MAX, "ApplicationException");
-
-		return true;
-		*/
 	}
 
 	sp_bool SpCollisionResponseShapeMatching::hasCollision(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, SpCollisionDetails* collisionManifold, sp_uint& mesh1PointsLength, SpVertexMesh** mesh1Points, sp_uint& mesh2PointsLength, SpVertexMesh** mesh2Points)
