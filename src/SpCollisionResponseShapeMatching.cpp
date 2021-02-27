@@ -54,10 +54,12 @@ namespace NAMESPACE_PHYSICS
 		matrixApq.symmetric(symetricMatrix);
 
 		Mat3 sqrtSymetric;
-		sqrtm(symetricMatrix, sqrtSymetric);
+		if (!sqrtm(symetricMatrix, sqrtSymetric, 40))
+			return;
 
 		Mat3 sqrtSymetricInv;
 		inverse(sqrtSymetric, sqrtSymetricInv);
+		//transpose(sqrtSymetric, sqrtSymetricInv);
 
 		Mat3 rotationMatrix;
 		multiply(matrixApq, sqrtSymetricInv, rotationMatrix);
@@ -102,25 +104,14 @@ namespace NAMESPACE_PHYSICS
 		Mat3 symetricMatrix;
 		multiply(temp, matrixApq, symetricMatrix);
 
-		sqrtm(symetricMatrix, temp);
+		if (!sqrtm(symetricMatrix, temp, 40))
+			return;
 
 		Mat3 sqrtSymetricInv;
 		inverse(temp, sqrtSymetricInv);
 
 		Mat3 rotationMatrix;
 		multiply(matrixApq, sqrtSymetricInv, rotationMatrix);
-
-		/*
-		Eigen::MatrixXf symetricMatrixEgen = Eigen::Map<Eigen::MatrixXf>(symetricMatrix, 3, 3);
-		Eigen::MatrixXf inverseMatrixS = symetricMatrixEgen.sqrt().inverse();
-		Eigen::MatrixXf matrxApqEigen = Eigen::Map<Eigen::MatrixXf>(matrixApq, 3, 3);		
-		Mat3 rotationMatrix;
-		Eigen::Map<Eigen::MatrixXf>(rotationMatrix, 3, 3) = matrxApqEigen * inverseMatrixS;
-		
-		for (sp_uint i = 0; i < 9; i++)
-			if (!NAMESPACE_FOUNDATION::isCloseEnough(MyrotationMatrix[i], rotationMatrix[i]))
-				int a = 1;
-		*/
 
 		Quat newOrientation;
 		rotationMatrix.convert(newOrientation);

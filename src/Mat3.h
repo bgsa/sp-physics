@@ -613,8 +613,8 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="eigenVectors">EigenVectors output</param>
 		/// <param name="iterations">Iterations length</param>
 		/// <param name="_epsilon">Default error margin</param>
-		/// <returns>void</returns>
-		API_INTERFACE void eigenValuesAndVectors(Vec3& eigenValues, Mat3& eigenVectors, sp_uint& iterations, const sp_uint maxIterations = SP_UINT_MAX, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
+		/// <returns>True if the method converge orelse False</returns>
+		API_INTERFACE sp_bool eigenValuesAndVectors(Vec3& eigenValues, Mat3& eigenVectors, sp_uint& iterations, const sp_uint maxIterations = SP_UINT_MAX, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
 
 		/// <summary>
 		/// Diagonalize the matrix the symetric matrix using Jacobi method
@@ -797,8 +797,8 @@ namespace NAMESPACE_PHYSICS
 	/// </summary>
 	/// <param name="input">Input Matrix</param>
 	/// <param name="output">Output Matrix</param>
-	/// <returns>void</returns>
-	API_INTERFACE void sqrtm(const Mat3& input, Mat3& output, const sp_uint maxIterations = SP_UINT_MAX);
+	/// <returns>True if the method converged orelse False</returns>
+	API_INTERFACE sp_bool sqrtm(const Mat3& input, Mat3& output, const sp_uint maxIterations = 20);
 
 #undef M11
 #undef M12

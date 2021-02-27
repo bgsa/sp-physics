@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="vertexesMesh2">Vertexes of Mesh2</param>
 	/// <param name="output">4 vertex of tetrahedron</param>
 	/// <param name="maxIterations">(optional) Maximum iterations</param>
-	/// <returns></returns>
+	/// <returns>True if the method converged orelse False</returns>
 	API_INTERFACE sp_bool gjk(const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3* output, sp_uint maxIterations = SP_GJK_MAX_ITERATIONS);
 
 	/// <summary>

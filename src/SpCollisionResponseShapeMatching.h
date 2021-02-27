@@ -8,13 +8,6 @@
 #include "SpMesh.h"
 #include "SpGJK.h"
 
-/*
-#include "SpMatlabExporter.h"
-#include <eigen/Dense>
-#include <eigen/Eigenvalues> 
-#include <Eigen/Jacobi> 
-*/
-
 namespace NAMESPACE_PHYSICS
 {
 	class SpRigidBodyShapeMatch

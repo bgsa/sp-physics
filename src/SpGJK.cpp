@@ -5,8 +5,8 @@ namespace NAMESPACE_PHYSICS
 
 	void epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon)
 	{
-#define EPA_MAX_NUM_FACES 64
-#define EPA_MAX_NUM_LOOSE_EDGES 32
+#define EPA_MAX_NUM_FACES 128
+#define EPA_MAX_NUM_LOOSE_EDGES 64
 #define EPA_MAX_NUM_ITERATIONS 64
 #define EPA_BIAS 0.000001
 		Vec3 faces[EPA_MAX_NUM_FACES][4]; //Array of faces, each with 3 verts and a normal

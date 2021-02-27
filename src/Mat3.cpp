@@ -623,7 +623,7 @@ namespace NAMESPACE_PHYSICS
 #undef aqq
 	}
 
-	void Mat3::eigenValuesAndVectors(Vec3& eigenValues, Mat3& eigenVectors, sp_uint& iterations, const sp_uint maxIterations, const sp_float _epsilon) const
+	sp_bool Mat3::eigenValuesAndVectors(Vec3& eigenValues, Mat3& eigenVectors, sp_uint& iterations, const sp_uint maxIterations, const sp_float _epsilon) const
 	{
 #define aqq matrix.get(columnIndex, columnIndex)
 #define	app matrix.get(rowIndex, rowIndex)
@@ -649,7 +649,7 @@ namespace NAMESPACE_PHYSICS
 				+ matrix.m31 * matrix.m31;
 
 			//while (!isCloseEnough(previousResult, eigenValues, _epsilon) && !matrix.isLower(_epsilon))
-			while (!NAMESPACE_FOUNDATION::isCloseEnough(offDiagonal, ZERO_FLOAT, _epsilon))
+			while (!NAMESPACE_FOUNDATION::isCloseEnough(offDiagonal, ZERO_FLOAT, _epsilon) && iterations < maxIterations)
 			{
 				matrix.primaryDiagonal(previousResult);
 
@@ -719,6 +719,8 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(false, "NotImplementedException");
 		}
+
+		return iterations != maxIterations;
 #undef apq
 #undef app
 #undef aqq
@@ -1034,15 +1036,17 @@ namespace NAMESPACE_PHYSICS
 		output.z = (m21 - m12) * w4;
 	}
 
-	void sqrtm(const Mat3& input, Mat3& output, const sp_uint maxIterations)
+	sp_bool sqrtm(const Mat3& input, Mat3& output, const sp_uint maxIterations)
 	{
 		sp_uint iterations;
 		Mat3 eigenVectors;
 		Vec3 eigenValues;
-		input.eigenValuesAndVectors(eigenValues, eigenVectors, iterations, maxIterations);
+		if (!input.eigenValuesAndVectors(eigenValues, eigenVectors, iterations, maxIterations))
+			return false;
 
 		Mat3 eigenVectorsInverse;
 		inverse(eigenVectors, eigenVectorsInverse);
+		//transpose(eigenVectors, eigenVectorsInverse);
 
 		Mat3 temp;
 		multiply(eigenVectorsInverse, input, eigenVectors, temp);
