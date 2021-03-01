@@ -410,6 +410,19 @@ namespace NAMESPACE_PHYSICS
 	const Vec3 Vec3Front = Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
 	const Vec3 Vec3Depth = Vec3(ZERO_FLOAT, ZERO_FLOAT, -ONE_FLOAT);
 
+	/// <summary>
+	/// Fast Swap the vectors A and B
+	/// </summary>
+	/// <param name="a">Vector A</param>
+	/// <param name="b">Vector B</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void swap(Vec3& a, Vec3& b)
+	{
+		Vec3 temp = a;
+		a = b;
+		b = temp;
+	}
+
 	API_INTERFACE inline void abs(Vec3& output)
 	{
 		output.x = std::fabsf(output.x);

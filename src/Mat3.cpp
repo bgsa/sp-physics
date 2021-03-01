@@ -1058,6 +1058,8 @@ namespace NAMESPACE_PHYSICS
 		diagonal.m33 = sqrtf(temp.m33);
 
 		multiply(eigenVectors, diagonal, eigenVectorsInverse, output);
+
+		return true;
 	}
 
 }

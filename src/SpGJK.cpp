@@ -124,12 +124,7 @@ namespace NAMESPACE_PHYSICS
 				//Check for wrong normal to maintain CCW winding
 				if (faces[num_faces][0].dot(faces[num_faces][3]) + EPA_BIAS < ZERO_FLOAT)
 				{
-					/* aqui é um std::swap ?!?! */
-					std::swap(faces[num_faces][0], faces[num_faces][1]);
-					Vec3 temp = faces[num_faces][0];
-					faces[num_faces][0] = faces[num_faces][1];
-					faces[num_faces][1] = temp;
-					/**/
+					NAMESPACE_PHYSICS::swap(faces[num_faces][0], faces[num_faces][1]);
 
 					faces[num_faces][3] = -faces[num_faces][3];
 				}
