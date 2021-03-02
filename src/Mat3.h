@@ -8,21 +8,8 @@
 namespace NAMESPACE_PHYSICS
 {
 #define MAT3_LENGTH         (9)
-#define MAT3_SIZE           (MAT3_LENGTH * SIZEOF_FLOAT)
 #define MAT3_ROW_LENGTH     (3)
 #define MAT3_TWO_ROW_LENGTH (6)
-
-#define M11 (0)
-#define M12 (1)
-#define M13 (2)
-
-#define M21 (3)
-#define M22 (4)
-#define M23 (5)
-
-#define M31 (6)
-#define M32 (7)
-#define M33 (8)
 
 	class Mat3
 	{
@@ -699,17 +686,17 @@ namespace NAMESPACE_PHYSICS
 
 	API_INTERFACE inline void transpose(const Mat3& input, Mat3& output)
 	{
-		output[M11] = input[M11];
-		output[M12] = input[M21];
-		output[M13] = input[M31];
+		output.m11 = input.m11;
+		output.m12 = input.m21;
+		output.m13 = input.m31;
 		
-		output[M21] = input[M12];
-		output[M22] = input[M22];
-		output[M23] = input[M32];
+		output.m21 = input.m12;
+		output.m22 = input.m22;
+		output.m23 = input.m32;
 		
-		output[M31] = input[M13];
-		output[M32] = input[M23];
-		output[M33] = input[M33];
+		output.m31 = input.m13;
+		output.m32 = input.m23;
+		output.m33 = input.m33;
 	}
 
 	/// <summary>
@@ -799,18 +786,6 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="output">Output Matrix</param>
 	/// <returns>True if the method converged orelse False</returns>
 	API_INTERFACE sp_bool sqrtm(const Mat3& input, Mat3& output, const sp_uint maxIterations = 20);
-
-#undef M11
-#undef M12
-#undef M13
-
-#undef M21
-#undef M22
-#undef M23
-
-#undef M31
-#undef M32
-#undef M33
 
 }
 
