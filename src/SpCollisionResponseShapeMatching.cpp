@@ -8,7 +8,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint meshIndex = SpPhysicSimulator::instance()->collisionFeatures(objIndex)->meshIndex;
 		SpMesh* mesh = SpPhysicSimulator::instance()->mesh(meshIndex);
 		SpTransform* transformation = SpPhysicSimulator::instance()->transforms(objIndex);
-		SpPhysicProperties* physicProperties = SpPhysicSimulator::instance()->physicProperties(objIndex);
+		SpRigidBody3D* physicProperties = SpPhysicSimulator::instance()->physicProperties(objIndex);
 
 		shape->objectIndex = objIndex;
 		shape->initialPosition = transformation->position;
@@ -75,7 +75,7 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape)
 	{
-		SpPhysicProperties* physicProperties = SpPhysicSimulator::instance()->physicProperties(shape->objectIndex);
+		SpRigidBody3D* physicProperties = SpPhysicSimulator::instance()->physicProperties(shape->objectIndex);
 		const Vec3* particles = shape->particles;
 
 		// find new center of mass...

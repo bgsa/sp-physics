@@ -3,7 +3,7 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	void SpCollisionResponse::addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const sp_bool obj2IsPositiveNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j, SpCollisionDetails* details)
+	void SpCollisionResponse::addFriction(SpRigidBody3D* obj1Properties, SpRigidBody3D* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const sp_bool obj2IsPositiveNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j, SpCollisionDetails* details)
 	{
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
 
@@ -88,8 +88,8 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
 		const sp_float physicVelocity = SpPhysicSettings::instance()->physicVelocity();
-		SpPhysicProperties* obj1Properties = simulator->physicProperties(details->objIndex1);
-		SpPhysicProperties* obj2Properties = simulator->physicProperties(details->objIndex2);
+		SpRigidBody3D* obj1Properties = simulator->physicProperties(details->objIndex1);
+		SpRigidBody3D* obj2Properties = simulator->physicProperties(details->objIndex2);
 
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
 		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());

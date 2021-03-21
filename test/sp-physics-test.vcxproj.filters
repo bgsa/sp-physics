@@ -161,9 +161,6 @@
     <ClCompile Include="src\SpectrumPhysicsTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SpPhysicPropertiesGPUTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SpMeshTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -198,6 +195,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Vec3TestPerformance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpRigidBody3DGPUTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

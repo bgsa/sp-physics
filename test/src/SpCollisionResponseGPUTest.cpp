@@ -25,8 +25,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 
@@ -43,7 +43,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint indexesLength = 4u;
 		cl_mem indexesLengthGPU = gpu->createBuffer(&indexesLength, SIZEOF_UINT, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
 
-		cl_mem physicPropertiesGPU = gpu->createBuffer(propertiesObj1, sizeof(SpPhysicProperties) * 2u, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
+		cl_mem physicPropertiesGPU = gpu->createBuffer(propertiesObj1, sizeof(SpRigidBody3D) * 2u, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
 
 		cl_mem outputIndexesGPU = gpu->createBuffer(4 * SIZEOF_UINT, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE);
 		
@@ -58,8 +58,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		response.fetchCollisionLength(&length);
 		response.fetchCollisions(indexesResult);
 
-		SpPhysicProperties* resultProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, 2u);
-		gpu->commandManager->readBuffer(physicPropertiesGPU, sizeof(SpPhysicProperties) * 2u, resultProperties);
+		SpRigidBody3D* resultProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, 2u);
+		gpu->commandManager->readBuffer(physicPropertiesGPU, sizeof(SpRigidBody3D) * 2u, resultProperties);
 
 		Assert::IsTrue(length == 1u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(indexesResult[0] == 0u, L"Wrong value.", LINE_INFO());

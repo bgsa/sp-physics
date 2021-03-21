@@ -41,7 +41,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _objectsLength;
 		
 		DOP18* _boundingVolumes;
-		SpPhysicProperties* _physicProperties;
+		SpRigidBody3D* _physicProperties;
 		SpTransform* _transforms;
 		SpCollisionFeatures* _objectMapper;
 		SpArray<SpMesh*>* _meshes;
@@ -81,7 +81,7 @@ namespace NAMESPACE_PHYSICS
 			SpEventDispatcher::instance()->push(evt);
 		}
 
-		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
+		void addFriction(SpRigidBody3D* obj1Properties, SpRigidBody3D* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpuDOP18(SweepAndPruneResult* result);
@@ -104,7 +104,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		void updateDataOnCPU()
 		{
-			cl_event evt1 = gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
+			cl_event evt1 = gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpRigidBody3D) * _objectsLength, _physicProperties);
 			gpu->waitEvents(ONE_UINT, &evt1);
 		}
 
@@ -173,7 +173,7 @@ namespace NAMESPACE_PHYSICS
 			return &_boundingVolumes[index];
 		}
 
-		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) const
+		API_INTERFACE inline SpRigidBody3D* physicProperties(const sp_uint index) const
 		{
 			return &_physicProperties[index];
 		}
@@ -226,7 +226,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void backToTime(const sp_uint index)
 		{
-			SpPhysicProperties* element = &_physicProperties[index];
+			SpRigidBody3D* element = &_physicProperties[index];
 
 			Vec3 translation;
 			diff(element->previousState.position(), element->currentState.position(), translation);

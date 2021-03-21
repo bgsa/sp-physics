@@ -2,7 +2,7 @@
 #include <SweepAndPrune.h>
 #include "Randomizer.h"
 #include "DOP18.h"
-#include "SpPhysicProperties.h"
+#include "SpRigidBody3D.h"
 
 #define CLASS_NAME SweepAndPruneTest
 
@@ -2376,10 +2376,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem outputGpu = gpu->createBuffer(sizeof(AABB) * count * 2, CL_MEM_READ_ONLY);
 		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
 
-		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, count);
+		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, count);
 		for (sp_uint i = 0; i < count; i++)
 			physicProperties[i].mass(8.0f);
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * count, CL_MEM_READ_WRITE, true);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody3D) * count, CL_MEM_READ_WRITE, true);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << count
@@ -2390,7 +2390,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
 		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, 
-			physcPropertiesGpu, sizeof(SpPhysicProperties), outputGpu, outputLengthGpu, "");
+			physcPropertiesGpu, sizeof(SpRigidBody3D), outputGpu, outputLengthGpu, "");
 
 		PerformanceCounter counter; counter.start();
 		SweepAndPruneResult result1 = SweepAndPrune::findCollisions(aabbs1, count);
@@ -2427,8 +2427,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
 		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		
-		const sp_size physicPropertySize = sizeof(SpPhysicProperties);
-		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
+		const sp_size physicPropertySize = sizeof(SpRigidBody3D);
+		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
 		for (sp_uint i = 0; i < length; i++)
 			physicProperties[i].mass(8.0f);
 

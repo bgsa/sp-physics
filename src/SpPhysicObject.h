@@ -4,7 +4,7 @@
 #include "SpectrumPhysics.h"
 #include "SpPhysicSettings.h"
 #include "BoundingVolume.h"
-#include "SpPhysicProperties.h"
+#include "SpRigidBody3D.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -13,7 +13,7 @@ namespace NAMESPACE_PHYSICS
 		public Object
 	{
 	private:
-		SpPhysicProperties physicData;
+		SpRigidBody3D physicData;
 
 	public:
 

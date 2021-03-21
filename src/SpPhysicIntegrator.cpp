@@ -13,7 +13,7 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(index < simulator->objectsLength(), "IndexOutOfRangeException");
 
 		SpPhysicSettings* settings = SpPhysicSettings::instance();
-		SpPhysicProperties* element = simulator->physicProperties(index);
+		SpRigidBody3D* element = simulator->physicProperties(index);
 
 		if (element->isStatic())
 			return;
@@ -87,7 +87,7 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(index < simulator->objectsLength(), "IndexOutOfRangeException");
 
 		SpPhysicSettings* settings = SpPhysicSettings::instance();
-		SpPhysicProperties* element = simulator->physicProperties(index);
+		SpRigidBody3D* element = simulator->physicProperties(index);
 
 		const sp_float newElapsedTime = elapsedTime * settings->physicVelocity();
 

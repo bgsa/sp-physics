@@ -193,7 +193,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			const Vec3& velocity, const Vec3& angularVelocity)
 		{
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-			SpPhysicProperties* properties = simulator->physicProperties(index);
+			SpRigidBody3D* properties = simulator->physicProperties(index);
 
 			properties->currentState.position(position);
 			properties->previousState.position(position);
@@ -331,8 +331,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
@@ -460,8 +460,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
@@ -570,8 +570,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
@@ -618,8 +618,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
@@ -664,8 +664,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
@@ -805,8 +805,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		createMeshePlane();
 		createCubeMeshes(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		SpCollisionDetails details = newCollisionDetails();
 		resetObject(0u);
@@ -873,8 +873,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 		
@@ -921,8 +921,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 		
@@ -1022,8 +1022,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
@@ -1181,8 +1181,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
@@ -1216,8 +1216,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 		
@@ -1263,8 +1263,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 		
@@ -1312,8 +1312,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 

@@ -318,10 +318,11 @@
     <ClInclude Include="src\SpPhysicIntegrator.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
     <ClInclude Include="src\SpPhysicObjectList.h" />
-    <ClInclude Include="src\SpPhysicProperties.h" />
+    <ClInclude Include="src\SpRigidBody3D.h" />
     <ClInclude Include="src\SpPhysicSettings.h" />
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />
+    <ClInclude Include="src\SpRigidBody3DState.h" />
     <ClInclude Include="src\SpSIMD.h" />
     <ClInclude Include="src\SpSphereBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpTransform.h" />

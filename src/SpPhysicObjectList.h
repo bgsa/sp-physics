@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint physicIndex;
 		DOP18* _boundingVolumes;
 		SpCollisionFeatures* _objectMapper;
-		SpPhysicProperties* _physicProperties;
+		SpRigidBody3D* _physicProperties;
 
 	public:
 
@@ -36,7 +36,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get physic properties data from list
 		/// </summary>
-		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) 
+		API_INTERFACE inline SpRigidBody3D* physicProperties(const sp_uint index)
 		{
 			sp_assert(index < listLength, "IndexOutOfRangeException");
 			return &_physicProperties[index]; 

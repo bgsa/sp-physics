@@ -4,9 +4,9 @@
 #include <SweepAndPrune.h>
 #include "Randomizer.h"
 #include "DOP18.h"
-#include "SpPhysicProperties.h"
+#include "SpRigidBody3D.h"
 
-#define CLASS_NAME SpPhysicPropertiesGPUTest
+#define CLASS_NAME SpRigidBody3DGPUTest
 
 namespace NAMESPACE_PHYSICS_TEST
 {
@@ -23,12 +23,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		const sp_uint sizePhysicProperties = sizeof(SpPhysicProperties);
+		const sp_uint sizePhysicProperties = sizeof(SpRigidBody3D);
 		const sp_uint length = 3u;
-		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
+		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
 		for (sp_uint i = 0; i < length; i++)
 		{
-			sp_float index = (sp_float) (i * sizeof(SpPhysicProperties));
+			sp_float index = (sp_float) (i * sizeof(SpRigidBody3D));
 			
 			physicProperties[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
@@ -118,10 +118,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint length = 3u;
-		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
+		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
 		for (sp_uint i = 0; i < length; i++)
 		{
-			sp_float index = (sp_float)(i * sizeof(SpPhysicProperties));
+			sp_float index = (sp_float)(i * sizeof(SpRigidBody3D));
 
 			physicProperties[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
@@ -149,8 +149,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		//physicProperties[2].velocity(physicProperties[2].previousVelocity());
 		//physicProperties[2].acceleration(physicProperties[2].previousAcceleration());
 		
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody3D) * length, CL_MEM_READ_ONLY, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody3D), CL_MEM_READ_ONLY);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
@@ -166,7 +166,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(physcPropertiesGpu, sizeof(SpPhysicProperties) * length)
+			->setInputParameter(physcPropertiesGpu, sizeof(SpRigidBody3D) * length)
 			->setInputParameter(outputGpu, sizeof(sp_bool))
 			->buildFromProgram(sapProgram, "isResting");
 
@@ -193,12 +193,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, 2u);
+		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, 2u);
 		physicProperties[0].mass(ZERO_FLOAT);
 		physicProperties[1].mass(8.0f);
 
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * 2u, CL_MEM_READ_ONLY, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody3D) * 2u, CL_MEM_READ_ONLY, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody3D), CL_MEM_READ_ONLY);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
@@ -214,7 +214,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(physcPropertiesGpu, sizeof(SpPhysicProperties) * 2u)
+			->setInputParameter(physcPropertiesGpu, sizeof(SpRigidBody3D) * 2u)
 			->setInputParameter(outputGpu, sizeof(sp_bool))
 			->buildFromProgram(sapProgram, "isStatic");
 

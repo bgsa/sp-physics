@@ -6,7 +6,7 @@
 #include "SpectrumPhysics.h"
 #include "DOP18.h"
 #include "GpuContext.h"
-#include "SpPhysicProperties.h"
+#include "SpRigidBody3D.h"
 #include "FileSystem.h"
 
 namespace NAMESPACE_PHYSICS
@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(indexesGPU, outputIndexSize)
 				->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
-				->setInputParameter(physicPropertiesGPU, indexesLength * sizeof(SpPhysicProperties))
+				->setInputParameter(physicPropertiesGPU, indexesLength * sizeof(SpRigidBody3D))
 				->setInputParameter(outputIndexLengthGPU, SIZEOF_UINT)
 				->setInputParameter(outputIndexesGPU, outputIndexSize)
 				->buildFromProgram(program, "handleCollision");

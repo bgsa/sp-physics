@@ -71,7 +71,7 @@
     <ClCompile Include="src\Rectangle2DTest.cpp" />
     <ClCompile Include="src\SphereTest.cpp" />
     <ClCompile Include="src\SpMeshTest.cpp" />
-    <ClCompile Include="src\SpPhysicPropertiesGPUTest.cpp" />
+    <ClCompile Include="src\SpRigidBody3DGPUTest.cpp" />
     <ClCompile Include="src\SpTransformTest.cpp" />
     <ClCompile Include="src\SweepAndPruneTest.cpp" />
     <ClCompile Include="src\SystemOfLinearEquationsTest.cpp" />

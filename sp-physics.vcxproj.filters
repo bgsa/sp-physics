@@ -6452,9 +6452,6 @@
     <ClInclude Include="src\SpInertiaTensor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpPhysicProperties.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SpCollisionResponseGPU.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6540,6 +6537,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Plane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpRigidBody3DState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpRigidBody3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

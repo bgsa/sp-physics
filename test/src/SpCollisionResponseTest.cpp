@@ -88,8 +88,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector detector;
 		SpCollisionDetails details = newCollisionDetails();
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
 
 		details = newCollisionDetails();
 
