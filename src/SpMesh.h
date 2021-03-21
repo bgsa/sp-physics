@@ -16,8 +16,10 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 
-		SpVertexMesh* findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const;
-		SpVertexMesh* findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpMeshCache* cache, const Vec3& center) const;
+		SpVertexMesh* support(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const;
+		SpVertexMesh* support(SpVertexMesh* from, const Vec3& orientation, const Vec3* vertexes) const;
+
+		void supportAll(SpVertexMesh* from, const Vec3& orientation, const Vec3* vertexes, sp_uint& outputLength, SpVertexMesh** output, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
 
 		SpVertexMesh* findExtremeVertexPoint(SpVertexMesh* from, const Vec3& target, const SpMeshCache* cache, const Vec3& center) const;
 
@@ -51,8 +53,16 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline sp_uint vertexLength() const;
 	
-		API_INTERFACE SpVertexMesh* findExtremeVertexDirection(const Vec3& orientation, const SpTransform& transform, SpVertexMesh* from = nullptr) const;
-		API_INTERFACE SpVertexMesh* findExtremeVertexDirection(const Vec3& orientation, const SpMeshCache* cache, const Vec3& center, SpVertexMesh* startingFrom) const;
+		API_INTERFACE SpVertexMesh* support(const Vec3& direction, const SpTransform& transform, SpVertexMesh* from) const;
+		API_INTERFACE SpVertexMesh* support(const Vec3& direction, const Vec3* vertexes, SpVertexMesh* startingFrom) const;
+
+		API_INTERFACE void supportAll(const Vec3& direction, const Vec3* vertexes, SpVertexMesh* startingFrom, sp_uint& outputLength, SpVertexMesh** output, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
+		API_INTERFACE void supportAll(const Vec3& direction, const Vec3* vertexes, sp_uint& outputLength, SpVertexMesh** output, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
+
+		API_INTERFACE SpVertexMesh* support(const Vec3& direction, const Vec3* vertexes) const
+		{
+			return support(vertexesMesh->get(0), direction, vertexes);
+		}
 
 		API_INTERFACE SpVertexMesh* findExtremeVertexPoint(const Vec3& target, const SpMeshCache* cache, const Vec3& center, SpVertexMesh* startingFrom) const;
 

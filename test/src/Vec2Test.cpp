@@ -8,71 +8,40 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
-
 		SP_TEST_METHOD_DEF(Vec2_x_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_y_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_getValues_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_length_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_squared_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_add_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_subtract_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_scale_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_dot_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_angle_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_distance_Test);
-
-		SP_TEST_METHOD_DEF(Vec2_clone_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_normalize_Test);
-
-		SP_TEST_METHOD_DEF(Vec2_transformToUnit_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorMultiplyScalar_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorPlusVector_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorPlusScalar_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorMinusVector_Test);
-		
 		SP_TEST_METHOD_DEF(Vec2_operatorMinusScalar_Test);
-		
 		SP_TEST_METHOD_DEF(Vec2_operatorMinus_prefix_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorEqualVector_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorEqualScalar_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorNotEqual_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operatorIndex_Test);
-		
 		SP_TEST_METHOD_DEF(Vec2_operatorDireferent_value_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_orthogonalProjection_Test);
-
 		SP_TEST_METHOD_DEF(Vec2_operator_Serialize);
-
 		SP_TEST_METHOD_DEF(Vec2_operator_Deserialize);
-
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, Vec2_x_Test)
 	{
 		Vec2 vector = { 2.0f, -9.0f };
-		float expected = 2.0f;
+		sp_float expected = 2.0f;
 
-		float result = vector.x;
+		sp_float result = vector.x;
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}
@@ -80,9 +49,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec2_y_Test)
 	{
 		Vec2 vector = { 2.0f, -9.0f };
-		float expected = -9.0f;
+		sp_float expected = -9.0f;
 
-		float result = vector.y;
+		sp_float result = vector.y;
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}
@@ -90,20 +59,20 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec2_getValues_Test)
 	{
 		Vec2 vector = { 2.0f, -9.0f };
-		float expected[VEC2_LENGTH] = { 2.0f, -9.0f };
+		sp_float expected[VEC2_LENGTH] = { 2.0f, -9.0f };
 
-		float* result = vector.getValues();
+		sp_float* result = vector.values();
 
-		for (size_t i = 0; i < VEC2_LENGTH; i++)
+		for (sp_size i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Vec2_length_Test)
 	{
 		Vec2 vector = { 2.0f, -9.0f };
-		float expected = sqrt(85.0f);
+		sp_float expected = sqrt(85.0f);
 
-		float result = vector.length();
+		sp_float result = vector.length();
 
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}
@@ -111,9 +80,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec2_squared_Test)
 	{
 		Vec2 vector = { 2.0f, -9.0f };
-		float expected = 85.0f;
+		sp_float expected = 85.0f;
 
-		float result = vector.squared();
+		sp_float result = vector.squared();
 
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}
@@ -122,11 +91,11 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec2 vector = { 2.0f, -9.0f };
 		Vec2 vector2 = { 1.0f, 3.0f };
-		float expected[VEC2_LENGTH] = { 3.0f, -6.0f };
+		sp_float expected[VEC2_LENGTH] = { 3.0f, -6.0f };
 
 		vector.add(vector2);
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
 
@@ -134,22 +103,22 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec2 vector = { 2.0f, -9.0f };
 		Vec2 vector2 = { 1.0f, 3.0f };
-		float expected[VEC2_LENGTH] = { 1.0f, -12.0f };
+		sp_float expected[VEC2_LENGTH] = { 1.0f, -12.0f };
 
 		vector.subtract(vector2);
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Vec2_scale_Test)
 	{
 		Vec2 vector = { 2.0f, -9.0f };
-		float expected[VEC2_LENGTH] = { 6.0f, -27.0f };
+		sp_float expected[VEC2_LENGTH] = { 6.0f, -27.0f };
 
 		vector.scale(3.0f);
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], vector[i], L"Length value wrong.", LINE_INFO());
 	}
 	
@@ -157,9 +126,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec2 vector = { 2.0f, -9.0f };
 		Vec2 vector2 = { 4.0f, 3.0f };
-		float expected = -19.0f;
+		sp_float expected = -19.0f;
 
-		float result = vector.dot(vector2);
+		sp_float result = vector.dot(vector2);
 
 		Assert::AreEqual(expected, result, L"Length value wrong.", LINE_INFO());
 	}
@@ -169,9 +138,9 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec2 vector = { 3.0f, 0.0f };
 		Vec2 vector2 = { 4.0f, 2.0f };
 
-		float expected = 0.894427121f;
+		sp_float expected = 0.894427121f;
 
-		float result = vector.angle(vector2);
+		sp_float result = vector.angle(vector2);
 
 		Assert::AreEqual(expected, result, L"Value wrong.", LINE_INFO());
 	}
@@ -183,40 +152,19 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2 result = vector.normalize();
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Value wrong.", LINE_INFO());
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, Vec2_transformToUnit_Test)
-	{
-		Vec2 vector = { 3.0f, 2.0f };
-		Vec2 expected = { 0.832050323f, 0.554700196f };
-
-		vector.transformToUnit();
-
-		for (int i = 0; i < VEC2_LENGTH; i++)
-			Assert::AreEqual(expected[i], vector[i], L"Value wrong.", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Vec2_distance_Test)
 	{
 		Vec2 vector = { 2.0f, -9.0f };
 		Vec2 vector2 = { 1.0f, 3.0f };
-		float expected = 12.0415945f;
+		sp_float expected = 12.0415945f;
 
-		float result = vector.distance(vector2);
+		sp_float result = vector.distance(vector2);
 
 		Assert::AreEqual(expected, result, L"Value wrong.", LINE_INFO());
-	}
-
-	SP_TEST_METHOD(CLASS_NAME, Vec2_clone_Test)
-	{
-		Vec2 vector = { 2.0f, -9.0f };
-
-		Vec2 result = vector.clone();
-
-		for (int i = 0; i < VEC2_LENGTH; i++)
-			Assert::AreEqual(vector[i], result[i], L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Vec2_operatorMultiplyScalar_Test)
@@ -227,7 +175,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2 result = vector * 2;
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value", LINE_INFO());
 	}
 	
@@ -239,7 +187,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2 result = vector + vector2;
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
@@ -250,7 +198,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2 result = vector + 2.0f;
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
@@ -262,7 +210,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2 result = vector - vector2;
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
@@ -273,7 +221,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2 result = -vector;
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
@@ -284,7 +232,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2 result = vector - 2.0f;
 
-		for (int i = 0; i < VEC2_LENGTH; i++)
+		for (sp_int i = 0; i < VEC2_LENGTH; i++)
 			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
 	}
 
@@ -349,7 +297,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Vec2_operatorDireferent_value_Test)
 	{
 		Vec2 vector = { 0.0f, 0.0f };
-		bool result = vector != 0.0f;
+		sp_bool result = vector != 0.0f;
 		Assert::IsFalse(result, L"vector should not be diferente of Zero", LINE_INFO());
 
 		vector = { 0.0f, 1.0f };
@@ -368,7 +316,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec2* result = v.orthogonalProjection(u);
 		Vec2 proof = result[0] + result[1];
-		bool areEqual = u == proof;
+		sp_bool areEqual = u == proof;
 
 		Assert::AreEqual(1.6f, result[0][0], L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(1.2f, result[0][1], L"Wrong value.", LINE_INFO());

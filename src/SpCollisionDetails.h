@@ -22,19 +22,26 @@ namespace NAMESPACE_PHYSICS
 	public:
 		sp_uint objIndex1;
 		sp_uint objIndex2;
-		sp_float timeStep;
 		sp_bool ignoreCollision;
-
 		SpCollisionType type;
+		sp_float timeStep;
 		sp_float timeOfCollision;
+
+		Vec3 collisionNormal;
+		sp_float depth;
+		sp_uint vertexObjectIndex;
+		sp_uint edgeObjectIndex;
+		sp_uint faceObjectIndex;
+		sp_uint vertexIndex;
+		sp_uint edgeIndex;
+		sp_uint faceIndex;
+
 		Vec3 centerContactPoint;
+		Vec3 contactPoints[8];
+		sp_uint contactPointsLength;
 
 		sp_uint vertexIndexObj1;
 		sp_uint vertexIndexObj2;
-		Vec3 collisionNormal;
-
-		Vec3 contactPoints[8];
-		sp_uint contactPointsLength;
 
 		SpMeshCache* cacheObj1;
 		SpMeshCache* cacheObj2;
@@ -47,9 +54,12 @@ namespace NAMESPACE_PHYSICS
 			ignoreCollision = false;
 			type = SpCollisionType::None;
 			contactPointsLength = ZERO_UINT;
-		
+			
 			vertexIndexObj1 = SP_UINT_MAX;
 			vertexIndexObj2 = SP_UINT_MAX;
+
+			depth = SP_FLOAT_MAX;
+			edgeIndex = SP_UINT_MAX;
 		}
 
 	};

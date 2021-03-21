@@ -3132,8 +3132,11 @@
     <ClCompile Include="src\GpuBufferOpenCL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SpRigidBodyState.h">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpGJK.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -6455,6 +6458,9 @@
     <ClInclude Include="src\SpPhysicProperties.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SpCollisionResponseGPU.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\SpGpuBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6462,6 +6468,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpGpuTextureBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpCollisionFeatures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpMesh.h">
@@ -6518,16 +6527,19 @@
     <ClInclude Include="src\SpAABBFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpSpring.h">
+    <ClInclude Include="src\SpCollisionResponseShapeMatching.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpSoftBody.h">
+    <ClInclude Include="src\SpCollisionDetectorCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpBody.h">
+    <ClInclude Include="src\SpMatlabExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpRigidBodyMapper.h">
+    <ClInclude Include="src\SpGJK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpSphereBoundingVolumeFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -6562,7 +6574,13 @@
     <None Include="resources\opencl\src\Reverse.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
+    <None Include="resources\opencl\src\SpPhysicProperties.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
     <None Include="resources\opencl\src\Vec3.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
+    <None Include="resources\opencl\src\CollisionResponse.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
     <None Include="resources\opencl\src\DOP18.cl">
@@ -6589,14 +6607,7 @@
     <None Include="resources\opencl\src\SpMeshCache.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
-    <None Include="resources\opencl\src\SpRigidBody.cl">
-      <Filter>Resource Files\OpenCL\src</Filter>
-    </None>
-    <None Include="resources\opencl\src\SpBodyMapper.cl" />
-    <None Include="resources\opencl\src\SpParticle.cl">
-      <Filter>Resource Files\OpenCL\src</Filter>
-    </None>
-    <None Include="resources\opencl\src\SpSoftBody.cl">
+    <None Include="resources\opencl\src\Sphere.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
   </ItemGroup>

@@ -17,17 +17,22 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
+		sp_size totalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 		const sp_uint maxDigits = MAX_DIGITS_MANTISSA - 1;
+		sp_uint threadsLength;
 		sp_uint defaultLocalWorkSize;
 		sp_uint maxIteration;
 
 		cl_program program;
 
 		GpuCommand* commandCount;
+		GpuCommand* commandCountSwapped;
 		GpuCommand* commandPrefixScan;
+		GpuCommand* commandPrefixScanSwaped;
 		GpuCommand* commandReorder;
-		
+		GpuCommand* commandReorderSwapped;
+
 		GpuCommand* commandCountNegative;
 		GpuCommand* commandPrefixScanNegative;
 		GpuCommand* commandReorderNegative;
@@ -46,6 +51,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;
 
 		API_INTERFACE GpuRadixSorting* setParameters(cl_mem inputGpu, sp_uint indexesLengthCpu, cl_mem indexesGpu, cl_mem indexesLengthGpu, sp_uint striderCpu);
+
+		API_INTERFACE void updateIndexes(cl_mem newIndexes, cl_mem newIndexesLength);
 
 		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) override;
 

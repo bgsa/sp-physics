@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 		cl_program program;
-		
+
 		void initProgram(GpuDevice* gpu)
 		{
 			SpDirectory* filename = SpDirectory::currentDirectory()
@@ -48,7 +48,6 @@ namespace NAMESPACE_PHYSICS
 #endif
 
 	public:
-		cl_event lastEvent = nullptr;
 
 		/// <summary>
 		/// Create a 18-DOP using the mesh provided and the cache
@@ -62,12 +61,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			SpVertexMesh* vertex1 = mesh->vertexesMesh->get(0);
 
-			const sp_uint indexUp = mesh->findExtremeVertexDirection(Vec3Up, cache, position, vertex1)->index();
-			const sp_uint indexDown = mesh->findExtremeVertexDirection(Vec3Down, cache, position, vertex1)->index();
-			const sp_uint indexLeft = mesh->findExtremeVertexDirection(Vec3Left, cache, position, vertex1)->index();
-			const sp_uint indexRight = mesh->findExtremeVertexDirection(Vec3Right, cache, position, vertex1)->index();
-			const sp_uint indexFront = mesh->findExtremeVertexDirection(Vec3Front, cache, position, vertex1)->index();
-			const sp_uint indexDepth = mesh->findExtremeVertexDirection(Vec3Depth, cache, position, vertex1)->index();
+			const sp_uint indexUp = mesh->support(Vec3Up, cache->vertexes, vertex1)->index();
+			const sp_uint indexDown = mesh->support(Vec3Down, cache->vertexes, vertex1)->index();
+			const sp_uint indexLeft = mesh->support(Vec3Left, cache->vertexes, vertex1)->index();
+			const sp_uint indexRight = mesh->support(Vec3Right, cache->vertexes, vertex1)->index();
+			const sp_uint indexFront = mesh->support(Vec3Front, cache->vertexes, vertex1)->index();
+			const sp_uint indexDepth = mesh->support(Vec3Depth, cache->vertexes, vertex1)->index();
 
 			output->max[DOP18_AXIS_Y] = cache->vertexes[indexUp].y;
 			output->min[DOP18_AXIS_Y] = cache->vertexes[indexDown].y;
@@ -93,18 +92,18 @@ namespace NAMESPACE_PHYSICS
 				output->min[DOP18_AXIS_Z] -= 0.01f;
 			}
 
-			const sp_uint indexUpLeft = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_UP_LEFT_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexDownRight = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_DOWN_RIGHT_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexUpRight = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_UP_RIGHT_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexDownLeft = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_DOWN_LEFT_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexUpFront = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_UP_FRONT_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexDownDepth = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_DOWN_DEPTH_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexUpDepth = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_UP_DEPTH_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexDownFront = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_DOWN_FRONT_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexLeftDepth = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_LEFT_DEPTH_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexRightFront = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_RIGHT_FRONT_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexRightDepth = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_RIGHT_DEPTH_INDEX], cache, position, vertex1)->index();
-			const sp_uint indexLeftFront = mesh->findExtremeVertexDirection(DOP18_NORMALS[DOP18_PLANES_LEFT_FRONT_INDEX], cache, position, vertex1)->index();
+			const sp_uint indexUpLeft = mesh->support(DOP18_NORMALS[DOP18_PLANES_UP_LEFT_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexDownRight = mesh->support(DOP18_NORMALS[DOP18_PLANES_DOWN_RIGHT_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexUpRight = mesh->support(DOP18_NORMALS[DOP18_PLANES_UP_RIGHT_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexDownLeft = mesh->support(DOP18_NORMALS[DOP18_PLANES_DOWN_LEFT_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexUpFront = mesh->support(DOP18_NORMALS[DOP18_PLANES_UP_FRONT_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexDownDepth = mesh->support(DOP18_NORMALS[DOP18_PLANES_DOWN_DEPTH_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexUpDepth = mesh->support(DOP18_NORMALS[DOP18_PLANES_UP_DEPTH_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexDownFront = mesh->support(DOP18_NORMALS[DOP18_PLANES_DOWN_FRONT_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexLeftDepth = mesh->support(DOP18_NORMALS[DOP18_PLANES_LEFT_DEPTH_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexRightFront = mesh->support(DOP18_NORMALS[DOP18_PLANES_RIGHT_FRONT_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexRightDepth = mesh->support(DOP18_NORMALS[DOP18_PLANES_RIGHT_DEPTH_INDEX], cache->vertexes, vertex1)->index();
+			const sp_uint indexLeftFront = mesh->support(DOP18_NORMALS[DOP18_PLANES_LEFT_FRONT_INDEX], cache->vertexes, vertex1)->index();
 
 			Vec3 vertex = cache->vertexes[indexUpLeft];
 			output->min[DOP18_AXIS_UP_LEFT] = vertex.x - (vertex.y - position.y);
@@ -145,7 +144,7 @@ namespace NAMESPACE_PHYSICS
 
 #ifdef OPENCL_ENABLED
 
-		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, GpuBufferOpenCL* bodyMapperGPU, GpuBufferOpenCL* rigidBodiesGPU, GpuBufferOpenCL* softBodiesGPU, GpuBufferOpenCL* softBodyIndexesGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
+		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
 		{
 			initProgram(gpu);
 
@@ -154,10 +153,6 @@ namespace NAMESPACE_PHYSICS
 
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(inputLengthGPU)
-				->setInputParameter(bodyMapperGPU)
-				->setInputParameter(rigidBodiesGPU)
-				->setInputParameter(softBodiesGPU)
-				->setInputParameter(softBodyIndexesGPU)
 				->setInputParameter(meshCacheIndexes)
 				->setInputParameter(meshCacheVertexesLength)
 				->setInputParameter(meshCacheGPU)
@@ -166,20 +161,16 @@ namespace NAMESPACE_PHYSICS
 				->buildFromProgram(program, "buildDOP18");
 		}
 
-		API_INTERFACE void buildGPU(GpuDevice* gpu, cl_mem transformationsGPU)
+		API_INTERFACE void buildGPU() const
 		{
 			command->execute(1u, globalWorkSize, localWorkSize);
 
-			lastEvent = command->lastEvent;
-
 			/* test
-			sp_uint* p = ALLOC_ARRAY(sp_uint, 10000);
-			command->fetchInOutParameter(p, 0u);
-
-			command->fetchInOutParameter(p, 1u);
+			sp_uint* indexes = ALLOC_ARRAY(sp_uint, 100);
+			command->fetchInOutParameter(indexes, 1u);
 
 			sp_float* c = ALLOC_ARRAY(sp_float, 10000);
-			command->fetchInOutParameter(c, 9u);
+			command->fetchInOutParameter(c, 3u);
 			*/
 		}
 

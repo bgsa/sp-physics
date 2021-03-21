@@ -39,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 		mesh->vertex(vertexIndex1, transform, &ray->point);
 		mesh->vertex(vertexIndex2, transform, &ray->direction);
 
-		diff(ray->direction, ray->point, &ray->direction);
+		diff(ray->direction, ray->point, ray->direction);
 		
 		normalize(&ray->direction);
 	}

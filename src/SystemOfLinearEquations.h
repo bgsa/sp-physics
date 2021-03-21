@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="startingFromColumnIndex">Starting from this index</param>
 		API_INTERFACE inline void divideRow(sp_float* matrix, const sp_uint colLength, const sp_uint lineIndex, const sp_float value, const sp_uint startingFromColumnIndex = ZERO_UINT)
 		{
-			const sp_float newValue = 1.0f / value;
+			const sp_float newValue = div(ONE_FLOAT, value);
 
 			for (register sp_uint column = startingFromColumnIndex; column < colLength; column++)
 				matrix[lineIndex * colLength + column] *= newValue;
@@ -87,7 +87,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="line2Index">Line 2 Index</param>
 		API_INTERFACE inline void swapLines(sp_float* matrix, const sp_uint rowLength, const sp_uint colLength, const sp_uint line1Index, const sp_uint line2Index) const
 		{
-			const sp_size rowSize = sizeof(sp_float) * colLength;
+			const sp_size rowSize = SIZEOF_FLOAT * colLength;
 
 			sp_float* tempStorage = ALLOC_NEW_ARRAY(sp_float, colLength);
 
@@ -109,9 +109,16 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void pivot(sp_float* matrix, const sp_uint rowLength, register const sp_uint columnLength, const sp_uint pivotColumnIndex, const sp_uint pivotRowIndex) const;
 
 		/// <summary>
-		/// Solve a system of linear equations nxn
+		/// Solve a system of linear equations NxN
+		/// Uses Gauss Elimination with Partial Pivoting in Rows
 		/// </summary>
-		API_INTERFACE sp_float* solve(sp_float* matrix, sp_uint rowSize, sp_uint colSize);
+		/// <param name="matrix">Input Matrix</param>
+		/// <param name="rowLength">Row Length</param>
+		/// <param name="columnLength">Column Length</param>
+		/// <param name="output">Values</param>
+		/// <returns>True if there is any solution orelse False</returns>
+		API_INTERFACE sp_bool solve(sp_float* matrix, const sp_uint rowLength, 
+			const sp_uint columnLength, sp_float* output);
 
 		/// <summary>
 		/// Change the matrix to a cannonical form

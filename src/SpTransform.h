@@ -67,10 +67,17 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline Mat4 toMat4(const Vec3& initialPosition = Vec3Zeros) const
 		{
-			return Mat4::createTranslate(position)
-				* orientation.toMat4()
-				* Mat4::createScale(scaleVector)
-				* Mat4::createTranslate(-initialPosition);
+			Mat4 scale, translation1, translation2;
+			NAMESPACE_PHYSICS::createScale(scaleVector, scale);
+			NAMESPACE_PHYSICS::createTranslate(position, translation1);
+			NAMESPACE_PHYSICS::createTranslate(-initialPosition, translation2);
+
+			Mat4 temp1, temp2;
+			scale.multiply(translation2, temp1);
+			orientation.toMat4().multiply(temp1, temp2);
+			translation1.multiply(temp2, temp1);
+
+			return temp1;
 		}
 
 		/// <summary>

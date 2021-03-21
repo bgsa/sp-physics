@@ -2,6 +2,205 @@
 
 namespace NAMESPACE_PHYSICS
 {
+
+	void Mat::hessenberg(sp_float* matrix, const sp_uint columnLength, sp_float* output)
+	{
+		Eigen::MatrixXf m = Eigen::Map<Eigen::MatrixXf>(matrix, columnLength, columnLength);
+
+		Eigen::HessenbergDecomposition<Eigen::MatrixXcf> hd(columnLength);
+		hd.compute(m);
+
+		Eigen::MatrixXf e = hd.packedMatrix().real();
+
+		std::memcpy(output, e.data(), columnLength * columnLength * SIZEOF_FLOAT);
+
+		/*
+#define n columnLength
+		sp_float* v = ALLOC_ARRAY(sp_float, n);
+		sp_float* y = ALLOC_ARRAY(sp_float, n);
+		sp_float* u = ALLOC_ARRAY(sp_float, n);
+		sp_float* z = ALLOC_ARRAY(sp_float, n);
+
+		sp_float* m = ALLOC_ARRAY(sp_float, n * n);
+		std::memcpy(m, matrix, SIZEOF_FLOAT * n * n);
+
+		for (register sp_uint k = ZERO_FLOAT; k < n - 2u; k++)
+		{
+			sp_float q = ZERO_FLOAT;
+
+			for (sp_uint j = k + 1u; j < n; j++)
+				q += (m[j * columnLength + k] * m[j * columnLength + k]);
+
+			sp_float temp = m[(k + 1) * columnLength + k];
+			sp_float alpha;
+
+			if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT))
+				alpha = -sqrtf(q);
+			else
+				alpha = -((sqrtf(q) * temp) / fabsf(temp));
+
+			sp_float rqs = (alpha * alpha) - (alpha * temp);
+
+			std::memset(v, ZERO_INT, SIZEOF_FLOAT * n);
+			v[k + 1u] = temp - alpha;
+
+			for (sp_uint j = k + 2u; j < n; j++)
+				v[j] = m[j * columnLength + k];
+
+			// step 6:
+			std::memset(u, ZERO_INT, SIZEOF_FLOAT * n);
+			std::memset(y, ZERO_INT, SIZEOF_FLOAT * n);
+			for (sp_uint j = ZERO_UINT; j < n; j++)
+			{
+				temp = ZERO_FLOAT;
+				sp_float temp2 = ZERO_FLOAT;
+
+				for (sp_uint i = k + 1u; i < n; i++)
+				{
+					temp += m[j * columnLength + i] * v[i];
+					temp2 += m[i * columnLength + j] * v[i];
+				}
+
+				u[j] = div(temp, rqs);
+				y[j] = div(temp2, rqs);
+			}
+
+			// step 7:
+			sp_float prod = ZERO_FLOAT;
+			for (sp_uint i = k + 1u; i < n; i++)
+				prod += v[i] * u[i];
+
+			// step 8:
+			std::memset(z, ZERO_INT, SIZEOF_FLOAT * n);
+			for (sp_uint j = ZERO_UINT; j < n; j++)
+				z[j] = u[j] - div(prod, rqs) * v[j];
+
+			std::memcpy(output, m, SIZEOF_FLOAT * n * n);
+
+			// step 9 (10, 11):
+			for (register sp_uint l = k + 1u; l < n; l++)
+			{
+				for (sp_uint j = ZERO_UINT; j <= k; j++)
+				{
+					output[j * columnLength + l] = m[j * columnLength + l] - z[j] * v[l];
+					output[l * columnLength + j] = m[l * columnLength + j] - y[j] * v[l];
+				}
+
+				for (sp_uint j = k + ONE_UINT; j < n; j++)
+					output[j * columnLength + l]
+					= m[j * columnLength + l] - z[j] * v[l] - y[l] * v[j];
+			}
+
+			// step 12:
+			output[n * n - 1u] = m[n * n - 1u] - 2.0f * v[n - 1u] * z[n - 1u];
+
+			// step 13:
+			for (sp_uint j = k + 2u; j < n; j++)
+				output[k * columnLength + j] = output[j * columnLength + k] = ZERO_FLOAT;
+
+			// step 14:
+			output[(k + 1) * columnLength + k] = m[(k + 1) * columnLength + k] - v[k + 1u] * z[k];
+			output[k * columnLength + k + 1u] = output[(k + 1) * columnLength + k];
+
+			std::memcpy(m, output, sizeof(SIZEOF_FLOAT) * n * n);
+		}
+
+		ALLOC_RELEASE(v);
+#undef n
+*/
+
+		sp_assert(isHessenbergUpper(output, columnLength), "InvalidOperationException");
+	}
+
+	void Mat::householder(sp_float* matrix, const register sp_uint columnLength, sp_float* output)
+	{
+		sp_assert(isSymetric(matrix, columnLength), "InvalidArgumentException");
+
+#define n columnLength
+		sp_float* v = ALLOC_ARRAY(sp_float, n);
+		sp_float* u = ALLOC_ARRAY(sp_float, n);
+		sp_float* z = ALLOC_ARRAY(sp_float, n);
+
+		sp_float* m = ALLOC_ARRAY(sp_float, n * n);
+		std::memcpy(m, matrix, SIZEOF_FLOAT * n * n);
+
+		for (register sp_uint k = ZERO_UINT; k < n - 2u; k++)
+		{
+			sp_float q = ZERO_FLOAT;
+
+			for (sp_uint j = k + 1u; j < n; j++)
+				q += (m[j * columnLength + k] * m[j * columnLength + k]);
+
+			sp_float temp = m[(k + 1) * columnLength + k];
+			sp_float alpha;
+
+			if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT))
+				alpha = -sqrtf(q);
+			else
+				alpha = -((sqrtf(q) * temp) / fabsf(temp));
+
+			sp_float rqs = (alpha * alpha) - (alpha * temp);
+
+			std::memset(v, ZERO_INT, SIZEOF_FLOAT * n);
+			v[k + 1u] = temp - alpha;
+
+			for (sp_uint j = k + 2u; j < n; j++)
+				v[j] = m[j * columnLength + k];
+
+			// step 6:
+			std::memset(u, ZERO_INT, SIZEOF_FLOAT * n);
+			for (sp_uint j = k; j < n; j++)
+			{
+				temp = ZERO_FLOAT;
+
+				for (sp_uint i = k + 1u; i < n; i++)
+					temp += m[j * columnLength + i] * v[i];
+
+				u[j] = div(temp, rqs);
+			}
+
+			// step 7:
+			sp_float prod = ZERO_FLOAT;
+			for (sp_uint i = k + 1u; i < n; i++)
+				prod += v[i] * u[i];
+
+			// step 8:
+			std::memset(z, ZERO_INT, SIZEOF_FLOAT * n);
+			for (sp_uint j = k; j < n; j++)
+				z[j] = u[j] - div(prod, (2.0f * rqs)) * v[j];
+
+			std::memcpy(output, m, SIZEOF_FLOAT * n * n);
+
+			// step 9 (10, 11):
+			for (register sp_uint l = k + 1u; l < n - 1u; l++)
+			{
+
+				for (sp_uint j = l + 1u; j < n; j++)
+					output[j * columnLength + l]
+					= output[l * columnLength + j]
+					= m[j * columnLength + l] - v[l] * z[j] - v[j] * z[l];
+
+				output[l * columnLength + l] = m[l * columnLength + l] - 2.0f * v[l] * z[l];
+			}
+
+			// step 12:
+			output[n * n - 1u] = m[n * n - 1u] - 2.0f * v[n - 1u] * z[n - 1u];
+
+			// step 13:
+			for (sp_uint j = k + 2u; j < n; j++)
+				output[k * columnLength + j] = output[j * columnLength + k] = ZERO_FLOAT;
+
+			// step 14:
+			output[(k + 1) * columnLength + k] = m[(k + 1) * columnLength + k] - v[k + 1u] * z[k];
+			output[k * columnLength + k + 1u] = output[(k + 1) * columnLength + k];
+
+			std::memcpy(m, output, sizeof(SIZEOF_FLOAT) * n * n);
+		}
+
+		ALLOC_RELEASE(v);
+#undef n
+	}
+
 	void Mat::gaussianElimination(sp_float *matrix, const sp_int rowSize)
 	{
 		sp_int       i = 0;

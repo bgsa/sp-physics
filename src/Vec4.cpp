@@ -3,15 +3,6 @@
 namespace NAMESPACE_PHYSICS
 {
 	
-	Vec4::Vec4(const sp_float defaultValue)
-	{
-		x = defaultValue;
-		y = defaultValue;
-		z = defaultValue;
-		w = defaultValue;
-	}
-
-	
 	Vec4::Vec4(const Vec2& xyComponents, const Vec2& zwComponents)
 	{
 		x = xyComponents.x;
@@ -28,107 +19,6 @@ namespace NAMESPACE_PHYSICS
 		z = vector.z;
 		this->w = w;
 	}
-
-	
-	Vec4::Vec4(const sp_float x,const  sp_float y, const sp_float z, const sp_float w)
-	{
-		this->x = x;
-		this->y = y;
-		this->z = z;
-		this->w = w;
-	}
-
-	
-	sp_float* Vec4::getValues()
-	{
-		return (sp_float*)(this);
-	}
-
-	
-	sp_float Vec4::length() const
-	{
-		return std::sqrtf(squared());
-	}
-
-	
-	sp_float Vec4::squared() const
-	{
-		return (x * x) + (y * y) + (z * z) + (w * w);
-	}
-
-	
-	sp_float Vec4::maximum() const
-	{
-		sp_float value = x;
-
-		if (y > value)
-			value = y;
-
-		if (z > value)
-			value = z;
-
-		if (w > value)
-			value = w;
-
-		return value;
-	}
-
-	
-	sp_float Vec4::minimum() const
-	{
-		sp_float value = x;
-
-		if (y < value)
-			value = y;
-
-		if (z < value)
-			value = z;
-
-		if (w < value)
-			value = w;
-
-		return value;
-	}
-
-	
-	void Vec4::add(const Vec4& vector)
-	{
-		x += vector.x;
-		y += vector.y;
-		z += vector.z;
-		w += vector.w;
-	}
-
-	
-	void Vec4::subtract(const Vec4& vector)
-	{
-		x -= vector.x;
-		y -= vector.y;
-		z -= vector.z;
-		w -= vector.w;
-	}
-
-	
-	void Vec4::scale(const sp_float scale)
-	{
-		x *= scale;
-		y *= scale;
-		z *= scale;
-		w *= scale;
-	}
-
-	
-	sp_float Vec4::dot(const Vec4& vector) const
-	{
-		return x * vector.x + y * vector.y + z * vector.z + w * vector.w;
-	}
-
-	
-	sp_float Vec4::angle(const Vec4& vectorB) const
-	{
-		return dot(vectorB) / (length() * vectorB.length());
-	}
-
 	
 	Vec4 Vec4::normalize() const
 	{
@@ -148,138 +38,11 @@ namespace NAMESPACE_PHYSICS
 			w * vectorLengthInverted
 		};
 	}
-
-	
-	sp_float Vec4::distance(const Vec4& vector) const
-	{
-		sp_float xTemp = x - vector.x;
-		sp_float yTemp = y - vector.y;
-		sp_float zTemp = z - vector.z;
-		sp_float wTemp = w - vector.w;
-
-		return std::sqrtf(xTemp * xTemp + yTemp * yTemp + zTemp * zTemp + wTemp * wTemp);
-	}
-
-	
-	Vec4 Vec4::fractional()
-	{
-		return Vec4 {
-			x - floorf(x),
-			y - floorf(y),
-			z - floorf(z),
-			w - floorf(w)
-		};
-	}
-
-	
-	Vec4 Vec4::clone() const
-	{
-		return Vec4(x, y, z, w);
-	}
-
 	
 	Vec3 Vec4::toVec3() const
 	{
 		return Vec3(x, y, z);
 	}
-
-	
-	Vec4 Vec4::operator*(const sp_float value)
-	{
-		return Vec4(
-			x * value,
-			y * value,
-			z * value,
-			w * value
-			);
-	}
-
-	
-	Vec4 Vec4::operator*(const sp_float value) const
-	{
-		return Vec4(
-			x * value,
-			y * value,
-			z * value,
-			w * value
-			);
-	}
-
-	
-	Vec4 Vec4::operator/(const sp_float value) const
-	{
-		return Vec4 (
-			x / value,
-			y / value,
-			z / value,
-			w / value
-			);
-	}
-
-	
-	void Vec4::operator/=(const sp_float value)
-	{
-		x /= value;
-		y /= value;
-		z /= value;
-		w /= value;
-	}
-
-	
-	Vec4 Vec4::operator+(const Vec4& vector) const
-	{
-		return Vec4(
-			x + vector.x,
-			y + vector.y,
-			z + vector.z,
-			w + vector.w
-			);
-	}
-
-	
-	Vec4 Vec4::operator+(const sp_float value) const
-	{
-		return Vec4(
-			x + value,
-			y + value,
-			z + value,
-			w + value
-			);
-	}
-
-	
-	Vec4 Vec4::operator-(const Vec4& vector) const
-	{
-		return Vec4(
-			x - vector.x,
-			y - vector.y,
-			z - vector.z,
-			w - vector.w
-			);
-	}
-
-	
-	Vec4 Vec4::operator-(const sp_float value) const
-	{
-		return Vec4(
-			x - value,
-			y - value,
-			z - value,
-			w - value
-			);
-	}
-
-	
-	Vec4 Vec4::operator-() const
-	{
-		return Vec4(
-			-x,
-			-y,
-			-z,
-			-w
-			);
-	}
-
 	
 	Vec4 Vec4::operator*(const Mat4& matrix4x4) const
 	{
@@ -341,25 +104,6 @@ namespace NAMESPACE_PHYSICS
 		return result;
 	}
 
-	
-	sp_bool Vec4::operator==(const Vec4& vector) const
-	{
-		return x == vector.x
-			&& y == vector.y
-			&& z == vector.z
-			&& w == vector.w;
-	}
-
-	
-	sp_bool Vec4::operator==(const sp_float value) const
-	{
-		return x == value
-			&& y == value
-			&& z == value
-			&& w == value;
-	}
-
-	
 	sp_bool Vec4::operator!=(const Vec4& vector) const
 	{
 		return x != vector.x
@@ -368,72 +112,27 @@ namespace NAMESPACE_PHYSICS
 			|| w != vector.w;
 	}
 
-	
-	sp_float& Vec4::operator[](const sp_int index)
+	void multiply(const Vec4& vectorA, const Vec4& vectorB, Mat4* output)
 	{
-		sp_assert(index >= 0 && index < VEC4_LENGTH, "IndexOutOfrangeException");
+		output[0][0] = vectorA.x * vectorB.x;
+		output[0][1] = vectorA.x * vectorB.y;
+		output[0][2] = vectorA.x * vectorB.z;
+		output[0][3] = vectorA.x * vectorB.w;
 
-		return ((sp_float*)this)[index];
-	}
+		output[0][4] = vectorA.y * vectorB.x;
+		output[0][5] = vectorA.y * vectorB.y;
+		output[0][6] = vectorA.y * vectorB.z;
+		output[0][7] = vectorA.y * vectorB.w;
 
-	
-	sp_float Vec4::operator[](const sp_int index) const
-	{
-		sp_assert(index >= 0 && index < VEC4_LENGTH, "IndexOutOfrangeException");
+		output[0][8] = vectorA.z * vectorB.x;
+		output[0][9] = vectorA.z * vectorB.y;
+		output[0][10] = vectorA.z * vectorB.z;
+		output[0][11] = vectorA.z * vectorB.w;
 
-		return reinterpret_cast<const sp_float*>(this)[index];
-	}
-
-	
-	sp_float& Vec4::operator[](const sp_uint index)
-	{
-		sp_assert(index >= 0 && index < VEC4_LENGTH, "IndexOutOfrangeException");
-
-		return ((sp_float*)this)[index];
-	}
-
-	
-	sp_float Vec4::operator[](const sp_uint index) const
-	{
-		sp_assert(index >= 0 && index < VEC4_LENGTH, "IndexOutOfrangeException");
-
-		return reinterpret_cast<const sp_float*>(this)[index];
-	}
-
-#ifdef ENV_64BITS
-	
-	sp_float& Vec4::operator[](const sp_size index)
-	{
-		sp_assert(index >= 0 && index < VEC4_LENGTH);
-
-		return ((sp_float*)this)[index];
-	}
-
-	
-	sp_float Vec4::operator[](const sp_size index) const
-	{
-		sp_assert(index >= 0 && index < VEC4_LENGTH);
-
-		return reinterpret_cast<const sp_float*>(this)[index];
-	}
-#endif
-
-	
-	Vec4::operator void*() const
-	{
-		return (void*) this;
-	}
-
-	
-	Vec4::operator void*()
-	{
-		return (void*) this;
-	}
-
-	
-	Vec4::operator sp_float*() const
-	{
-		return (sp_float*) this;
+		output[0][12] = vectorA.w * vectorB.x;
+		output[0][13] = vectorA.w * vectorB.y;
+		output[0][14] = vectorA.w * vectorB.z;
+		output[0][15] = vectorA.w * vectorB.w;
 	}
 
 }

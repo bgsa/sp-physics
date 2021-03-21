@@ -107,7 +107,7 @@ namespace NAMESPACE_PHYSICS
 			return nullptr;
 
 		sp_float a = (ray*ray - circle2.ray*circle2.ray + distance * distance) / (2.0f * distance);
-		sp_float h = sqrt((ray * ray) - (a * a));
+		sp_float h = sqrtf((ray * ray) - (a * a));
 
 		Vec2 p3 = ((point2AsVector - point1AsVector) * (a / distance)) + center;
 

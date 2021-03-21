@@ -5,8 +5,7 @@
 #include "BoundingVolume.h"
 #include "SpPhysicSimulator.h"
 #include "SpPhysicSettings.h"
-#include "SpRigidBodyMapper.h"
-#include "SpBody.h"
+#include "SpCollisionFeatures.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -15,40 +14,32 @@ namespace NAMESPACE_PHYSICS
 	{
 	protected:
 		sp_uint listLength;
+		sp_uint physicIndex;
 		DOP18* _boundingVolumes;
-		SpRigidBodyMapper* _rigidBodyMapper;
-		sp_uint _bodyIndex;
-		sp_uint _globalBodyIndex;
-		SpBodyType _bodyType;
+		SpCollisionFeatures* _objectMapper;
+		SpPhysicProperties* _physicProperties;
 
 	public:
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		API_INTERFACE SpPhysicObjectList(const SpBodyType bodyType, const sp_uint length)
+		API_INTERFACE SpPhysicObjectList(const sp_uint length)
 		{
-			_bodyType = bodyType;
 			listLength = length;
+			physicIndex = SpPhysicSimulator::instance()->alloc(length);
+			_boundingVolumes = SpPhysicSimulator::instance()->boundingVolumes(physicIndex);
+			_physicProperties = SpPhysicSimulator::instance()->physicProperties(physicIndex);
+			_objectMapper = SpPhysicSimulator::instance()->collisionFeatures(physicIndex);
+		}
 
-			switch (bodyType)
-			{
-			case SpBodyType::Rigid:
-				_bodyIndex = SpPhysicSimulator::instance()->allocRigidBody(length, &_globalBodyIndex);
-				_rigidBodyMapper = SpPhysicSimulator::instance()->rigidBodyMapper(_bodyIndex);
-				break;
-
-			case SpBodyType::Soft:
-				_bodyIndex = SpPhysicSimulator::instance()->allocSoftBody(length, &_globalBodyIndex);
-				_rigidBodyMapper = nullptr;
-				break;
-
-			default:
-				sp_assert(false, "InvalidArgumentException");
-				break;
-			}
-
-			_boundingVolumes = SpPhysicSimulator::instance()->boundingVolumes(_globalBodyIndex);
+		/// <summary>
+		/// Get physic properties data from list
+		/// </summary>
+		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) 
+		{
+			sp_assert(index < listLength, "IndexOutOfRangeException");
+			return &_physicProperties[index]; 
 		}
 
 		/// <summary>
@@ -66,16 +57,16 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpTransform* transforms(const sp_uint index = ZERO_UINT) const
 		{
 			sp_assert(index < listLength, "IndexOutOfRangeException");
-			return SpPhysicSimulator::instance()->transforms(_globalBodyIndex + index);
+			return SpPhysicSimulator::instance()->transforms(physicIndex + index);
 		}
 
 		/// <summary>
 		/// Get collision features data from list
 		/// </summary>
-		API_INTERFACE inline SpRigidBodyMapper* rigidBodyMapper(const sp_uint rigidBodyIndex)
+		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index)
 		{
-			sp_assert(rigidBodyIndex < listLength, "IndexOutOfRangeException");
-			return &_rigidBodyMapper[rigidBodyIndex];
+			sp_assert(index < listLength, "IndexOutOfRangeException");
+			return &_objectMapper[index];
 		}
 
 		/// <summary>
@@ -91,7 +82,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE void update(const sp_uint index, sp_float elapsedTime)
 		{
-			SpPhysicSimulator::instance()->integrator->execute(_bodyIndex + index, elapsedTime);
+			SpPhysicSimulator::instance()->integrator->execute(physicIndex + index, elapsedTime);
 		}
 
 		API_INTERFACE void dispose() 

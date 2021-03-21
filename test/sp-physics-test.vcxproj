@@ -33,6 +33,8 @@
     <ClCompile Include="src\AlgorithmLagrangecpp.cpp" />
     <ClCompile Include="src\AlgorithmNewtonTest.cpp" />
     <ClCompile Include="src\GpuFindFirstNegativeTest.cpp" />
+    <ClCompile Include="src\MatTest.cpp" />
+    <ClCompile Include="src\SpCollisionResponseGPUTest.cpp" />
     <ClCompile Include="src\SpDOP18FactoryTest.cpp" />
     <ClCompile Include="src\SpOptimizationTest.cpp" />
     <ClCompile Include="src\AlgorithmSecantTest.cpp" />
@@ -78,6 +80,7 @@
     <ClCompile Include="src\Vec2Test.cpp" />
     <ClCompile Include="src\Vec3ListTest.cpp" />
     <ClCompile Include="src\Vec3Test.cpp" />
+    <ClCompile Include="src\Vec3TestPerformance.cpp" />
     <ClCompile Include="src\Vec4Test.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -226,7 +229,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Config
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)sp-foundation\lib\x86\$(Configuration);$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration);$(SolutionDir)sp-physics\lib\x86\$(Configuration);$(SolutionDir)sp-rendering\lib\x86\$(Configuration);$(SolutionDir)vendor\lib\x86\$(Configuration);C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.2\lib\Win32;$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGL32.lib;glew32sd.lib;glfw3.lib;OpenCL.lib;SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;glew32sd.lib;glfw3.lib;OpenCL.lib;SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;uuid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\$(Configuration)\*" "$(TargetDir)"
@@ -249,7 +252,7 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Config
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(SolutionDir)sp-physics\src;$(SolutionDir)sp-foundation\test\src;$(SolutionDir)sp-rendering\src;$(VCInstallDir)UnitTest\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>OPENGL_ENABLED;MSTEST_ENABLED;MAJOR_COLUMN_ORDER;OPENCL_ENABLED;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <UseFullPaths>true</UseFullPaths>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -259,14 +262,17 @@ xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Config
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)sp-foundation\lib\x86\$(Configuration);$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration);$(SolutionDir)sp-physics\lib\x86\$(Configuration);$(SolutionDir)vendor\lib\x86\$(Configuration);$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>OpenGL32.lib;OpenCL.lib;SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;glew32s.lib;glfw3.lib;OpenCL.lib;SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\$(Configuration)\*" "$(TargetDir)"
 xcopy /Y /S "$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration)\*" "$(TargetDir)"
 xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\$(Configuration)\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(TargetDir)"
-xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(TargetDir)"</Command>
+mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

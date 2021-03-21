@@ -6,7 +6,6 @@
 #include "SpectrumPhysics.h"
 #include "GpuCommand.h"
 #include "SpDirectory.h"
-#include "GpuBufferOpenCL.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -48,9 +47,7 @@ namespace NAMESPACE_PHYSICS
 			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, gpuBuffer, true, 0, bufferSize, cpuBuffer, eventsLength, eventsToWait, &evt));
 			return evt;
 		}
-
-		API_INTERFACE cl_event readBuffer(GpuBufferOpenCL* gpuBuffer, void* cpuBuffer, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr);
-
+		
 		API_INTERFACE cl_event readBufferAsync(cl_mem gpuBuffer, sp_size bufferSize, void* cpuBuffer, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr)
 		{
 			cl_event evt;

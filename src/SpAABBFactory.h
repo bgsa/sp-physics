@@ -63,12 +63,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			SpVertexMesh* vertex1 = mesh->vertexesMesh->get(0);
 
-			const sp_uint indexUp = mesh->findExtremeVertexDirection(Vec3Up, cache, position, vertex1)->index();
-			const sp_uint indexDown = mesh->findExtremeVertexDirection(Vec3Down, cache, position, vertex1)->index();
-			const sp_uint indexLeft = mesh->findExtremeVertexDirection(Vec3Left, cache, position, vertex1)->index();
-			const sp_uint indexRight = mesh->findExtremeVertexDirection(Vec3Right, cache, position, vertex1)->index();
-			const sp_uint indexFront = mesh->findExtremeVertexDirection(Vec3Front, cache, position, vertex1)->index();
-			const sp_uint indexDepth = mesh->findExtremeVertexDirection(Vec3Depth, cache, position, vertex1)->index();
+			const sp_uint indexUp = mesh->support(Vec3Up, cache->vertexes, vertex1)->index();
+			const sp_uint indexDown = mesh->support(Vec3Down, cache->vertexes, vertex1)->index();
+			const sp_uint indexLeft = mesh->support(Vec3Left, cache->vertexes, vertex1)->index();
+			const sp_uint indexRight = mesh->support(Vec3Right, cache->vertexes, vertex1)->index();
+			const sp_uint indexFront = mesh->support(Vec3Front, cache->vertexes, vertex1)->index();
+			const sp_uint indexDepth = mesh->support(Vec3Depth, cache->vertexes, vertex1)->index();
 
 			output->max[DOP18_AXIS_Y] = cache->vertexes[indexUp].y;
 			output->min[DOP18_AXIS_Y] = cache->vertexes[indexDown].y;
@@ -97,7 +97,7 @@ namespace NAMESPACE_PHYSICS
 
 #ifdef OPENCL_ENABLED
 
-		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, GpuBufferOpenCL* bodyMapperGPU, GpuBufferOpenCL* rigidBodyGPU, GpuBufferOpenCL* softBodyGPU, GpuBufferOpenCL* softBodyIndexesGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
+		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
 		{
 			initProgram(gpu);
 
@@ -106,10 +106,6 @@ namespace NAMESPACE_PHYSICS
 
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(inputLengthGPU)
-				->setInputParameter(bodyMapperGPU)
-				->setInputParameter(rigidBodyGPU)
-				->setInputParameter(softBodyGPU)
-				->setInputParameter(softBodyIndexesGPU)
 				->setInputParameter(meshCacheIndexes)
 				->setInputParameter(meshCacheVertexesLength)
 				->setInputParameter(meshCacheGPU)
@@ -118,7 +114,7 @@ namespace NAMESPACE_PHYSICS
 				->buildFromProgram(program, "buildAABB");
 		}
 
-		API_INTERFACE void buildGPU(GpuDevice* gpu, cl_mem transformationsGPU) const
+		API_INTERFACE void buildGPU() const
 		{
 			command->execute(1u, globalWorkSize, localWorkSize);
 		}

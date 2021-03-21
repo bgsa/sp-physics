@@ -1,19 +1,186 @@
-#ifndef SP_RIGID_BODY_HEADER
-#define SP_RIGID_BODY_HEADER
+#ifndef SP_PHYSIC_PROPERTIES
+#define SP_PHYSIC_PROPERTIES
 
 #include "SpectrumPhysics.h"
 #include "SpPhysicSettings.h"
-#include "SpBody.h"
-#include "SpRigidBodyState.h"
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpRigidBody
-		: public SpBody
+	class SpPhysicPropertiesState
+	{
+		friend class SpPhysicObject;
+		friend class SpPhysicObjectList;
+		friend class SpPhysicProperties;
+		friend class SpPhysicSimulator;
+		friend class SpCollisionResponse;
+		friend class SpPhysicIntegratorEuler;
+		friend class SpPhysicIntegratorVelocityVerlet;
+
+	private:
+		Vec3 _position;
+		Vec3 _velocity;
+		Vec3 _acceleration;
+		Vec3 _force;
+		Quat _orientation;
+		Vec3 _angularVelocity;
+		Vec3 _torque;
+
+	public:
+
+		/// <summary>
+		/// Default constructor
+		/// </summary>
+		/// <returns>void</returns>
+		API_INTERFACE SpPhysicPropertiesState()
+		{
+			reset();
+		}
+
+		/// <summary>
+/// Get the position of the object
+/// </summary>
+		API_INTERFACE inline Vec3 position() const
+		{
+			return _position;
+		}
+
+		/// <summary>
+		/// Add to previous position and the current position
+		/// </summary>
+		API_INTERFACE inline void position(const Vec3& newPosition)
+		{
+			_position = newPosition;
+		}
+
+		/// <summary>
+		/// Get the velocity of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 velocity() const
+		{
+			return _velocity;
+		}
+
+		/// <summary>
+		/// Get the velocity of the object
+		/// </summary>
+		API_INTERFACE inline void velocity(const Vec3& newVelocity)
+		{
+			_velocity = newVelocity;
+		}
+
+		/// <summary>
+		/// Get the acceleration of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 acceleration() const
+		{
+			return _acceleration;
+		}
+
+		/// <summary>
+		/// Get the acceleration of the object
+		/// </summary>
+		API_INTERFACE inline void acceleration(const Vec3& newAcceleration)
+		{
+			_acceleration = newAcceleration;
+		}
+
+		/// <summary>
+		/// Add force to this object
+		/// </summary>
+		API_INTERFACE inline void addForce(const Vec3& force)
+		{
+			_force.add(force);
+		}
+
+		/// <summary>
+		/// Get force to this object
+		/// </summary>
+		API_INTERFACE inline Vec3 force() const
+		{
+			return _force;
+		}
+
+		/// <summary>
+		/// Get the orientation
+		/// </summary>
+		API_INTERFACE inline Quat orientation() const
+		{
+			return _orientation;
+		}
+
+		/// <summary>
+		/// Set the orientation
+		/// </summary>
+		API_INTERFACE inline void orientation(const Quat& newOrientation)
+		{
+			_orientation = newOrientation;
+		}
+
+		/// <summary>
+		/// Get the angular velocity of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 angularVelocity() const
+		{
+			return _angularVelocity;
+		}
+
+		/// <summary>
+		/// Set the angular velocity of the object
+		/// </summary>
+		API_INTERFACE inline void angularVelocity(const Vec3& newAgnularVelocity)
+		{
+			_angularVelocity = newAgnularVelocity;
+		}
+
+		/// <summary>
+		/// Get the torque of the object
+		/// </summary>
+		API_INTERFACE inline Vec3 torque() const
+		{
+			return _torque;
+		}
+		
+		/// <summary>
+		/// Set the torque of the object
+		/// </summary>
+		API_INTERFACE inline void torque(const Vec3& newTorque)
+		{
+			_torque = newTorque;
+		}
+
+		/// <summary>
+		/// Translate the position with the translation parameter
+		/// </summary>
+		/// <param name="translation">Translation vector to move forward</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void translate(const Vec3& translation)
+		{
+			_position += translation;
+		}
+
+		/// <summary>
+		/// Reset all values to default
+		/// </summary>
+		/// <returns>void</returns>
+		API_INTERFACE inline void reset()
+		{
+			_force = Vec3Zeros;
+			_torque = Vec3Zeros;
+			_position = Vec3Zeros;
+			_velocity = Vec3Zeros;
+			_acceleration = Vec3Zeros;
+			_orientation = Quat::identity();
+			_angularVelocity = Vec3Zeros;
+		}
+
+	};
+
+	class SpPhysicProperties
 	{
 		friend class SpPhysicObject;
 		friend class SpPhysicObjectList;
 		friend class SpPhysicSimulator;
+		friend class SpPhysicProperties;
 		friend class SpCollisionResponse;
 	private:
 		
@@ -31,20 +198,20 @@ namespace NAMESPACE_PHYSICS
 		}
 
 	public:
-		SpRigidBodyState currentState;
-		SpRigidBodyState previousState;
+		SpPhysicPropertiesState currentState;
+		SpPhysicPropertiesState previousState;
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		API_INTERFACE SpRigidBody()
+		API_INTERFACE SpPhysicProperties()
 		{
 			_damping = 0.95f;
-			_angularDamping = 0.70f;
+			_angularDamping = 0.95f;
 			_coeficientOfRestitution = 0.60f;
 			_coeficientOfFriction = 0.80f;
 			_inverseMass = ZERO_FLOAT;
-			_inertialTensorInverse = Mat3::identity();
+			_inertialTensorInverse = Mat3Identity;
 		}
 
 		API_INTERFACE inline Mat3 inertialTensorInverse() const
@@ -58,12 +225,11 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void inertialTensor(const Mat3& tensor)
 		{
 			const Mat3 orientationAsMatrix = currentState._orientation.toMat3();
+			Mat3 orientationAsMatrixT;
+			orientationAsMatrix.transpose(orientationAsMatrixT);
 
 			// I^-1 = R * I^-1 * R^T
-			_inertialTensorInverse =
-				orientationAsMatrix.transpose()
-				* tensor
-				* orientationAsMatrix;
+			multiply(orientationAsMatrixT, tensor, orientationAsMatrix, _inertialTensorInverse);
 		}
 
 		/// <summary>
@@ -82,7 +248,10 @@ namespace NAMESPACE_PHYSICS
 			Vec3 torqueTemp;
 			cross((point - currentState._position), force, &torqueTemp);
 
-			currentState._angularVelocity += _inertialTensorInverse * torqueTemp;
+			Vec3 temp;
+			_inertialTensorInverse.multiply(torqueTemp, temp);
+
+			currentState._angularVelocity += temp;
 		}
 
 		/// <summary>
@@ -213,11 +382,11 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void rollbackState()
 		{
-			std::memcpy(&currentState, &previousState, sizeof(SpRigidBodyState));
+			std::memcpy(&currentState, &previousState, sizeof(SpPhysicPropertiesState));
 		}
 
 	};
 
 }
 
-#endif // SP_RIGID_BODY_HEADER
+#endif // SP_PHYSIC_PROPERTIES

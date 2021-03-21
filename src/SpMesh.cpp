@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 				Vec3 vertex1 = vertexesMesh->get(edge1->vertexIndex1)->value();
 				Vec3 vertex2 = vertexesMesh->get(edge1->vertexIndex2)->value();
 				Vec3 newVertexValue;
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 				SpVertexMesh* newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -59,7 +59,7 @@ namespace NAMESPACE_PHYSICS
 
 				vertex1 = vertexesMesh->get(edge2->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge2->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 				newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -67,7 +67,7 @@ namespace NAMESPACE_PHYSICS
 
 				vertex1 = vertexesMesh->get(edge3->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge3->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 				newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -110,7 +110,7 @@ namespace NAMESPACE_PHYSICS
 					SpEdgeMesh* e = edges->get(face2->edgesIndexes[1]);
 					vertex1 = vertexesMesh->get(e->vertexIndex1)->value();
 					vertex2 = vertexesMesh->get(e->vertexIndex2)->value();
-					diff(vertex2, vertex1, &newVertexValue);
+					diff(vertex2, vertex1, newVertexValue);
 					newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 					newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -119,7 +119,7 @@ namespace NAMESPACE_PHYSICS
 					e = edges->get(face2->edgesIndexes[2]);
 					vertex1 = vertexesMesh->get(e->vertexIndex1)->value();
 					vertex2 = vertexesMesh->get(e->vertexIndex2)->value();
-					diff(vertex2, vertex1, &newVertexValue);
+					diff(vertex2, vertex1, newVertexValue);
 					newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 
 					newVertex = sp_mem_new(SpVertexMesh)(newMesh, vertexIndex++, newVertexValue);
@@ -148,19 +148,19 @@ namespace NAMESPACE_PHYSICS
 				Vec3 newVertexValue;
 				Vec3 vertex1 = vertexesMesh->get(edge1->vertexIndex1)->value();
 				Vec3 vertex2 = vertexesMesh->get(edge1->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 				sp_uint newVertexIndex1 = newMesh->findVertex(newVertexValue);
 
 				vertex1 = vertexesMesh->get(edge2->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge2->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 				sp_uint newVertexIndex2 = newMesh->findVertex(newVertexValue);
 
 				vertex1 = vertexesMesh->get(edge3->vertexIndex1)->value();
 				vertex2 = vertexesMesh->get(edge3->vertexIndex2)->value();
-				diff(vertex2, vertex1, &newVertexValue);
+				diff(vertex2, vertex1, newVertexValue);
 				newVertexValue = vertex1 + newVertexValue * HALF_FLOAT;
 				sp_uint newVertexIndex3 = newMesh->findVertex(newVertexValue);
 
@@ -208,38 +208,77 @@ namespace NAMESPACE_PHYSICS
 		return from->findClosest(point, transform);
 	}
 
-	SpVertexMesh* SpMesh::findExtremeVertexDirection(const Vec3& orientation, const SpTransform& transform, SpVertexMesh* from) const
+	SpVertexMesh* SpMesh::support(const Vec3& direction, const SpTransform& transform, SpVertexMesh* from) const
 	{
 		if (from == nullptr)
 			from = vertexesMesh->data()[0];
 
-		return findExtremeVertexDirection(from, orientation, transform);
+		return support(from, direction, transform);
 	}
 
-	SpVertexMesh* SpMesh::findExtremeVertexDirection(const Vec3& orientation, const SpMeshCache* cache, const Vec3& center, SpVertexMesh* startingFrom) const
+	SpVertexMesh* SpMesh::support(const Vec3& direction, const Vec3* vertexes, SpVertexMesh* startingFrom) const
 	{
-		if (startingFrom == nullptr)
-			startingFrom = vertexesMesh->get(0);
+		sp_assert(startingFrom != nullptr, "InvalidArgumentException");
+		sp_assert(vertexes != nullptr, "InvalidArgumentException");
 
-		return findExtremeVertexDirection(startingFrom, orientation, cache, center);
+		return support(startingFrom, direction, vertexes);
 	}
 
-	SpVertexMesh* SpMesh::findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpMeshCache* cache, const Vec3& center) const
+	SpVertexMesh* SpMesh::support(SpVertexMesh* from, const Vec3& direction, const Vec3* vertexes) const
 	{
-		const Plane3D plane(center, orientation);
-
-		const sp_float distance = plane.distance(cache->vertexes[from->index()]);
-
+		const sp_float maxDot = vertexes[from->index()].dot(direction);
+		
 		for (sp_uint i = 0; i < from->edgeLength(); i++)
 		{
-			const sp_uint newIndex = from->edgeVertexIndex(i);
-			const sp_float newDistance = plane.distance(cache->vertexes[newIndex]);
+			const sp_uint point2Index = from->edgeVertexIndex(i);
+			const sp_float newDot = vertexes[point2Index].dot(direction);
 
-			if (newDistance > distance)
-				return findExtremeVertexDirection(vertexesMesh->get(newIndex), orientation, cache, center);
+			if (newDot > maxDot)
+				return support(vertexesMesh->get(point2Index), direction, vertexes);
 		}
 
 		return from;
+	}
+
+	void SpMesh::supportAll(const Vec3& direction, const Vec3* vertexes, sp_uint& outputLength, SpVertexMesh** output, const sp_float _epsilon) const
+	{
+		sp_assert(vertexes != nullptr, "InvalidArgumentException");
+
+		return supportAll(vertexesMesh->get(0), direction, vertexes, outputLength, output);
+	}
+
+	void SpMesh::supportAll(const Vec3& direction, const Vec3* vertexes, SpVertexMesh* startingFrom, sp_uint& outputLength, SpVertexMesh** output, const sp_float _epsilon) const
+	{
+		sp_assert(startingFrom != nullptr, "InvalidArgumentException");
+		sp_assert(vertexes != nullptr, "InvalidArgumentException");
+
+		return supportAll(startingFrom, direction, vertexes, outputLength, output);
+	}
+
+	void SpMesh::supportAll(SpVertexMesh* from, const Vec3& direction, const Vec3* vertexes, sp_uint& outputLength, SpVertexMesh** output, const sp_float _epsilon) const
+	{
+		const sp_float maxDot = vertexes[from->index()].dot(direction);
+
+		for (sp_uint i = 0; i < from->edgeLength(); i++)
+		{
+			const sp_uint point2Index = from->edgeVertexIndex(i);
+			const sp_float newDot = vertexes[point2Index].dot(direction);
+
+			if (NAMESPACE_FOUNDATION::isCloseEnough(maxDot, newDot, _epsilon)) // check the point has the same distance
+			{
+				output[outputLength] = vertexesMesh->get(point2Index);
+				outputLength++;
+			}
+			else if (newDot > maxDot)
+			{
+				outputLength = ZERO_UINT; // reset the length because there is a new point far away
+				supportAll(vertexesMesh->get(point2Index), direction, vertexes, outputLength, output);
+				return;
+			}
+		}
+
+		output[outputLength] = vertexesMesh->get(from->index());
+		outputLength++;
 	}
 
 	SpVertexMesh* SpMesh::findExtremeVertexPoint(const Vec3& target, const SpMeshCache* cache, const Vec3& center, SpVertexMesh* startingFrom) const
@@ -274,7 +313,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _direction;
 		direction(center, target, &_direction);
 
-		SpVertexMesh* vm = findExtremeVertexDirection(startingFrom, _direction, cache, center);
+		SpVertexMesh* vm = support(startingFrom, _direction, cache->vertexes);
 		closestPoint[0] = cache->vertexes[vm->index()];
 		closestVertexMesh[0] = vm->index();
 		closestEdgeMesh[0] = ZERO_UINT;
@@ -506,7 +545,7 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 	
-	SpVertexMesh* SpMesh::findExtremeVertexDirection(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const
+	SpVertexMesh* SpMesh::support(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const
 	{
 		const Plane3D plane(transform.position, orientation);
 
@@ -525,7 +564,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_float newDistance = plane.distance(vertexPosition2);
 
 			if (newDistance > distance)
-				return findExtremeVertexDirection(vertexesMesh->get(newIndex), orientation, transform);
+				return support(vertexesMesh->get(newIndex), orientation, transform);
 		}
 
 		return from;

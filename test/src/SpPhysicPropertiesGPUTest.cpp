@@ -23,12 +23,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		const sp_uint sizePhysicProperties = sizeof(SpRigidBody);
+		const sp_uint sizePhysicProperties = sizeof(SpPhysicProperties);
 		const sp_uint length = 3u;
-		SpRigidBody* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody, length);
+		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
 		for (sp_uint i = 0; i < length; i++)
 		{
-			sp_float index = (sp_float) (i * sizeof(SpRigidBody));
+			sp_float index = (sp_float) (i * sizeof(SpPhysicProperties));
 			
 			physicProperties[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
@@ -118,10 +118,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint length = 3u;
-		SpRigidBody* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody, length);
+		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, length);
 		for (sp_uint i = 0; i < length; i++)
 		{
-			sp_float index = (sp_float)(i * sizeof(SpRigidBody));
+			sp_float index = (sp_float)(i * sizeof(SpPhysicProperties));
 
 			physicProperties[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
@@ -149,8 +149,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		//physicProperties[2].velocity(physicProperties[2].previousVelocity());
 		//physicProperties[2].acceleration(physicProperties[2].previousAcceleration());
 		
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody) * length, CL_MEM_READ_ONLY, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody), CL_MEM_READ_ONLY);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * length, CL_MEM_READ_ONLY, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
@@ -166,7 +166,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(physcPropertiesGpu, sizeof(SpRigidBody) * length)
+			->setInputParameter(physcPropertiesGpu, sizeof(SpPhysicProperties) * length)
 			->setInputParameter(outputGpu, sizeof(sp_bool))
 			->buildFromProgram(sapProgram, "isResting");
 
@@ -193,12 +193,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpRigidBody* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody, 2u);
+		SpPhysicProperties* physicProperties = ALLOC_NEW_ARRAY(SpPhysicProperties, 2u);
 		physicProperties[0].mass(ZERO_FLOAT);
 		physicProperties[1].mass(8.0f);
 
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody) * 2u, CL_MEM_READ_ONLY, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody), CL_MEM_READ_ONLY);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpPhysicProperties) * 2u, CL_MEM_READ_ONLY, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(SpPhysicProperties), CL_MEM_READ_ONLY);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
@@ -214,7 +214,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(physcPropertiesGpu, sizeof(SpRigidBody) * 2u)
+			->setInputParameter(physcPropertiesGpu, sizeof(SpPhysicProperties) * 2u)
 			->setInputParameter(outputGpu, sizeof(sp_bool))
 			->buildFromProgram(sapProgram, "isStatic");
 

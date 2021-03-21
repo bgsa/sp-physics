@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -91,8 +91,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>DEBUG;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ARMA_USE_LAPACK;DEBUG;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;_CRT_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory);C:\Program Files (x86)\IntelSWTools\sw_dev_tools\compilers_and_libraries_2020.0.166\windows\mkl\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <SuppressStartupBanner>false</SuppressStartupBanner>
     </ClCompile>
@@ -220,14 +220,15 @@
     <ClCompile Include="src\SpAlgorithms.cpp" />
     <ClCompile Include="src\SpCollisionDetector.cpp" />
     <ClCompile Include="src\SpCollisionResponse.cpp" />
+    <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp" />
     <ClCompile Include="src\SpFaceMesh.cpp" />
+    <ClCompile Include="src\SpGJK.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpMesh.cpp" />
     <ClCompile Include="src\SpMeshCache.cpp" />
     <ClCompile Include="src\SpOptimization.cpp" />
     <ClCompile Include="src\SpPhysicIntegrator.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
-    <ClCompile Include="src\SpRigidBodyState.h" />
     <ClCompile Include="src\SpVertexMesh.cpp" />
     <ClCompile Include="src\SpEdgeMesh.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
@@ -284,15 +285,19 @@
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpAABBFactory.h" />
     <ClInclude Include="src\SpAlgorithms.h" />
-    <ClInclude Include="src\SpBody.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
-    <ClInclude Include="src\SpRigidBodyMapper.h" />
+    <ClInclude Include="src\SpCollisionDetectorCache.h" />
+    <ClInclude Include="src\SpCollisionFeatures.h" />
     <ClInclude Include="src\SpCollisionGroup.h" />
     <ClInclude Include="src\SpCollisionResponse.h" />
+    <ClInclude Include="src\SpCollisionResponseGPU.h" />
+    <ClInclude Include="src\SpCollisionResponseShapeMatching.h" />
     <ClInclude Include="src\SpDOP18Factory.h" />
     <ClInclude Include="src\SpFaceMesh.h" />
+    <ClInclude Include="src\SpGJK.h" />
     <ClInclude Include="src\SpMapleExporter.h" />
+    <ClInclude Include="src\SpMatlabExporter.h" />
     <ClInclude Include="src\SpMesh.h" />
     <ClInclude Include="src\SpectrumPhysics.h" />
     <ClInclude Include="src\Orientation.h" />
@@ -317,9 +322,8 @@
     <ClInclude Include="src\SpPhysicSettings.h" />
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />
-    <ClInclude Include="src\SpSpring.h" />
     <ClInclude Include="src\SpSIMD.h" />
-    <ClInclude Include="src\SpSoftBody.h" />
+    <ClInclude Include="src\SpSphereBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SpVertexMesh.h" />
     <ClInclude Include="src\SpEdgeMesh.h" />
@@ -340,6 +344,7 @@
   <ItemGroup>
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
     <None Include="resources\opencl\src\BoundingVolumeFactory.cl" />
+    <None Include="resources\opencl\src\CollisionResponse.cl" />
     <None Include="resources\opencl\src\DOP18.cl" />
     <None Include="resources\opencl\src\FindFirstNegative.cl" />
     <None Include="resources\opencl\src\FindMinMax.cl" />
@@ -352,11 +357,9 @@
     <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
     <None Include="resources\opencl\src\RadixSortingByThread.cl" />
     <None Include="resources\opencl\src\Reverse.cl" />
-    <None Include="resources\opencl\src\SpBodyMapper.cl" />
+    <None Include="resources\opencl\src\Sphere.cl" />
     <None Include="resources\opencl\src\SpMeshCache.cl" />
-    <None Include="resources\opencl\src\SpParticle.cl" />
-    <None Include="resources\opencl\src\SpRigidBody.cl" />
-    <None Include="resources\opencl\src\SpSoftBody.cl" />
+    <None Include="resources\opencl\src\SpPhysicProperties.cl" />
     <None Include="resources\opencl\src\SpTransformation.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />
     <None Include="resources\opencl\src\Vec3.cl" />

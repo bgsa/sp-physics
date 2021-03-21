@@ -5,39 +5,13 @@
 #include "SpCollisionDetails.h"
 #include "SpThreadPool.h"
 #include "SpPhysicSimulator.h"
-#include "SpRigidBodyMapper.h"
+#include "SpCollisionFeatures.h"
 #include "SpArray.h"
 #include "SpMeshCache.h"
+#include "SpCollisionDetectorCache.h"
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpCollisionDetectorCache
-	{
-	public:
-		sp_uint edgeIndex;
-		sp_uint faceIndex;
-		sp_bool edgeIndexOnObj1;
-		sp_bool searchOnObj1;
-		sp_float distance;
-
-		API_INTERFACE SpCollisionDetectorCache()
-		{
-			clear();
-		}
-
-		API_INTERFACE inline void clear()
-		{
-			edgeIndex = SP_UINT_MAX;
-			faceIndex = SP_UINT_MAX;
-			edgeIndexOnObj1 = true;
-			searchOnObj1 = false;
-		}
-
-		API_INTERFACE inline sp_bool hasCache() const
-		{
-			return edgeIndex != SP_UINT_MAX;
-		}
-	};
 
 	class SpCollisionDetector
 	{
@@ -53,7 +27,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_bool isFaceFaceCollision(SpCollisionDetails* details) const;
 
-		sp_bool hasPlaneCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details) const;
+		sp_bool hasPlaneCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const;
 
 		/// <summary>
 		/// Check all faces from first vertex against edges from second vertex

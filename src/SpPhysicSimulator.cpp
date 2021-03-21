@@ -11,12 +11,12 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::initMeshCache()
 	{
-		sp_uint* meshCacheIndexes = ALLOC_NEW_ARRAY(sp_uint, _rigidBodiesMaxLength);
-		sp_uint* meshCacheVertexesLength = ALLOC_NEW_ARRAY(sp_uint, _rigidBodiesMaxLength);
-		sp_uint* meshesIndexes = ALLOC_NEW_ARRAY(sp_uint, _rigidBodiesMaxLength * 3u);
+		sp_uint* meshCacheIndexes = ALLOC_NEW_ARRAY(sp_uint, _objectsLength);
+		sp_uint* meshCacheVertexesLength = ALLOC_NEW_ARRAY(sp_uint, _objectsLength);
+		sp_uint* meshesIndexes = ALLOC_NEW_ARRAY(sp_uint, _objectsLength * 3u);
 		meshCacheIndexes[0] = ZERO_UINT;
 
-		SpMesh* m = mesh(rigidBodyMapper(0u)->meshIndex);
+		SpMesh* m = mesh(collisionFeatures(0u)->meshIndex);
 		meshCacheVertexesLength[0] = m->vertexesMesh->length();
 
 		sp_uint vertexCounter = meshCacheVertexesLength[0];
@@ -32,12 +32,12 @@ namespace NAMESPACE_PHYSICS
 
 		PoolMemoryAllocator::main()->enableMemoryAlignment();
 
-		_meshesCache = sp_mem_new(SpArray<SpMeshCache*>)(_rigidBodiesMaxLength, _rigidBodiesMaxLength);
+		_meshesCache = sp_mem_new(SpArray<SpMeshCache*>)(_objectsLength, _objectsLength);
 		_meshesCache->data()[0] = sp_mem_new(SpMeshCache)(m->vertexesMesh->length());
 
-		for (sp_uint i = 1; i < _rigidBodiesMaxLength; i++)
+		for (sp_uint i = 1; i < _objectsLength; i++)
 		{
-			SpMesh* m = mesh(rigidBodyMapper(i)->meshIndex);
+			SpMesh* m = mesh(collisionFeatures(i)->meshIndex);
 			
 			const sp_uint vertexLength = m->vertexesMesh->length();
 
@@ -60,7 +60,9 @@ namespace NAMESPACE_PHYSICS
 		PoolMemoryAllocator::main()->disableMemoryAlignment();
 
 #ifdef OPENCL_ENABLED
-		SpMesh* lastMesh = _meshes->data()[rigidBodyMapper(_rigidBodiesMaxLength - 1u)->meshIndex];
+		_objectMapperGPU->update(_objectMapper);
+
+		SpMesh* lastMesh = _meshes->data()[collisionFeatures(_objectsLength - 1u)->meshIndex];
 		SpEdgeMesh* lastEdge = lastMesh->edges->data()[lastMesh->edges->length() - 1u];
 		sp_size lastMemoryAddress = (sp_size) &lastEdge->faces.data()[lastEdge->faces.length() - 1u];
 
@@ -68,37 +70,41 @@ namespace NAMESPACE_PHYSICS
 		_meshesGPU->init(lastMemoryAddress - initialMemoryIndex, _meshes->data()[0], CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
 		_meshesIndexesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_meshesIndexesGPU->init(_rigidBodiesMaxLength * 3u * SIZEOF_UINT, meshesIndexes, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		_meshesIndexesGPU->init(_objectsLength * 3u * SIZEOF_UINT, meshesIndexes, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
 		_meshCacheGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 		_meshCacheGPU->init(vertexCounter * VEC3_SIZE);
 
 		_meshCacheIndexesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_meshCacheIndexesGPU->init(_rigidBodiesMaxLength * SIZEOF_UINT, meshCacheIndexes, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		_meshCacheIndexesGPU->init(_objectsLength * SIZEOF_UINT, meshCacheIndexes, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
 		_meshCacheVertexesLengthGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_meshCacheVertexesLengthGPU->init(_rigidBodiesMaxLength * SIZEOF_UINT, meshCacheVertexesLength, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR);
+		_meshCacheVertexesLengthGPU->init(_objectsLength * SIZEOF_UINT, meshCacheVertexesLength, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR);
 
-		_inputLengthGPU->update(&_objectsMaxLength);
+		_inputLengthGPU->update(&_objectsLength);
 
 		_meshCacheUpdater.init(gpu);
-		_meshCacheUpdater.setParameters(_inputLengthGPU, _rigidBodyMapperGPU, _meshesGPU, _meshesIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _rigidBodiesMaxLength);
+		_meshCacheUpdater.setParameters(_inputLengthGPU, _objectMapperGPU, _meshesGPU, _meshesIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
+
+		dop18Factory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
+		aabbFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
+		sphereFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
 #endif
 
 		ALLOC_RELEASE(meshCacheIndexes);
 	}
-	
+
 	void SpPhysicSimulator::updateMeshCache()
 	{
-		for (sp_uint i = 0u; i < _rigidBodiesMaxLength; i++)
-			_meshesCache->get(i)->update(mesh(rigidBodyMapper(i)->meshIndex), transforms(i));
+		for (sp_uint i = 0u; i < _objectsLength; i++)
+			_meshesCache->get(i)->update(mesh(collisionFeatures(i)->meshIndex), transforms(i));
 	}
 
 	void SpPhysicSimulator::buildDOP18() const
 	{
-		for (sp_uint i = 0; i < _objectsMaxLength; i++)
+		for (sp_uint i = 0; i < _objectsLength; i++)
 		{
-			SpMesh* mesh = this->mesh(rigidBodyMapper(i)->meshIndex);
+			SpMesh* mesh = this->mesh(collisionFeatures(i)->meshIndex);
 			SpMeshCache* cache = _meshesCache->get(i);
 			
 			dop18Factory.build(mesh, cache, transforms(i)->position, &_boundingVolumes[i]);
@@ -107,41 +113,30 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::buildAABB() const
 	{
-		for (sp_uint i = 0; i < _objectsMaxLength; i++)
+		for (sp_uint i = 0; i < _objectsLength; i++)
 		{
-			SpMesh* mesh = this->mesh(rigidBodyMapper(i)->meshIndex);
+			SpMesh* mesh = this->mesh(collisionFeatures(i)->meshIndex);
 			SpMeshCache* cache = _meshesCache->get(i);
 
 			aabbFactory.build(mesh, cache, transforms(i)->position, &_boundingVolumes[i]);
 		}
 	}
 
-	SpPhysicSimulator::SpPhysicSimulator(const sp_uint rigidBodiesLength, const sp_uint softbodiesLength)
+	SpPhysicSimulator::SpPhysicSimulator(sp_uint objectsLength)
 	{
 		sp_assert(instanceGpuRendering != nullptr, "NullPointerException");
-
-		const sp_uint objectsLength = rigidBodiesLength + softbodiesLength;
 
 		timerToPhysic.start();
 		lastEvent = nullptr;
 		integrator = sp_mem_new(SpPhysicIntegratorVelocityVerlet)();
 
-		_objectsMaxLength = objectsLength;
-		_objectsLengthAllocated = ZERO_UINT;
-
-		_rigidBodiesMaxLength = rigidBodiesLength;
-		_rigidBodiesAllocated = ZERO_UINT;
-
-		_softBodiesMaxLength = softbodiesLength;
-		_softBodiesAllocated = ZERO_UINT;
-
-		_bodyMapper = sp_mem_new_array(SpBodyMapper, objectsLength);
-		_rigidBodies = sp_mem_new_array(SpRigidBody, rigidBodiesLength);
-		_rigidBodyMapper = sp_mem_new_array(SpRigidBodyMapper, rigidBodiesLength);
-		_softBodies = sp_mem_new_array(SpSoftBody, softbodiesLength);
+		_objectsLength = ZERO_UINT;
+		_objectsLengthAllocated = objectsLength;
+		_physicProperties = sp_mem_new_array(SpPhysicProperties, objectsLength);
 		_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
 		_transforms = sp_mem_new_array(SpTransform, objectsLength);
-		_meshes = sp_mem_new(SpArray<SpMesh*>)(rigidBodiesLength, rigidBodiesLength);
+		_objectMapper = sp_mem_new_array(SpCollisionFeatures, objectsLength);
+		_meshes = sp_mem_new(SpArray<SpMesh*>)(objectsLength, objectsLength);
 		
 		gpu = GpuContext::instance()->defaultDevice();
 
@@ -155,24 +150,13 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint outputIndexSize = multiplyBy2(objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT * SIZEOF_UINT;
 
 		_inputLengthGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_inputLengthGPU->init(SIZEOF_UINT, &_objectsMaxLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		_inputLengthGPU->init(SIZEOF_UINT, &_objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
-		_bodyMapperGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_bodyMapperGPU->init(sizeof(SpBodyMapper) * _objectsMaxLength, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		_objectMapperGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
+		_objectMapperGPU->init(sizeof(SpCollisionFeatures) * _objectsLengthAllocated, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
-		_rigidBodiesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_rigidBodiesGPU->init(sizeof(SpRigidBody) * _rigidBodiesMaxLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-
-		_rigidBodyMapperGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_rigidBodyMapperGPU->init(sizeof(SpRigidBodyMapper) * _rigidBodiesMaxLength, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
-
-		_softBodiesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_softBodiesGPU->init(sizeof(SpSoftBody) * _softBodiesMaxLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-
-		_softBodyIndexesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_softBodyIndexesGPU->init(sizeof(sp_uint) * _softBodiesMaxLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-
-		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * _objectsMaxLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpPhysicProperties) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
 		_collisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		_collisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		
@@ -187,18 +171,27 @@ namespace NAMESPACE_PHYSICS
 
 		sapDOP18 = sp_mem_new(SweepAndPrune)();
 		sapDOP18->init(gpu, buildOptions.str().c_str());
-		sapDOP18->setParameters(_boundingVolumesGPU, _objectsMaxLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
+		sapDOP18->setParameters(_boundingVolumesGPU, objectsLength,
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
 
 		sapAABB = sp_mem_new(SweepAndPrune)();
 		sapAABB->init(gpu, buildOptions.str().c_str());
-		sapAABB->setParameters(_boundingVolumesGPU, _objectsMaxLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
+		sapAABB->setParameters(_boundingVolumesGPU, objectsLength,
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
+
+		sapSphere = sp_mem_new(SweepAndPrune)();
+		sapSphere->init(gpu, buildOptions.str().c_str());
+		sapSphere->setParameters(_boundingVolumesGPU, objectsLength,
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisSphere");
+
+		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
+		collisionResponseGPU->init(gpu, nullptr);
+		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _physicPropertiesGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU, outputIndexSize);
 	}
 
-	SpPhysicSimulator* SpPhysicSimulator::init(const sp_uint rigidBodiesLength, const sp_uint softbodiesLength)
+	SpPhysicSimulator* SpPhysicSimulator::init(sp_uint objectsLength)
 	{
-		_instance = sp_mem_new(SpPhysicSimulator)(rigidBodiesLength, softbodiesLength);
+		_instance = sp_mem_new(SpPhysicSimulator)(objectsLength);
 
 		// Share OpenCL OpenGL Buffer
 		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);
@@ -260,31 +253,50 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
 	{
-		sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, _objectsMaxLength);
-		for (sp_uint i = ZERO_UINT; i < _objectsMaxLength; i++)
+		sp_uint* sortedIndexes = ALLOC_ARRAY(sp_uint, _objectsLength);
+		for (sp_uint i = ZERO_UINT; i < _objectsLength; i++)
 			sortedIndexes[i] = i;
 
-		sapDOP18->findCollisions(_boundingVolumes, sortedIndexes, _objectsMaxLength, result);
+		sapDOP18->findCollisions(_boundingVolumes, sortedIndexes, _objectsLength, result);
 
 		ALLOC_RELEASE(sortedIndexes);
 	}
 
 	void SpPhysicSimulator::findCollisionsGpuDOP18(SweepAndPruneResult* result)
 	{
-		sapDOP18->execute(ONE_UINT, &dop18Factory.lastEvent);
-		lastEvent = sapDOP18->lastEvent;
+		sapDOP18->execute(ONE_UINT, &sapDOP18->lastEvent);
+		
+		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
 
-		result->length = sapDOP18->fetchCollisionLength();
-		sapDOP18->fetchCollisionIndexes(result->indexes);
+		collisionResponseGPU->execute(ONE_UINT, &sapDOP18->lastEvent);
+		lastEvent = collisionResponseGPU->lastEvent;
+
+		collisionResponseGPU->fetchCollisionLength(&result->length);
+		collisionResponseGPU->fetchCollisions(result->indexes);
 	}
-
 	void SpPhysicSimulator::findCollisionsGpuAABB(SweepAndPruneResult* result)
 	{
 		sapAABB->execute(ONE_UINT, &sapAABB->lastEvent);
-		lastEvent = sapAABB->lastEvent;
 
-		result->length = sapAABB->fetchCollisionLength();
-		sapAABB->fetchCollisionIndexes(result->indexes);
+		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
+
+		collisionResponseGPU->execute(ONE_UINT, &sapAABB->lastEvent);
+		lastEvent = collisionResponseGPU->lastEvent;
+
+		collisionResponseGPU->fetchCollisionLength(&result->length);
+		collisionResponseGPU->fetchCollisions(result->indexes);
+	}
+	void SpPhysicSimulator::findCollisionsGpuSphere(SweepAndPruneResult& result)
+	{
+		sapSphere->execute(ONE_UINT, &sapSphere->lastEvent);
+
+		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
+
+		collisionResponseGPU->execute(ONE_UINT, &sapSphere->lastEvent);
+		lastEvent = collisionResponseGPU->lastEvent;
+
+		collisionResponseGPU->fetchCollisionLength(&result.length);
+		collisionResponseGPU->fetchCollisions(result.indexes);
 	}
 
 	void SpPhysicSimulator::groupCollisions(const SweepAndPruneResult& sapResult, SpCollisionGroups* collisionGroups)
@@ -335,7 +347,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		SpPhysicSettings* physicSettings = SpPhysicSettings::instance();
 		SweepAndPruneResult sapResult;
-		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsMaxLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
+		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(_objectsLength) * SP_SAP_MAX_COLLISION_PER_OBJECT);
 
 		// get GPU Buffer access shared OpenCL and OpenGL 
 		gpu->commandManager->acquireGLObjects(_transformsGPU);
@@ -345,21 +357,40 @@ namespace NAMESPACE_PHYSICS
 		// update mesh cache vertexes
 		_meshCacheUpdater.execute();
 
-		/* use AABB 
-		// build bounding volumes AABB
-		aabbFactory.buildGPU(gpu, _transformsGPU);
+		// build bounding volumes Sphere
+		sphereFactory.buildGPU();
 
 		// find collisions pair on GPU using Bounding Volume
-		findCollisionsGpuAABB(&sapResult);
+		tt.update();
+		findCollisionsGpuSphere(sapResult);
+		const sp_float timeBroadPhaseSphere = tt.elapsedTime();
+		const sp_uint paresBroadPhaseSphere = sapResult.length;
 
-		const sp_uint collisionsWithAABB = sapResult.length;
-		*/
+		// build bounding volumes AABB
+		aabbFactory.buildGPU();
+
+		// find collisions pair on GPU using Bounding Volume
+		tt.update(); 
+		findCollisionsGpuAABB(&sapResult);
+		const sp_float timeBroadPhaseAABB = tt.elapsedTime();
+		const sp_uint paresBroadPhaseAABB = sapResult.length;
 
 		// build bounding volumes 18-DOP
-		dop18Factory.buildGPU(gpu, _transformsGPU);
+		dop18Factory.buildGPU();
 
 		// find collisions pair on GPU using Bounding Volume
+		tt.update();
 		findCollisionsGpuDOP18(&sapResult);
+		const sp_float timeBroadPhaseDOP18 = tt.elapsedTime();
+		const sp_float paresBroadPhaseDOP18 = sapResult.length;
+
+
+		sp_log_debug1sfnl("Pares DOP18: ", (sp_float) paresBroadPhaseDOP18);
+		sp_log_debug1sfnl("Tempo DOP18: ", timeBroadPhaseDOP18);
+		sp_log_debug1sfnl("Pares AABB: ", (sp_float)paresBroadPhaseAABB);
+		sp_log_debug1sfnl("Tempo AABB: ", timeBroadPhaseAABB); 
+		sp_log_debug1sfnl("Pares Sphere: ", (sp_float)paresBroadPhaseSphere);
+		sp_log_debug1sfnl("Tempo Sphere: ", timeBroadPhaseSphere);
 
 		//const sp_uint collisionsWith18DOP = sapResult.length;
 		//sp_log_info1s("Collisions: "); sp_log_info1u(sapResult.length); sp_log_newline();
@@ -373,9 +404,9 @@ namespace NAMESPACE_PHYSICS
 		//buildAABB();
 		//findCollisionsCpu(&sapResult);
 
-		// updateDataOnCPU();
+		updateDataOnCPU();
 
-		SpThreadPool* threadPool = SpThreadPool::instance();
+		//SpThreadPool* threadPool = SpThreadPool::instance();
 
 		/*
 		SpCollisionGroups groups(_objectsLength, multiplyBy2(sapResult.length));
@@ -411,48 +442,75 @@ namespace NAMESPACE_PHYSICS
 		}
 		*/
 
-		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
-		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
-		std::thread** threads = ALLOC_ARRAY(std::thread*, sapResult.length);
+
 		tt.update();
 
-		sp_log_debug1sfnl("Collisions: ", (sp_float)sapResult.length);
+		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
+		//SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
+		//std::thread** threads = ALLOC_ARRAY(std::thread*, sapResult.length);
+
+		SpCollisionResponseShapeMatching shapeMatching;
+
+		SpMeshCache** caches = ALLOC_NEW_ARRAY(SpMeshCache*, _objectsLength);
+		std::memset(caches, ZERO_INT, SIZEOF_WORD * _objectsLength);
+
+		SpRigidBodyShapeMatch** shapes = ALLOC_NEW_ARRAY(SpRigidBodyShapeMatch*, _objectsLength);
+		std::memset(shapes, ZERO_INT, SIZEOF_INT * _objectsLength);
+
+		// init shapes
+		for (sp_uint i = 0; i < sapResult.length; i++)
+		{
+			const sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
+			const sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1u];
+
+			if (shapes[obj1] == nullptr)
+			{
+				shapes[obj1] = ALLOC_NEW(SpRigidBodyShapeMatch)();
+				shapeMatching.initShape(obj1, shapes[obj1]);
+			}
+
+			if (shapes[obj2] == nullptr)
+			{
+				shapes[obj2] = ALLOC_NEW(SpRigidBodyShapeMatch)();
+				shapeMatching.initShape(obj2, shapes[obj2]);
+			}
+		}
+		// many shape match iterations
+		for (sp_uint iterations = 0u; iterations < 10u; iterations++)
+		{
+			for (sp_uint i = 0u; i < sapResult.length; i++)
+				shapeMatching.solve(
+					shapes[sapResult.indexes[multiplyBy2(i)]], 
+					shapes[sapResult.indexes[multiplyBy2(i) + 1u]]
+				);
+		}
 
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{
-			detailsArray[i].objIndex1 = sapResult.indexes[multiplyBy2(i)];
-			detailsArray[i].objIndex2 = sapResult.indexes[multiplyBy2(i) + 1];
-			detailsArray[i].timeStep = elapsedTime;
-			detailsArray[i].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(rigidBodyMapper(detailsArray[i].objIndex1)->meshIndex)->vertexesMesh->length());
-			detailsArray[i].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(rigidBodyMapper(detailsArray[i].objIndex2)->meshIndex)->vertexesMesh->length());
+			sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
+			sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1];
 
-			//tasks[i].func = &SpPhysicSimulator::handleCollisionCPU;
-			tasks[i].func = &SpPhysicSimulator::handleCollisionGPU;
-			tasks[i].parameter = &detailsArray[i];
-			
-			//threadPool->schedule(&tasks[i]);
+			if (shapes[obj1]->isDirty && physicProperties(obj1)->isDynamic())
+			{
+				shapeMatching.updateFromShape(obj1, &detailsArray[i], shapes[obj1]);
+				shapes[obj1]->isDirty = false;
+			}
 
-			//std::thread* t = ALLOC_NEW(std::thread(SpPhysicSimulator::handleCollisionGPU, &detailsArray[i]));
-			//threads[i] = t;
-			//t->detach();
-
-			SpPhysicSimulator::handleCollisionGPU(&detailsArray[i]);
+			if (shapes[obj2]->isDirty && physicProperties(obj2)->isDynamic())
+			{
+				shapeMatching.updateFromShape(obj2, &detailsArray[i], shapes[obj2]);
+				shapes[obj2]->isDirty = false;
+			}
 		}
-		//SpThreadPool::instance()->waitToFinish();
-
-		/*
-		for (sp_uint i = 0; i < sapResult.length; i++)
-			if (threads[i]->joinable())
-				threads[i]->join();
-*/
-
-		sp_log_debug1sfnl("Wait Tasks: ", tt.elapsedTime());
 
 		/* dispatch collision events
 		for (sp_uint i = 0; i < sapResult.length; i++)
 			if (!detailsArray[i].ignoreCollision)
 				dispatchEvent(&detailsArray[i]);
 		*/
+
+		sp_float et = tt.elapsedTime();
+		sp_log_debug1sfnl("TIME: ", et);
 
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;
@@ -466,16 +524,10 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumes = nullptr;
 		}
 
-		if (_rigidBodies != nullptr)
+		if (_physicProperties != nullptr)
 		{
-			sp_mem_release(_rigidBodies);
-			_rigidBodies = nullptr;
-		}
-
-		if (_softBodies != nullptr)
-		{
-			sp_mem_release(_softBodies);
-			_softBodies = nullptr;
+			sp_mem_release(_physicProperties);
+			_physicProperties = nullptr;
 		}
 
 		if (_boundingVolumesGPU != nullptr)
@@ -484,16 +536,10 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumesGPU = nullptr;
 		}
 
-		if (_rigidBodiesGPU != nullptr)
+		if (_physicPropertiesGPU != nullptr)
 		{
-			_rigidBodiesGPU->dispose();
-			_rigidBodiesGPU = nullptr;
-		}
-
-		if (_softBodiesGPU != nullptr)
-		{
-			_softBodiesGPU->dispose();
-			_softBodiesGPU = nullptr;
+			gpu->releaseBuffer(_physicPropertiesGPU);
+			_physicPropertiesGPU = nullptr;
 		}
 
 		if (_collisionIndexesGPU != nullptr)
@@ -508,16 +554,10 @@ namespace NAMESPACE_PHYSICS
 			_collisionIndexesLengthGPU = nullptr;
 		}
 
-		if (_bodyMapperGPU != nullptr)
+		if (_objectMapperGPU != nullptr)
 		{
-			sp_mem_delete(_bodyMapperGPU, GpuBufferOpenCL);
-			_bodyMapperGPU = nullptr;
-		}
-
-		if (_rigidBodyMapperGPU != nullptr)
-		{
-			sp_mem_delete(_rigidBodyMapperGPU, GpuBufferOpenCL);
-			_rigidBodyMapperGPU = nullptr;
+			sp_mem_delete(_objectMapperGPU, GpuBufferOpenCL);
+			_objectMapperGPU = nullptr;
 		}
 
 		if (sapDOP18 != nullptr)
@@ -530,6 +570,18 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_mem_delete(sapAABB, SweepAndPrune);
 			sapAABB = nullptr;
+		}
+
+		if (sapSphere != nullptr)
+		{
+			sp_mem_delete(sapSphere, SweepAndPrune);
+			sapSphere = nullptr;
+		}
+
+		if (collisionResponseGPU != nullptr)
+		{
+			sp_mem_delete(collisionResponseGPU, SpCollisionResponseGPU);
+			collisionResponseGPU = nullptr;
 		}
 	}
 

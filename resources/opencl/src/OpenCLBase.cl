@@ -11,9 +11,6 @@
 #define GROUP_ID            get_group_id(0)
 #define GROUP_LENGTH        get_num_groups(0)
 
-#define SIZEOF_FLOAT 4
-#define SIZEOF_UINT 4
-
 #define SP_EPSILON_NUMBER 0.0009f
 
 #define isEven(value) value % 2 == 0

@@ -4,24 +4,59 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	sp_bool SpCollisionDetector::hasPlaneCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details) const
+	sp_bool SpCollisionDetector::hasPlaneCollision(sp_uint objIndex1, sp_uint objIndex2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		const SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(objIndex1)->meshIndex);
-		const SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(objIndex2)->meshIndex);
+		const SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(objIndex1)->meshIndex);
+		const SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(objIndex2)->meshIndex);
 		const Vec3 position2 = simulator->transforms(objIndex2)->position;
 		SpVertexMesh* startingFrom = nullptr;
 		
 		if (details->vertexIndexObj2 != SP_UINT_MAX) // if the previous vertex was vertexIndexObj2, start searching from that vertex
 			startingFrom = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 
-		SpVertexMesh* extremeVertex = mesh2->findExtremeVertexDirection(Vec3Down, details->cacheObj2, position2, startingFrom);
+		SpVertexMesh* extremeVertex = mesh2->support(Vec3Down, details->cacheObj2->vertexes, startingFrom);
 
 		details->vertexIndexObj2 = extremeVertex->index();
 
-		Vec3 vertex = details->cacheObj2->vertexes[extremeVertex->index()];
+		const Vec3 vertex = details->cacheObj2->vertexes[extremeVertex->index()];
 
-		return vertex.y <= ZERO_FLOAT;
+		if (vertex.y > ZERO_FLOAT)
+			return false;
+
+		cache->edgeIndexOnObj1 = false;
+		cache->faceIndex = 0u; // take whaever face from plane
+
+		// find penetrated edge to fill cache
+		sp_float offset = ZERO_FLOAT;
+		do_again:
+		for (sp_uint i = 0; i < extremeVertex->edgeLength(); i++)
+		{
+			SpEdgeMesh* e = extremeVertex->edges(i);
+			const Vec3 v1 = details->cacheObj2->vertexes[e->vertexIndex1];
+			const Vec3 v2 = details->cacheObj2->vertexes[e->vertexIndex2];
+
+			// check this edge cross the plane
+			if ((v1.y + offset <= ZERO_FLOAT && v2.y + offset > ZERO_FLOAT)
+				|| (v2.y + offset <= ZERO_FLOAT && v1.y + offset > ZERO_FLOAT))
+			{
+				cache->edgeIndex = e->index();
+				details->depth = -(v1.y < ZERO_FLOAT ? v1.y : v2.y);
+				break;
+			}
+		}
+
+		if (cache->edgeIndex == SP_UINT_MAX)
+		{
+			offset += HALF_FLOAT;
+			goto do_again;
+		}
+
+		details->collisionNormal = Vec3Up;
+
+		sp_assert(cache->edgeIndex != SP_UINT_MAX, "ApplicationException");
+
+		return true;
 	}
 
 	sp_bool SpCollisionDetector::hasCollisionCache(const SpMesh* mesh1, const SpMesh* mesh2, SpCollisionDetails* details, SpCollisionDetectorCache* cache) const
@@ -71,12 +106,12 @@ namespace NAMESPACE_PHYSICS
 		if (objIndex1 == ZERO_UINT)
 		{
 			cache->searchOnObj1 = true;
-			return hasPlaneCollision(objIndex1, objIndex2, details);
+			return hasPlaneCollision(objIndex1, objIndex2, details, cache);
 		}
 
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		const SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(objIndex1)->meshIndex);
-		const SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(objIndex2)->meshIndex);
+		const SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(objIndex1)->meshIndex);
+		const SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(objIndex2)->meshIndex);
 		
 		if (cache->hasCache()) // check if cache is available
 			hasCollisionCache(mesh1, mesh2, details, cache);
@@ -87,8 +122,8 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _direction;
 		direction(position1, position2, &_direction);
 		
-		SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexDirection(_direction, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
-		SpVertexMesh* extremeVertex2 = mesh2->findExtremeVertexDirection(-_direction, details->cacheObj2, position2, mesh2->vertexesMesh->get(0));
+		SpVertexMesh* extremeVertex1 = mesh1->support(_direction, details->cacheObj1->vertexes, mesh1->vertexesMesh->get(0));
+		SpVertexMesh* extremeVertex2 = mesh2->support(-_direction, details->cacheObj2->vertexes, mesh2->vertexesMesh->get(0));
 		//SpVertexMesh* extremeVertex1 = mesh1->findExtremeVertexPoint(position2, details->cacheObj1, position1, mesh1->vertexesMesh->get(0));
 		//SpVertexMesh* extremeVertex2 = mesh2->findExtremeVertexPoint(position1, details->cacheObj2, position2, mesh2->vertexesMesh->get(0));
 
@@ -133,6 +168,13 @@ namespace NAMESPACE_PHYSICS
 					cache->edgeIndex = edgeMesh1->index();
 					cache->faceIndex = faceMesh2->index();
 
+					face.normalFace(&details->collisionNormal);
+
+					Plane3D plane(face.point1, details->collisionNormal);
+					details->depth = plane.distance(line.point1);
+					if (details->depth > ZERO_FLOAT)
+						details->depth = plane.distance(line.point2);
+
 					return true;
 				}	
 			}
@@ -166,7 +208,14 @@ namespace NAMESPACE_PHYSICS
 					cache->edgeIndexOnObj1 = false;
 					cache->edgeIndex = edgeMesh2->index();
 					cache->faceIndex = faceMesh1->index();
-				
+
+					face.normalFace(&details->collisionNormal);
+
+					Plane3D plane(face.point1, details->collisionNormal);
+					details->depth = plane.distance(line.point1);
+					if (details->depth > ZERO_FLOAT)
+						details->depth = plane.distance(line.point2);
+
 					return true;
 				}	
 			}
@@ -178,8 +227,8 @@ namespace NAMESPACE_PHYSICS
 	void SpCollisionDetector::filterCollision(SpCollisionDetails* details) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		SpRigidBody* obj1Properties = simulator->rigidBodies(details->objIndex1);
-		SpRigidBody* obj2Properties = simulator->rigidBodies(details->objIndex2);
+		SpPhysicProperties* obj1Properties = simulator->physicProperties(details->objIndex1);
+		SpPhysicProperties* obj2Properties = simulator->physicProperties(details->objIndex2);
 
 		const sp_bool isObj1Static = obj1Properties->isStatic();
 		const sp_bool isObj2Static = obj2Properties->isStatic();
@@ -253,11 +302,11 @@ namespace NAMESPACE_PHYSICS
 	sp_bool SpCollisionDetector::findCollisionEdgeFace(sp_uint obj1Index, sp_uint obj2Index, sp_uint* vertexIndexObj1, Vec3* contactPoint, SpCollisionDetectorCache* cache, SpMeshCache* cacheMesh1, SpMeshCache* cacheMesh2, SpCollisionDetails* details)
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(obj1Index)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(obj1Index)->meshIndex);
 		SpEdgeMesh** edges = mesh1->edges->data();
 		const sp_uint edgesLengthObj1 = mesh1->edges->length();
 
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(obj2Index)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(obj2Index)->meshIndex);
 		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
 		const sp_uint facesLengthObj2 = mesh2->faces->length();
 
@@ -307,8 +356,8 @@ namespace NAMESPACE_PHYSICS
 	sp_bool SpCollisionDetector::collisionStatusCache(SpCollisionDetectorCache* cache, Vec3* contactPoint, SpCollisionDetails* details)
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
 		if (cache->searchOnObj1)
 		{
@@ -405,14 +454,14 @@ namespace NAMESPACE_PHYSICS
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
-		sp_assert(details->objIndex1 < simulator->objectsMaxLength(), "InvalidArgumentException");
-		sp_assert(details->objIndex2 < simulator->objectsMaxLength(), "InvalidArgumentException");
+		sp_assert(details->objIndex1 < simulator->objectsLength(), "InvalidArgumentException");
+		sp_assert(details->objIndex2 < simulator->objectsLength(), "InvalidArgumentException");
 
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
-		SpRigidBody* physicObj1 = simulator->rigidBodies(details->objIndex1);
-		SpRigidBody* physicObj2 = simulator->rigidBodies(details->objIndex2);
+		SpPhysicProperties* physicObj1 = simulator->physicProperties(details->objIndex1);
+		SpPhysicProperties* physicObj2 = simulator->physicProperties(details->objIndex2);
 
 		sp_bool isObj1Resting = physicObj1->isResting();
 		sp_bool isObj2Resting = physicObj2->isResting();
@@ -508,7 +557,7 @@ namespace NAMESPACE_PHYSICS
 				: startingFrom = mesh1->vertexesMesh->get(details->vertexIndexObj1);
 
 			if (details->objIndex2 == ZERO_UINT) // if plane...
-				details->vertexIndexObj1 = mesh1->findExtremeVertexDirection(Vec3Down, details->cacheObj1, transformation1->position, startingFrom)->index();
+				details->vertexIndexObj1 = mesh1->support(Vec3Down, details->cacheObj1->vertexes, startingFrom)->index();
 			else
 				details->vertexIndexObj1 = mesh1->findExtremeVertexPoint(transformation2->position, details->cacheObj1, transformation1->position, startingFrom)->index();
 		}
@@ -520,22 +569,22 @@ namespace NAMESPACE_PHYSICS
 				: startingFrom = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 
 			if (details->objIndex1 == ZERO_UINT) // if plane...
-				details->vertexIndexObj2 = mesh2->findExtremeVertexDirection(Vec3Down, details->cacheObj2, transformation2->position, startingFrom)->index();
+				details->vertexIndexObj2 = mesh2->support(Vec3Down, details->cacheObj2->vertexes, startingFrom)->index();
 			else
 				details->vertexIndexObj2 = mesh2->findExtremeVertexPoint(transformation1->position, details->cacheObj2, transformation2->position, startingFrom)->index();
 		}
 
 		details->timeOfCollision = elapsedTime;
 
-		sp_assert(details->objIndex1 < simulator->objectsMaxLength(), "InvalidArgumentException");
-		sp_assert(details->objIndex2 < simulator->objectsMaxLength(), "InvalidArgumentException");
+		sp_assert(details->objIndex1 < simulator->objectsLength(), "InvalidArgumentException");
+		sp_assert(details->objIndex2 < simulator->objectsLength(), "InvalidArgumentException");
 	}
 
 	void SpCollisionDetector::collisionDetails(SpCollisionDetails* details)
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 
 		//Timer timeDebug;
 		//timeDebug.start();
@@ -642,7 +691,7 @@ namespace NAMESPACE_PHYSICS
 			details->collisionNormal = Vec3Up;
 
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-			SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+			SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 			SpVertexMesh* vertexMesh2 = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 
 			sp_uint facesIndexesMesh2[MAX_PARALLEL_FACES];
@@ -737,8 +786,8 @@ namespace NAMESPACE_PHYSICS
 		
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 		Wavefront::SpWavefrontExporter exporter;
-		exporter.write(*simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red");
-		exporter.write(*simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue");
+		exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex), *simulator->transforms(details->objIndex1), "mesh1", "red");
+		exporter.write(*simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex), *simulator->transforms(details->objIndex2), "mesh2", "blue");
 		exporter.save("temp.obj");
 
 		sp_assert(details->ignoreCollision == false, "ApplicationException");
@@ -748,8 +797,8 @@ namespace NAMESPACE_PHYSICS
 	sp_bool SpCollisionDetector::areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		const SpRigidBody* obj1Properties = simulator->rigidBodies(objIndex1);
-		const SpRigidBody* obj2Properties = simulator->rigidBodies(objIndex2);
+		const SpPhysicProperties* obj1Properties = simulator->physicProperties(objIndex1);
+		const SpPhysicProperties* obj2Properties = simulator->physicProperties(objIndex2);
 
 		Vec3 lineOfAction = obj2Properties->currentState.position() - obj1Properties->currentState.position();
 		const Vec3 velocityToObject2 = obj1Properties->currentState.velocity() * lineOfAction;
@@ -770,10 +819,10 @@ namespace NAMESPACE_PHYSICS
 		const SpTransform transform1 = *simulator->transforms(details->objIndex1);
 		const SpTransform transform2 = *simulator->transforms(details->objIndex2);
 
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpVertexMesh* vertex1 = mesh1->vertexesMesh->get(details->vertexIndexObj1);
 		
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		SpVertexMesh* vertex2 = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 		
 		sp_uint facesIndexesMesh1[MAX_PARALLEL_FACES];
@@ -1073,11 +1122,11 @@ namespace NAMESPACE_PHYSICS
 		const Vec3* allVertexesObj1 = details->cacheObj1->vertexes;
 		const Vec3* allVertexesObj2 = details->cacheObj2->vertexes;
 
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->get(details->vertexIndexObj1);
 		const sp_uint edgesLengthObj1 = vertexMeshObj1->edgeLength();
 
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		SpVertexMesh* vertexMeshObj2 = mesh2->vertexesMesh->get(details->vertexIndexObj2);
 		const sp_uint edgesLengthObj2 = vertexMeshObj2->edgeLength();
 
@@ -1181,8 +1230,8 @@ namespace NAMESPACE_PHYSICS
 		const Vec3* allVertexesObj1 = details->cacheObj1->vertexes;
 		const Vec3* allVertexesObj2 = details->cacheObj2->vertexes;
 
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->data()[details->vertexIndexObj1];
 		SpVertexMesh* vertexMeshObj2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];
@@ -1266,11 +1315,11 @@ namespace NAMESPACE_PHYSICS
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpFaceMesh** allFacesObj1 = mesh1->faces->data();
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->data()[details->vertexIndexObj1];
 
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
 		SpVertexMesh* vertexMeshObj2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];
 
@@ -1370,12 +1419,12 @@ namespace NAMESPACE_PHYSICS
 	{
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
-		SpMesh* mesh1 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex1)->meshIndex);
+		SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(details->objIndex1)->meshIndex);
 		SpFaceMesh** allFacesObj1 = mesh1->faces->data();
 		SpVertexMesh* vertexMeshObj1 = mesh1->vertexesMesh->data()[details->vertexIndexObj1];
 		Vec3* allVertexesObj1 = details->cacheObj1->vertexes;
 
-		SpMesh* mesh2 = simulator->mesh(simulator->rigidBodyMapper(details->objIndex2)->meshIndex);
+		SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(details->objIndex2)->meshIndex);
 		const SpTransform transformObj2 = *simulator->transforms(details->objIndex2);
 		SpFaceMesh** allFacesObj2 = mesh2->faces->data();
 		SpVertexMesh* vertexMeshObj2 = mesh2->vertexesMesh->data()[details->vertexIndexObj2];

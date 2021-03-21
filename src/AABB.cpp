@@ -56,7 +56,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float AABB::distance(const Vec3& target)
 	{
-		return float(sqrt(squaredDistance(target)));
+		return (sp_float) sqrtf(squaredDistance(target));
 	}
 
 	void AABB::translate(const Vec3& translation)

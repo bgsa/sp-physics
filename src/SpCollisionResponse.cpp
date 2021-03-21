@@ -3,7 +3,7 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	void SpCollisionResponse::addFriction(SpRigidBody* obj1Properties, SpRigidBody* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const sp_bool obj2IsPositiveNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j, SpCollisionDetails* details)
+	void SpCollisionResponse::addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const sp_bool obj2IsPositiveNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j, SpCollisionDetails* details)
 	{
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
 
@@ -14,11 +14,15 @@ namespace NAMESPACE_PHYSICS
 
 		normalize(&tangent);
 
-		Vec3 temp1, temp2, d2, d3;
+		Vec3 temp1, temp2, d2, d3, temp;
 		cross(rayToContactObj1, tangent, &temp1);
 		cross(rayToContactObj2, tangent, &temp2);
-		cross(obj1Properties->inertialTensorInverse() * temp1, rayToContactObj1, &d2);
-		cross(obj2Properties->inertialTensorInverse() * temp2, rayToContactObj2, &d3);
+
+		obj1Properties->inertialTensorInverse().multiply(temp1, temp);
+		cross(temp, rayToContactObj1, &d2);
+
+		obj2Properties->inertialTensorInverse().multiply(temp2, temp);
+		cross(temp, rayToContactObj2, &d3);
 
 		const sp_float denominator = invMassSum + tangent.dot(d2 + d3);
 
@@ -44,13 +48,17 @@ namespace NAMESPACE_PHYSICS
 			{
 				obj1Properties->currentState._velocity -= tangentImpuse * obj1Properties->massInverse() * obj1Properties->damping();
 				cross(rayToContactObj1, tangentImpuse, &temp1);
-				obj1Properties->currentState._angularVelocity -= obj1Properties->inertialTensorInverse() * temp1 * obj1Properties->angularDamping();
+
+				obj1Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj1Properties->currentState._angularVelocity -= temp * obj1Properties->angularDamping();
 			}
 			else
 			{
 				obj1Properties->currentState._velocity += tangentImpuse * obj1Properties->massInverse() * obj1Properties->damping();
 				cross(rayToContactObj1, tangentImpuse, &temp1);
-				obj1Properties->currentState._angularVelocity += obj1Properties->inertialTensorInverse() * temp1 * obj1Properties->angularDamping();
+
+				obj1Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj1Properties->currentState._angularVelocity += temp * obj1Properties->angularDamping();
 			}
 		}
 
@@ -60,13 +68,17 @@ namespace NAMESPACE_PHYSICS
 			{
 				obj2Properties->currentState._velocity += tangentImpuse * obj2Properties->massInverse() * obj2Properties->damping();
 				cross(rayToContactObj2, tangentImpuse, &temp1);
-				obj2Properties->currentState._angularVelocity += obj2Properties->inertialTensorInverse() * temp1 * obj2Properties->angularDamping();
+
+				obj2Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj2Properties->currentState._angularVelocity += temp * obj2Properties->angularDamping();
 			}
 			else
 			{
 				obj2Properties->currentState._velocity -= tangentImpuse * obj2Properties->massInverse() * obj2Properties->damping();
 				cross(rayToContactObj2, tangentImpuse, &temp1);
-				obj2Properties->currentState._angularVelocity -= obj2Properties->inertialTensorInverse() * temp1 * obj2Properties->angularDamping();
+
+				obj2Properties->inertialTensorInverse().multiply(temp1, temp);
+				obj2Properties->currentState._angularVelocity -= temp * obj2Properties->angularDamping();
 			}
 		}
 	}
@@ -76,8 +88,8 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
 		const sp_float physicVelocity = SpPhysicSettings::instance()->physicVelocity();
-		SpRigidBody* obj1Properties = simulator->rigidBodies(details->objIndex1);
-		SpRigidBody* obj2Properties = simulator->rigidBodies(details->objIndex2);
+		SpPhysicProperties* obj1Properties = simulator->physicProperties(details->objIndex1);
+		SpPhysicProperties* obj2Properties = simulator->physicProperties(details->objIndex2);
 
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
 		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
@@ -89,16 +101,16 @@ namespace NAMESPACE_PHYSICS
 		Plane3D contactFace(details->centerContactPoint, collisionNormal);
 
 		Vec3 rayToContactObj1, rayToContactObj2, angularCrossContactRayObj1, angularCrossContactRayObj2;
-		diff(details->centerContactPoint, centerObj1, &rayToContactObj1);
-		diff(details->centerContactPoint, centerObj2, &rayToContactObj2);
+		diff(details->centerContactPoint, centerObj1, rayToContactObj1);
+		diff(details->centerContactPoint, centerObj2, rayToContactObj2);
 
 		// get relative velocity
 		cross(rayToContactObj1, obj1Properties->currentState.angularVelocity(), &angularCrossContactRayObj1);
 		cross(rayToContactObj2, obj2Properties->currentState.angularVelocity(), &angularCrossContactRayObj2);
 
 		Vec3 pointVelocityObj1, pointVelocityObj2;
-		add(obj1Properties->currentState.velocity(), angularCrossContactRayObj1, &pointVelocityObj1);
-		add(obj2Properties->currentState.velocity(), angularCrossContactRayObj2, &pointVelocityObj2);
+		add(obj1Properties->currentState.velocity(), angularCrossContactRayObj1, pointVelocityObj1);
+		add(obj2Properties->currentState.velocity(), angularCrossContactRayObj2, pointVelocityObj2);
 
 		Vec3 relativeVel;
 		sp_float relativeVelocityAtNormal;
@@ -106,9 +118,9 @@ namespace NAMESPACE_PHYSICS
 		const sp_bool obj2IsPositiveNormal = contactFace.distance(centerObj2) > ZERO_FLOAT;
 		
 		if (obj2IsPositiveNormal)
-			diff(pointVelocityObj1, pointVelocityObj2, &relativeVel);
+			diff(pointVelocityObj1, pointVelocityObj2, relativeVel);
 		else
-			diff(pointVelocityObj2, pointVelocityObj1, &relativeVel);
+			diff(pointVelocityObj2, pointVelocityObj1, relativeVel);
 
 		relativeVelocityAtNormal = relativeVel.dot(collisionNormal);
 
@@ -123,11 +135,13 @@ namespace NAMESPACE_PHYSICS
 		cross(rayToContactObj1, collisionNormal, &angularCrossContactRayObj1);
 		cross(rayToContactObj2, collisionNormal, &angularCrossContactRayObj2);
 
-		Vec3 d2;
-		cross(obj1Properties->inertialTensorInverse() * angularCrossContactRayObj1, rayToContactObj1, &d2);
+		Vec3 d2, temp;
+		obj1Properties->inertialTensorInverse().multiply(angularCrossContactRayObj1, temp);
+		cross(temp, rayToContactObj1, &d2);
 
 		Vec3 d3;
-		cross(obj2Properties->inertialTensorInverse() * angularCrossContactRayObj2, rayToContactObj2, &d3);
+		obj2Properties->inertialTensorInverse().multiply(angularCrossContactRayObj2, temp);
+		cross(temp, rayToContactObj2, &d3);
 
 		const sp_float denominator = invMassSum + collisionNormal.dot(d2 + d3);
 		sp_float j;
@@ -135,8 +149,7 @@ namespace NAMESPACE_PHYSICS
 		if (denominator == ZERO_FLOAT)
 			j = ZERO_FLOAT;
 		else
-			//j = (numerator / denominator) / (sp_float)details->contactPointsLength;
-			j = numerator / denominator;
+			j = (numerator / denominator) / (sp_float)details->contactPointsLength;
 
 		
 		if (obj1Properties->isResting())
@@ -162,7 +175,14 @@ namespace NAMESPACE_PHYSICS
 				obj1Properties->currentState._angularVelocity = -angularImpulse1 * obj1Properties->angularDamping();
 			}
 		}
-		
+
+		/*
+		Vec3 n;
+		normalize(rayToContactObj2, &n);
+		sp_float angle = collisionNormal.dot(-n);
+		sp_bool isSloped = angle != 1.0f;
+		*/
+
 		if (obj2Properties->isResting())
 		{
 			obj2Properties->currentState._position = obj2Properties->previousState._position;

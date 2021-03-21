@@ -89,6 +89,13 @@ namespace NAMESPACE_PHYSICS
 			return value;
 		}
 
+		API_INTERFACE inline void abs()
+		{
+			x = std::fabsf(x);
+			y = std::fabsf(y);
+			z = std::fabsf(z);
+		}
+
 		/// <summary>
 		/// Add a vector from current vector
 		/// </summary>
@@ -152,6 +159,15 @@ namespace NAMESPACE_PHYSICS
 		/// else the third vertex is on the left.
 		/// </summary>
 		API_INTERFACE sp_float orientation(const Vec3& vertex1, const Vec3& vertex2) const;
+
+		/// <summary>
+		/// Get the triple product A x B x C
+		/// </summary>
+		/// <param name="B"></param>
+		/// <param name="C"></param>
+		/// <param name="output">Result</param>
+		/// <returns>output</returns>
+		API_INTERFACE void tripleProduct(const Vec3& B, const Vec3& C, Vec3* output) const;
 
 		/// <summary>
 		/// Compute the SQUARED distance from this vector/point to another one
@@ -394,32 +410,45 @@ namespace NAMESPACE_PHYSICS
 	const Vec3 Vec3Front = Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
 	const Vec3 Vec3Depth = Vec3(ZERO_FLOAT, ZERO_FLOAT, -ONE_FLOAT);
 
-	API_INTERFACE inline void abs(Vec3* vec)
+	/// <summary>
+	/// Fast Swap the vectors A and B
+	/// </summary>
+	/// <param name="a">Vector A</param>
+	/// <param name="b">Vector B</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void swap(Vec3& a, Vec3& b)
 	{
-		vec->x = std::fabsf(vec->x);
-		vec->y = std::fabsf(vec->y);
-		vec->z = std::fabsf(vec->z);
+		Vec3 temp = a;
+		a = b;
+		b = temp;
 	}
 
-	API_INTERFACE inline void abs(const Vec3& input, Vec3* output)
+	API_INTERFACE inline void abs(Vec3& output)
 	{
-		output->x = std::fabsf(input.x);
-		output->y = std::fabsf(input.y);
-		output->z = std::fabsf(input.z);
+		output.x = std::fabsf(output.x);
+		output.y = std::fabsf(output.y);
+		output.z = std::fabsf(output.z);
 	}
 
-	API_INTERFACE inline void add(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	API_INTERFACE inline void abs(const Vec3& input, Vec3& output)
 	{
-		output->x = vec1.x + vec2.x;
-		output->y = vec1.y + vec2.y;
-		output->z = vec1.z + vec2.z;
+		output.x = std::fabsf(input.x);
+		output.y = std::fabsf(input.y);
+		output.z = std::fabsf(input.z);
+	}
+
+	API_INTERFACE inline void add(const Vec3& vec1, const Vec3& vec2, Vec3& output)
+	{
+		output.x = vec1.x + vec2.x;
+		output.y = vec1.y + vec2.y;
+		output.z = vec1.z + vec2.z;
 	}
 	
-	API_INTERFACE inline void diff(const Vec3& vec1, const Vec3& vec2, Vec3* output)
+	API_INTERFACE inline void diff(const Vec3& vec1, const Vec3& vec2, Vec3& output)
 	{
-		output->x = vec1.x - vec2.x;
-		output->y = vec1.y - vec2.y;
-		output->z = vec1.z - vec2.z;
+		output.x = vec1.x - vec2.x;
+		output.y = vec1.y - vec2.y;
+		output.z = vec1.z - vec2.z;
 	}
 	
 	API_INTERFACE inline void multiply(const Vec3& vec1, const Vec3& vec2, Vec3* output)
@@ -427,6 +456,13 @@ namespace NAMESPACE_PHYSICS
 		output->x = vec1.x * vec2.x;
 		output->y = vec1.y * vec2.y;
 		output->z = vec1.z * vec2.z;
+	}
+
+	API_INTERFACE inline void multiply(const Vec3& vector, const sp_float value, Vec3& output)
+	{
+		output.x = vector.x * value;
+		output.y = vector.y * value;
+		output.z = vector.z * value;
 	}
 
 	/// <summary>
@@ -438,8 +474,8 @@ namespace NAMESPACE_PHYSICS
 	API_INTERFACE inline sp_bool isCloseEnough(const Vec3& vector, const Vec3& compare, const sp_float _epsilon = DefaultErrorMargin)
 	{
 		Vec3 difff;
-		diff(vector, compare, &difff);
-		abs(&difff);
+		diff(vector, compare, difff);
+		difff.abs();
 
 		return difff.x <= _epsilon
 			&& difff.y <= _epsilon

@@ -1,18 +1,11 @@
-#ifndef BOUNDING_VOLUME_OPENCL_HEADER
-#define BOUNDING_VOLUME_OPENCL_HEADER
-
 #include "OpenCLBase.cl"
-#include "SpBodyMapper.cl"
 #include "DOP18.cl"
+#include "Sphere.cl"
 #include "Plane3D.cl"
 #include "SpTransformation.cl"
 
 __kernel void buildDOP18 (
-    __constant sp_uint * bodyLength,
-    __global   sp_uint * bodyMapper,
-    __global   sp_float* rigidBodies,
-    __global   sp_float* softBodies,
-    __constant sp_uint * softBodyIndexes,
+    __global   sp_uint * meshCacheLength,
     __constant sp_uint * meshCacheIndexes,
     __constant sp_uint * meshCacheVertexesLength,
     __global   sp_float* meshCache,
@@ -20,10 +13,41 @@ __kernel void buildDOP18 (
     __global   sp_float* output
 )
 {
-    if (THREAD_ID + 1u > *bodyLength)
+    if (THREAD_ID + 1u > *meshCacheLength)
         return;
 
-    const sp_uint bodyIndex = SpBodyMapper_getIndex(bodyMapper, THREAD_ID * SP_BODY_MAPPER_LENGTH);
+    Vec3 position;
+    sp_transformation_get_position(transformations, THREAD_ID * SP_TRANSFORMATION_STRIDER, &position);
+
+    Vec3 orientationUpLeft;
+    vec3_up_left(orientationUpLeft);
+    sp_float dotOrientationUpLeft = vec3_dot_vec3(orientationUpLeft, orientationUpLeft);
+    sp_float dfoUpLeft = vec3_dot_vec3(position, orientationUpLeft);
+
+    Vec3 orientationUpRight;
+    vec3_up_right(orientationUpRight);
+    sp_float dotOrientationUpRight = vec3_dot_vec3(orientationUpRight, orientationUpRight);
+    sp_float dfoUpRight = vec3_dot_vec3(position, orientationUpRight);
+
+    Vec3 orientationUpFront;
+    vec3_up_front(orientationUpFront);
+    sp_float dotOrientationUpFront = vec3_dot_vec3(orientationUpFront, orientationUpFront);
+    sp_float dfoUpFront = vec3_dot_vec3(position, orientationUpFront);
+
+    Vec3 orientationUpDepth;
+    vec3_up_depth(orientationUpDepth);
+    sp_float dotOrientationUpDepth = vec3_dot_vec3(orientationUpDepth, orientationUpDepth);
+    sp_float dfoUpDepth = vec3_dot_vec3(position, orientationUpDepth);
+
+    Vec3 orientationLeftDepth;
+    vec3_left_depth(orientationLeftDepth);
+    sp_float dotOrientationLeftDepth = vec3_dot_vec3(orientationLeftDepth, orientationLeftDepth);
+    sp_float dfoLeftDepth = vec3_dot_vec3(position, orientationLeftDepth);
+
+    Vec3 orientationRightDepth;
+    vec3_right_depth(orientationRightDepth);
+    sp_float dotOrientationRightDepth = vec3_dot_vec3(orientationRightDepth, orientationRightDepth);
+    sp_float dfoRightDepth = vec3_dot_vec3(position, orientationRightDepth);
 
     sp_float 
         right = SP_FLOAT_MIN,
@@ -49,143 +73,103 @@ __kernel void buildDOP18 (
         distanceRightDepth = SP_FLOAT_MAX,
         distanceLeftFront = SP_FLOAT_MIN;
 
-    if (SpBodyMapper_isRigid(bodyMapper, THREAD_ID * SP_BODY_MAPPER_LENGTH))
+    const sp_uint vertexLength = meshCacheVertexesLength[THREAD_ID];
+    sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
+
+    for (sp_uint i = 0u; i < vertexLength; i++)
     {
-        Vec3 position;
-        sp_transformation_get_position(transformations, bodyIndex * SP_TRANSFORMATION_STRIDER, &position);
+        Vec3 vertex;
+        vertex.x = meshCache[vertexIndex     ];
+        vertex.y = meshCache[vertexIndex + 1u];
+        vertex.z = meshCache[vertexIndex + 2u];
 
-        Vec3 orientationUpLeft;
-        vec3_up_left(orientationUpLeft);
-        sp_float dotOrientationUpLeft = vec3_dot_vec3(orientationUpLeft, orientationUpLeft);
-        sp_float dfoUpLeft = vec3_dot_vec3(position, orientationUpLeft);
+        if (vertex.x > right) right = vertex.x;
+        if (vertex.y > up) up = vertex.y;
+        if (vertex.z > front) front = vertex.z;
 
-        Vec3 orientationUpRight;
-        vec3_up_right(orientationUpRight);
-        sp_float dotOrientationUpRight = vec3_dot_vec3(orientationUpRight, orientationUpRight);
-        sp_float dfoUpRight = vec3_dot_vec3(position, orientationUpRight);
-
-        Vec3 orientationUpFront;
-        vec3_up_front(orientationUpFront);
-        sp_float dotOrientationUpFront = vec3_dot_vec3(orientationUpFront, orientationUpFront);
-        sp_float dfoUpFront = vec3_dot_vec3(position, orientationUpFront);
-
-        Vec3 orientationUpDepth;
-        vec3_up_depth(orientationUpDepth);
-        sp_float dotOrientationUpDepth = vec3_dot_vec3(orientationUpDepth, orientationUpDepth);
-        sp_float dfoUpDepth = vec3_dot_vec3(position, orientationUpDepth);
-
-        Vec3 orientationLeftDepth;
-        vec3_left_depth(orientationLeftDepth);
-        sp_float dotOrientationLeftDepth = vec3_dot_vec3(orientationLeftDepth, orientationLeftDepth);
-        sp_float dfoLeftDepth = vec3_dot_vec3(position, orientationLeftDepth);
-
-        Vec3 orientationRightDepth;
-        vec3_right_depth(orientationRightDepth);
-        sp_float dotOrientationRightDepth = vec3_dot_vec3(orientationRightDepth, orientationRightDepth);
-        sp_float dfoRightDepth = vec3_dot_vec3(position, orientationRightDepth);
-
-        const sp_uint vertexLength = meshCacheVertexesLength[bodyIndex];
-        sp_uint vertexIndex = meshCacheIndexes[bodyIndex];
-
-        for (sp_uint i = 0u; i < vertexLength; i++)
-        {
-            Vec3 vertex;
-            vertex.x = meshCache[vertexIndex     ];
-            vertex.y = meshCache[vertexIndex + 1u];
-            vertex.z = meshCache[vertexIndex + 2u];
-
-            if (vertex.x > right) right = vertex.x;
-            if (vertex.y > up) up = vertex.y;
-            if (vertex.z > front) front = vertex.z;
-
-            if (vertex.x < left) left = vertex.x;
-            if (vertex.y < down) down = vertex.y;
-            if (vertex.z < depth) depth = vertex.z;
+        if (vertex.x < left) left = vertex.x;
+        if (vertex.y < down) down = vertex.y;
+        if (vertex.z < depth) depth = vertex.z;
     
-            sp_float newDistance = (vec3_dot_vec3(orientationUpLeft, vertex) - dfoUpLeft) / dotOrientationUpLeft;
+        sp_float newDistance = (vec3_dot_vec3(orientationUpLeft, vertex) - dfoUpLeft) / dotOrientationUpLeft;
         
-            if (newDistance > distanceUpLeft)
-            {
-                upLeft = vertex.x - (vertex.y - position.y);
-                distanceUpLeft = newDistance;
-            }
-            if (newDistance < distanceRightDown)
-            {
-                rightDown = vertex.x + (position.y - vertex.y);
-                distanceRightDown = newDistance;
-            }
-
-            newDistance = (vec3_dot_vec3(orientationUpRight, vertex) - dfoUpRight) / dotOrientationUpRight;
-
-            if (newDistance > distanceUpRight)
-            {
-                upRight = vertex.x + (vertex.y - position.y);
-                distanceUpRight = newDistance;
-            }
-            if (newDistance < distanceDownLeft)
-            {
-                downLeft = vertex.x + (vertex.y - position.y);
-                distanceDownLeft = newDistance;
-            }
-
-            newDistance = (vec3_dot_vec3(orientationUpFront, vertex) - dfoUpFront) / dotOrientationUpFront;
-
-            if (newDistance > distanceUpFront)
-            {
-                upFront = vertex.z + (vertex.y - position.y);
-                distanceUpFront = newDistance;
-            }
-            if (newDistance < distanceDownDepth)
-            {
-                downDepth = vertex.z + (vertex.y - position.y);
-                distanceDownDepth = newDistance;
-            }
-
-            newDistance = (vec3_dot_vec3(orientationUpDepth, vertex) - dfoUpDepth) / dotOrientationUpDepth;
-
-            if (newDistance > distanceUpDepth)
-            {
-                upDepth = vertex.z + (position.y - vertex.y);
-                distanceUpDepth = newDistance;
-            }
-            if (newDistance < distanceDownFront)
-            {
-                downFront = vertex.z + (position.y - vertex.y);
-                distanceDownFront = newDistance;
-            }
-
-            newDistance = (vec3_dot_vec3(orientationLeftDepth, vertex) - dfoLeftDepth) / dotOrientationLeftDepth;
-
-            if (newDistance > distanceLeftDepth)
-            {
-                leftDepth = vertex.x + (vertex.z - position.z);
-                distanceLeftDepth = newDistance;
-            }
-            if (newDistance < distanceRightFront)
-            {
-                rightFront = vertex.x + (vertex.z - position.z);
-                distanceRightFront = newDistance;
-            }
-
-            newDistance = (vec3_dot_vec3(orientationRightDepth, vertex) - dfoRightDepth) / dotOrientationRightDepth;
-
-            if (newDistance < distanceRightDepth)
-            {
-                rightDepth = vertex.x + (position.z - vertex.z);
-                distanceRightDepth = newDistance;
-            }
-            if (newDistance > distanceLeftFront)
-            {
-                leftFront = vertex.x + (position.z - vertex.z);
-                distanceLeftFront = newDistance;
-            }
-
-            vertexIndex += 3;
+        if (newDistance > distanceUpLeft)
+        {
+            upLeft = vertex.x - (vertex.y - position.y);
+            distanceUpLeft = newDistance;
         }
-    }
-    else
-    {
-    
+        if (newDistance < distanceRightDown)
+        {
+            rightDown = vertex.x + (position.y - vertex.y);
+            distanceRightDown = newDistance;
+        }
+
+        newDistance = (vec3_dot_vec3(orientationUpRight, vertex) - dfoUpRight) / dotOrientationUpRight;
+
+        if (newDistance > distanceUpRight)
+        {
+            upRight = vertex.x + (vertex.y - position.y);
+            distanceUpRight = newDistance;
+        }
+        if (newDistance < distanceDownLeft)
+        {
+            downLeft = vertex.x + (vertex.y - position.y);
+            distanceDownLeft = newDistance;
+        }
+
+        newDistance = (vec3_dot_vec3(orientationUpFront, vertex) - dfoUpFront) / dotOrientationUpFront;
+
+        if (newDistance > distanceUpFront)
+        {
+            upFront = vertex.z + (vertex.y - position.y);
+            distanceUpFront = newDistance;
+        }
+        if (newDistance < distanceDownDepth)
+        {
+            downDepth = vertex.z + (vertex.y - position.y);
+            distanceDownDepth = newDistance;
+        }
+
+        newDistance = (vec3_dot_vec3(orientationUpDepth, vertex) - dfoUpDepth) / dotOrientationUpDepth;
+
+        if (newDistance > distanceUpDepth)
+        {
+            upDepth = vertex.z + (position.y - vertex.y);
+            distanceUpDepth = newDistance;
+        }
+        if (newDistance < distanceDownFront)
+        {
+            downFront = vertex.z + (position.y - vertex.y);
+            distanceDownFront = newDistance;
+        }
+
+        newDistance = (vec3_dot_vec3(orientationLeftDepth, vertex) - dfoLeftDepth) / dotOrientationLeftDepth;
+
+        if (newDistance > distanceLeftDepth)
+        {
+            leftDepth = vertex.x + (vertex.z - position.z);
+            distanceLeftDepth = newDistance;
+        }
+        if (newDistance < distanceRightFront)
+        {
+            rightFront = vertex.x + (vertex.z - position.z);
+            distanceRightFront = newDistance;
+        }
+
+        newDistance = (vec3_dot_vec3(orientationRightDepth, vertex) - dfoRightDepth) / dotOrientationRightDepth;
+
+        if (newDistance < distanceRightDepth)
+        {
+            rightDepth = vertex.x + (position.z - vertex.z);
+            distanceRightDepth = newDistance;
+        }
+        if (newDistance > distanceLeftFront)
+        {
+            leftFront = vertex.x + (position.z - vertex.z);
+            distanceLeftFront = newDistance;
+        }
+
+        vertexIndex += 3;
     }
 
     if (isCloseEnough(up, down, SP_EPSILON_NUMBER))
@@ -230,22 +214,16 @@ __kernel void buildDOP18 (
     
 
 __kernel void buildAABB(
-    __global   sp_uint*  bodyLength,
-    __global   sp_uint*  bodyMapper,
-    __global   sp_float* rigidBodies,
-    __global   sp_float* softBodies,
-    __constant sp_uint * softBodyIndexes,
-    __constant sp_uint*  meshCacheIndexes,
-    __constant sp_uint*  meshCacheVertexesLength,
+    __global   sp_uint* meshCacheLength,
+    __constant sp_uint* meshCacheIndexes,
+    __constant sp_uint* meshCacheVertexesLength,
     __global   sp_float* meshCache,
     __global   sp_float* transformations,
     __global   sp_float* output
 )
 {
-    if (THREAD_ID + 1u > *bodyLength)
+    if (THREAD_ID + 1u > *meshCacheLength)
         return;
-
-    const sp_uint bodyIndex = SpBodyMapper_getIndex(bodyMapper, THREAD_ID * SP_BODY_MAPPER_LENGTH);
 
     sp_float
         right = SP_FLOAT_MIN,
@@ -254,29 +232,26 @@ __kernel void buildAABB(
         left = SP_FLOAT_MAX,
         down = SP_FLOAT_MAX,
         depth = SP_FLOAT_MAX;
-    
-    if (SpBodyMapper_isRigid(bodyMapper, THREAD_ID * SP_BODY_MAPPER_LENGTH))
+
+    const sp_uint vertexLength = meshCacheVertexesLength[THREAD_ID];
+    sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
+
+    for (sp_uint i = 0u; i < vertexLength; i++)
     {
-        const sp_uint vertexLength = meshCacheVertexesLength[bodyIndex];
-        sp_uint vertexIndex = meshCacheIndexes[bodyIndex];
+        Vec3 vertex;
+        vertex.x = meshCache[vertexIndex     ];
+        vertex.y = meshCache[vertexIndex + 1u];
+        vertex.z = meshCache[vertexIndex + 2u];
 
-        for (sp_uint i = 0u; i < vertexLength; i++)
-        {
-            Vec3 vertex;
-            vertex.x = meshCache[vertexIndex     ];
-            vertex.y = meshCache[vertexIndex + 1u];
-            vertex.z = meshCache[vertexIndex + 2u];
+        if (vertex.x > right) right = vertex.x;
+        if (vertex.y > up) up = vertex.y;
+        if (vertex.z > front) front = vertex.z;
 
-            if (vertex.x > right) right = vertex.x;
-            if (vertex.y > up) up = vertex.y;
-            if (vertex.z > front) front = vertex.z;
+        if (vertex.x < left) left = vertex.x;
+        if (vertex.y < down) down = vertex.y;
+        if (vertex.z < depth) depth = vertex.z;
 
-            if (vertex.x < left) left = vertex.x;
-            if (vertex.y < down) down = vertex.y;
-            if (vertex.z < depth) depth = vertex.z;
-
-            vertexIndex += 3;
-        }
+        vertexIndex += 3;
     }
 
     if (isCloseEnough(up, down, SP_EPSILON_NUMBER))
@@ -307,4 +282,42 @@ __kernel void buildAABB(
     output[outputIndex + DOP18_AXIS_Z] = front;
 }
 
-#endif // BOUNDING_VOLUME_OPENCL_HEADER
+
+__kernel void buildSphere(
+    __global   sp_uint* meshCacheLength,
+    __constant sp_uint* meshCacheIndexes,
+    __constant sp_uint* meshCacheVertexesLength,
+    __global   sp_float* meshCache,
+    __global   sp_float* transformations,
+    __global   sp_float* output
+)
+{
+    if (THREAD_ID + 1u > *meshCacheLength)
+        return;
+
+    Vec3 position;
+    sp_transformation_get_position(transformations, THREAD_ID * SP_TRANSFORMATION_STRIDER, &position);
+
+    sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
+    sp_float distance = SP_FLOAT_MIN;
+
+    for (sp_uint i = 0u; i < *meshCacheVertexesLength; i++)
+    {
+        Vec3 vertex;
+        vertex.x = meshCache[vertexIndex];
+        vertex.y = meshCache[vertexIndex + 1u];
+        vertex.z = meshCache[vertexIndex + 2u];
+
+        const sp_float currentDistance = squared_distance(position, vertex);
+
+        if (currentDistance > distance)
+            distance = currentDistance;
+    }
+
+    const sp_uint outputIndex = THREAD_ID * 4;
+
+    output[outputIndex     ] = position.x;
+    output[outputIndex + 1u] = position.y;
+    output[outputIndex + 2u] = position.z;    
+    output[outputIndex + 3u] = (sp_float) sqrt(distance);
+}

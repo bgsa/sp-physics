@@ -13,7 +13,7 @@ namespace NAMESPACE_PHYSICS
 		public Object
 	{
 	private:
-		SpRigidBody physicData;
+		SpPhysicProperties physicData;
 
 	public:
 

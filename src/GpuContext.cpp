@@ -78,7 +78,7 @@ namespace NAMESPACE_PHYSICS
 
 	cl_platform_id GpuContext::defaultPlatforms()
 	{
-		return platforms()->data()[1];
+		return platforms()->get(1);
 	}
 
 	GpuContext::~GpuContext()

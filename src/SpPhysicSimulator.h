@@ -12,50 +12,38 @@
 #include "SpPhysicSettings.h"
 #include "SpCollisionDetails.h"
 #include "SpThreadPool.h"
-#include "SpRigidBodyMapper.h"
+#include "SpCollisionResponseGPU.h"
+#include "SpCollisionFeatures.h"
 #include "SpCollisionDetector.h"
 #include "SpGpuRenderingFactory.h"
 #include "SpCollisionResponse.h"
 #include "SpPhysicIntegrator.h"
 #include "SpCollisionGroup.h"
+#include "SpSphereBoundingVolumeFactory.h"
 #include "SpDOP18Factory.h"
 #include "SpAABBFactory.h"
 #include "GpuBufferOpenCL.h"
 #include "SpMeshCacheUpdaterGPU.h"
-#include "SpSoftBody.h"
+#include "SpCollisionResponseShapeMatching.h"
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpBodyMapper 
-	{
-	public:
-		SpBodyType type;
-		sp_uint index;
-
-		API_INTERFACE inline SpBodyMapper()
-		{
-			type = SpBodyType::Unknonw;
-			index = SP_UINT_MAX;
-		}
-	};
-
 	class SpPhysicSimulator
 	{
 	private:
 		GpuDevice* gpu;
 		SweepAndPrune* sapDOP18;
 		SweepAndPrune* sapAABB;
-		
-		sp_uint _objectsMaxLength, _objectsLengthAllocated;
-		sp_uint _rigidBodiesMaxLength, _rigidBodiesAllocated;
-		sp_uint _softBodiesMaxLength, _softBodiesAllocated;
+		SweepAndPrune* sapSphere;
+		SpCollisionResponseGPU* collisionResponseGPU;
+
+		sp_uint _objectsLengthAllocated;
+		sp_uint _objectsLength;
 		
 		DOP18* _boundingVolumes;
-		SpRigidBody* _rigidBodies;
-		SpSoftBody* _softBodies;
-		SpBodyMapper* _bodyMapper;
+		SpPhysicProperties* _physicProperties;
 		SpTransform* _transforms;
-		SpRigidBodyMapper* _rigidBodyMapper;
+		SpCollisionFeatures* _objectMapper;
 		SpArray<SpMesh*>* _meshes;
 		SpArray<SpMeshCache*>* _meshesCache;
 		
@@ -63,9 +51,7 @@ namespace NAMESPACE_PHYSICS
 		cl_mem _transformsGPU;
 		SpGpuTextureBuffer* _transformsGPUBuffer;
 		cl_mem _boundingVolumesGPU;
-		GpuBufferOpenCL* _rigidBodiesGPU;
-		GpuBufferOpenCL* _softBodiesGPU;
-		GpuBufferOpenCL* _softBodyIndexesGPU;
+		cl_mem _physicPropertiesGPU;
 		cl_mem _collisionIndexesGPU;
 		cl_mem _collisionIndexesLengthGPU;
 		cl_mem _sapCollisionIndexesGPU;
@@ -76,15 +62,15 @@ namespace NAMESPACE_PHYSICS
 		GpuBufferOpenCL* _meshCacheGPU;
 		GpuBufferOpenCL* _meshCacheIndexesGPU;
 		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
-		GpuBufferOpenCL* _bodyMapperGPU;
-		GpuBufferOpenCL* _rigidBodyMapperGPU;
+		GpuBufferOpenCL* _objectMapperGPU;
+		SpSphereBoundingVolumeFactory sphereFactory;
 		SpAABBFactory aabbFactory;
 		SpDOP18Factory dop18Factory;
 		SpMeshCacheUpdaterGPU _meshCacheUpdater;
 
 		Timer timerToPhysic;
 
-		SpPhysicSimulator(const sp_uint rigidBodiesLength, const sp_uint softbodiesLength);
+		SpPhysicSimulator(sp_uint objectsLength);
 
 		inline void dispatchEvent(SpCollisionDetails* details)
 		{
@@ -95,27 +81,31 @@ namespace NAMESPACE_PHYSICS
 			SpEventDispatcher::instance()->push(evt);
 		}
 
-		void addFriction(SpRigidBody* obj1Properties, SpRigidBody* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
+		void addFriction(SpPhysicProperties* obj1Properties, SpPhysicProperties* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpuDOP18(SweepAndPruneResult* result);
 		void findCollisionsGpuAABB(SweepAndPruneResult* result);
+		void findCollisionsGpuSphere(SweepAndPruneResult& result);
 		
 		/// <summary>
 		/// Update transformations and physicproperties on GPU
 		/// </summary>
 		void updateDataOnGPU()
 		{
-			if (_objectsMaxLength != ZERO_UINT)
-			{
-				gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsMaxLength, _transforms);
-				
-				if (_rigidBodiesMaxLength != ZERO_UINT)
-					gpu->commandManager->updateBuffer(_rigidBodiesGPU->buffer(), _rigidBodiesGPU->size(), _rigidBodies);
+			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
+			sapDOP18->updatePhysicProperties(_physicProperties);
+			sapAABB->updatePhysicProperties(_physicProperties);
+			sapSphere->updatePhysicProperties(_physicProperties);
+		}
 
-				if (_softBodiesMaxLength != ZERO_UINT)
-					gpu->commandManager->updateBuffer(_softBodiesGPU->buffer(), _softBodiesGPU->size(), _softBodies);
-			}
+		/// <summary>
+		/// Update physic properties changed by GPU filter response
+		/// </summary>
+		void updateDataOnCPU()
+		{
+			cl_event evt1 = gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpPhysicProperties) * _objectsLength, _physicProperties);
+			gpu->waitEvents(ONE_UINT, &evt1);
 		}
 
 		static void handleCollisionCPU(void* collisionParamter);
@@ -133,7 +123,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void updateTransformsOnGPU()
 		{
-			sp_size size = sizeof(SpTransform) * _objectsMaxLength;
+			sp_size size = sizeof(SpTransform) * _objectsLength;
 			sp_double mult = size / 12.0;
 			mult = mult - ((int)mult);
 
@@ -152,52 +142,25 @@ namespace NAMESPACE_PHYSICS
 			gpu->commandManager->releaseGLObjects(_transformsGPU);
 		}
 
-		API_INTERFACE static SpPhysicSimulator* init(const sp_uint rigidBodiesLength, const sp_uint softbodiesLength);
+		API_INTERFACE static SpPhysicSimulator* init(sp_uint objectsLength);
 
-		API_INTERFACE inline sp_uint allocRigidBody(const sp_uint length, sp_uint* globalBodyIndex)
+		API_INTERFACE inline sp_uint alloc(sp_uint length)
 		{
-			sp_assert(_objectsLengthAllocated + length <= _objectsMaxLength, "InvalidArgumentException");
-			sp_assert(_rigidBodiesAllocated + length <= _rigidBodiesMaxLength, "InvalidArgumentException");
+			const sp_uint allocated = _objectsLength;
+			
+			for (sp_uint i = _objectsLength; i < _objectsLength + length; i++)
+				_objectMapper[i].meshIndex = _objectsLength;
+			
+			_objectsLength += length;
 
-			globalBodyIndex[0] = _objectsLengthAllocated;
-			const sp_uint allocated = _rigidBodiesAllocated;
-
-			for (sp_uint i = _rigidBodiesAllocated; i < _rigidBodiesAllocated + length; i++)
-			{
-				_bodyMapper[_objectsLengthAllocated + i - _rigidBodiesAllocated].type = SpBodyType::Rigid;
-				_bodyMapper[_objectsLengthAllocated + i - _rigidBodiesAllocated].index = i;
-				_rigidBodyMapper[i].meshIndex = allocated;
-			}
-
-			_objectsLengthAllocated += length;
-			_rigidBodiesAllocated += length;
+			sp_assert(_objectsLength <= _objectsLengthAllocated, "InvalidArgumentException");
 
 			return allocated;
 		}
 
-		API_INTERFACE inline sp_uint allocSoftBody(const sp_uint length, sp_uint* globalBodyIndex)
+		API_INTERFACE inline sp_uint objectsLength() const
 		{
-			sp_assert(_objectsLengthAllocated + length <= _objectsMaxLength, "InvalidArgumentException");
-			sp_assert(_softBodiesAllocated + length <= _softBodiesMaxLength, "InvalidArgumentException");
-
-			globalBodyIndex[0] = _objectsLengthAllocated;
-			const sp_uint allocated = _softBodiesAllocated;
-
-			for (sp_uint i = 0; i < length; i++)
-			{
-				_bodyMapper[_objectsLengthAllocated + i].type = SpBodyType::Soft;
-				_bodyMapper[_objectsLengthAllocated + i].index = _softBodiesAllocated + i;
-			}
-
-			_objectsLengthAllocated += length;
-			_softBodiesAllocated += length;
-
-			return allocated;
-		}
-
-		API_INTERFACE inline sp_uint objectsMaxLength() const
-		{
-			return _objectsMaxLength;
+			return _objectsLength;
 		}
 
 		API_INTERFACE inline sp_uint objectsLengthAllocated() const
@@ -210,47 +173,23 @@ namespace NAMESPACE_PHYSICS
 			return &_boundingVolumes[index];
 		}
 
-		API_INTERFACE inline SpRigidBody* rigidBodies(const sp_uint index) const
+		API_INTERFACE inline SpPhysicProperties* physicProperties(const sp_uint index) const
 		{
-			return &_rigidBodies[index];
-		}
-
-		API_INTERFACE inline SpSoftBody* softBodies(const sp_uint index) const
-		{
-			return &_softBodies[index];
+			return &_physicProperties[index];
 		}
 
 		API_INTERFACE inline SpTransform* transforms(const sp_uint index) const
 		{
 			return &_transforms[index];
 		}
-
-		API_INTERFACE inline void initGPUData()
-		{
-			_bodyMapperGPU->update(_bodyMapper);
-		}
-
-		API_INTERFACE inline void initSoftBodyIndexes()
-		{
-			if (_softBodiesAllocated == ZERO_UINT)
-				return;
-
-			sp_uint* indexes = ALLOC_NEW_ARRAY(sp_uint, _softBodiesAllocated);
-			indexes[0] = ZERO_UINT;
-
-			for (sp_uint i = 1u; i < _softBodiesAllocated; i++)
-				indexes[i] = divideBy4(_softBodies[i].size());
-
-			_softBodyIndexesGPU->update(indexes);
-		}
 		
-		API_INTERFACE inline SpRigidBodyMapper* rigidBodyMapper(const sp_uint index) const
+		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index) const
 		{
-			return &_rigidBodyMapper[index];
+			return &_objectMapper[index];
 		}
-		API_INTERFACE inline void rigidBodyMapperMesh(const sp_uint index, const sp_uint meshIndex)
+		API_INTERFACE inline void collisionFeatures(const sp_uint index, const sp_uint meshIndex)
 		{
-			_rigidBodyMapper[index].meshIndex = meshIndex;
+			_objectMapper[index].meshIndex = meshIndex;
 		}
 
 		API_INTERFACE inline SpMesh* mesh(const sp_uint index) const
@@ -271,12 +210,6 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void initMeshCache();
 		API_INTERFACE inline void updateMeshCache();
 
-		API_INTERFACE inline void initBoundingVolumeFactory()
-		{
-			dop18Factory.init(gpu, _inputLengthGPU, _bodyMapperGPU, _rigidBodiesGPU, _softBodiesGPU, _softBodyIndexesGPU, _objectsMaxLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
-			aabbFactory.init(gpu, _inputLengthGPU, _bodyMapperGPU, _rigidBodiesGPU, _softBodiesGPU, _softBodyIndexesGPU, _objectsMaxLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
-		}
-
 		/// <summary>
 		/// Update MeshCache structure on GPU, using transformations objects
 		/// </summary>
@@ -293,10 +226,10 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void backToTime(const sp_uint index)
 		{
-			SpRigidBody* element = &_rigidBodies[index];
+			SpPhysicProperties* element = &_physicProperties[index];
 
 			Vec3 translation;
-			diff(element->previousState.position(), element->currentState.position(), &translation);
+			diff(element->previousState.position(), element->currentState.position(), translation);
 
 			element->rollbackState();
 			
@@ -311,11 +244,11 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
 			sp_assert(_transforms != nullptr, "InvalidOperationException");
 			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsMaxLength, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_boundingVolumes[index].translate(translation);
 			_transforms[index].translate(translation);
-			_rigidBodies[index].currentState.translate(translation);
+			_physicProperties[index].currentState.translate(translation);
 		}
 
 		API_INTERFACE void scale(const sp_uint index, const Vec3& scaleVector)
@@ -323,7 +256,7 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
 			sp_assert(_transforms != nullptr, "InvalidOperationException");
 			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsMaxLength, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_boundingVolumes[index].scale(scaleVector);
 			_transforms[index].scale(scaleVector);
@@ -334,10 +267,10 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
 			sp_assert(_transforms != nullptr, "InvalidOperationException");
 			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsMaxLength, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_transforms[index].orientation *= quat;
-			_rigidBodies[index].currentState.orientation(_transforms[index].orientation);
+			_physicProperties[index].currentState.orientation(_transforms[index].orientation);
 		}
 
 		API_INTERFACE void position(const sp_uint index, const Vec3& newPosition)
@@ -345,13 +278,13 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
 			sp_assert(_transforms != nullptr, "InvalidOperationException");
 			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsMaxLength, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			Vec3 diff = _transforms[index].position - newPosition;
 
 			_boundingVolumes[index].translate(diff);
 			_transforms[index].position = newPosition;
-			_rigidBodies[index].currentState.position(newPosition);
+			_physicProperties[index].currentState.position(newPosition);
 		}
 
 		API_INTERFACE void orientation(const sp_uint index, const Quat& newOrientation)
@@ -359,10 +292,10 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
 			sp_assert(_transforms != nullptr, "InvalidOperationException");
 			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsMaxLength, "IndexOutOfRangeException");
+			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_transforms[index].orientation = newOrientation;
-			_rigidBodies[index].currentState.orientation(newOrientation);
+			_physicProperties[index].currentState.orientation(newOrientation);
 		}
 
 		API_INTERFACE void run(const sp_float elapsedTime);
@@ -371,16 +304,16 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void moveAwayDynamicObjects()
 		{
-			for (sp_uint i = 0; i < _objectsMaxLength; i++)
+			for (sp_uint i = 0; i < _objectsLength; i++)
 			{
-				if (_rigidBodies[i].isStatic())
+				if (_physicProperties[i].isStatic())
 					continue;
 
 				DOP18 bv1 = _boundingVolumes[i];
 
-				for (sp_uint j = i + 1u; j < _objectsMaxLength; j++)
+				for (sp_uint j = i + 1u; j < _objectsLength; j++)
 				{
-					if (_rigidBodies[j].isStatic())
+					if (_physicProperties[j].isStatic())
 						continue;
 
 					if (bv1.collisionStatus(_boundingVolumes[j]) != CollisionStatus::OUTSIDE)
