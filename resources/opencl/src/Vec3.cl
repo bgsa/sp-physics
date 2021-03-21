@@ -3,10 +3,13 @@
 #ifndef VEC3_HEADER
 #define VEC3_HEADER
 
+typedef float3 Vec3;
+/*
 typedef struct Vec3
 {
 	sp_float x, y, z;
 } Vec3;
+*/
 
 #define vec3_up_left(vec) \
 	vec.x = -1.0f; \
@@ -78,6 +81,16 @@ inline void vec3_abs(const Vec3 vec, Vec3* result)
 
 #define vec3_dot_vec3(vector1, vector2) \
 	vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z
+
+
+#define squared_distance(vector1, vector2) \
+	(vector2.x - vector1.x) * (vector2.x - vector1.x) +   \
+	(vector2.y - vector1.y) * (vector2.y - vector1.y) +   \
+	(vector2.z - vector1.z) * (vector2.z - vector1.z)
+
+	
+#define distance(vector1, vector2) \
+	sqrt( squared_distance(vector1, vector2) )
 
 inline void vec3_multiply_float(const Vec3 vec, const sp_float value, Vec3* result)
 {

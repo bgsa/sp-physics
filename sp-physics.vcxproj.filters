@@ -6539,6 +6539,9 @@
     <ClInclude Include="src\SpGJK.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SpSphereBoundingVolumeFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
@@ -6602,6 +6605,9 @@
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
     <None Include="resources\opencl\src\SpMeshCache.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
+    <None Include="resources\opencl\src\Sphere.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
   </ItemGroup>

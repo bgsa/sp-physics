@@ -19,6 +19,7 @@
 #include "SpCollisionResponse.h"
 #include "SpPhysicIntegrator.h"
 #include "SpCollisionGroup.h"
+#include "SpSphereBoundingVolumeFactory.h"
 #include "SpDOP18Factory.h"
 #include "SpAABBFactory.h"
 #include "GpuBufferOpenCL.h"
@@ -33,6 +34,7 @@ namespace NAMESPACE_PHYSICS
 		GpuDevice* gpu;
 		SweepAndPrune* sapDOP18;
 		SweepAndPrune* sapAABB;
+		SweepAndPrune* sapSphere;
 		SpCollisionResponseGPU* collisionResponseGPU;
 
 		sp_uint _objectsLengthAllocated;
@@ -61,6 +63,7 @@ namespace NAMESPACE_PHYSICS
 		GpuBufferOpenCL* _meshCacheIndexesGPU;
 		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
 		GpuBufferOpenCL* _objectMapperGPU;
+		SpSphereBoundingVolumeFactory sphereFactory;
 		SpAABBFactory aabbFactory;
 		SpDOP18Factory dop18Factory;
 		SpMeshCacheUpdaterGPU _meshCacheUpdater;
@@ -83,6 +86,7 @@ namespace NAMESPACE_PHYSICS
 		void findCollisionsCpu(SweepAndPruneResult* result);
 		void findCollisionsGpuDOP18(SweepAndPruneResult* result);
 		void findCollisionsGpuAABB(SweepAndPruneResult* result);
+		void findCollisionsGpuSphere(SweepAndPruneResult& result);
 		
 		/// <summary>
 		/// Update transformations and physicproperties on GPU
@@ -92,6 +96,7 @@ namespace NAMESPACE_PHYSICS
 			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
 			sapDOP18->updatePhysicProperties(_physicProperties);
 			sapAABB->updatePhysicProperties(_physicProperties);
+			sapSphere->updatePhysicProperties(_physicProperties);
 		}
 
 		/// <summary>

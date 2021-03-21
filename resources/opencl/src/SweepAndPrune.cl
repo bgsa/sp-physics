@@ -1,5 +1,6 @@
 #include "OpenCLBase.cl"
 #include "DOP18.cl"
+#include "Sphere.cl"
 #include "SpPhysicProperties.cl"
 
 #define MIN_POINT_NEXT_ELEMENT    input[dopIndex2 + axis]
@@ -133,4 +134,56 @@ __kernel void sweepAndPruneSingleAxisAABB(
             output[temp + 1] = objIndex2;
         }
     }
+}
+
+
+__kernel void sweepAndPruneSingleAxisSphere(
+    __global   sp_float* input,
+    __global   sp_float* physicProperties,
+    __constant sp_uint* indexesLength,
+    __global   sp_uint* indexes,
+    __global   sp_uint* outputLength,
+    __global   sp_uint* output)
+{
+#define beginIntervalObj2 (positionObj2.x - rayObj2)
+
+    const sp_uint index = THREAD_ID - THREAD_OFFSET;
+
+    if (index + 1u > *indexesLength)
+        return;
+
+    const sp_uint objIndex1 = indexes[index];
+    const sp_uint boundingVolumeIndex1 = objIndex1 * SPHERE_STRIDE;
+
+    Vec3 positionObj1;
+    positionObj1.x         = input[boundingVolumeIndex1    ];
+    positionObj1.y         = input[boundingVolumeIndex1 + 1];
+    positionObj1.z         = input[boundingVolumeIndex1 + 2];
+    const sp_float rayObj1 = input[boundingVolumeIndex1 + 3];
+
+    const sp_float endIntervalObj1   = positionObj1.x + rayObj1;
+
+    for (sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
+    {
+        const sp_uint objIndex2 = indexes[j];
+        const sp_uint boundingVolumeIndex2 = objIndex2 * SPHERE_STRIDE;
+
+        Vec3 positionObj2;
+        positionObj2.x         = input[boundingVolumeIndex2    ];
+        positionObj2.y         = input[boundingVolumeIndex2 + 1];
+        positionObj2.z         = input[boundingVolumeIndex2 + 2];
+        const sp_float rayObj2 = input[boundingVolumeIndex2 + 3];
+
+        if (endIntervalObj1 < beginIntervalObj2)
+            return;
+
+        if (rayObj1 + rayObj2 > distance(positionObj1, positionObj2))
+        {
+            const sp_uint temp = atomic_add(outputLength, 2);
+            output[temp    ] = objIndex1;
+            output[temp + 1] = objIndex2;
+        }
+    }
+
+#undef beginIntervalObj2
 }

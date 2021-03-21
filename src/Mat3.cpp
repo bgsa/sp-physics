@@ -531,7 +531,7 @@ namespace NAMESPACE_PHYSICS
 			clone(&matrix);
 
 			output = Vec3Zeros;
-			Vec3 previousResult = Vec3Ones;
+			//Vec3 previousResult = Vec3Ones;
 			iterations = ZERO_UINT;
 
 			sp_float offDiagonal
@@ -545,7 +545,7 @@ namespace NAMESPACE_PHYSICS
 			//while (!isCloseEnough(previousResult, eigenValues, _epsilon) && !matrix.isLower(_epsilon))
 			while (!NAMESPACE_FOUNDATION::isCloseEnough(offDiagonal, ZERO_FLOAT, _epsilon))
 			{
-				matrix.primaryDiagonal(previousResult);
+				//matrix.primaryDiagonal(previousResult);
 
 				sp_uint columnIndex;
 				sp_uint rowIndex;
@@ -637,7 +637,7 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(eigenVectors, Mat3Identity, sizeof(Mat3));
 
 			eigenValues = Vec3Zeros;
-			Vec3 previousResult = Vec3Ones;
+			//Vec3 previousResult = Vec3Ones;
 			iterations = ZERO_UINT;
 
 			sp_float offDiagonal
@@ -651,7 +651,7 @@ namespace NAMESPACE_PHYSICS
 			//while (!isCloseEnough(previousResult, eigenValues, _epsilon) && !matrix.isLower(_epsilon))
 			while (!NAMESPACE_FOUNDATION::isCloseEnough(offDiagonal, ZERO_FLOAT, _epsilon) && iterations < maxIterations)
 			{
-				matrix.primaryDiagonal(previousResult);
+				//matrix.primaryDiagonal(previousResult);
 
 				sp_uint columnIndex;
 				sp_uint rowIndex;
@@ -815,7 +815,7 @@ namespace NAMESPACE_PHYSICS
 		clone(&matrix);
 
 		Vec3 result = Vec3Zeros;
-		Vec3 previousResult = Vec3Ones;
+		//Vec3 previousResult = Vec3Ones;
 		iterations = ZERO_UINT;
 
 		sp_float offDiagonal
@@ -829,7 +829,7 @@ namespace NAMESPACE_PHYSICS
 		//while (!isCloseEnough(previousResult, eigenValues, _epsilon) && !matrix.isLower(_epsilon))
 		while (!NAMESPACE_FOUNDATION::isCloseEnough(offDiagonal, ZERO_FLOAT, _epsilon))
 		{
-			matrix.primaryDiagonal(previousResult);
+			//matrix.primaryDiagonal(previousResult);
 
 			sp_uint columnIndex;
 			sp_uint rowIndex;

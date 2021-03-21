@@ -161,7 +161,7 @@ namespace NAMESPACE_PHYSICS
 				->buildFromProgram(program, "buildDOP18");
 		}
 
-		API_INTERFACE void buildGPU(GpuDevice* gpu, cl_mem transformationsGPU) const
+		API_INTERFACE void buildGPU() const
 		{
 			command->execute(1u, globalWorkSize, localWorkSize);
 

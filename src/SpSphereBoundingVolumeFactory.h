@@ -1,9 +1,7 @@
-#ifndef SP_AABB_FACTORY_HEADER
-#define SP_AABB_FACTORY_HEADER
+#ifndef SP_SPHERE_BOUNDING_VOLUME_FACTORY_HEADER
+#define SP_SPHERE_BOUNDING_VOLUME_FACTORY_HEADER
 
 #include "SpectrumPhysics.h"
-#include "AABB.h"
-#include "DOP18.h"
 #include "SpMesh.h"
 #include "FileSystem.h"
 
@@ -15,9 +13,9 @@ namespace NAMESPACE_PHYSICS
 {
 
 	/// <summary>
-	/// Factory for AABB (6-DOP) with 3 orientations and 6 Polytopos
+	/// Factory for Sphere bounding volume
 	/// </summary>
-	class SpAABBFactory
+	class SpSphereBoundingVolumeFactory
 	{
 	private:
 
@@ -52,47 +50,27 @@ namespace NAMESPACE_PHYSICS
 	public:
 
 		/// <summary>
-		/// Create a AABB using the mesh provided and the cache
+		/// Create a Sphere using the mesh provided and the cache
 		/// </summary>
 		/// <param name="mesh">Geometry</param>
 		/// <param name="cache">Transformed vertexes</param>
 		/// <param name="position">Center of object</param>
 		/// <param name="output">AABB created</param>
 		/// <returns>void</returns>
-		API_INTERFACE static void build(SpMesh* mesh, SpMeshCache* cache, const Vec3& position, DOP18* output)
+		API_INTERFACE static void build(SpMesh* mesh, SpMeshCache* cache, const Vec3& position, Sphere* output)
 		{
-			SpVertexMesh* vertex1 = mesh->vertexesMesh->get(0);
+			sp_float distance = position.squaredDistance(cache->vertexes[0u]);
 
-			const sp_uint indexUp = mesh->support(Vec3Up, cache->vertexes, vertex1)->index();
-			const sp_uint indexDown = mesh->support(Vec3Down, cache->vertexes, vertex1)->index();
-			const sp_uint indexLeft = mesh->support(Vec3Left, cache->vertexes, vertex1)->index();
-			const sp_uint indexRight = mesh->support(Vec3Right, cache->vertexes, vertex1)->index();
-			const sp_uint indexFront = mesh->support(Vec3Front, cache->vertexes, vertex1)->index();
-			const sp_uint indexDepth = mesh->support(Vec3Depth, cache->vertexes, vertex1)->index();
-
-			output->max[DOP18_AXIS_Y] = cache->vertexes[indexUp].y;
-			output->min[DOP18_AXIS_Y] = cache->vertexes[indexDown].y;
-			if (output->min[DOP18_AXIS_Y] == output->max[DOP18_AXIS_Y])
+			for (sp_uint i = 1u; i < mesh->vertexLength(); i++)
 			{
-				output->max[DOP18_AXIS_Y] += 0.01f;
-				output->min[DOP18_AXIS_Y] -= 0.01f;
+				const sp_float currentDistance = position.squaredDistance(cache->vertexes[i]);
+
+				if (currentDistance > distance)
+					distance = currentDistance;
 			}
 
-			output->max[DOP18_AXIS_X] = cache->vertexes[indexRight].x;
-			output->min[DOP18_AXIS_X] = cache->vertexes[indexLeft].x;
-			if (output->min[DOP18_AXIS_X] == output->max[DOP18_AXIS_X])
-			{
-				output->max[DOP18_AXIS_X] += 0.01f;
-				output->min[DOP18_AXIS_X] -= 0.01f;
-			}
-
-			output->max[DOP18_AXIS_Z] = cache->vertexes[indexFront].z;
-			output->min[DOP18_AXIS_Z] = cache->vertexes[indexDepth].z;
-			if (output->min[DOP18_AXIS_Z] == output->max[DOP18_AXIS_Z])
-			{
-				output->max[DOP18_AXIS_Z] += 0.01f;
-				output->min[DOP18_AXIS_Z] -= 0.01f;
-			}
+			output->center = position;
+			output->ray = sqrtf(distance);
 		}
 
 #ifdef OPENCL_ENABLED
@@ -110,8 +88,8 @@ namespace NAMESPACE_PHYSICS
 				->setInputParameter(meshCacheVertexesLength)
 				->setInputParameter(meshCacheGPU)
 				->setInputParameter(transformationsGPU, inputLength * sizeof(SpTransform))
-				->setInputParameter(output, inputLength * sizeof(DOP18))
-				->buildFromProgram(program, "buildAABB");
+				->setInputParameter(output, inputLength * sizeof(Sphere))
+				->buildFromProgram(program, "buildSphere");
 		}
 
 		API_INTERFACE void buildGPU() const

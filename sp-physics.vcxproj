@@ -323,6 +323,7 @@
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />
     <ClInclude Include="src\SpSIMD.h" />
+    <ClInclude Include="src\SpSphereBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SpVertexMesh.h" />
     <ClInclude Include="src\SpEdgeMesh.h" />
@@ -356,6 +357,7 @@
     <None Include="resources\opencl\src\RadixSortingByGroup.cl" />
     <None Include="resources\opencl\src\RadixSortingByThread.cl" />
     <None Include="resources\opencl\src\Reverse.cl" />
+    <None Include="resources\opencl\src\Sphere.cl" />
     <None Include="resources\opencl\src\SpMeshCache.cl" />
     <None Include="resources\opencl\src\SpPhysicProperties.cl" />
     <None Include="resources\opencl\src\SpTransformation.cl" />

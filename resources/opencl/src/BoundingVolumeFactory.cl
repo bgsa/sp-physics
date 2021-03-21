@@ -1,5 +1,6 @@
 #include "OpenCLBase.cl"
 #include "DOP18.cl"
+#include "Sphere.cl"
 #include "Plane3D.cl"
 #include "SpTransformation.cl"
 
@@ -279,4 +280,44 @@ __kernel void buildAABB(
     output[outputIndex + DOP18_AXIS_X] = right;
     output[outputIndex + DOP18_AXIS_Y] = up;
     output[outputIndex + DOP18_AXIS_Z] = front;
+}
+
+
+__kernel void buildSphere(
+    __global   sp_uint* meshCacheLength,
+    __constant sp_uint* meshCacheIndexes,
+    __constant sp_uint* meshCacheVertexesLength,
+    __global   sp_float* meshCache,
+    __global   sp_float* transformations,
+    __global   sp_float* output
+)
+{
+    if (THREAD_ID + 1u > *meshCacheLength)
+        return;
+
+    Vec3 position;
+    sp_transformation_get_position(transformations, THREAD_ID * SP_TRANSFORMATION_STRIDER, &position);
+
+    sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
+    sp_float distance = SP_FLOAT_MIN;
+
+    for (sp_uint i = 0u; i < *meshCacheVertexesLength; i++)
+    {
+        Vec3 vertex;
+        vertex.x = meshCache[vertexIndex];
+        vertex.y = meshCache[vertexIndex + 1u];
+        vertex.z = meshCache[vertexIndex + 2u];
+
+        const sp_float currentDistance = squared_distance(position, vertex);
+
+        if (currentDistance > distance)
+            distance = currentDistance;
+    }
+
+    const sp_uint outputIndex = THREAD_ID * 4;
+
+    output[outputIndex     ] = position.x;
+    output[outputIndex + 1u] = position.y;
+    output[outputIndex + 2u] = position.z;    
+    output[outputIndex + 3u] = (sp_float) sqrt(distance);
 }

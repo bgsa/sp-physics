@@ -88,6 +88,7 @@ namespace NAMESPACE_PHYSICS
 
 		dop18Factory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
 		aabbFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
+		sphereFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
 #endif
 
 		ALLOC_RELEASE(meshCacheIndexes);
@@ -177,6 +178,11 @@ namespace NAMESPACE_PHYSICS
 		sapAABB->init(gpu, buildOptions.str().c_str());
 		sapAABB->setParameters(_boundingVolumesGPU, objectsLength,
 			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
+
+		sapSphere = sp_mem_new(SweepAndPrune)();
+		sapSphere->init(gpu, buildOptions.str().c_str());
+		sapSphere->setParameters(_boundingVolumesGPU, objectsLength,
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpPhysicProperties), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisSphere");
 
 		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
 		collisionResponseGPU->init(gpu, nullptr);
@@ -280,6 +286,18 @@ namespace NAMESPACE_PHYSICS
 		collisionResponseGPU->fetchCollisionLength(&result->length);
 		collisionResponseGPU->fetchCollisions(result->indexes);
 	}
+	void SpPhysicSimulator::findCollisionsGpuSphere(SweepAndPruneResult& result)
+	{
+		sapSphere->execute(ONE_UINT, &sapSphere->lastEvent);
+
+		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
+
+		collisionResponseGPU->execute(ONE_UINT, &sapSphere->lastEvent);
+		lastEvent = collisionResponseGPU->lastEvent;
+
+		collisionResponseGPU->fetchCollisionLength(&result.length);
+		collisionResponseGPU->fetchCollisions(result.indexes);
+	}
 
 	void SpPhysicSimulator::groupCollisions(const SweepAndPruneResult& sapResult, SpCollisionGroups* collisionGroups)
 	{
@@ -339,21 +357,40 @@ namespace NAMESPACE_PHYSICS
 		// update mesh cache vertexes
 		_meshCacheUpdater.execute();
 
-		/* use AABB 
-		// build bounding volumes AABB
-		aabbFactory.buildGPU(gpu, _transformsGPU);
+		// build bounding volumes Sphere
+		sphereFactory.buildGPU();
 
 		// find collisions pair on GPU using Bounding Volume
-		findCollisionsGpuAABB(&sapResult);
+		tt.update();
+		findCollisionsGpuSphere(sapResult);
+		const sp_float timeBroadPhaseSphere = tt.elapsedTime();
+		const sp_uint paresBroadPhaseSphere = sapResult.length;
 
-		const sp_uint collisionsWithAABB = sapResult.length;
-		*/
+		// build bounding volumes AABB
+		aabbFactory.buildGPU();
+
+		// find collisions pair on GPU using Bounding Volume
+		tt.update(); 
+		findCollisionsGpuAABB(&sapResult);
+		const sp_float timeBroadPhaseAABB = tt.elapsedTime();
+		const sp_uint paresBroadPhaseAABB = sapResult.length;
 
 		// build bounding volumes 18-DOP
-		dop18Factory.buildGPU(gpu, _transformsGPU);
+		dop18Factory.buildGPU();
 
 		// find collisions pair on GPU using Bounding Volume
+		tt.update();
 		findCollisionsGpuDOP18(&sapResult);
+		const sp_float timeBroadPhaseDOP18 = tt.elapsedTime();
+		const sp_float paresBroadPhaseDOP18 = sapResult.length;
+
+
+		sp_log_debug1sfnl("Pares DOP18: ", (sp_float) paresBroadPhaseDOP18);
+		sp_log_debug1sfnl("Tempo DOP18: ", timeBroadPhaseDOP18);
+		sp_log_debug1sfnl("Pares AABB: ", (sp_float)paresBroadPhaseAABB);
+		sp_log_debug1sfnl("Tempo AABB: ", timeBroadPhaseAABB); 
+		sp_log_debug1sfnl("Pares Sphere: ", (sp_float)paresBroadPhaseSphere);
+		sp_log_debug1sfnl("Tempo Sphere: ", timeBroadPhaseSphere);
 
 		//const sp_uint collisionsWith18DOP = sapResult.length;
 		//sp_log_info1s("Collisions: "); sp_log_info1u(sapResult.length); sp_log_newline();
@@ -533,6 +570,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_mem_delete(sapAABB, SweepAndPrune);
 			sapAABB = nullptr;
+		}
+
+		if (sapSphere != nullptr)
+		{
+			sp_mem_delete(sapSphere, SweepAndPrune);
+			sapSphere = nullptr;
 		}
 
 		if (collisionResponseGPU != nullptr)
