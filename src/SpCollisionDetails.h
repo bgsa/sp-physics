@@ -2,7 +2,7 @@
 #define SP_COLLISION_DETAILS_HEADER
 
 #include "SpectrumPhysics.h"
-#include "Plane3D.h"
+#include "Plane.h"
 #include "SpMesh.h"
 
 namespace NAMESPACE_PHYSICS

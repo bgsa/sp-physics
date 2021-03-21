@@ -92,7 +92,7 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INSIDE;
 	}
 
-	CollisionStatus AABB::collisionStatus(const Plane3D& plane)
+	CollisionStatus AABB::collisionStatus(const Plane& plane)
 	{
 		Vec3 centerPoint = center(); 
 		sp_float d = plane.getDcomponent();

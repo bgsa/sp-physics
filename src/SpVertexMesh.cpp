@@ -70,7 +70,7 @@ namespace NAMESPACE_PHYSICS
 		return _mesh->faces->get(facesIndexes->get(index));
 	}
 
-	void SpVertexMesh::findParallelVertexes(const Plane3D& plane, const SpTransform& meshTransform, 
+	void SpVertexMesh::findParallelVertexes(const Plane& plane, const SpTransform& meshTransform, 
 		Vec3* vertexesOutput, sp_uint* vertexOutputLength, sp_float _epsilon) const
 	{
 		const sp_uint* vertexFaces = facesIndexes->data();
@@ -112,7 +112,7 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	void SpVertexMesh::findParallelVertexes(const Plane3D& plane, const SpMeshCache* cache,
+	void SpVertexMesh::findParallelVertexes(const Plane& plane, const SpMeshCache* cache,
 		Vec3* vertexesOutput, sp_uint* vertexOutputLength, sp_float _epsilon) const
 	{
 		const sp_uint* vertexFaces = facesIndexes->data();
@@ -153,7 +153,7 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	void SpVertexMesh::findParallelFaces(const Plane3D& plane, const SpTransform& meshTransform,
+	void SpVertexMesh::findParallelFaces(const Plane& plane, const SpTransform& meshTransform,
 		sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length, const sp_float _epsilon) const
 	{
 		SpVertexMesh** allVertexesMesh = _mesh->vertexesMesh->data();
@@ -162,7 +162,7 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint i = 0; i < facesIndexes->length(); i++)
 		{
-			Plane3D planeAsFace;
+			Plane planeAsFace;
 			const sp_uint vertexFaceIndex = vertexFaces[i];
 			allFaces[vertexFaceIndex]->convert(&planeAsFace, meshTransform);
 			
@@ -187,7 +187,7 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	void SpVertexMesh::findParallelFaces(const Plane3D& plane, const SpMeshCache* cache,
+	void SpVertexMesh::findParallelFaces(const Plane& plane, const SpMeshCache* cache,
 		sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length, const sp_float _epsilon) const
 	{
 		SpVertexMesh** allVertexesMesh = _mesh->vertexesMesh->data();
@@ -198,7 +198,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			const sp_uint vertexFaceIndex = vertexFaces[i];
 			sp_uint* vertexesFacesIndexes1 = allFaces[vertexFaceIndex]->vertexesIndexes;
-			Plane3D planeAsFace(
+			Plane planeAsFace(
 				cache->vertexes[vertexesFacesIndexes1[0]],
 				cache->vertexes[vertexesFacesIndexes1[1]],
 				cache->vertexes[vertexesFacesIndexes1[2]]
@@ -242,7 +242,7 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint i = 0; i < facesIndexes->length(); i++)
 		{
 			sp_uint* vertexesIndexesFace1 = allFacesMesh1[facesVertex1[i]]->vertexesIndexes;
-			Plane3D plane1(
+			Plane plane1(
 				cache1->vertexes[vertexesIndexesFace1[0]],
 				cache1->vertexes[vertexesIndexesFace1[1]],
 				cache1->vertexes[vertexesIndexesFace1[2]]
@@ -251,7 +251,7 @@ namespace NAMESPACE_PHYSICS
 			for (sp_uint j = 0; j < vertex2->facesIndexes->length(); j++)
 			{
 				sp_uint* vertexesIndexesFace2 = allFacesMesh2[facesVertex2[j]]->vertexesIndexes;
-				Plane3D plane2(
+				Plane plane2(
 					cache2->vertexes[vertexesIndexesFace2[0]],
 					cache2->vertexes[vertexesIndexesFace2[1]],
 					cache2->vertexes[vertexesIndexesFace2[2]]
@@ -322,12 +322,12 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint i = 0; i < facesIndexes->length(); i++)
 		{
-			Plane3D plane1;
+			Plane plane1;
 			allFacesMesh1[facesVertex1[i]]->convert(&plane1, meshTransform1);
 
 			for (sp_uint j = 0; j < vertex2->facesIndexes->length(); j++)
 			{
-				Plane3D plane2;
+				Plane plane2;
 				allFacesMesh2[facesVertex2[j]]->convert(&plane2, meshTransform2);
 
 				// faces should be parallel and opposite normals (front-face agains front-face)

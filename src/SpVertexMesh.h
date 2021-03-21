@@ -2,7 +2,7 @@
 #define SP_VERTEX_MESH_HEADER
 
 #include "SpectrumPhysics.h"
-#include "Plane3D.h"
+#include "Plane.h"
 #include "SpPoint3.h"
 #include "Triangle3D.h"
 #include "SpArray.h"
@@ -143,7 +143,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="vertexesOutput">Vertexes</param>
 		/// <param name="vertexOutputLength">Vertexes length</param>
 		/// <param name="_epsilon">Error margin</param>
-		API_INTERFACE void findParallelVertexes(const Plane3D& plane, const SpTransform& meshTransform,
+		API_INTERFACE void findParallelVertexes(const Plane& plane, const SpTransform& meshTransform,
 			Vec3* vertexesOutput, sp_uint* vertexOutputLength, sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
@@ -154,7 +154,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="vertexesOutput">Vertexes</param>
 		/// <param name="vertexOutputLength">Vertexes length</param>
 		/// <param name="_epsilon">Error margin</param>
-		API_INTERFACE void findParallelVertexes(const Plane3D& plane, const SpMeshCache* cache,
+		API_INTERFACE void findParallelVertexes(const Plane& plane, const SpMeshCache* cache,
 			Vec3* vertexesOutput, sp_uint* vertexOutputLength, sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
@@ -217,7 +217,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="facesIndexesMesh1Length">List Length of parallel faces indexes</param>
 		/// <param name="_epsilon">Error margin</param>
 		/// <returns>void</returns>
-		API_INTERFACE void findParallelFaces(const Plane3D& plane, const SpTransform& meshTransform,
+		API_INTERFACE void findParallelFaces(const Plane& plane, const SpTransform& meshTransform,
 			sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length, const sp_float _epsilon) const;
 
 		/// <summary>
@@ -229,7 +229,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="facesIndexesMesh1Length">List Length of parallel faces indexes</param>
 		/// <param name="_epsilon">Error margin</param>
 		/// <returns>void</returns>
-		API_INTERFACE void findParallelFaces(const Plane3D& plane, const SpMeshCache* cache,
+		API_INTERFACE void findParallelFaces(const Plane& plane, const SpMeshCache* cache,
 			sp_uint* facesIndexesMesh1, sp_uint* facesIndexesMesh1Length, const sp_float _epsilon) const;
 
 	};

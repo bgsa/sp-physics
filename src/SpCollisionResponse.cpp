@@ -98,7 +98,7 @@ namespace NAMESPACE_PHYSICS
 		const Vec3 centerObj1 = simulator->transforms(details->objIndex1)->position;
 		const Vec3 centerObj2 = simulator->transforms(details->objIndex2)->position;
 
-		Plane3D contactFace(details->centerContactPoint, collisionNormal);
+		Plane contactFace(details->centerContactPoint, collisionNormal);
 
 		Vec3 rayToContactObj1, rayToContactObj2, angularCrossContactRayObj1, angularCrossContactRayObj2;
 		diff(details->centerContactPoint, centerObj1, rayToContactObj1);

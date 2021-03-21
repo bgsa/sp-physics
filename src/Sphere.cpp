@@ -181,7 +181,7 @@ namespace NAMESPACE_PHYSICS
 		return CollisionStatus::INSIDE;
 	}
 
-	CollisionStatus Sphere::collisionStatus(const Plane3D& plane)  const
+	CollisionStatus Sphere::collisionStatus(const Plane& plane)  const
 	{
 		/*
 		Implementation "1"

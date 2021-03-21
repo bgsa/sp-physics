@@ -2,7 +2,7 @@
 #define LINE_3D_HEADER
 
 #include "SpectrumPhysics.h"
-#include "Plane3D.h"
+#include "Plane.h"
 #include "Line3D.h"
 #include "Sphere.h"
 #include "AABB.h"
@@ -170,12 +170,12 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Find intersection SEGMENT of line against a plane
 		///</summary>
-		API_INTERFACE Vec3* findIntersectionOnSegment(const Plane3D& plane) const;
+		API_INTERFACE Vec3* findIntersectionOnSegment(const Plane& plane) const;
 
 		/// <summary>
 		/// Find intersection RAY of line against a plane
 		/// </summary>
-		API_INTERFACE void intersectionOnRay(const Plane3D& plane, Vec3* point) const;
+		API_INTERFACE void intersectionOnRay(const Plane& plane, Vec3* point) const;
 
 		///<summary>
 		/// Get the closest point in the SEGMENT of line, given an arbitrary point

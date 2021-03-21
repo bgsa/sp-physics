@@ -138,7 +138,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, AABB_collisionStatus_Plane_Test)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 1.0f, 0.0f));
 		AABB aabb = AABB(Vec3(0.0f, 0.0f, 0.0f), Vec3(10.0f, 10.0f, 10.0f));
 		CollisionStatus result = aabb.collisionStatus(plane);
 		CollisionStatus expected = CollisionStatus::INLINE;

@@ -134,8 +134,8 @@ namespace NAMESPACE_PHYSICS
 		Vec3 closestPoint2 = details->cacheObj2->vertexes[extremeVertex2->index()];
 
 		// check distance of vertexes
-		Plane3D plane1(closestPoint1, _direction);
-		Plane3D plane2(closestPoint2, -_direction);
+		Plane plane1(closestPoint1, _direction);
+		Plane plane2(closestPoint2, -_direction);
 		if (plane1.distance(closestPoint2) > ZERO_FLOAT && plane2.distance(closestPoint1) > ZERO_FLOAT)
 			return false;
 
@@ -170,7 +170,7 @@ namespace NAMESPACE_PHYSICS
 
 					face.normalFace(&details->collisionNormal);
 
-					Plane3D plane(face.point1, details->collisionNormal);
+					Plane plane(face.point1, details->collisionNormal);
 					details->depth = plane.distance(line.point1);
 					if (details->depth > ZERO_FLOAT)
 						details->depth = plane.distance(line.point2);
@@ -211,7 +211,7 @@ namespace NAMESPACE_PHYSICS
 
 					face.normalFace(&details->collisionNormal);
 
-					Plane3D plane(face.point1, details->collisionNormal);
+					Plane plane(face.point1, details->collisionNormal);
 					details->depth = plane.distance(line.point1);
 					if (details->depth > ZERO_FLOAT)
 						details->depth = plane.distance(line.point2);
@@ -332,7 +332,7 @@ namespace NAMESPACE_PHYSICS
 					continue;
 
 				// check which point crossed the face
-				Plane3D plane(face);
+				Plane plane(face);
 				cache->distance = plane.distance(edge.point1);
 
 				if (cache->distance < ZERO_FLOAT || NAMESPACE_FOUNDATION::isCloseEnough(cache->distance, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
@@ -371,7 +371,7 @@ namespace NAMESPACE_PHYSICS
 
 			if (hasIntersection)
 			{
-				Plane3D p(triangle);
+				Plane p(triangle);
 				cache->distance = p.distance(line.point1);
 
 				if (cache->distance > ZERO_FLOAT)
@@ -393,7 +393,7 @@ namespace NAMESPACE_PHYSICS
 
 		if (hasIntersection)
 		{
-			Plane3D p(triangle);
+			Plane p(triangle);
 			cache->distance = p.distance(line.point1);
 
 			if (cache->distance > ZERO_FLOAT)
@@ -687,7 +687,7 @@ namespace NAMESPACE_PHYSICS
 		// if obj 0 is plane
 		if (details->objIndex1 == ZERO_UINT)
 		{
-			Plane3D surface(Vec3Zeros, Vec3Up);
+			Plane surface(Vec3Zeros, Vec3Up);
 			details->collisionNormal = Vec3Up;
 
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
@@ -1082,7 +1082,7 @@ namespace NAMESPACE_PHYSICS
 				cacheMesh1->vertexes[vertexesIndexFaceObj1[2]]
 			);
 
-			Plane3D face1AsPlane(face1AsTriangle);
+			Plane face1AsPlane(face1AsTriangle);
 
 			for (sp_uint j = 0; j < vertex2->edgeLength(); j++)
 			{
@@ -1256,7 +1256,7 @@ namespace NAMESPACE_PHYSICS
 			
 				if (line.intersection(triangle, &details->centerContactPoint, ERROR_MARGIN_PHYSIC))
 				{
-					Plane3D faceContact(triangle);
+					Plane faceContact(triangle);
 					
 					details->contactPointsLength = ONE_UINT;
 
@@ -1292,7 +1292,7 @@ namespace NAMESPACE_PHYSICS
 				
 				if (line.intersection(triangle, &details->centerContactPoint, ERROR_MARGIN_PHYSIC))
 				{
-					Plane3D faceContact(triangle);
+					Plane faceContact(triangle);
 
 					details->type = SpCollisionType::VertexFace;
 					details->collisionNormal = faceContact.normalVector;
@@ -1337,7 +1337,7 @@ namespace NAMESPACE_PHYSICS
 				details->cacheObj2->vertexes[edgeVertexIndexObj2]
 			);
 			
-			Plane3D faceAsPlane(
+			Plane faceAsPlane(
 				details->cacheObj1->vertexes[faceCollisionObj1->vertexesIndexes[0]],
 				details->cacheObj1->vertexes[faceCollisionObj1->vertexesIndexes[1]],
 				details->cacheObj1->vertexes[faceCollisionObj1->vertexesIndexes[2]]
@@ -1444,7 +1444,7 @@ namespace NAMESPACE_PHYSICS
 				allVertexesObj1[edgeVertexIndexObj1]
 			);
 			
-			Plane3D faceAsPlane(
+			Plane faceAsPlane(
 				allVertexesObj1[faceCollisionObj2->vertexesIndexes[0]],
 				allVertexesObj1[faceCollisionObj2->vertexesIndexes[1]],
 				allVertexesObj1[faceCollisionObj2->vertexesIndexes[2]]

@@ -4,7 +4,7 @@
 #include "SpectrumPhysics.h"
 #include "Vec3.h"
 #include "Mat4.h"
-#include "Plane3D.h"
+#include "Plane.h"
 #include "DetailedCollisionStatus.h"
 #include "BoundingVolume.h"
 
@@ -80,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Check the status of collision against the plane
 		/// </summary>
-		API_INTERFACE CollisionStatus collisionStatus(const Plane3D &plane) const;
+		API_INTERFACE CollisionStatus collisionStatus(const Plane& plane) const;
 
 		/// <summary>
 		/// Check the status of collision against the plane

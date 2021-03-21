@@ -1,23 +1,23 @@
-#include "Plane3D.h"
+#include "Plane.h"
 
 namespace NAMESPACE_PHYSICS
 {
 
-	Plane3D::Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3)
+	Plane::Plane(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 	{
 		point = point1;
 		normal(point1, point2, point3, &normalVector);
 		distanceFromOrigin = normalVector.dot(point);
 	}
 
-	Plane3D::Plane3D(const Triangle3D& triangle)
+	Plane::Plane(const Triangle3D& triangle)
 	{
 		point = triangle.point1;
 		triangle.normalFace(&normalVector);
 		distanceFromOrigin = normalVector.dot(point);
 	}
 
-	Plane3D::Plane3D(sp_float a, sp_float b, sp_float c, sp_float d)
+	Plane::Plane(sp_float a, sp_float b, sp_float c, sp_float d)
 	{
 		point = Vec3(ZERO_FLOAT, ZERO_FLOAT, -d / c);
 
@@ -25,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		distanceFromOrigin = normalVector.dot(point);
 	}
 
-	sp_bool Plane3D::intersection(const Line3D& line, Vec3* contactPoint, const sp_float _epsilon) const
+	sp_bool Plane::intersection(const Line3D& line, Vec3* contactPoint, const sp_float _epsilon) const
 	{
 #ifdef AVX_ENABLED
 		const __m128 line_point1_simd = sp_vec3_convert_simd(line.point1);
@@ -59,7 +59,7 @@ namespace NAMESPACE_PHYSICS
 		return false;
 	}
 
-	void Plane3D::closestPoint(const Line3D& line, Vec3* closest) const
+	void Plane::closestPoint(const Line3D& line, Vec3* closest) const
 	{
 		const Vec3 lineAsVector = line.point2 - line.point1;
 
@@ -71,7 +71,7 @@ namespace NAMESPACE_PHYSICS
 		closest->z = line.point1[2] + lineAsVector[2] * t;
 	}
 
-	sp_bool Plane3D::intersection(const Plane3D& plane, Line3D* line) const
+	sp_bool Plane::intersection(const Plane& plane, Line3D* line) const
 	{
 		// Compute direction of intersection line  
 		Vec3 lineDirection;
@@ -92,7 +92,7 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	sp_bool Plane3D::intersection(const Plane3D& plane, Ray* ray) const
+	sp_bool Plane::intersection(const Plane& plane, Ray* ray) const
 	{
 		// Compute direction of intersection line  
 		cross(normalVector, plane.normalVector, &ray->direction);
@@ -111,7 +111,7 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	sp_float Plane3D::distance(const Plane3D& plane) const
+	sp_float Plane::distance(const Plane& plane) const
 	{
 #ifdef AVX_ENABLED
 		const __m128 normal_simd = sp_vec3_convert_simd(normalVector);
@@ -136,7 +136,7 @@ namespace NAMESPACE_PHYSICS
 #endif
 	}
 
-	Vec3 Plane3D::closestPointOnThePlane(const Vec3& target) const
+	Vec3 Plane::closestPointOnThePlane(const Vec3& target) const
 	{
 		// t = ((n . p) - d) / (n.n)
 		sp_float t = (normalVector.dot(target) - getDcomponent()) / normalVector.dot(normalVector); 
@@ -144,7 +144,7 @@ namespace NAMESPACE_PHYSICS
 		return target - (normalVector * t); //result = point - tn
 	}
 
-	sp_float Plane3D::angle(const Plane3D& plane) const
+	sp_float Plane::angle(const Plane& plane) const
 	{
 		sp_float angle = normalVector.dot(plane.normalVector);
 		sp_float length = NAMESPACE_PHYSICS::length(normalVector) * NAMESPACE_PHYSICS::length(plane.normalVector);
@@ -152,7 +152,7 @@ namespace NAMESPACE_PHYSICS
 		return angle / length;
 	}
 
-	void Plane3D::project(const Vec3& target, Vec3* output) const
+	void Plane::project(const Vec3& target, Vec3* output) const
 	{
 #ifdef AVX_ENABLED
 		const __m128 normal_simd = sp_vec3_convert_simd(normalVector);

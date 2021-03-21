@@ -160,17 +160,17 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Sphere_collisionStatus_plane_Test)
 	{
 		Sphere sphere = Sphere({ 10.0f, 0.0f, 0.0f }, 10.0f);
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
 		CollisionStatus expected = CollisionStatus::INLINE;
 		CollisionStatus result = sphere.collisionStatus(plane);
 		Assert::IsTrue(result == expected, L"The plane should lie/support on sphere boundary", LINE_INFO());
 
-		plane = Plane3D(Vec3(3.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
+		plane = Plane(Vec3(3.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
 		expected = CollisionStatus::INSIDE;
 		result = sphere.collisionStatus(plane);
 		Assert::IsTrue(result == expected, L"The point should lie inside the sphere", LINE_INFO());
 
-		plane = Plane3D(Vec3(-3.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
+		plane = Plane(Vec3(-3.0f, 0.0f, 0.0f), Vec3(1.0f, 0.0f, 0.0f));
 		expected = CollisionStatus::OUTSIDE;
 		result = sphere.collisionStatus(plane);
 		Assert::IsTrue(result == expected, L"The point should be outside the sphere", LINE_INFO());

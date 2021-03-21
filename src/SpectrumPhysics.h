@@ -59,7 +59,7 @@ namespace NAMESPACE_PHYSICS
 
 	class Line2D;
 	class Line3D;
-	class Plane3D;
+	class Plane;
 	class Triangle2D;
 	class Triangle3D;
 	class Circle2D;

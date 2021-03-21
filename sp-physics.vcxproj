@@ -213,7 +213,7 @@
     <ClCompile Include="src\OBB.cpp" />
     <ClCompile Include="src\Particle.cpp" />
     <ClCompile Include="src\ParticleSystem.cpp" />
-    <ClCompile Include="src\Plane3D.cpp" />
+    <ClCompile Include="src\Plane.cpp" />
     <ClCompile Include="src\Quat.cpp" />
     <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
@@ -303,7 +303,7 @@
     <ClInclude Include="src\Orientation.h" />
     <ClInclude Include="src\Particle.h" />
     <ClInclude Include="src\ParticleSystem.h" />
-    <ClInclude Include="src\Plane3D.h" />
+    <ClInclude Include="src\Plane.h" />
     <ClInclude Include="src\Quat.h" />
     <ClInclude Include="src\Randomizer.h" />
     <ClInclude Include="src\Rectangle2D.h" />

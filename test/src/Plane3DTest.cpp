@@ -1,10 +1,10 @@
 #include "SpectrumPhysicsTest.h"
-#include <Plane3D.h>
+#include <Plane.h>
 #include <Vec3.h>
 #include <Vec4.h>
 #include "Asserts.h"
 
-#define CLASS_NAME Plane3DTest
+#define CLASS_NAME PlaneTest
 
 namespace NAMESPACE_PHYSICS_TEST
 {
@@ -40,7 +40,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, intersection_ray)
 	{
 		Ray r(Vec3(1.019f, -1.0f, -1.0f), Vec3(0.0f, -0.0f, -1.0f));
-		Plane3D plane(Vec3(-1.0f, -1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f));
+		Plane plane(Vec3(-1.0f, -1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f));
 
 		Vec3 contact;
 		sp_bool result = plane.intersection(r, &contact);
@@ -57,7 +57,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		Vec3 normalVectorExpected = Vec3(0.0f, 0.0f, 1.0f);
 
-		Plane3D plane = Plane3D(point1, point2, point3);
+		Plane plane = Plane(point1, point2, point3);
 
 		Asserts::isCloseEnough(plane.normalVector[0], normalVectorExpected[0], ERROR_MARGIN_PHYSIC, L"Wrong value", LINE_INFO());
 		Asserts::isCloseEnough(plane.normalVector[1], normalVectorExpected[1], ERROR_MARGIN_PHYSIC, L"Wrong value", LINE_INFO());
@@ -76,7 +76,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec4 expected = Vec4(0.8241f, -0.1373f, 0.5494f, 0.96152f);
 
-		Plane3D plane = Plane3D(point1, point2, point3);
+		Plane plane = Plane(point1, point2, point3);
 		Vec4 components;
 		plane.equation(&components);
 
@@ -92,7 +92,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec4 expected = Vec4(0.267f, -0.534f, 0.801f, -0.801f);
 
-		Plane3D plane = Plane3D(point, vector);
+		Plane plane = Plane(point, vector);
 		Vec4 components;
 		plane.equation(&components);
 
@@ -108,7 +108,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Vec4 expected = Vec4(-0.8944f, -0.4472f, 0.0f, -1.7888f);
 
-		Plane3D plane = Plane3D(point1, point2, point3);
+		Plane plane = Plane(point1, point2, point3);
 		Vec4 components;
 		plane.equation(&components);
 
@@ -118,7 +118,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, intersection_line)
 	{
-		Plane3D plane(
+		Plane plane(
 			Vec3(-1.0f, -1.0f, 1.0f),
 			Vec3(-1.0f, 1.0f, 1.0f),
 			Vec3(1.0f, 1.0f, 1.0f)
@@ -134,7 +134,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(result, L"Wrong value");
 		Assert::IsTrue(isCloseEnough(contact, expected, 0.01f), L"Wrong value");
 
-		plane = Plane3D(
+		plane = Plane(
 			Vec3(-1.0f, -1.0f, -1.0f),
 			Vec3(-1.0f, 1.0f, -1.0f),
 			Vec3(1.0f, 1.0f, -1.0f)
@@ -145,7 +145,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (sp_uint i = 0; i < 100000; i++)
 			result = plane.intersection(line, &contact);
 		
-		counter.logElapsedTime("Plane3D::intersection_line: ");
+		counter.logElapsedTime("Plane::intersection_line: ");
 
 		expected = Vec3(-0.5f, 1.0f, -1.0f);
 		Assert::IsTrue(result, L"Wrong value");
@@ -153,7 +153,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 
 		line = Line3D(Vec3(), Vec3{ 4.0f, 0.0f, 0.0f });
-		plane = Plane3D(
+		plane = Plane(
 			Vec3(1.0f, 0.0f, -2.0f),
 			Vec3(1.0f, 2.0f, -2.0f),
 			Vec3(1.0f, 0.0f, 2.0f)
@@ -177,11 +177,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, angle_Test1)
 	{
-		Plane3D plane1;
+		Plane plane1;
 		plane1.point = Vec3(1.0f, 1.0f, 1.0f);
 		normalize(plane1.point, &plane1.normalVector);
 
-		Plane3D plane2;
+		Plane plane2;
 		plane2.point = Vec3(1.0f, 1.0f, 1.0f);
 		normalize(Vec3(1.0f, -2.0f, 3.0f), &plane2.normalVector);
 
@@ -197,8 +197,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, angle_Test2)
 	{
-		Plane3D plane1 = Plane3D(2.0f, 4.0f, 1.0f, 3.0f);
-		Plane3D plane2 = Plane3D(-1.0f, 3.0f, 2.0f, 1.0f);
+		Plane plane1 = Plane(2.0f, 4.0f, 1.0f, 3.0f);
+		Plane plane2 = Plane(-1.0f, 3.0f, 2.0f, 1.0f);
 
 		sp_float expected = 0.6998542122f;
 		sp_float result = plane1.angle(plane2);
@@ -208,7 +208,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, distance_point_Test1)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);
 		sp_float expected = 10.0f;
 		sp_float result;
@@ -218,14 +218,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (sp_uint i = 0; i < 100000; i++)
 			result = plane.distance(point);
 
-		counter.logElapsedTime("Plane3D::distance_vec3: ");
+		counter.logElapsedTime("Plane::distance_vec3: ");
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, distance_point_Test2)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 8.0f), Vec3(0.0f, 0.0f, 1.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 8.0f), Vec3(0.0f, 0.0f, 1.0f));
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);
 
 		sp_float expected = 2.0f;
@@ -236,7 +236,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, distance_point_Test3)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, -4.0f), Vec3(0.0f, 0.0f, 1.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, -4.0f), Vec3(0.0f, 0.0f, 1.0f));
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);
 
 		sp_float expected = 14.0f;
@@ -250,7 +250,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 normal(0.0f, 1.0f, 1.0f);
 		normalize(&normal);
 
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), normal);
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), normal);
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);
 
 		sp_float expected = 7.0730f;
@@ -261,8 +261,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, distance_plane_Test1)
 	{
-		Plane3D plane1 = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
-		Plane3D plane2 = Plane3D(Vec3(0.0f, 0.0f, 1.25f), Vec3(0.0f, 0.0f, 1.0f));
+		Plane plane1 = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+		Plane plane2 = Plane(Vec3(0.0f, 0.0f, 1.25f), Vec3(0.0f, 0.0f, 1.0f));
 		
 		sp_float result = plane1.distance(plane2);
 		sp_float expected = 1.25f;
@@ -272,14 +272,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (sp_uint i = 0; i < 100000; i++)
 			plane1.distance(plane2);
 		
-		counter.logElapsedTime("Plane3D::distance_plane: ");
+		counter.logElapsedTime("Plane::distance_plane: ");
 
 		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, closestPointOnThePlane_point_Test1)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(0.0f, 0.0f, 1.0f));
 		Vec3 point = Vec3(10.0f, 5.0f, -10.0f);
 
 		Vec3 expected = Vec3(10.0f, 5.0f, 0.0f);;
@@ -292,32 +292,32 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, constructor_equation_Test)
 	{
-		Plane3D plane = Plane3D(1.0f, 5.0f, 3.0f, 13.0f);
+		Plane plane = Plane(1.0f, 5.0f, 3.0f, 13.0f);
 		Vec3 point = Vec3(2.0f, 4.0f, 1.0f);
 
 		float expected = 6.4241f;
 		float result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 
-		plane = Plane3D(2.0f, -2.0f, 5.0f, 8.0f);
+		plane = Plane(2.0f, -2.0f, 5.0f, 8.0f);
 		point = Vec3(4.0f, -4.0f, 3.0f);
 		expected = 6.7904f;
 		result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 
-		plane = Plane3D(2.0f, -2.0f, -1.0f, 3.0f);
+		plane = Plane(2.0f, -2.0f, -1.0f, 3.0f);
 		point = Vec3(2.0f, -1.0f, 2.0f);			
 		expected = 2.3339f;
 		result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 
-		plane = Plane3D(1.0f, 1.0f, 1.0f, 0.0f);
+		plane = Plane(1.0f, 1.0f, 1.0f, 0.0f);
 		point = Vec3(3.0f, -1.0f, 4.0f);
 		expected = 3.4645f;
 		result = plane.distance(point);
 		Asserts::isCloseEnough(expected, result, DefaultErrorMargin, L"Wrong value", LINE_INFO());
 
-		plane = Plane3D(4.0f, -1.0f, 1.0f, 5.0f);
+		plane = Plane(4.0f, -1.0f, 1.0f, 5.0f);
 		point = Vec3(1.0f, 3.0f, -6.0f);
 		expected = 0.0f;
 		result = plane.distance(point);
@@ -330,7 +330,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane = Plane3D(point1, point2, point3);
+		Plane plane = Plane(point1, point2, point3);
 		Vec3 targetPoint = Vec3(0.0f, 0.0f, 10.0f);
 
 		sp_float result = plane.orientation(targetPoint);
@@ -344,7 +344,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane = Plane3D(point1, point2, point3);
+		Plane plane = Plane(point1, point2, point3);
 		Vec3 targetPoint = Vec3(0.0f, 0.0f, -10.0f);
 
 		sp_float result = plane.orientation(targetPoint);
@@ -358,7 +358,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane = Plane3D(point1, point2, point3);
+		Plane plane = Plane(point1, point2, point3);
 		Vec3 targetPoint = Vec3(-10.0f, 10.0f, 0.0f);
 
 		sp_float result = plane.orientation(targetPoint);
@@ -372,13 +372,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane1 = Plane3D(point1, point2, point3);
+		Plane plane1 = Plane(point1, point2, point3);
 
 		point1 = Vec3(0.0f, 0.0f, 10.0f);
 		point2 = Vec3(1.0f, 0.0f, 10.0f);
 		point3 = Vec3(1.0f, 1.0f, 10.0f);
 
-		Plane3D plane2 = Plane3D(point1, point2, point3);
+		Plane plane2 = Plane(point1, point2, point3);
 
 		bool result = plane1.isParallel(plane2);
 
@@ -391,13 +391,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane1 = Plane3D(point1, point2, point3);
+		Plane plane1 = Plane(point1, point2, point3);
 
 		point1 = Vec3(0.0f, 0.0f, -10.0f);
 		point2 = Vec3(3.0f, 10.0f, -10.0f);
 		point3 = Vec3(-4.0f, -1.0f, -10.0f);
 
-		Plane3D plane2 = Plane3D(point1, point2, point3);
+		Plane plane2 = Plane(point1, point2, point3);
 
 		bool result = plane1.isParallel(plane2);
 
@@ -410,13 +410,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane1 = Plane3D(point1, point2, point3);
+		Plane plane1 = Plane(point1, point2, point3);
 
 		point1 = Vec3(0.0f, 0.0f, -10.0f);
 		point2 = Vec3(3.0f, 10.0f, 5.0f);
 		point3 = Vec3(-4.0f, -1.0f, 10.0f);
 
-		Plane3D plane2 = Plane3D(point1, point2, point3);
+		Plane plane2 = Plane(point1, point2, point3);
 
 		sp_bool result = plane1.isParallel(plane2);
 
@@ -429,13 +429,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane1 = Plane3D(point1, point2, point3);
+		Plane plane1 = Plane(point1, point2, point3);
 
 		point1 = Vec3(0.0f, 0.0f, 0.0f);
 		point2 = Vec3(1.0f, 0.0f, 0.0f);
 		point3 = Vec3(1.0f, 0.0f, -1.0f);
 
-		Plane3D plane2 = Plane3D(point1, point2, point3);
+		Plane plane2 = Plane(point1, point2, point3);
 
 		sp_bool result = plane1.isPerpendicular(plane2);
 
@@ -448,13 +448,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 point2 = Vec3(1.0f, 0.0f, 0.0f);
 		Vec3 point3 = Vec3(1.0f, 1.0f, 0.0f);
 
-		Plane3D plane1 = Plane3D(point1, point2, point3);
+		Plane plane1 = Plane(point1, point2, point3);
 
 		point1 = Vec3(0.0f, 0.0f, 0.0f);
 		point2 = Vec3(1.0f, 1.0f, 0.0f);
 		point3 = Vec3(1.0f, 0.0f, 1.0f);
 
-		Plane3D plane2 = Plane3D(point1, point2, point3);
+		Plane plane2 = Plane(point1, point2, point3);
 
 		bool result = plane1.isPerpendicular(plane2);
 
@@ -463,8 +463,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, intersection_plane)
 	{
-		Plane3D plane1 = Plane3D(Vec3(), Vec3(1.0f, 0.0f, 0.0f));
-		Plane3D plane2 = Plane3D(Vec3(), Vec3(0.0f, 1.0f, 0.0f));
+		Plane plane1 = Plane(Vec3(), Vec3(1.0f, 0.0f, 0.0f));
+		Plane plane2 = Plane(Vec3(), Vec3(0.0f, 1.0f, 0.0f));
 
 		Line3D result;
 		plane1.intersection(plane2, &result);

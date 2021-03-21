@@ -5,7 +5,7 @@
 #include "DetailedCollisionStatus.h"
 #include <algorithm>
 #include "BoundingVolume.h"
-#include "Plane3D.h"
+#include "Plane.h"
 #include "Sphere.h"
 
 namespace NAMESPACE_PHYSICS
@@ -81,7 +81,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Check whether the AABB intersect the plane
 		///</summary>
-		API_INTERFACE CollisionStatus collisionStatus(const Plane3D& plane);
+		API_INTERFACE CollisionStatus collisionStatus(const Plane& plane);
 
 		///<summary>
 		///Check whether the AABB intersect the sphere

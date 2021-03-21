@@ -44,7 +44,7 @@ namespace NAMESPACE_PHYSICS
 		mesh->vertex(vertexesIndexes[2], transform, &vertexes[2]);
 	}
 
-	void SpFaceMesh::convert(Plane3D* plane, const SpTransform& transform) const
+	void SpFaceMesh::convert(Plane* plane, const SpTransform& transform) const
 	{
 		mesh->vertex(vertexesIndexes[0], transform, &plane->point);
 		rotate(transform.orientation, faceNormal, &plane->normalVector);
@@ -71,7 +71,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool SpFaceMesh::isBackFace(const Vec3& point, const SpTransform& transformFace) const
 	{
-		Plane3D plane;
+		Plane plane;
 		convert(&plane, transformFace);
 
 		return plane.isBackFace(point);
@@ -87,10 +87,10 @@ namespace NAMESPACE_PHYSICS
 
 	void SpFaceMesh::intersection(const SpFaceMesh* face, const SpTransform& meshTransform, const SpTransform& faceTransform, Ray* ray) const
 	{
-		Plane3D plane1;
+		Plane plane1;
 		convert(&plane1, meshTransform);
 
-		Plane3D plane2;
+		Plane plane2;
 		face->convert(&plane2, faceTransform);
 
 		plane1.intersection(plane2, ray);

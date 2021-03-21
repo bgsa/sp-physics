@@ -2,7 +2,7 @@
 #define SP_MESH_HEADER
 
 #include "SpectrumPhysics.h"
-#include "Plane3D.h"
+#include "Plane.h"
 #include "Triangle3D.h"
 #include "SpArray.h"
 #include "SpTransform.h"

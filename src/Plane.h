@@ -1,5 +1,5 @@
-#ifndef PLANE3D_HEADER
-#define PLANE3D_HEADER
+#ifndef PLANE_HEADER
+#define PLANE_HEADER
 
 #include "SpectrumPhysics.h"
 #include "Ray.h"
@@ -9,7 +9,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	class Plane3D
+	class Plane
 	{
 
 	public:
@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 normalVector;
 		sp_float distanceFromOrigin;
 		
-		API_INTERFACE Plane3D()
+		API_INTERFACE Plane()
 		{
 			point = Vec3Zeros;
 			normalVector = Vec3Up;
@@ -27,7 +27,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Build a plane from a point and normal vector (NORMALIZED!)
 		/// </summary>
-		API_INTERFACE Plane3D(const Vec3& point, const Vec3& normal)
+		API_INTERFACE Plane(const Vec3& point, const Vec3& normal)
 		{
 			//sp_assert(NAMESPACE_FOUNDATION::isCloseEnough(length(normal), ONE_FLOAT, 0.009f), "InvalidArgumentException");
 
@@ -39,17 +39,17 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Build a plane from 3 points (right-hand)
 		/// </summary>
-		API_INTERFACE Plane3D(const Vec3& point1, const Vec3& point2, const Vec3& point3);
+		API_INTERFACE Plane(const Vec3& point1, const Vec3& point2, const Vec3& point3);
 
 		/// <summary>
 		/// Build a plane from equation
 		/// </summary>
-		API_INTERFACE Plane3D(sp_float a, sp_float b, sp_float c, sp_float d);
+		API_INTERFACE Plane(sp_float a, sp_float b, sp_float c, sp_float d);
 
 		/// <summary>
 		/// Build a plane from triangle
 		/// </summary>
-		API_INTERFACE Plane3D(const Triangle3D& triangle);
+		API_INTERFACE Plane(const Triangle3D& triangle);
 
 		/// <summary>
 		/// Get "D" components from plane equation: ax + by + cz + D = 0
@@ -126,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the line intersection between the planes
 		/// </summary>
-		API_INTERFACE sp_bool intersection(const Plane3D& plane, Line3D* line) const;
+		API_INTERFACE sp_bool intersection(const Plane& plane, Line3D* line) const;
 
 		/// <summary>
 		/// Find the plane intersection
@@ -134,12 +134,12 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="plane">Second plane</param>
 		/// <param name="ray">Ray as output</param>
 		/// <returns>void</returns>
-		API_INTERFACE sp_bool intersection(const Plane3D& plane, Ray* ray) const;
+		API_INTERFACE sp_bool intersection(const Plane& plane, Ray* ray) const;
 
 		/// <summary>
 		/// Get the angle of two planes
 		/// </summary>
-		API_INTERFACE sp_float angle(const Plane3D& plane) const;
+		API_INTERFACE sp_float angle(const Plane& plane) const;
 
 		/// <summary>
 		/// Get the distance from the plane to the point
@@ -161,7 +161,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get the distance from the plane to the other one
 		/// </summary>
-		API_INTERFACE sp_float distance(const Plane3D& plane) const;
+		API_INTERFACE sp_float distance(const Plane& plane) const;
 
 		/// <summary>
 		/// Indicate whether the point is on the left, right fo the plane OR the point relies on the plane
@@ -179,7 +179,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Check if the planes are parallel each other
 		/// </summary>
-		API_INTERFACE inline sp_bool isParallel(const Plane3D& plane, const sp_float _epsilon = DefaultErrorMargin) const
+		API_INTERFACE inline sp_bool isParallel(const Plane& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
 			Vec3 temp;
 			cross(normalVector, plane.normalVector, &temp);
@@ -189,7 +189,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Check if the planes are perpendicular each other
 		/// </summary>
-		API_INTERFACE inline sp_bool isPerpendicular(const Plane3D& plane, const sp_float _epsilon = DefaultErrorMargin) const
+		API_INTERFACE inline sp_bool isPerpendicular(const Plane& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
 			return NAMESPACE_FOUNDATION::isCloseEnough(normalVector.dot(plane.normalVector), ZERO_FLOAT, _epsilon);
 		}
@@ -229,4 +229,4 @@ namespace NAMESPACE_PHYSICS
 
 }
 
-#endif // PLANE3D_HEADER
+#endif // PLANE_HEADER

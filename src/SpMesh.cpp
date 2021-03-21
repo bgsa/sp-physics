@@ -547,7 +547,7 @@ namespace NAMESPACE_PHYSICS
 	
 	SpVertexMesh* SpMesh::support(SpVertexMesh* from, const Vec3& orientation, const SpTransform& transform) const
 	{
-		const Plane3D plane(transform.position, orientation);
+		const Plane plane(transform.position, orientation);
 
 		Vec3 newVertexPosition;
 		vertex(from->index(), transform, &newVertexPosition);
@@ -593,7 +593,7 @@ namespace NAMESPACE_PHYSICS
 
 			for (sp_uint j = 0; j < facesLengthObj2; j++)
 			{
-				Plane3D face;
+				Plane face;
 				allFacesObj2[j]->convert(&face, transformObj2);
 
 				if ( ! face.isBackFace(vertex) )

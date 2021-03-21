@@ -421,7 +421,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Line3D_findIntersectionOnSegment_plane_Test1)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
 		Line3D line = Line3D(Vec3{ -2.0f, 2.0f, 0.0f }, Vec3{ 2.0f, 2.0f, 0.0f });
 
 		Vec3 expected = { 0.0f, 2.0f, 0.0f };
@@ -436,7 +436,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Line3D_findIntersectionOnSegment_plane_Test2)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
 		Line3D line = Line3D(Vec3{ -2.0f, 2.0f, 0.0f }, Vec3{ -4.0f, 2.0f, 0.0f });
 		
 		Vec3* result = line.findIntersectionOnSegment(plane);
@@ -446,7 +446,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, Line3D_findIntersectionOnSegment_plane_Test3)
 	{
-		Plane3D plane = Plane3D(Vec3(0.0f, 0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
+		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), Vec3(-1.0f, 0.0f, 0.0f));
 		Line3D line = Line3D(Vec3{ -2.0f, 2.0f, 0.0f }, Vec3{ -1.0f, 2.0f, 0.0f });
 
 		Vec3* result = line.findIntersectionOnSegment(plane);

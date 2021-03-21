@@ -129,7 +129,7 @@ namespace NAMESPACE_PHYSICS
 			return false;
 		}
 
-		const Plane3D plane(triangle.point1, triangleNormal);
+		const Plane plane(triangle.point1, triangleNormal);
 
 		if (!plane.intersection(*this, point, _epsilon))
 			return false;
@@ -181,7 +181,7 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	Vec3* Line3D::findIntersectionOnSegment(const Plane3D& plane) const
+	Vec3* Line3D::findIntersectionOnSegment(const Plane& plane) const
 	{
 		Vec3 lineDirection = point2 - point1;
 		sp_float d = plane.getDcomponent();
@@ -201,7 +201,7 @@ namespace NAMESPACE_PHYSICS
 		return nullptr;
 	}
 
-	void Line3D::intersectionOnRay(const Plane3D& plane, Vec3* point) const
+	void Line3D::intersectionOnRay(const Plane& plane, Vec3* point) const
 	{
 		Vec3 lineDirection;
 		normalize(point2 - point1, &lineDirection);

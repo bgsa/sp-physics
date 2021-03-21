@@ -3,7 +3,7 @@
 
 #include "SpectrumPhysics.h"
 #include "SpMesh.h"
-#include "Plane3D.h"
+#include "Plane.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -33,7 +33,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void fillAttributes();
 
-		API_INTERFACE void convert(Plane3D* plane, const SpTransform& transorm) const;
+		API_INTERFACE void convert(Plane* plane, const SpTransform& transorm) const;
 		API_INTERFACE void convert(Triangle3D* triangle, const SpTransform& transorm) const;
 		API_INTERFACE void convert(Line3D lines[3], const SpTransform& transorm) const;
 		API_INTERFACE void convert(Vec3* vertexes, const SpTransform& transorm) const;
