@@ -218,6 +218,7 @@
     <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\SpAlgorithms.cpp" />
+    <ClCompile Include="src\SpCamera.cpp" />
     <ClCompile Include="src\SpCollisionDetector.cpp" />
     <ClCompile Include="src\SpCollisionResponse.cpp" />
     <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp" />
@@ -229,6 +230,7 @@
     <ClCompile Include="src\SpOptimization.cpp" />
     <ClCompile Include="src\SpPhysicIntegrator.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
+    <ClCompile Include="src\SpSceneManager.cpp" />
     <ClCompile Include="src\SpVertexMesh.cpp" />
     <ClCompile Include="src\SpEdgeMesh.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
@@ -285,6 +287,7 @@
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpAABBFactory.h" />
     <ClInclude Include="src\SpAlgorithms.h" />
+    <ClInclude Include="src\SpCamera.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
     <ClInclude Include="src\SpCollisionDetectorCache.h" />
@@ -323,11 +326,14 @@
     <ClInclude Include="src\SpPhysicSimulator.h" />
     <ClInclude Include="src\SpPhysicSyncronizer.h" />
     <ClInclude Include="src\SpRigidBody3DState.h" />
+    <ClInclude Include="src\SpScene.h" />
+    <ClInclude Include="src\SpSceneManager.h" />
     <ClInclude Include="src\SpSIMD.h" />
     <ClInclude Include="src\SpSphereBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpTransform.h" />
     <ClInclude Include="src\SpVertexMesh.h" />
     <ClInclude Include="src\SpEdgeMesh.h" />
+    <ClInclude Include="src\SpViewportData.h" />
     <ClInclude Include="src\SpWavefrontExporter.h" />
     <ClInclude Include="src\SweepAndPrune.h" />
     <ClInclude Include="src\SystemOfLinearEquations.h" />
