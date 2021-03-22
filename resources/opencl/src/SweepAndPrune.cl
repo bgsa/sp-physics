@@ -1,7 +1,7 @@
 #include "OpenCLBase.cl"
 #include "DOP18.cl"
 #include "Sphere.cl"
-#include "SpPhysicProperties.cl"
+#include "SpRigidBody3D.cl"
 
 #define MIN_POINT_NEXT_ELEMENT    input[dopIndex2 + axis]
 #define MIN_POINT_NEXT_ELEMENT_X  input[dopIndex2     ]
@@ -45,7 +45,7 @@
 
 __kernel void sweepAndPruneSingleAxis(
 	__global   sp_float* input,
-    __global   sp_float* physicProperties,
+    __global   sp_float* rigidBodies3D,
 	__constant sp_uint * indexesLength, 
     __global   sp_uint * indexes, 
 	__global   sp_uint * outputLength, 
@@ -60,7 +60,7 @@ __kernel void sweepAndPruneSingleAxis(
     const sp_uint objIndex1 = indexes[index];
     const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
 
-    //const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, objIndex1 * SP_PHYSIC_PROPERTY_SIZE);
+    //const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex1 * SP_RIGID_BODY_3D_SIZE);
 
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
@@ -81,7 +81,7 @@ __kernel void sweepAndPruneSingleAxis(
             && (maxPointZX >= MIN_POINT_NEXT_ELEMENT_ZX && minPointZX <= MAX_POINT_NEXT_ELEMENT_ZX)  
         )
         {
-            //const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, objIndex2 * SP_PHYSIC_PROPERTY_SIZE);
+            //const sp_uint isStaticObj2 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex2 * SP_RIGID_BODY_3D_SIZE);
             //if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
             //    continue;
 
@@ -95,7 +95,7 @@ __kernel void sweepAndPruneSingleAxis(
 
 __kernel void sweepAndPruneSingleAxisAABB(
     __global   sp_float* input,
-    __global   sp_float* physicProperties,
+    __global   sp_float* rigidBodies3D,
     __constant sp_uint* indexesLength,
     __global   sp_uint* indexes,
     __global   sp_uint* outputLength,
@@ -110,7 +110,7 @@ __kernel void sweepAndPruneSingleAxisAABB(
     const sp_uint objIndex1 = indexes[index];
     const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
 
-    //const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, objIndex1 * SP_PHYSIC_PROPERTY_SIZE);
+    //const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex1 * SP_RIGID_BODY_3D_SIZE);
 
     for (sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
@@ -125,7 +125,7 @@ __kernel void sweepAndPruneSingleAxisAABB(
             && (maxPointZ >= MIN_POINT_NEXT_ELEMENT_Z && minPointZ <= MAX_POINT_NEXT_ELEMENT_Z)
         )
         {
-            //const sp_uint isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, objIndex2 * SP_PHYSIC_PROPERTY_SIZE);
+            //const sp_uint isStaticObj2 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex2 * SP_RIGID_BODY_3D_SIZE);
             //if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
             //    continue;
 
@@ -139,7 +139,7 @@ __kernel void sweepAndPruneSingleAxisAABB(
 
 __kernel void sweepAndPruneSingleAxisSphere(
     __global   sp_float* input,
-    __global   sp_float* physicProperties,
+    __global   sp_float* rigidBodies3D,
     __constant sp_uint* indexesLength,
     __global   sp_uint* indexes,
     __global   sp_uint* outputLength,

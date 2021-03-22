@@ -56,9 +56,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			simulator->transforms(index)->reset();
 		
-			simulator->physicProperties(index)->currentState.reset();
-			simulator->physicProperties(index)->previousState.reset();
-			simulator->physicProperties(index)->mass(8.0f);
+			simulator->rigidBody3D(index)->currentState.reset();
+			simulator->rigidBody3D(index)->previousState.reset();
+			simulator->rigidBody3D(index)->mass(8.0f);
 		}
 
 		SpCollisionDetails newCollisionDetails()
@@ -88,8 +88,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetector detector;
 		SpCollisionDetails details = newCollisionDetails();
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 

@@ -360,7 +360,7 @@
     <None Include="resources\opencl\src\Reverse.cl" />
     <None Include="resources\opencl\src\Sphere.cl" />
     <None Include="resources\opencl\src\SpMeshCache.cl" />
-    <None Include="resources\opencl\src\SpPhysicProperties.cl" />
+    <None Include="resources\opencl\src\SpRigidBody3D.cl" />
     <None Include="resources\opencl\src\SpTransformation.cl" />
     <None Include="resources\opencl\src\SweepAndPrune.cl" />
     <None Include="resources\opencl\src\Vec3.cl" />

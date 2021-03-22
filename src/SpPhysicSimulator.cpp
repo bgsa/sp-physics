@@ -132,7 +132,7 @@ namespace NAMESPACE_PHYSICS
 
 		_objectsLength = ZERO_UINT;
 		_objectsLengthAllocated = objectsLength;
-		_physicProperties = sp_mem_new_array(SpRigidBody3D, objectsLength);
+		_rigidBodies3D = sp_mem_new_array(SpRigidBody3D, objectsLength);
 		_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
 		_transforms = sp_mem_new_array(SpTransform, objectsLength);
 		_objectMapper = sp_mem_new_array(SpCollisionFeatures, objectsLength);
@@ -156,7 +156,7 @@ namespace NAMESPACE_PHYSICS
 		_objectMapperGPU->init(sizeof(SpCollisionFeatures) * _objectsLengthAllocated, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
 		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
-		_physicPropertiesGPU = gpu->createBuffer(_physicProperties, sizeof(SpRigidBody3D) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
+		_rigidBodies3DGPU = gpu->createBuffer(_rigidBodies3D, sizeof(SpRigidBody3D) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
 		_collisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		_collisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		
@@ -172,26 +172,27 @@ namespace NAMESPACE_PHYSICS
 		sapDOP18 = sp_mem_new(SweepAndPrune)();
 		sapDOP18->init(gpu, buildOptions.str().c_str());
 		sapDOP18->setParameters(_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
 
 		sapAABB = sp_mem_new(SweepAndPrune)();
 		sapAABB->init(gpu, buildOptions.str().c_str());
 		sapAABB->setParameters(_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
 
 		sapSphere = sp_mem_new(SweepAndPrune)();
 		sapSphere->init(gpu, buildOptions.str().c_str());
 		sapSphere->setParameters(_boundingVolumesGPU, objectsLength,
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _physicPropertiesGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisSphere");
+			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, _rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisSphere");
 
 		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
 		collisionResponseGPU->init(gpu, nullptr);
-		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _physicPropertiesGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU, outputIndexSize);
+		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, objectsLength, _rigidBodies3DGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU, outputIndexSize);
 	}
 
 	SpPhysicSimulator* SpPhysicSimulator::init(sp_uint objectsLength)
 	{
 		_instance = sp_mem_new(SpPhysicSimulator)(objectsLength);
+
 
 		// Share OpenCL OpenGL Buffer
 		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);
@@ -490,13 +491,13 @@ namespace NAMESPACE_PHYSICS
 			sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
 			sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1];
 
-			if (shapes[obj1]->isDirty && physicProperties(obj1)->isDynamic())
+			if (shapes[obj1]->isDirty && rigidBody3D(obj1)->isDynamic())
 			{
 				shapeMatching.updateFromShape(obj1, &detailsArray[i], shapes[obj1]);
 				shapes[obj1]->isDirty = false;
 			}
 
-			if (shapes[obj2]->isDirty && physicProperties(obj2)->isDynamic())
+			if (shapes[obj2]->isDirty && rigidBody3D(obj2)->isDynamic())
 			{
 				shapeMatching.updateFromShape(obj2, &detailsArray[i], shapes[obj2]);
 				shapes[obj2]->isDirty = false;
@@ -524,10 +525,10 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumes = nullptr;
 		}
 
-		if (_physicProperties != nullptr)
+		if (_rigidBodies3D != nullptr)
 		{
-			sp_mem_release(_physicProperties);
-			_physicProperties = nullptr;
+			sp_mem_release(_rigidBodies3D);
+			_rigidBodies3D = nullptr;
 		}
 
 		if (_boundingVolumesGPU != nullptr)
@@ -536,10 +537,10 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumesGPU = nullptr;
 		}
 
-		if (_physicPropertiesGPU != nullptr)
+		if (_rigidBodies3DGPU != nullptr)
 		{
-			gpu->releaseBuffer(_physicPropertiesGPU);
-			_physicPropertiesGPU = nullptr;
+			gpu->releaseBuffer(_rigidBodies3DGPU);
+			_rigidBodies3DGPU = nullptr;
 		}
 
 		if (_collisionIndexesGPU != nullptr)

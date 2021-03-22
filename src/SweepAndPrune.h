@@ -90,7 +90,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(cl_mem input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName);
+		API_INTERFACE void setParameters(cl_mem input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem rigidBodies, const sp_uint rigidBodiesSize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName);
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method in GPU
@@ -109,11 +109,11 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void fetchCollisionIndexes(sp_uint* output) const;
 
 		///<summary>
-		/// Update physic data on GPU
+		/// Update rigid bodies data on GPU
 		///</summary>
-		API_INTERFACE inline void updatePhysicProperties(void* physicProperties)
+		API_INTERFACE inline void updatePhysicProperties(void* rigidBodies3D)
 		{
-			commandSaPCollisions->updateInputParameterValue(1u, physicProperties);
+			commandSaPCollisions->updateInputParameterValue(1u, rigidBodies3D);
 			lastEvent = commandSaPCollisions->lastEvent;
 		}
 

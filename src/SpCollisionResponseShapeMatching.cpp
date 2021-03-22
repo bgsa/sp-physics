@@ -8,8 +8,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint meshIndex = SpPhysicSimulator::instance()->collisionFeatures(objIndex)->meshIndex;
 		SpMesh* mesh = SpPhysicSimulator::instance()->mesh(meshIndex);
 		SpTransform* transformation = SpPhysicSimulator::instance()->transforms(objIndex);
-		SpRigidBody3D* physicProperties = SpPhysicSimulator::instance()->physicProperties(objIndex);
-
+		
 		shape->objectIndex = objIndex;
 		shape->initialPosition = transformation->position;
 		shape->particlesLength = mesh->vertexLength();
@@ -32,7 +31,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 centerOfMassAfterCollision;
 		shape->centerOfMass(centerOfMassAfterCollision);
 	
-		const sp_float mass = ONE_FLOAT / SpPhysicSimulator::instance()->physicProperties(shape->objectIndex)->massInverse();
+		const sp_float mass = ONE_FLOAT / SpPhysicSimulator::instance()->rigidBody3D(shape->objectIndex)->massInverse();
 
 		Mat3 matrixApq;
 		std::memcpy(&matrixApq , &Mat3Zeros, sizeof(Mat3));
@@ -75,14 +74,14 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape)
 	{
-		SpRigidBody3D* physicProperties = SpPhysicSimulator::instance()->physicProperties(shape->objectIndex);
+		SpRigidBody3D* rigidBody = SpPhysicSimulator::instance()->rigidBody3D(shape->objectIndex);
 		const Vec3* particles = shape->particles;
 
 		// find new center of mass...
 		Vec3 centerOfMassAfterCollision;
 		shape->centerOfMass(centerOfMassAfterCollision);
 
-		const sp_float mass = ONE_FLOAT / physicProperties->massInverse();
+		const sp_float mass = ONE_FLOAT / rigidBody->massInverse();
 
 		Mat3 matrixApq;
 		std::memcpy(&matrixApq, &Mat3Zeros, sizeof(Mat3));
@@ -118,10 +117,10 @@ namespace NAMESPACE_PHYSICS
 
 		SpTransform* transformation = SpPhysicSimulator::instance()->transforms(shape->objectIndex);
 		transformation->orientation *= newOrientation;
-		physicProperties->currentState.orientation(transformation->orientation);
+		rigidBody->currentState.orientation(transformation->orientation);
 
 		transformation->position = centerOfMassAfterCollision;
-		physicProperties->currentState.position(transformation->position);
+		rigidBody->currentState.position(transformation->position);
 	}
 
 	sp_bool SpCollisionResponseShapeMatching::hasPlaneCollision(SpRigidBodyShapeMatch* shape, SpCollisionDetails* collisionManifold, sp_uint& pointsLength, SpVertexMesh** points)
@@ -252,7 +251,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float depth = fabsf(collisionManifold.depth);
 		Vec3 normalToObj1;
 
-		if (SpPhysicSimulator::instance()->physicProperties(shape1->objectIndex)->isDynamic())
+		if (SpPhysicSimulator::instance()->rigidBody3D(shape1->objectIndex)->isDynamic())
 		{
 			Vec3 directionObj1;
 			shape1->centerOfMass(directionObj1);
@@ -281,7 +280,7 @@ namespace NAMESPACE_PHYSICS
 				normalToObj1 = collisionManifold.collisionNormal;
 		}
 
-		if (SpPhysicSimulator::instance()->physicProperties(shape2->objectIndex)->isDynamic())
+		if (SpPhysicSimulator::instance()->rigidBody3D(shape2->objectIndex)->isDynamic())
 		{
 			updateParticlesShape(shape2, -normalToObj1, depth, mesh2PointsLength, mesh2Points);
 			shapeMatch(shape2);

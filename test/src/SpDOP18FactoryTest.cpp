@@ -108,9 +108,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			simulator->transforms(index)->reset();
 
-			simulator->physicProperties(index)->currentState.reset();
-			simulator->physicProperties(index)->previousState.reset();
-			simulator->physicProperties(index)->mass(8.0f);
+			simulator->rigidBody3D(index)->currentState.reset();
+			simulator->rigidBody3D(index)->previousState.reset();
+			simulator->rigidBody3D(index)->mass(8.0f);
 		}
 
 	public:

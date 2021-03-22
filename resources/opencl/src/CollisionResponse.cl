@@ -1,11 +1,11 @@
 #include "OpenCLBase.cl"
 #include "DOP18.cl"
-#include "SpPhysicProperties.cl"
+#include "SpRigidBody3D.cl"
 
 __kernel void handleCollision(
     __constant sp_uint * indexes,
 	__constant sp_uint * indexesLength,
-    __global   sp_float* physicProperties,
+    __global   sp_float* rigidBodies3D,
     __global   sp_uint * outputIndexesLength,
     __global   sp_uint * outputIndexes
 )
@@ -16,17 +16,17 @@ __kernel void handleCollision(
     const sp_uint index1 = indexes[multiplyBy2(THREAD_ID)    ];
     const sp_uint index2 = indexes[multiplyBy2(THREAD_ID) + 1];
     
-    const sp_uint physicIndex1 = index1 * SP_PHYSIC_PROPERTY_SIZE;
-    const sp_uint physicIndex2 = index2 * SP_PHYSIC_PROPERTY_SIZE;
+    const sp_uint physicIndex1 = index1 * SP_RIGID_BODY_3D_SIZE;
+    const sp_uint physicIndex2 = index2 * SP_RIGID_BODY_3D_SIZE;
 
-    const sp_bool isStaticObj1 = SpPhysicProperties_isStatic(physicProperties, physicIndex1);
-    const sp_bool isStaticObj2 = SpPhysicProperties_isStatic(physicProperties, physicIndex2);
+    const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, physicIndex1);
+    const sp_bool isStaticObj2 = SpRigidBody3D_isStatic(rigidBodies3D, physicIndex2);
 
     if (isStaticObj1 && isStaticObj2) // if the objects are static, ignre them
         return;
 
-    const sp_bool isRestingObj1 = SpPhysicProperties_isResting(physicProperties, physicIndex1);
-    const sp_bool isRestingObj2 = SpPhysicProperties_isResting(physicProperties, physicIndex2);
+    const sp_bool isRestingObj1 = SpRigidBody3D_isResting(rigidBodies3D, physicIndex1);
+    const sp_bool isRestingObj2 = SpRigidBody3D_isResting(rigidBodies3D, physicIndex2);
 
     const Vec3 VEC3_ZERO = { 0.0f, 0.0f, 0.0f };
 
@@ -35,54 +35,54 @@ __kernel void handleCollision(
         if (!isStaticObj1 && !isStaticObj2)
             return;
 
-        const Vec3 previousPositionObj1 = SpPhysicProperties_getPreviousPosition(physicProperties, physicIndex1); 
-        const Quat previousOrientationObj1 = SpPhysicProperties_getPreviousOrientation(physicProperties, physicIndex1);
+        const Vec3 previousPositionObj1 = SpRigidBody3D_getPreviousPosition(rigidBodies3D, physicIndex1); 
+        const Quat previousOrientationObj1 = SpRigidBody3D_getPreviousOrientation(rigidBodies3D, physicIndex1);
 
-        SpPhysicProperties_setPosition(physicProperties, physicIndex1, previousPositionObj1);
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setOrientation(physicProperties, physicIndex1, previousOrientationObj1);
-        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setTorque(physicProperties, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setPosition(rigidBodies3D, physicIndex1, previousPositionObj1);
+        SpRigidBody3D_setVelocity(rigidBodies3D, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setAcceleration(rigidBodies3D, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setOrientation(rigidBodies3D, physicIndex1, previousOrientationObj1);
+        SpRigidBody3D_setAngVelocity(rigidBodies3D, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setTorque(rigidBodies3D, physicIndex1, VEC3_ZERO);
 
-        const Vec3 previousPositionObj2 = SpPhysicProperties_getPreviousPosition(physicProperties, physicIndex2);
-        const Quat previousOrientationObj2 = SpPhysicProperties_getPreviousOrientation(physicProperties, physicIndex2);
+        const Vec3 previousPositionObj2 = SpRigidBody3D_getPreviousPosition(rigidBodies3D, physicIndex2);
+        const Quat previousOrientationObj2 = SpRigidBody3D_getPreviousOrientation(rigidBodies3D, physicIndex2);
 
-        SpPhysicProperties_setPosition(physicProperties, physicIndex2, previousPositionObj2);
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setOrientation(physicProperties, physicIndex2, previousOrientationObj2);
-        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setTorque(physicProperties, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setPosition(rigidBodies3D, physicIndex2, previousPositionObj2);
+        SpRigidBody3D_setVelocity(rigidBodies3D, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setAcceleration(rigidBodies3D, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setOrientation(rigidBodies3D, physicIndex2, previousOrientationObj2);
+        SpRigidBody3D_setAngVelocity(rigidBodies3D, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setTorque(rigidBodies3D, physicIndex2, VEC3_ZERO);
 
         return;
     }
 
     if (isStaticObj1 && isRestingObj2)
     {
-        const Vec3 previousPositionObj2 = SpPhysicProperties_getPreviousPosition(physicProperties, physicIndex2);
-        const Quat previousOrientationObj2 = SpPhysicProperties_getPreviousOrientation(physicProperties, physicIndex2);
+        const Vec3 previousPositionObj2 = SpRigidBody3D_getPreviousPosition(rigidBodies3D, physicIndex2);
+        const Quat previousOrientationObj2 = SpRigidBody3D_getPreviousOrientation(rigidBodies3D, physicIndex2);
 
-        SpPhysicProperties_setPosition(physicProperties, physicIndex2, previousPositionObj2);
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setOrientation(physicProperties, physicIndex2, previousOrientationObj2);
-        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex2, VEC3_ZERO);
-        SpPhysicProperties_setTorque(physicProperties, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setPosition(rigidBodies3D, physicIndex2, previousPositionObj2);
+        SpRigidBody3D_setVelocity(rigidBodies3D, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setAcceleration(rigidBodies3D, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setOrientation(rigidBodies3D, physicIndex2, previousOrientationObj2);
+        SpRigidBody3D_setAngVelocity(rigidBodies3D, physicIndex2, VEC3_ZERO);
+        SpRigidBody3D_setTorque(rigidBodies3D, physicIndex2, VEC3_ZERO);
         return;
     }
 
     if (isStaticObj2 && isRestingObj1)
     {
-        const Vec3 previousPositionObj1 = SpPhysicProperties_getPreviousPosition(physicProperties, physicIndex1); 
-        const Quat previousOrientationObj1 = SpPhysicProperties_getPreviousOrientation(physicProperties, physicIndex1);
+        const Vec3 previousPositionObj1 = SpRigidBody3D_getPreviousPosition(rigidBodies3D, physicIndex1); 
+        const Quat previousOrientationObj1 = SpRigidBody3D_getPreviousOrientation(rigidBodies3D, physicIndex1);
 
-        SpPhysicProperties_setPosition(physicProperties, physicIndex1, previousPositionObj1);
-        SpPhysicProperties_setVelocity(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setAcceleration(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setOrientation(physicProperties, physicIndex1, previousOrientationObj1);
-        SpPhysicProperties_setAngVelocity(physicProperties, physicIndex1, VEC3_ZERO);
-        SpPhysicProperties_setTorque(physicProperties, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setPosition(rigidBodies3D, physicIndex1, previousPositionObj1);
+        SpRigidBody3D_setVelocity(rigidBodies3D, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setAcceleration(rigidBodies3D, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setOrientation(rigidBodies3D, physicIndex1, previousOrientationObj1);
+        SpRigidBody3D_setAngVelocity(rigidBodies3D, physicIndex1, VEC3_ZERO);
+        SpRigidBody3D_setTorque(rigidBodies3D, physicIndex1, VEC3_ZERO);
         return;
     }
 

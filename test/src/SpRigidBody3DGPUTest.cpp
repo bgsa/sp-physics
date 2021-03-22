@@ -25,58 +25,58 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_uint sizePhysicProperties = sizeof(SpRigidBody3D);
 		const sp_uint length = 3u;
-		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
+		SpRigidBody3D* rigidBodies = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
 		for (sp_uint i = 0; i < length; i++)
 		{
 			sp_float index = (sp_float) (i * sizeof(SpRigidBody3D));
 			
-			physicProperties[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.velocity(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].currentState.velocity(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.acceleration(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].currentState.acceleration(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.addForce(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].currentState.addForce(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].currentState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 4;
-			physicProperties[i].currentState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].currentState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.torque(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].currentState.torque(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
 
-			physicProperties[i].previousState.position(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].previousState.position(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].previousState.velocity(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].previousState.velocity(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].previousState.acceleration(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].previousState.acceleration(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].previousState.addForce(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].previousState.addForce(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].previousState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].previousState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 4;
-			physicProperties[i].previousState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].previousState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].previousState.torque(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies[i].previousState.torque(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
 
-			physicProperties[i].mass(index);
+			rigidBodies[i].mass(index);
 			index += 1;
-			physicProperties[i].damping(index);
+			rigidBodies[i].damping(index);
 			index += 1;
-			physicProperties[i].angularDamping(index);
+			rigidBodies[i].angularDamping(index);
 			index += 1;
-			physicProperties[i].coeficientOfRestitution(index);
+			rigidBodies[i].coeficientOfRestitution(index);
 			index += 1;
-			physicProperties[i].coeficientOfFriction(index);
+			rigidBodies[i].coeficientOfFriction(index);
 		}
 		
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizePhysicProperties * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(rigidBodies, sizePhysicProperties * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem outputGpu = gpu->createBuffer(sizePhysicProperties, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpPhysicProperties.cl");
+			->add("SpRigidBody3D.cl");
 
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
@@ -101,7 +101,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->execute(1, globalWorkSize, localWorkSize, &elementIndex)
 			->fetchInOutParameter<sp_float>(1u, result);
 
-		const sp_float* expected = (sp_float*)&physicProperties[elementIndex];
+		const sp_float* expected = (sp_float*)&rigidBodies[elementIndex];
 		const sp_uint floatsInProperties = sizePhysicProperties / sizeof(sp_float);
 
 		for (sp_uint i = 0; i < floatsInProperties; i++)
@@ -109,7 +109,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		gpu->releaseBuffer(physcPropertiesGpu);
 		gpu->releaseBuffer(outputGpu);
-		ALLOC_RELEASE(physicProperties);
+		ALLOC_RELEASE(rigidBodies);
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, isResting)
@@ -118,43 +118,43 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint length = 3u;
-		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
+		SpRigidBody3D* rigidBodies3D = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
 		for (sp_uint i = 0; i < length; i++)
 		{
 			sp_float index = (sp_float)(i * sizeof(SpRigidBody3D));
 
-			physicProperties[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies3D[i].currentState.position(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.velocity(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies3D[i].currentState.velocity(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.acceleration(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies3D[i].currentState.acceleration(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.addForce(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies3D[i].currentState.addForce(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 3;
-			physicProperties[i].currentState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies3D[i].currentState.orientation(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 4;
-			physicProperties[i].currentState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
+			rigidBodies3D[i].currentState.angularVelocity(Vec3(index, index + 1.0f, index + 2.0f));
 			index += 6 + 21;
-			physicProperties[i].mass(index);
+			rigidBodies3D[i].mass(index);
 			index += 1;
-			physicProperties[i].damping(index);
+			rigidBodies3D[i].damping(index);
 			index += 1;
-			physicProperties[i].angularDamping(index);
+			rigidBodies3D[i].angularDamping(index);
 			index += 1;
-			physicProperties[i].coeficientOfRestitution(index);
+			rigidBodies3D[i].coeficientOfRestitution(index);
 			index += 1;
-			physicProperties[i].coeficientOfFriction(index);
+			rigidBodies3D[i].coeficientOfFriction(index);
 		}
-		//physicProperties[2].position(physicProperties[2].previousPosition());
-		//physicProperties[2].velocity(physicProperties[2].previousVelocity());
-		//physicProperties[2].acceleration(physicProperties[2].previousAcceleration());
+		//rigidBodies3D[2].position(rigidBodies3D[2].previousPosition());
+		//rigidBodies3D[2].velocity(rigidBodies3D[2].previousVelocity());
+		//rigidBodies3D[2].acceleration(rigidBodies3D[2].previousAcceleration());
 		
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody3D) * length, CL_MEM_READ_ONLY, true);
+		cl_mem physcPropertiesGpu = gpu->createBuffer(rigidBodies3D, sizeof(SpRigidBody3D) * length, CL_MEM_READ_ONLY, true);
 		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody3D), CL_MEM_READ_ONLY);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpPhysicProperties.cl");
+			->add("SpRigidBody3D.cl");
 
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
@@ -179,13 +179,13 @@ namespace NAMESPACE_PHYSICS_TEST
 			->execute(1, globalWorkSize, localWorkSize, &elementIndex)
 			->fetchInOutParameter<sp_bool>(1u, &result);
 
-		const sp_bool expected = physicProperties[elementIndex].isResting();
+		const sp_bool expected = rigidBodies3D[elementIndex].isResting();
 
 		Assert::AreEqual(expected, result, L"wrong value", LINE_INFO());
 
 		gpu->releaseBuffer(physcPropertiesGpu);
 		gpu->releaseBuffer(outputGpu);
-		ALLOC_RELEASE(physicProperties);
+		ALLOC_RELEASE(rigidBodies3D);
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, isStatic)
@@ -193,16 +193,16 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpRigidBody3D* physicProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, 2u);
-		physicProperties[0].mass(ZERO_FLOAT);
-		physicProperties[1].mass(8.0f);
+		SpRigidBody3D* rigidBodies3D = ALLOC_NEW_ARRAY(SpRigidBody3D, 2u);
+		rigidBodies3D[0].mass(ZERO_FLOAT);
+		rigidBodies3D[1].mass(8.0f);
 
-		cl_mem physcPropertiesGpu = gpu->createBuffer(physicProperties, sizeof(SpRigidBody3D) * 2u, CL_MEM_READ_ONLY, true);
+		cl_mem rigidBodies3DGpu = gpu->createBuffer(rigidBodies3D, sizeof(SpRigidBody3D) * 2u, CL_MEM_READ_ONLY, true);
 		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody3D), CL_MEM_READ_ONLY);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpPhysicProperties.cl");
+			->add("SpRigidBody3D.cl");
 
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
@@ -214,7 +214,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(physcPropertiesGpu, sizeof(SpRigidBody3D) * 2u)
+			->setInputParameter(rigidBodies3DGpu, sizeof(SpRigidBody3D) * 2u)
 			->setInputParameter(outputGpu, sizeof(sp_bool))
 			->buildFromProgram(sapProgram, "isStatic");
 
@@ -236,9 +236,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::IsFalse(result, L"wrong value", LINE_INFO());
 
-		gpu->releaseBuffer(physcPropertiesGpu);
+		gpu->releaseBuffer(rigidBodies3DGpu);
 		gpu->releaseBuffer(outputGpu);
-		ALLOC_RELEASE(physicProperties);
+		ALLOC_RELEASE(rigidBodies3D);
 	}
 
 }

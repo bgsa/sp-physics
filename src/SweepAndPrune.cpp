@@ -198,7 +198,7 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
-	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem physicProperties, const sp_uint physicPropertySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName)
+	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem rigidBodies, const sp_uint rigidBodiesSize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName)
 	{
 		globalWorkSize[0] = inputLength;
 		localWorkSize[0] = 1u;
@@ -211,7 +211,7 @@ namespace NAMESPACE_PHYSICS
 
 		commandSaPCollisions = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputLength * strider * SIZEOF_FLOAT)
-			->setInputParameter(physicProperties, inputLength * physicPropertySize)
+			->setInputParameter(rigidBodies, inputLength * rigidBodiesSize)
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(indexesGPU, inputLength * SIZEOF_UINT)
 			->setInputParameter(outputIndexLength, SIZEOF_UINT)

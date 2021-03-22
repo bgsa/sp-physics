@@ -57,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(cl_mem indexesGPU, cl_mem indexesLengthGPU, sp_uint indexesLength, cl_mem physicPropertiesGPU, cl_mem outputIndexesGPU, cl_mem outputIndexLengthGPU, sp_size outputIndexSize)
+		API_INTERFACE void setParameters(cl_mem indexesGPU, cl_mem indexesLengthGPU, sp_uint indexesLength, cl_mem rigidBody3DGPU, cl_mem outputIndexesGPU, cl_mem outputIndexLengthGPU, sp_size outputIndexSize)
 		{
 			sp_size threadLength = indexesLength * SP_MAX_COLLISION_PER_OBJECT;
 			globalWorkSize[0] = threadLength;
@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(indexesGPU, outputIndexSize)
 				->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
-				->setInputParameter(physicPropertiesGPU, indexesLength * sizeof(SpRigidBody3D))
+				->setInputParameter(rigidBody3DGPU, indexesLength * sizeof(SpRigidBody3D))
 				->setInputParameter(outputIndexLengthGPU, SIZEOF_UINT)
 				->setInputParameter(outputIndexesGPU, outputIndexSize)
 				->buildFromProgram(program, "handleCollision");

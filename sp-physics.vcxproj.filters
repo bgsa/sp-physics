@@ -6577,9 +6577,6 @@
     <None Include="resources\opencl\src\Reverse.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
-    <None Include="resources\opencl\src\SpPhysicProperties.cl">
-      <Filter>Resource Files\OpenCL\src</Filter>
-    </None>
     <None Include="resources\opencl\src\Vec3.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
@@ -6611,6 +6608,9 @@
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
     <None Include="resources\opencl\src\Sphere.cl">
+      <Filter>Resource Files\OpenCL\src</Filter>
+    </None>
+    <None Include="resources\opencl\src\SpRigidBody3D.cl">
       <Filter>Resource Files\OpenCL\src</Filter>
     </None>
   </ItemGroup>

@@ -41,7 +41,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _objectsLength;
 		
 		DOP18* _boundingVolumes;
-		SpRigidBody3D* _physicProperties;
+		SpRigidBody3D* _rigidBodies3D;
 		SpTransform* _transforms;
 		SpCollisionFeatures* _objectMapper;
 		SpArray<SpMesh*>* _meshes;
@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 		cl_mem _transformsGPU;
 		SpGpuTextureBuffer* _transformsGPUBuffer;
 		cl_mem _boundingVolumesGPU;
-		cl_mem _physicPropertiesGPU;
+		cl_mem _rigidBodies3DGPU;
 		cl_mem _collisionIndexesGPU;
 		cl_mem _collisionIndexesLengthGPU;
 		cl_mem _sapCollisionIndexesGPU;
@@ -94,9 +94,9 @@ namespace NAMESPACE_PHYSICS
 		void updateDataOnGPU()
 		{
 			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
-			sapDOP18->updatePhysicProperties(_physicProperties);
-			sapAABB->updatePhysicProperties(_physicProperties);
-			sapSphere->updatePhysicProperties(_physicProperties);
+			sapDOP18->updatePhysicProperties(_rigidBodies3D);
+			sapAABB->updatePhysicProperties(_rigidBodies3D);
+			sapSphere->updatePhysicProperties(_rigidBodies3D);
 		}
 
 		/// <summary>
@@ -104,7 +104,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		void updateDataOnCPU()
 		{
-			cl_event evt1 = gpu->commandManager->readBuffer(_physicPropertiesGPU, sizeof(SpRigidBody3D) * _objectsLength, _physicProperties);
+			cl_event evt1 = gpu->commandManager->readBuffer(_rigidBodies3DGPU, sizeof(SpRigidBody3D) * _objectsLength, _rigidBodies3D);
 			gpu->waitEvents(ONE_UINT, &evt1);
 		}
 
@@ -173,9 +173,9 @@ namespace NAMESPACE_PHYSICS
 			return &_boundingVolumes[index];
 		}
 
-		API_INTERFACE inline SpRigidBody3D* physicProperties(const sp_uint index) const
+		API_INTERFACE inline SpRigidBody3D* rigidBody3D(const sp_uint index) const
 		{
-			return &_physicProperties[index];
+			return &_rigidBodies3D[index];
 		}
 
 		API_INTERFACE inline SpTransform* transforms(const sp_uint index) const
@@ -226,7 +226,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void backToTime(const sp_uint index)
 		{
-			SpRigidBody3D* element = &_physicProperties[index];
+			SpRigidBody3D* element = &_rigidBodies3D[index];
 
 			Vec3 translation;
 			diff(element->previousState.position(), element->currentState.position(), translation);
@@ -248,7 +248,7 @@ namespace NAMESPACE_PHYSICS
 
 			_boundingVolumes[index].translate(translation);
 			_transforms[index].translate(translation);
-			_physicProperties[index].currentState.translate(translation);
+			_rigidBodies3D[index].currentState.translate(translation);
 		}
 
 		API_INTERFACE void scale(const sp_uint index, const Vec3& scaleVector)
@@ -270,7 +270,7 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_transforms[index].orientation *= quat;
-			_physicProperties[index].currentState.orientation(_transforms[index].orientation);
+			_rigidBodies3D[index].currentState.orientation(_transforms[index].orientation);
 		}
 
 		API_INTERFACE void position(const sp_uint index, const Vec3& newPosition)
@@ -284,7 +284,7 @@ namespace NAMESPACE_PHYSICS
 
 			_boundingVolumes[index].translate(diff);
 			_transforms[index].position = newPosition;
-			_physicProperties[index].currentState.position(newPosition);
+			_rigidBodies3D[index].currentState.position(newPosition);
 		}
 
 		API_INTERFACE void orientation(const sp_uint index, const Quat& newOrientation)
@@ -295,7 +295,7 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
 
 			_transforms[index].orientation = newOrientation;
-			_physicProperties[index].currentState.orientation(newOrientation);
+			_rigidBodies3D[index].currentState.orientation(newOrientation);
 		}
 
 		API_INTERFACE void run(const sp_float elapsedTime);
@@ -306,14 +306,14 @@ namespace NAMESPACE_PHYSICS
 		{
 			for (sp_uint i = 0; i < _objectsLength; i++)
 			{
-				if (_physicProperties[i].isStatic())
+				if (_rigidBodies3D[i].isStatic())
 					continue;
 
 				DOP18 bv1 = _boundingVolumes[i];
 
 				for (sp_uint j = i + 1u; j < _objectsLength; j++)
 				{
-					if (_physicProperties[j].isStatic())
+					if (_rigidBodies3D[j].isStatic())
 						continue;
 
 					if (bv1.collisionStatus(_boundingVolumes[j]) != CollisionStatus::OUTSIDE)

@@ -184,16 +184,16 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			simulator->transforms(index)->reset();
 		
-			simulator->physicProperties(index)->currentState.reset();
-			simulator->physicProperties(index)->previousState.reset();
-			simulator->physicProperties(index)->mass(8.0f);
+			simulator->rigidBody3D(index)->currentState.reset();
+			simulator->rigidBody3D(index)->previousState.reset();
+			simulator->rigidBody3D(index)->mass(8.0f);
 		}
 
 		void setupObject(const sp_uint index, const Vec3& position, const Quat& orientation, 
 			const Vec3& velocity, const Vec3& angularVelocity)
 		{
 			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-			SpRigidBody3D* properties = simulator->physicProperties(index);
+			SpRigidBody3D* properties = simulator->rigidBody3D(index);
 
 			properties->currentState.position(position);
 			properties->previousState.position(position);
@@ -269,7 +269,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionDetails details = newCollisionDetails();
 		details.cacheObj1->update(mesh1, simulator->transforms(0u));
 		details.cacheObj2->update(mesh2, simulator->transforms(1u));
-		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 1.0f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.position(Vec3(0.0f, 1.0f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 1.0f, 0.0f);
 		sp_bool result = collisionDetector.hasCollision(0u, 1u, &details, &cache);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
@@ -277,7 +277,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		details = newCollisionDetails();
 		details.cacheObj1->update(mesh1, simulator->transforms(0u));
 		details.cacheObj2->update(mesh2, simulator->transforms(1u));
-		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 0.5f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.position(Vec3(0.0f, 0.5f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 0.5f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details, &cache);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
@@ -285,7 +285,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		details = newCollisionDetails();
 		details.cacheObj1->update(mesh1, simulator->transforms(0u));
 		details.cacheObj2->update(mesh2, simulator->transforms(1u));
-		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 1.5f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.position(Vec3(0.0f, 1.5f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 1.5f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details, &cache);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
@@ -293,7 +293,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		details = newCollisionDetails();
 		details.cacheObj1->update(mesh1, simulator->transforms(0u));
 		details.cacheObj2->update(mesh2, simulator->transforms(1u));
-		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 2.0f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.position(Vec3(0.0f, 2.0f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 2.0f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details, &cache);
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
@@ -301,7 +301,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		details = newCollisionDetails();
 		details.cacheObj1->update(mesh1, simulator->transforms(0u));
 		details.cacheObj2->update(mesh2, simulator->transforms(1u));
-		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 2.5f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.position(Vec3(0.0f, 2.5f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(0.0f, 2.5f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details, &cache);
 		Assert::IsFalse(result, L"Wrong value.", LINE_INFO());
@@ -309,7 +309,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		details = newCollisionDetails();
 		details.cacheObj1->update(mesh1, simulator->transforms(0u));
 		details.cacheObj2->update(mesh2, simulator->transforms(1u));
-		simulator->physicProperties(1u)->currentState.position(Vec3(3000.0f, 0.0f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.position(Vec3(3000.0f, 0.0f, 0.0f));
 		simulator->transforms(1u)->position = Vec3(3000.0f, 0.0f, 0.0f);
 		result = collisionDetector.hasCollision(0u, 1u, &details, &cache);
 		Assert::IsFalse(result, L"Wrong value.", LINE_INFO());
@@ -331,8 +331,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
@@ -460,8 +460,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
@@ -570,8 +570,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
@@ -618,8 +618,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
@@ -664,8 +664,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
@@ -706,18 +706,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		simulator->physicProperties(0u)->currentState.position(Vec3(1.0f, 0.0f, 0.0f));
-		simulator->physicProperties(1u)->currentState.position(Vec3(0.0f, 0.0f, 0.0f));
+		simulator->rigidBody3D(0u)->currentState.position(Vec3(1.0f, 0.0f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.position(Vec3(0.0f, 0.0f, 0.0f));
 
-		simulator->physicProperties(0u)->currentState.velocity(Vec3(10.0f, 0.0f, 0.0f));
-		simulator->physicProperties(1u)->currentState.velocity(Vec3(-10.0f, 0.0f, 0.0f));
+		simulator->rigidBody3D(0u)->currentState.velocity(Vec3(10.0f, 0.0f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.velocity(Vec3(-10.0f, 0.0f, 0.0f));
 
 		sp_bool result = collisionDetector.areMovingAway(0u, 1u);
 
 		Assert::IsTrue(result, L"Wrong value.", LINE_INFO());
 
-		simulator->physicProperties(0u)->currentState.velocity(Vec3(10.0f, 0.0f, 0.0f));
-		simulator->physicProperties(1u)->currentState.velocity(Vec3(1.0f, 0.0f, 0.0f));
+		simulator->rigidBody3D(0u)->currentState.velocity(Vec3(10.0f, 0.0f, 0.0f));
+		simulator->rigidBody3D(1u)->currentState.velocity(Vec3(1.0f, 0.0f, 0.0f));
 
 		result = collisionDetector.areMovingAway(0u, 1u);
 		
@@ -805,8 +805,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		createMeshePlane();
 		createCubeMeshes(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		SpCollisionDetails details = newCollisionDetails();
 		resetObject(0u);
@@ -873,8 +873,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 		
@@ -921,8 +921,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 		
@@ -965,8 +965,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicProperties* propertiesObj1 = simulator->physicProperties(0u);
-		SpPhysicProperties* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBodies3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBodies3D(1u);
 
 		details = newCollisionDetails();
 
@@ -1022,8 +1022,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
@@ -1181,8 +1181,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
@@ -1216,8 +1216,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 		
@@ -1263,21 +1263,21 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 		
 		Quat orientationObj1 = Quat::createRotationAxisY(degreesToRadians(45));
 		simulator->transforms(0u)->orientation = orientationObj1;
-		simulator->physicProperties(0u)->currentState.orientation(orientationObj1);
-		simulator->physicProperties(0u)->previousState.orientation(orientationObj1);
+		simulator->rigidBody3D(0u)->currentState.orientation(orientationObj1);
+		simulator->rigidBody3D(0u)->previousState.orientation(orientationObj1);
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 		
 		Quat orientationObj2 = Quat::createRotationAxisZ(degreesToRadians(45));
 		simulator->transforms(1u)->orientation = orientationObj2;
-		simulator->physicProperties(1u)->currentState.orientation(orientationObj2);
-		simulator->physicProperties(1u)->previousState.orientation(orientationObj2);
+		simulator->rigidBody3D(1u)->currentState.orientation(orientationObj2);
+		simulator->rigidBody3D(1u)->previousState.orientation(orientationObj2);
 		simulator->transforms(1u)->position = Vec3(4.0f, 0.0f, 0.0f);
 		propertiesObj2->currentState.position(Vec3(4.0f, 0.0f, 0.0f));
 		propertiesObj2->previousState.position(Vec3(4.0f, 0.0f, 0.0f));
@@ -1312,8 +1312,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpRigidBody3D* propertiesObj1 = simulator->physicProperties(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->physicProperties(1u);
+		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 

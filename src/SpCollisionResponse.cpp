@@ -88,8 +88,8 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
 
 		const sp_float physicVelocity = SpPhysicSettings::instance()->physicVelocity();
-		SpRigidBody3D* obj1Properties = simulator->physicProperties(details->objIndex1);
-		SpRigidBody3D* obj2Properties = simulator->physicProperties(details->objIndex2);
+		SpRigidBody3D* obj1Properties = simulator->rigidBody3D(details->objIndex1);
+		SpRigidBody3D* obj2Properties = simulator->rigidBody3D(details->objIndex2);
 
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
 		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
