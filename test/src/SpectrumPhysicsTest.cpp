@@ -23,7 +23,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	
 	TEST_MODULE_INITIALIZE(ModuleInitialize)
 	{
-		StackMemoryAllocator::main()->init(ONE_MEGABYTE * 512);
+		NAMESPACE_FOUNDATION::SpStackMemoryAllocator::main()->init(ONE_MEGABYTE * 512);
 
 		SpLogMsTestProvider* logProvider = sp_mem_new(SpLogMsTestProvider);
 		SpLogger::init();
@@ -38,7 +38,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	TEST_MODULE_CLEANUP(ModuleCleanup)
 	{
-		StackMemoryAllocator::main()->release();
+		NAMESPACE_FOUNDATION::SpStackMemoryAllocator::main()->dispose();
 		NAMESPACE_RENDERING::SpOpenGL::dispose();
 		SpLogger::dispose();
 	}

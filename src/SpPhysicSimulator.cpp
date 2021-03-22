@@ -30,7 +30,7 @@ namespace NAMESPACE_PHYSICS
 		meshesIndexes[1] = divideBy4(faceMemoryIndex - initialMemoryIndex);
 		meshesIndexes[2] = divideBy4(edgeMemoryIndex - initialMemoryIndex);
 
-		PoolMemoryAllocator::main()->enableMemoryAlignment();
+		SpPoolMemoryAllocator::main()->enableMemoryAlignment();
 
 		_meshesCache = sp_mem_new(SpArray<SpMeshCache*>)(_objectsLength, _objectsLength);
 		_meshesCache->data()[0] = sp_mem_new(SpMeshCache)(m->vertexesMesh->length());
@@ -57,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 			meshesIndexes[idx + 2u] = divideBy4(edgeMemoryIndex - initialMemoryIndex);
 		}
 		
-		PoolMemoryAllocator::main()->disableMemoryAlignment();
+		SpPoolMemoryAllocator::main()->disableMemoryAlignment();
 
 #ifdef OPENCL_ENABLED
 		_objectMapperGPU->update(_objectMapper);
