@@ -13,6 +13,7 @@
 #include "SpSphereBoundingVolumeFactory.h"
 #include "SpAABBFactory.h"
 #include "SpMeshCacheUpdaterGPU.h"
+#include "SpPhysicSimulator.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -28,6 +29,8 @@ namespace NAMESPACE_PHYSICS
 		GpuDevice* gpu;
 
 	public:
+		SpPhysicSimulator* physicSimulator;
+
 		DOP18* _boundingVolumes;
 		SpRigidBody3D* _rigidBodies3D;
 		SpTransform* _transforms;
@@ -143,36 +146,9 @@ namespace NAMESPACE_PHYSICS
 				_meshesCache->get(i)->update(mesh(collisionFeatures(i)->meshIndex), transforms(i));
 		}
 
-		API_INTERFACE void init(const sp_uint objectsLength)
-		{
-			sp_assert(instanceGpuRendering != nullptr, "NullPointerException");
+		API_INTERFACE void update(const sp_float elapsedTime);
 
-			_objectsLength = ZERO_UINT;
-			_objectsLengthAllocated = objectsLength;
-			_rigidBodies3D = sp_mem_new_array(SpRigidBody3D, objectsLength);
-			_boundingVolumes = sp_mem_new_array(DOP18, objectsLength);
-			_transforms = sp_mem_new_array(SpTransform, objectsLength);
-			_objectMapper = sp_mem_new_array(SpCollisionFeatures, objectsLength);
-			_meshes = sp_mem_new(SpArray<SpMesh*>)(objectsLength, objectsLength);
-
-			gpu = GpuContext::instance()->defaultDevice();
-
-			_transformsGPUBuffer = instanceGpuRendering->createTextureBuffer();
-			_transformsGPUBuffer
-				->use()
-				->updateData(sizeof(SpTransform) * objectsLength, _transforms);
-
-			_transformsGPU = gpu->createBufferFromOpenGL(_transformsGPUBuffer);
-
-			_inputLengthGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-			_inputLengthGPU->init(SIZEOF_UINT, &_objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
-
-			_objectMapperGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-			_objectMapperGPU->init(sizeof(SpCollisionFeatures) * _objectsLengthAllocated, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
-
-			_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
-			_rigidBodies3DGPU = gpu->createBuffer(_rigidBodies3D, sizeof(SpRigidBody3D) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
-		}
+		API_INTERFACE void init(const sp_uint objectsLength);
 
 		API_INTERFACE inline sp_uint alloc(sp_uint length)
 		{
@@ -362,38 +338,7 @@ namespace NAMESPACE_PHYSICS
 			_rigidBodies3D[index].currentState.orientation(newOrientation);
 		}
 
-
-		API_INTERFACE inline void dispose()
-		{
-			if (_boundingVolumes != nullptr)
-			{
-				sp_mem_release(_boundingVolumes);
-				_boundingVolumes = nullptr;
-			}
-
-			if (_boundingVolumesGPU != nullptr)
-			{
-				gpu->releaseBuffer(_boundingVolumesGPU);
-				_boundingVolumesGPU = nullptr;
-			}
-
-			if (_rigidBodies3D != nullptr)
-			{
-				sp_mem_release(_rigidBodies3D);
-				_rigidBodies3D = nullptr;
-			}
-
-			if (_rigidBodies3DGPU != nullptr)
-			{
-				gpu->releaseBuffer(_rigidBodies3DGPU);
-				_rigidBodies3DGPU = nullptr;
-			}
-			if (_objectMapperGPU != nullptr)
-			{
-				sp_mem_delete(_objectMapperGPU, GpuBufferOpenCL);
-				_objectMapperGPU = nullptr;
-			}
-		}
+		API_INTERFACE void dispose();
 
 		~SpWorld()
 		{

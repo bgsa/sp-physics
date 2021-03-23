@@ -5,6 +5,7 @@
 #include "SpRigidBody3D.h"
 #include "SpCollisionDetails.h"
 #include "SpPhysicSimulator.h"
+#include "SpWorldManager.h"
 
 namespace NAMESPACE_PHYSICS
 {

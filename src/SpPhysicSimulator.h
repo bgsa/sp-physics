@@ -7,15 +7,12 @@
 #include "SweepAndPrune.h"
 #include "SpEventDispatcher.h"
 #include "SpPhysicObject.h"
-#include "CL/cl.h"
 #include "Timer.h"
 #include "SpPhysicSettings.h"
 #include "SpCollisionDetails.h"
 #include "SpThreadPool.h"
 #include "SpCollisionResponseGPU.h"
-#include "SpCollisionFeatures.h"
 #include "SpCollisionDetector.h"
-#include "SpGpuRenderingFactory.h"
 #include "SpCollisionResponse.h"
 #include "SpPhysicIntegrator.h"
 #include "SpCollisionGroup.h"
@@ -23,9 +20,7 @@
 #include "SpDOP18Factory.h"
 #include "SpAABBFactory.h"
 #include "GpuBufferOpenCL.h"
-#include "SpMeshCacheUpdaterGPU.h"
 #include "SpCollisionResponseShapeMatching.h"
-#include "SpWorldManager.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -48,8 +43,6 @@ namespace NAMESPACE_PHYSICS
 
 		Timer timerToPhysic;
 
-		SpPhysicSimulator();
-
 		inline void dispatchEvent(SpCollisionDetails* details)
 		{
 			SpCollisionEvent* evt = sp_mem_new(SpCollisionEvent);
@@ -69,70 +62,29 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Update transformations and physicproperties on GPU
 		/// </summary>
-		void updateDataOnGPU()
-		{
-			SpWorld* world = SpWorldManagerInstance->current();
-
-			sapDOP18->updatePhysicProperties(world->_rigidBodies3D);
-			sapAABB->updatePhysicProperties(world->_rigidBodies3D);
-			sapSphere->updatePhysicProperties(world->_rigidBodies3D);
-		}
+		void updateDataOnGPU();
 
 		static void handleCollisionCPU(void* collisionParamter);
 		static void handleCollisionGPU(void* collisionParamter);
 
 	public:
+
+		API_INTERFACE SpPhysicSimulator() { }
+
 		SpPhysicIntegrator* integrator;
 
-		API_INTERFACE static SpPhysicSimulator* instance();
-
-		API_INTERFACE static SpPhysicSimulator* init();
+		API_INTERFACE void init();
 
 		/// <summary>
 		/// Back the object to the state before timestep
 		/// </summary>
-		API_INTERFACE inline void backToTime(const sp_uint index)
-		{
-			SpWorld* world = SpWorldManagerInstance->current();
-
-			SpRigidBody3D* element = &world->_rigidBodies3D[index];
-
-			Vec3 translation;
-			diff(element->previousState.position(), element->currentState.position(), translation);
-
-			element->rollbackState();
-			
-			world->_transforms[index].position = element->currentState.position();
-			world->_transforms[index].orientation = element->currentState.orientation();
-		
-			world->_boundingVolumes[index].translate(translation);
-		}
+		API_INTERFACE inline void backToTime(const sp_uint index);
 
 		API_INTERFACE void run(const sp_float elapsedTime);
 
 		API_INTERFACE void groupCollisions(const SweepAndPruneResult& sapResult, SpCollisionGroups* collisionGroups);
 
-		API_INTERFACE void moveAwayDynamicObjects()
-		{
-			SpWorld* world = SpWorldManagerInstance->current();
-
-			for (sp_uint i = 0; i < world->objectsLength(); i++)
-			{
-				if (world->_rigidBodies3D[i].isStatic())
-					continue;
-
-				DOP18 bv1 = world->_boundingVolumes[i];
-
-				for (sp_uint j = i + 1u; j < world->objectsLength(); j++)
-				{
-					if (world->_rigidBodies3D[j].isStatic())
-						continue;
-
-					if (bv1.collisionStatus(world->_boundingVolumes[j]) != CollisionStatus::OUTSIDE)
-						world->translate(j, Vec3(0.0f, world->_boundingVolumes[j].height() + 0.1f, 0.0f));
-				}
-			}
-		}
+		API_INTERFACE void moveAwayDynamicObjects();
 
 		API_INTERFACE void dispose();
 

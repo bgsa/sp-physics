@@ -1,17 +1,18 @@
 #include "SpPhysicSimulator.h"
+#include "SpWorldManager.h"
 
 namespace NAMESPACE_PHYSICS
 {
-	static SpPhysicSimulator* _instance;
-	
-	SpPhysicSimulator* SpPhysicSimulator::instance()
-	{
-		return _instance;
-	}
 
-	SpPhysicSimulator::SpPhysicSimulator()
+	void SpPhysicSimulator::init()
 	{
 		gpu = GpuContext::instance()->defaultDevice();
+
+		// Share OpenCL OpenGL Buffer
+		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);
+		//error = CL10GL.clEnqueueReleaseGLObjects(queue, glMem, null, null);
+
+		// dispose: CL10.clReleaseMemObject(glMem);
 
 		SpWorld* world = SpWorldManagerInstance->current();
 
@@ -53,16 +54,52 @@ namespace NAMESPACE_PHYSICS
 		collisionResponseGPU->setParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU, world->objectsLengthAllocated(), world->_rigidBodies3DGPU,_collisionIndexesGPU, _collisionIndexesLengthGPU, outputIndexSize);
 	}
 
-	SpPhysicSimulator* SpPhysicSimulator::init()
+	void SpPhysicSimulator::backToTime(const sp_uint index)
 	{
-		_instance = sp_mem_new(SpPhysicSimulator)();
+		SpWorld* world = SpWorldManagerInstance->current();
 
-		// Share OpenCL OpenGL Buffer
-		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);
-		//error = CL10GL.clEnqueueReleaseGLObjects(queue, glMem, null, null);
+		SpRigidBody3D* element = &world->_rigidBodies3D[index];
 
-		// dispose: CL10.clReleaseMemObject(glMem);
-		return _instance;
+		Vec3 translation;
+		diff(element->previousState.position(), element->currentState.position(), translation);
+
+		element->rollbackState();
+
+		world->_transforms[index].position = element->currentState.position();
+		world->_transforms[index].orientation = element->currentState.orientation();
+
+		world->_boundingVolumes[index].translate(translation);
+	}
+
+	void SpPhysicSimulator::moveAwayDynamicObjects()
+	{
+		SpWorld* world = SpWorldManagerInstance->current();
+
+		for (sp_uint i = 0; i < world->objectsLength(); i++)
+		{
+			if (world->_rigidBodies3D[i].isStatic())
+				continue;
+
+			DOP18 bv1 = world->_boundingVolumes[i];
+
+			for (sp_uint j = i + 1u; j < world->objectsLength(); j++)
+			{
+				if (world->_rigidBodies3D[j].isStatic())
+					continue;
+
+				if (bv1.collisionStatus(world->_boundingVolumes[j]) != CollisionStatus::OUTSIDE)
+					world->translate(j, Vec3(0.0f, world->_boundingVolumes[j].height() + 0.1f, 0.0f));
+			}
+		}
+	}
+
+	void SpPhysicSimulator::updateDataOnGPU()
+	{
+		SpWorld* world = SpWorldManagerInstance->current();
+
+		sapDOP18->updatePhysicProperties(world->_rigidBodies3D);
+		sapAABB->updatePhysicProperties(world->_rigidBodies3D);
+		sapSphere->updatePhysicProperties(world->_rigidBodies3D);
 	}
 
 	void SpPhysicSimulator::handleCollisionCPU(void* threadParameter)

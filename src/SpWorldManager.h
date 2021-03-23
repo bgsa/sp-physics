@@ -19,6 +19,8 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		API_INTERFACE static void init();
+
+		API_INTERFACE static void dispose();
 		
 	};
 

@@ -82,7 +82,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE void update(const sp_uint index, sp_float elapsedTime)
 		{
-			SpPhysicSimulator::instance()->integrator->execute(physicIndex + index, elapsedTime);
+			SpWorldManagerInstance->current()->physicSimulator->integrator->execute(physicIndex + index, elapsedTime);
 		}
 
 		API_INTERFACE void dispose() 

@@ -78,6 +78,10 @@ namespace NAMESPACE_PHYSICS
 	class SpEdgeMesh;
 	class SpFaceMesh;
 
+	class SpWorld;
+	class SpWorldManager;
+	class SpPhysicSimulator;
+
 #ifdef OPENCL_ENABLED
 	class GpuDevice;
 	class GpuBufferOpenCL;
