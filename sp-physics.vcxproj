@@ -233,6 +233,7 @@
     <ClCompile Include="src\SpSceneManager.cpp" />
     <ClCompile Include="src\SpVertexMesh.cpp" />
     <ClCompile Include="src\SpEdgeMesh.cpp" />
+    <ClCompile Include="src\SpWorldManager.cpp" />
     <ClCompile Include="src\SweepAndPrune.cpp" />
     <ClCompile Include="src\SystemOfLinearEquations.cpp" />
     <ClCompile Include="src\Triangle2D.cpp" />
@@ -317,6 +318,7 @@
     <ClInclude Include="src\SpInertiaTensor.h" />
     <ClInclude Include="src\SpMeshCache.h" />
     <ClInclude Include="src\SpMeshCacheUpdaterGPU.h" />
+    <ClInclude Include="src\SpWorld.h" />
     <ClInclude Include="src\SpOptimization.h" />
     <ClInclude Include="src\SpPhysicIntegrator.h" />
     <ClInclude Include="src\SpPhysicObject.h" />
@@ -335,6 +337,7 @@
     <ClInclude Include="src\SpEdgeMesh.h" />
     <ClInclude Include="src\SpViewportData.h" />
     <ClInclude Include="src\SpWavefrontExporter.h" />
+    <ClInclude Include="src\SpWorldManager.h" />
     <ClInclude Include="src\SweepAndPrune.h" />
     <ClInclude Include="src\SystemOfLinearEquations.h" />
     <ClInclude Include="src\Triangle2D.h" />

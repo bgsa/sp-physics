@@ -25,6 +25,7 @@
 #include "GpuBufferOpenCL.h"
 #include "SpMeshCacheUpdaterGPU.h"
 #include "SpCollisionResponseShapeMatching.h"
+#include "SpWorldManager.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -32,45 +33,22 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		GpuDevice* gpu;
+		
+		cl_event lastEvent;
+		cl_mem _collisionIndexesGPU;
+		cl_mem _collisionIndexesLengthGPU;
+		cl_mem _sapCollisionIndexesGPU;
+		cl_mem _sapCollisionIndexesLengthGPU;
+	
+		// collision detection
 		SweepAndPrune* sapDOP18;
 		SweepAndPrune* sapAABB;
 		SweepAndPrune* sapSphere;
 		SpCollisionResponseGPU* collisionResponseGPU;
 
-		sp_uint _objectsLengthAllocated;
-		sp_uint _objectsLength;
-		
-		DOP18* _boundingVolumes;
-		SpRigidBody3D* _rigidBodies3D;
-		SpTransform* _transforms;
-		SpCollisionFeatures* _objectMapper;
-		SpArray<SpMesh*>* _meshes;
-		SpArray<SpMeshCache*>* _meshesCache;
-		
-		cl_event lastEvent;
-		cl_mem _transformsGPU;
-		SpGpuTextureBuffer* _transformsGPUBuffer;
-		cl_mem _boundingVolumesGPU;
-		cl_mem _rigidBodies3DGPU;
-		cl_mem _collisionIndexesGPU;
-		cl_mem _collisionIndexesLengthGPU;
-		cl_mem _sapCollisionIndexesGPU;
-		cl_mem _sapCollisionIndexesLengthGPU;
-		GpuBufferOpenCL* _inputLengthGPU;
-		GpuBufferOpenCL* _meshesGPU;
-		GpuBufferOpenCL* _meshesIndexesGPU;
-		GpuBufferOpenCL* _meshCacheGPU;
-		GpuBufferOpenCL* _meshCacheIndexesGPU;
-		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
-		GpuBufferOpenCL* _objectMapperGPU;
-		SpSphereBoundingVolumeFactory sphereFactory;
-		SpAABBFactory aabbFactory;
-		SpDOP18Factory dop18Factory;
-		SpMeshCacheUpdaterGPU _meshCacheUpdater;
-
 		Timer timerToPhysic;
 
-		SpPhysicSimulator(sp_uint objectsLength);
+		SpPhysicSimulator();
 
 		inline void dispatchEvent(SpCollisionDetails* details)
 		{
@@ -93,209 +71,41 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		void updateDataOnGPU()
 		{
-			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
-			sapDOP18->updatePhysicProperties(_rigidBodies3D);
-			sapAABB->updatePhysicProperties(_rigidBodies3D);
-			sapSphere->updatePhysicProperties(_rigidBodies3D);
-		}
+			SpWorld* world = SpWorldManagerInstance->current();
 
-		/// <summary>
-		/// Update physic properties changed by GPU filter response
-		/// </summary>
-		void updateDataOnCPU()
-		{
-			cl_event evt1 = gpu->commandManager->readBuffer(_rigidBodies3DGPU, sizeof(SpRigidBody3D) * _objectsLength, _rigidBodies3D);
-			gpu->waitEvents(ONE_UINT, &evt1);
+			sapDOP18->updatePhysicProperties(world->_rigidBodies3D);
+			sapAABB->updatePhysicProperties(world->_rigidBodies3D);
+			sapSphere->updatePhysicProperties(world->_rigidBodies3D);
 		}
 
 		static void handleCollisionCPU(void* collisionParamter);
 		static void handleCollisionGPU(void* collisionParamter);
-
-		void buildDOP18() const;
-		void buildAABB() const;
-
-		void initMeshCacheIndexes();
 
 	public:
 		SpPhysicIntegrator* integrator;
 
 		API_INTERFACE static SpPhysicSimulator* instance();
 
-		API_INTERFACE inline void updateTransformsOnGPU()
-		{
-			sp_size size = sizeof(SpTransform) * _objectsLength;
-			sp_double mult = size / 12.0;
-			mult = mult - ((int)mult);
-
-			if (mult != ZERO_DOUBLE)  // size must be mulple 12
-				if (mult > 0.5)
-					size += SIZEOF_WORD;
-				else
-					size += SIZEOF_TWO_WORDS;
-			
-			gpu->commandManager->acquireGLObjects(_transformsGPU);
-
-			_transformsGPUBuffer
-				->use()
-				->updateData(size, _transforms);
-
-			gpu->commandManager->releaseGLObjects(_transformsGPU);
-		}
-
-		API_INTERFACE static SpPhysicSimulator* init(sp_uint objectsLength);
-
-		API_INTERFACE inline sp_uint alloc(sp_uint length)
-		{
-			const sp_uint allocated = _objectsLength;
-			
-			for (sp_uint i = _objectsLength; i < _objectsLength + length; i++)
-				_objectMapper[i].meshIndex = _objectsLength;
-			
-			_objectsLength += length;
-
-			sp_assert(_objectsLength <= _objectsLengthAllocated, "InvalidArgumentException");
-
-			return allocated;
-		}
-
-		API_INTERFACE inline sp_uint objectsLength() const
-		{
-			return _objectsLength;
-		}
-
-		API_INTERFACE inline sp_uint objectsLengthAllocated() const
-		{
-			return _objectsLengthAllocated;
-		}
-
-		API_INTERFACE inline DOP18* boundingVolumes(const sp_uint index) const
-		{
-			return &_boundingVolumes[index];
-		}
-
-		API_INTERFACE inline SpRigidBody3D* rigidBody3D(const sp_uint index) const
-		{
-			return &_rigidBodies3D[index];
-		}
-
-		API_INTERFACE inline SpTransform* transforms(const sp_uint index) const
-		{
-			return &_transforms[index];
-		}
-		
-		API_INTERFACE inline SpCollisionFeatures* collisionFeatures(const sp_uint index) const
-		{
-			return &_objectMapper[index];
-		}
-		API_INTERFACE inline void collisionFeatures(const sp_uint index, const sp_uint meshIndex)
-		{
-			_objectMapper[index].meshIndex = meshIndex;
-		}
-
-		API_INTERFACE inline SpMesh* mesh(const sp_uint index) const
-		{
-			return _meshes->get(index);
-		}
-
-		API_INTERFACE inline void mesh(const sp_uint index, SpMesh* mesh)
-		{
-			_meshes->data()[index] = mesh;
-		}
-
-		API_INTERFACE inline SpMeshCache* meshCache(const sp_uint index) const
-		{
-			return _meshesCache->get(index);
-		}
-
-		API_INTERFACE inline void initMeshCache();
-		API_INTERFACE inline void updateMeshCache();
-
-		/// <summary>
-		/// Update MeshCache structure on GPU, using transformations objects
-		/// </summary>
-		/// <returns>MeshCache structure updated on GPU </returns>
-		API_INTERFACE inline void updateMeshCacheGPU();
-		
-		API_INTERFACE inline SpGpuTextureBuffer* transformsGPU() const
-		{
-			return _transformsGPUBuffer;
-		}
+		API_INTERFACE static SpPhysicSimulator* init();
 
 		/// <summary>
 		/// Back the object to the state before timestep
 		/// </summary>
 		API_INTERFACE inline void backToTime(const sp_uint index)
 		{
-			SpRigidBody3D* element = &_rigidBodies3D[index];
+			SpWorld* world = SpWorldManagerInstance->current();
+
+			SpRigidBody3D* element = &world->_rigidBodies3D[index];
 
 			Vec3 translation;
 			diff(element->previousState.position(), element->currentState.position(), translation);
 
 			element->rollbackState();
 			
-			_transforms[index].position = element->currentState.position();
-			_transforms[index].orientation = element->currentState.orientation();
+			world->_transforms[index].position = element->currentState.position();
+			world->_transforms[index].orientation = element->currentState.orientation();
 		
-			_boundingVolumes[index].translate(translation);
-		}
-
-		API_INTERFACE void translate(const sp_uint index, const Vec3& translation) 
-		{
-			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
-			sp_assert(_transforms != nullptr, "InvalidOperationException");
-			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
-
-			_boundingVolumes[index].translate(translation);
-			_transforms[index].translate(translation);
-			_rigidBodies3D[index].currentState.translate(translation);
-		}
-
-		API_INTERFACE void scale(const sp_uint index, const Vec3& scaleVector)
-		{
-			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
-			sp_assert(_transforms != nullptr, "InvalidOperationException");
-			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
-
-			_boundingVolumes[index].scale(scaleVector);
-			_transforms[index].scale(scaleVector);
-		}
-
-		API_INTERFACE void rotate(const sp_uint index, const Quat& quat)
-		{
-			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
-			sp_assert(_transforms != nullptr, "InvalidOperationException");
-			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
-
-			_transforms[index].orientation *= quat;
-			_rigidBodies3D[index].currentState.orientation(_transforms[index].orientation);
-		}
-
-		API_INTERFACE void position(const sp_uint index, const Vec3& newPosition)
-		{
-			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
-			sp_assert(_transforms != nullptr, "InvalidOperationException");
-			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
-
-			Vec3 diff = _transforms[index].position - newPosition;
-
-			_boundingVolumes[index].translate(diff);
-			_transforms[index].position = newPosition;
-			_rigidBodies3D[index].currentState.position(newPosition);
-		}
-
-		API_INTERFACE void orientation(const sp_uint index, const Quat& newOrientation)
-		{
-			sp_assert(_boundingVolumes != nullptr, "InvalidOperationException");
-			sp_assert(_transforms != nullptr, "InvalidOperationException");
-			sp_assert(index != SP_UINT_MAX, "IndexOutOfRangeException");
-			sp_assert(index < _objectsLength, "IndexOutOfRangeException");
-
-			_transforms[index].orientation = newOrientation;
-			_rigidBodies3D[index].currentState.orientation(newOrientation);
+			world->_boundingVolumes[index].translate(translation);
 		}
 
 		API_INTERFACE void run(const sp_float elapsedTime);
@@ -304,20 +114,22 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void moveAwayDynamicObjects()
 		{
-			for (sp_uint i = 0; i < _objectsLength; i++)
+			SpWorld* world = SpWorldManagerInstance->current();
+
+			for (sp_uint i = 0; i < world->objectsLength(); i++)
 			{
-				if (_rigidBodies3D[i].isStatic())
+				if (world->_rigidBodies3D[i].isStatic())
 					continue;
 
-				DOP18 bv1 = _boundingVolumes[i];
+				DOP18 bv1 = world->_boundingVolumes[i];
 
-				for (sp_uint j = i + 1u; j < _objectsLength; j++)
+				for (sp_uint j = i + 1u; j < world->objectsLength(); j++)
 				{
-					if (_rigidBodies3D[j].isStatic())
+					if (world->_rigidBodies3D[j].isStatic())
 						continue;
 
-					if (bv1.collisionStatus(_boundingVolumes[j]) != CollisionStatus::OUTSIDE)
-						translate(j, Vec3(0.0f, _boundingVolumes[j].height() + 0.1f, 0.0f));
+					if (bv1.collisionStatus(world->_boundingVolumes[j]) != CollisionStatus::OUTSIDE)
+						world->translate(j, Vec3(0.0f, world->_boundingVolumes[j].height() + 0.1f, 0.0f));
 				}
 			}
 		}

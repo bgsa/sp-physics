@@ -27,10 +27,10 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE SpPhysicObjectList(const sp_uint length)
 		{
 			listLength = length;
-			physicIndex = SpPhysicSimulator::instance()->alloc(length);
-			_boundingVolumes = SpPhysicSimulator::instance()->boundingVolumes(physicIndex);
-			_rigidBodies3D = SpPhysicSimulator::instance()->rigidBody3D(physicIndex);
-			_objectMapper = SpPhysicSimulator::instance()->collisionFeatures(physicIndex);
+			physicIndex = SpWorldManagerInstance->current()->alloc(length);
+			_boundingVolumes = SpWorldManagerInstance->current()->boundingVolumes(physicIndex);
+			_rigidBodies3D = SpWorldManagerInstance->current()->rigidBody3D(physicIndex);
+			_objectMapper = SpWorldManagerInstance->current()->collisionFeatures(physicIndex);
 		}
 
 		/// <summary>
@@ -57,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpTransform* transforms(const sp_uint index = ZERO_UINT) const
 		{
 			sp_assert(index < listLength, "IndexOutOfRangeException");
-			return SpPhysicSimulator::instance()->transforms(physicIndex + index);
+			return SpWorldManagerInstance->current()->transforms(physicIndex + index);
 		}
 
 		/// <summary>

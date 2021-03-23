@@ -3144,6 +3144,9 @@
     <ClCompile Include="src\SpCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpWorldManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AlgorithmAitken.h">
@@ -6561,6 +6564,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpViewportData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpWorldManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

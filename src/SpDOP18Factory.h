@@ -6,6 +6,7 @@
 #include "SpMesh.h"
 
 #ifdef OPENCL_ENABLED
+	#include "FileSystem.h"
 	#include "GpuCommand.h"
 #endif
 

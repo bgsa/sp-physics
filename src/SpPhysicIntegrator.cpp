@@ -6,14 +6,14 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicIntegratorVelocityVerlet::execute(const sp_uint index, const sp_float elapsedTime)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpWorld* world = SpWorldManagerInstance->current();
 
 		sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 		sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-		sp_assert(index < simulator->objectsLength(), "IndexOutOfRangeException");
+		sp_assert(index < world->objectsLength(), "IndexOutOfRangeException");
 
 		SpPhysicSettings* settings = SpPhysicSettings::instance();
-		SpRigidBody3D* element = simulator->rigidBody3D(index);
+		SpRigidBody3D* element = world->rigidBody3D(index);
 
 		if (element->isStatic())
 			return;
@@ -52,8 +52,8 @@ namespace NAMESPACE_PHYSICS
 		normalize(&newOrientation);
 
 		// update/sync transform
-		simulator->transforms(index)->position = newPosition;
-		simulator->transforms(index)->orientation = newOrientation;
+		world->transforms(index)->position = newPosition;
+		world->transforms(index)->orientation = newOrientation;
 
 		// update physic properties state
 		element->previousState._acceleration = element->currentState.acceleration();
@@ -80,14 +80,14 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicIntegratorEuler::execute(const sp_uint index, const sp_float elapsedTime)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpWorld* world = SpWorldManagerInstance->current();
 
 		sp_assert(elapsedTime > ZERO_FLOAT, "InvalidArgumentException");
 		sp_assert(index >= ZERO_UINT, "IndexOutOfRangeException");
-		sp_assert(index < simulator->objectsLength(), "IndexOutOfRangeException");
+		sp_assert(index < world->objectsLength(), "IndexOutOfRangeException");
 
 		SpPhysicSettings* settings = SpPhysicSettings::instance();
-		SpRigidBody3D* element = simulator->rigidBody3D(index);
+		SpRigidBody3D* element = world->rigidBody3D(index);
 
 		const sp_float newElapsedTime = elapsedTime * settings->physicVelocity();
 
@@ -105,8 +105,8 @@ namespace NAMESPACE_PHYSICS
 
 
 		const Vec3 translation = newPosition - element->currentState.position();
-		simulator->translate(index, translation);
-		simulator->transforms(index)->orientation = newOrientation;
+		world->translate(index, translation);
+		world->transforms(index)->orientation = newOrientation;
 
 		element->previousState._acceleration = element->currentState.acceleration();
 		element->currentState._acceleration = newAcceleration;

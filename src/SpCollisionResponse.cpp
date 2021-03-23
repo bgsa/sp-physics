@@ -85,18 +85,18 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponse::handleCollisionResponse(SpCollisionDetails* details)
 	{
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpWorld* world = SpWorldManagerInstance->current();
 
 		const sp_float physicVelocity = SpPhysicSettings::instance()->physicVelocity();
-		SpRigidBody3D* obj1Properties = simulator->rigidBody3D(details->objIndex1);
-		SpRigidBody3D* obj2Properties = simulator->rigidBody3D(details->objIndex2);
+		SpRigidBody3D* obj1Properties = world->rigidBody3D(details->objIndex1);
+		SpRigidBody3D* obj2Properties = world->rigidBody3D(details->objIndex2);
 
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
 		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
 		const Vec3 collisionNormal = details->collisionNormal;
 
-		const Vec3 centerObj1 = simulator->transforms(details->objIndex1)->position;
-		const Vec3 centerObj2 = simulator->transforms(details->objIndex2)->position;
+		const Vec3 centerObj1 = world->transforms(details->objIndex1)->position;
+		const Vec3 centerObj2 = world->transforms(details->objIndex2)->position;
 
 		Plane contactFace(details->centerContactPoint, collisionNormal);
 

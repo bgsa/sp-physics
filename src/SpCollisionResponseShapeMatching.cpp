@@ -5,9 +5,9 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::initShape(const sp_uint objIndex, SpRigidBodyShapeMatch* shape)
 	{
-		const sp_uint meshIndex = SpPhysicSimulator::instance()->collisionFeatures(objIndex)->meshIndex;
-		SpMesh* mesh = SpPhysicSimulator::instance()->mesh(meshIndex);
-		SpTransform* transformation = SpPhysicSimulator::instance()->transforms(objIndex);
+		const sp_uint meshIndex = SpWorldManagerInstance->current()->collisionFeatures(objIndex)->meshIndex;
+		SpMesh* mesh = SpWorldManagerInstance->current()->mesh(meshIndex);
+		SpTransform* transformation = SpWorldManagerInstance->current()->transforms(objIndex);
 		
 		shape->objectIndex = objIndex;
 		shape->initialPosition = transformation->position;
@@ -31,7 +31,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 centerOfMassAfterCollision;
 		shape->centerOfMass(centerOfMassAfterCollision);
 	
-		const sp_float mass = ONE_FLOAT / SpPhysicSimulator::instance()->rigidBody3D(shape->objectIndex)->massInverse();
+		const sp_float mass = ONE_FLOAT / SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex)->massInverse();
 
 		Mat3 matrixApq;
 		std::memcpy(&matrixApq , &Mat3Zeros, sizeof(Mat3));
@@ -74,7 +74,7 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape)
 	{
-		SpRigidBody3D* rigidBody = SpPhysicSimulator::instance()->rigidBody3D(shape->objectIndex);
+		SpRigidBody3D* rigidBody = SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex);
 		const Vec3* particles = shape->particles;
 
 		// find new center of mass...
@@ -115,7 +115,7 @@ namespace NAMESPACE_PHYSICS
 		Quat newOrientation;
 		rotationMatrix.convert(newOrientation);
 
-		SpTransform* transformation = SpPhysicSimulator::instance()->transforms(shape->objectIndex);
+		SpTransform* transformation = SpWorldManagerInstance->current()->transforms(shape->objectIndex);
 		transformation->orientation *= newOrientation;
 		rigidBody->currentState.orientation(transformation->orientation);
 
@@ -125,8 +125,8 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool SpCollisionResponseShapeMatching::hasPlaneCollision(SpRigidBodyShapeMatch* shape, SpCollisionDetails* collisionManifold, sp_uint& pointsLength, SpVertexMesh** points)
 	{
-		SpPhysicSimulator::instance()
-			->mesh(SpPhysicSimulator::instance()->collisionFeatures(shape->objectIndex)->meshIndex)
+		SpWorldManagerInstance->current()
+			->mesh(SpWorldManagerInstance->current()->collisionFeatures(shape->objectIndex)->meshIndex)
 			->supportAll(Vec3Down, shape->particles, pointsLength, points);
 
 		const sp_float pointY = shape->particles[points[0]->index()].y;
@@ -150,9 +150,9 @@ namespace NAMESPACE_PHYSICS
 			return hasPlaneCollision(shape1, collisionManifold, mesh1PointsLength, mesh1Points);
 
 
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		const SpMesh* mesh1 = simulator->mesh(simulator->collisionFeatures(shape1->objectIndex)->meshIndex);
-		const SpMesh* mesh2 = simulator->mesh(simulator->collisionFeatures(shape2->objectIndex)->meshIndex);
+		SpWorld* world = SpWorldManagerInstance->current();
+		const SpMesh* mesh1 = world->mesh(world->collisionFeatures(shape1->objectIndex)->meshIndex);
+		const SpMesh* mesh2 = world->mesh(world->collisionFeatures(shape2->objectIndex)->meshIndex);
 
 		Vec3 tetrahedron[4];
 		if (!gjk(mesh1, shape1->particles, mesh2, shape2->particles, tetrahedron))
@@ -251,7 +251,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float depth = fabsf(collisionManifold.depth);
 		Vec3 normalToObj1;
 
-		if (SpPhysicSimulator::instance()->rigidBody3D(shape1->objectIndex)->isDynamic())
+		if (SpWorldManagerInstance->current()->rigidBody3D(shape1->objectIndex)->isDynamic())
 		{
 			Vec3 directionObj1;
 			shape1->centerOfMass(directionObj1);
@@ -280,7 +280,7 @@ namespace NAMESPACE_PHYSICS
 				normalToObj1 = collisionManifold.collisionNormal;
 		}
 
-		if (SpPhysicSimulator::instance()->rigidBody3D(shape2->objectIndex)->isDynamic())
+		if (SpWorldManagerInstance->current()->rigidBody3D(shape2->objectIndex)->isDynamic())
 		{
 			updateParticlesShape(shape2, -normalToObj1, depth, mesh2PointsLength, mesh2Points);
 			shapeMatch(shape2);
