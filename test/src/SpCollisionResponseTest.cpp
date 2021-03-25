@@ -11,9 +11,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	private:
 
 		void createMeshes()
-		{
-			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-			
+		{	
 			const sp_uint vertexesLength = 8u;
 			Vec3 vertexes[vertexesLength] = {
 				Vec3(-1.0f, -1.0f, -1.0f), Vec3(-1.0f, -1.0f, 1.0f),
@@ -46,19 +44,19 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 				mesh->init();
 
-				SpPhysicSimulator::instance()->mesh(i, mesh);
+				SpWorldManagerInstance->current()->mesh(i, mesh);
 			}
 		}
 
 		void resetObject(const sp_uint index)
 		{
-			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+			SpWorld* world = SpWorldManagerInstance->current();
 
-			simulator->transforms(index)->reset();
+			world->transforms(index)->reset();
 		
-			simulator->rigidBody3D(index)->currentState.reset();
-			simulator->rigidBody3D(index)->previousState.reset();
-			simulator->rigidBody3D(index)->mass(8.0f);
+			world->rigidBody3D(index)->currentState.reset();
+			world->rigidBody3D(index)->previousState.reset();
+			world->rigidBody3D(index)->mass(8.0f);
 		}
 
 		SpCollisionDetails newCollisionDetails()
@@ -83,19 +81,19 @@ namespace NAMESPACE_PHYSICS_TEST
 		resetObject(0u);
 		resetObject(1u);
 
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpWorld* world = SpWorldManagerInstance->current();
 		SpCollisionResponse response;
 		SpCollisionDetector detector;
 		SpCollisionDetails details = newCollisionDetails();
 
-		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
+		SpRigidBody3D* propertiesObj1 = world->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = world->rigidBody3D(1u);
 
 		details = newCollisionDetails();
 
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 
-		simulator->transforms(1u)->position = Vec3(5.0f, 0.0f, 0.0f);
+		world->transforms(1u)->position = Vec3(5.0f, 0.0f, 0.0f);
 		propertiesObj2->currentState.position(Vec3(5.0f, 0.0f, 0.0f));
 		propertiesObj2->previousState.position(Vec3(5.0f, 0.0f, 0.0f));
 		propertiesObj2->currentState.velocity(Vec3(-20.0f, 0.0f, 0.0f));

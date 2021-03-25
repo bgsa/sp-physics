@@ -99,18 +99,18 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			mesh->init();
 
-			SpPhysicSimulator::instance()->mesh(index, mesh);
+			SpWorldManagerInstance->current()->mesh(index, mesh);
 		}
 
 		void resetObject(const sp_uint index)
 		{
-			SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+			SpWorld* world = SpWorldManagerInstance->current();
 
-			simulator->transforms(index)->reset();
+			world->transforms(index)->reset();
 
-			simulator->rigidBody3D(index)->currentState.reset();
-			simulator->rigidBody3D(index)->previousState.reset();
-			simulator->rigidBody3D(index)->mass(8.0f);
+			world->rigidBody3D(index)->currentState.reset();
+			world->rigidBody3D(index)->previousState.reset();
+			world->rigidBody3D(index)->mass(8.0f);
 		}
 
 	public:
@@ -121,20 +121,20 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		TestPhysic::lock();
 
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
+		SpWorld* world = SpWorldManagerInstance->current();
 
 		createMeshes2(0u);
 		resetObject(0u);
 
-		SpTransform* transform = simulator->transforms(0u);
+		SpTransform* transform = world->transforms(0u);
 		transform->scaleVector *= 2.0f;
 		transform->position = Vec3(2.0f, 0.0f, 0.0f);
 
-		SpMesh* mesh = simulator->mesh(0u);
+		SpMesh* mesh = world->mesh(0u);
 		SpMeshCache* cache = ALLOC_NEW(SpMeshCache)(mesh->vertexesMesh->length());
 		cache->update(mesh, transform);
 
-		DOP18* result = simulator->boundingVolumes(0u);
+		DOP18* result = world->boundingVolumes(0u);
 
 		SpDOP18Factory::build(mesh, cache, transform->position, result);
 		

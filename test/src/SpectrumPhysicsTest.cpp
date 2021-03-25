@@ -32,14 +32,15 @@ namespace NAMESPACE_PHYSICS_TEST
 		NAMESPACE_RENDERING::SpOpenGL::initOffScreenRendering();
 		NAMESPACE_RENDERING::SpGpuRenderingFactoryOpenGL::init();
 		GpuContext::init();
-		SpPhysicSimulator::init(1024u);
-		SpPhysicSimulator::instance()->alloc(1024u);
+
+		SpWorldManagerInstance->init();
 	}
 
 	TEST_MODULE_CLEANUP(ModuleCleanup)
 	{
-		NAMESPACE_FOUNDATION::SpStackMemoryAllocator::main()->dispose();
+		SpWorldManagerInstance->dispose();
 		NAMESPACE_RENDERING::SpOpenGL::dispose();
+		NAMESPACE_FOUNDATION::SpStackMemoryAllocator::main()->dispose();
 		SpLogger::dispose();
 	}
 
@@ -54,8 +55,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, clamp_Test)
 	{
-		float result = clamp(1.0f, 0.0f, 2.0f);
-		float expected = 1.0f;			
+		sp_float result = clamp(1.0f, 0.0f, 2.0f);
+		sp_float expected = 1.0f;
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 
 		result = clamp(-1.0f, 0.0f, 2.0f);
@@ -81,7 +82,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, sign_Test)
 	{
-		int result = sign(0.1f);
+		sp_int result = sign(0.1f);
 		Assert::AreEqual(1, result, L"Wrong value.", LINE_INFO());
 
 		result = sign(-0.1f);

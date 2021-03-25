@@ -23,14 +23,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpCollisionResponseGPU response;
 		response.init(gpu, nullptr);
 	
-		SpPhysicSimulator* simulator = SpPhysicSimulator::instance();
-		
-		SpRigidBody3D* propertiesObj1 = simulator->rigidBody3D(0u);
-		SpRigidBody3D* propertiesObj2 = simulator->rigidBody3D(1u);
+		SpWorld* world = SpWorldManagerInstance->current();
+
+		SpRigidBody3D* propertiesObj1 = world->rigidBody3D(0u);
+		SpRigidBody3D* propertiesObj2 = world->rigidBody3D(1u);
 
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 
-		simulator->transforms(1u)->position = Vec3(5.0f, 0.0f, 0.0f);
+		world->transforms(1u)->position = Vec3(5.0f, 0.0f, 0.0f);
 		propertiesObj2->mass(8.0f); // static object
 		propertiesObj2->currentState.position(Vec3(35.000000f, -0.454432f, 15.000000f));
 		propertiesObj2->previousState.position(Vec3(35.000000f, 0.197773f, 15.000000f));

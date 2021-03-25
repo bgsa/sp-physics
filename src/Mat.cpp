@@ -3,6 +3,24 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	void multiply(const Mat& a, const Mat& b, Mat& output)
+	{
+		sp_assert(output.length() == a.rows() * b.columns(), "InvalidArgumentException");
+		sp_assert(a.rows() == b.columns() && b.rows() == a.columns(), "InvalidOperationException");
+
+		std::memset(output, 0, sizeof(sp_float) * output.length());
+
+		for (register sp_uint row = 0u; row < a.rows(); row++)
+			for (register sp_uint column = 0u; column < b.columns(); column++)
+			{
+				const sp_uint outputIndex = row * a.rows() + column;
+				const sp_uint rowIndex = row * a.columns();
+
+				for (register sp_uint k = 0u; k < a.columns(); k++)
+					output[outputIndex] += a[rowIndex + k] * b[k * b.columns() + column];
+			}
+	}
+
 	void Mat::hessenberg(sp_float* matrix, const sp_uint columnLength, sp_float* output)
 	{
 		Eigen::MatrixXf m = Eigen::Map<Eigen::MatrixXf>(matrix, columnLength, columnLength);
