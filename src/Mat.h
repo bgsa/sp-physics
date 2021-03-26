@@ -95,6 +95,117 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Check if the matrix is square
+		/// </summary>
+		/// <returns>True if the matrix is square orelse False</returns>
+		API_INTERFACE inline sp_bool isSquare() const
+		{
+			return _rows == _columns;
+		}
+
+		/// <summary>
+		/// Get the primary diagonal of the matrix
+		/// </summary>
+		/// <returns>output parameter</returns>
+		API_INTERFACE inline void primaryDiagonal(sp_float* output) const
+		{
+			const sp_uint m = std::min(_rows, _columns);
+
+			for (sp_uint i = 0; i < m; i++)
+				output[i] = get(i, i);
+		}
+
+		/// <summary>
+		/// Get the maximum element off diagonal of Symmetric matrix
+		/// </summary>
+		/// <param name="rowIndex">Row Index of the maximum element</param>
+		/// <param name="columnIndex">Column Index of the maximum element</param>
+		/// <param name="value">Maximum element value</param>
+		/// <returns>output parameters</returns>
+		API_INTERFACE inline void maxOffDiagonalSymmetric(sp_uint& rowIndex, sp_uint& columnIndex, sp_float& value) const
+		{
+			sp_assert(isSquare(), "InvalidOperationException");
+			sp_assert(isSymmetric(), "InvalidOperationException");
+
+			value = SP_FLOAT_MIN;
+
+			for (register sp_uint row = ONE_UINT; row < _rows; row++)
+			{
+				const register sp_uint r = row * _rows;
+
+				for (register sp_uint column = row; column < _columns; column++)
+					if (_values[r + column] > value)
+					{
+						value = _values[r + column];
+						rowIndex = row;
+						columnIndex = column;
+					}
+			}
+		}
+
+		/// <summary>
+		/// Get the maximum element off diagonal
+		/// </summary>
+		/// <param name="rowIndex">Row Index of the maximum element</param>
+		/// <param name="columnIndex">Column Index of the maximum element</param>
+		/// <param name="value">Maximum element value</param>
+		/// <returns>output parameters</returns>
+		API_INTERFACE inline void maxOffDiagonal(sp_uint& rowIndex, sp_uint& columnIndex, sp_float& value) const
+		{
+			sp_assert(isSquare(), "InvalidOperationException");
+
+			value = SP_FLOAT_MIN;
+
+			for (register sp_uint row = ZERO_UINT; row < _rows; row++)
+			{
+				const register sp_uint r = row * _rows;
+
+				for (register sp_uint column = ZERO_UINT; column < _columns; column++)
+				{
+					if (row == column) // ignore principal diagonal
+						continue;
+
+					if (_values[r + column] > value)
+					{
+						value = _values[r + column];
+						rowIndex = row;
+						columnIndex = column;
+					}
+				}
+			}
+		}
+
+		/// <summary>
+		/// Check if the matrix is symmetric
+		/// </summary>
+		/// <returns>True if the matrix is symmetric orelse False</returns>
+		API_INTERFACE sp_bool isSymmetric() const
+		{
+			if (!isSquare())
+				return false;
+
+			for (register sp_uint row = 0u; row < _rows; row++)
+			{
+				const register sp_uint rowIndex = row * _rows;
+
+				for (register sp_uint column = row; column < _columns; column++)
+					if (_values[column * _rows + row] != _values[rowIndex + column])
+						return false;
+			}
+
+			return true;
+		}
+
+		/// <summary>
+		/// Decompose this matrix in single values (SVD)
+		/// </summary>
+		/// <param name="s">S Matrix</param>
+		/// <param name="v">V Matrix</param>
+		/// <param name="d">D Matrix</param>
+		/// <returns></returns>
+		API_INTERFACE void svd(Mat& s, Mat& v, Mat& d) const;
+
+		/// <summary>
 		/// Auto convertion to float*
 		/// </summary>
 		API_INTERFACE operator sp_float*() const
@@ -170,22 +281,6 @@ namespace NAMESPACE_PHYSICS
 					if (!NAMESPACE_FOUNDATION::isCloseEnough(matrix[row * columnLength + column], ZERO_FLOAT, _epsilon))
 						return false;
 
-			return true;
-		}
-
-		/// <summary>
-		/// Check the square matrix is symetric
-		/// </summary>
-		/// <param name="matrix">Matrix</param>
-		/// <param name="columnLength">Dimension</param>
-		/// <returns>True if the matrix is symetric orelse False</returns>
-		static inline sp_bool isSymetric(sp_float* matrix, const sp_uint columnLength)
-		{
-			for (sp_uint row = ZERO_UINT; row < columnLength; row++)
-				for (sp_uint column = row + ONE_UINT; column < columnLength; column++)
-					if (NAMESPACE_FOUNDATION::isCloseEnough(matrix[row * columnLength + column], matrix[column * columnLength + row], ZERO_FLOAT))
-						return false;
-			
 			return true;
 		}
 
@@ -275,6 +370,22 @@ namespace NAMESPACE_PHYSICS
 		for (register sp_uint i = 0u; i < a.length(); i++)
 			if (!NAMESPACE_FOUNDATION::isCloseEnough(a[i], b[i], _epsilon))
 				return false;
+
+		return true;
+	}
+
+	/// <summary>
+	/// Check the square matrix is symmetric
+	/// </summary>
+	/// <param name="matrix">Matrix</param>
+	/// <param name="columnLength">Dimension</param>
+	/// <returns>True if the matrix is symmetric orelse False</returns>
+	API_INTERFACE inline sp_bool isSymmetric(sp_float* matrix, const sp_uint columnLength)
+	{
+		for (sp_uint row = ZERO_UINT; row < columnLength; row++)
+			for (sp_uint column = row + ONE_UINT; column < columnLength; column++)
+				if (NAMESPACE_FOUNDATION::isCloseEnough(matrix[row * columnLength + column], matrix[column * columnLength + row], ZERO_FLOAT))
+					return false;
 
 		return true;
 	}

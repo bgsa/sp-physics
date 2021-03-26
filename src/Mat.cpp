@@ -3,6 +3,11 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	void Mat::svd(Mat& s, Mat& v, Mat& d) const
+	{
+
+	}
+
 	void multiply(const Mat& a, const Mat& b, Mat& output)
 	{
 		sp_assert(output.length() == a.rows() * b.columns(), "InvalidArgumentException");
@@ -132,7 +137,7 @@ namespace NAMESPACE_PHYSICS
 
 	void Mat::householder(sp_float* matrix, const register sp_uint columnLength, sp_float* output)
 	{
-		sp_assert(isSymetric(matrix, columnLength), "InvalidArgumentException");
+		sp_assert(NAMESPACE_PHYSICS::isSymmetric(matrix, columnLength), "InvalidArgumentException");
 
 #define n columnLength
 		sp_float* v = ALLOC_ARRAY(sp_float, n);
