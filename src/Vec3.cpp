@@ -104,7 +104,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Vec3::angle(const Vec3& vectorB) const
 	{
-		return dot(vectorB) / (length(*this) * length(vectorB));
+		return dot(vectorB) / (length() * vectorB.length());
 	}
 
 	sp_float Vec3::signedDistance(const Vec3& point) const

@@ -57,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 			output[row] 
 				= NAMESPACE_FOUNDATION::isCloseEnough(upperMatrix[row * columnLength + row], ZERO_FLOAT)
 				? ZERO_FLOAT
-				: div((upperMatrix[row * columnLength + columnLength - ONE_UINT] - output[row])
+				: NAMESPACE_FOUNDATION::div((upperMatrix[row * columnLength + columnLength - ONE_UINT] - output[row])
 					, upperMatrix[row * columnLength + row]);
 		}
 			

@@ -343,6 +343,7 @@
     <ClInclude Include="src\SystemOfLinearEquations.h" />
     <ClInclude Include="src\Triangle2D.h" />
     <ClInclude Include="src\Triangle3D.h" />
+    <ClInclude Include="src\Vec.h" />
     <ClInclude Include="src\Vec2.h" />
     <ClInclude Include="src\Vec2List.h" />
     <ClInclude Include="src\Vec3.h" />

@@ -18,6 +18,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(svd);
 		SP_TEST_METHOD_DEF(householder);
 		SP_TEST_METHOD_DEF(hessenberg);
+		SP_TEST_METHOD_DEF(schur);
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, primaryDiagonal)
@@ -121,16 +122,86 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, svd)
 	{
-		sp_float a[10] = {
-			8.0f, 5.0f, 1.0f, 8.0f, 8.0f,
-			9.0f, 1.0f, 2.0f, 2.0f, 2.0f
+		sp_float a[15] = {
+			1.0f, 0.0f, 1.0f, 
+			0.0f, 1.0f, 0.0f, 
+			0.0f, 1.0f, 1.0f, 
+			0.0f, 1.0f, 0.0f, 
+			1.0f, 1.0f, 0.0f
 		};
-		Mat A(2, 5, a);
+		Mat A(5, 3, a);
 
-		Mat s(1,1), v(1,1), d(1,1);
-		A.svd(s, v, d);
+		Mat u(5, 5), s(5, 3), v(3, 3);
 
-		//Assert::IsTrue(isCloseEnough(result, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+		sp_uint iterations;
+		A.svd(u, s, v, iterations, SP_UINT_MAX, SP_EPSILON_TWO_DIGITS);
+
+		sp_float uE[25] = {
+		   -0.3651f,  0.8165f,  0.0000f,  0.1184f, -0.4313f,
+		   -0.3651f, -0.4082f,  0.0000f, -0.5635f, -0.6185f,
+		   -0.5477f, -0.0000f,  0.7071f, -0.1184f,  0.4313f,
+		   -0.3651f, -0.4082f,  0.0000f,  0.8003f, -0.2441f,
+		   -0.5477f,  0.0000f, -0.7071f, -0.1184f,  0.4313f
+		};
+		Mat uExpected(5, 5, uE);
+
+		sp_float sE[25] = {
+		   2.23610f, 0.0f,    0.0f, 0.0f, 0.0f,
+		   0.0f,     1.4142f, 0.0f, 0.0f, 0.0f,
+		   0.0f,     0.0f,    1.0f, 0.0f, 0.0f,
+		   0.0f,     0.0f,    0.0f, 0.0f, 0.0f,
+		   0.0f,     0.0f,    0.0f, 0.0f, 0.0f
+		};
+		Mat sExpected(5, 5, sE);
+
+		sp_float vE[9] = {
+		   -0.4082f,  0.5774f, -0.7071f,
+		   -0.8165f, -0.5774f,  0.0f,
+		   -0.4082f,  0.5774f,  0.7071f
+		};
+		Mat vExpected(3, 3, vE);
+
+		Assert::IsTrue(isCloseEnough(u, uExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(s, sExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(v, vExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+
+		Mat expected(5, 3, a);
+		multiply(u, s, v, expected);
+		Assert::IsTrue(isCloseEnough(A, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, schur)
+	{
+		sp_float m1[9] = {
+			1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 1.0f
+		};
+		Mat M1(3, 3, m1);
+		sp_float expected[9] = {
+			0.5773f, -0.8163f, 0.0f,
+			0.5773f, 0.4082f, -0.7071f,
+			0.5773f, 0.4082f, 0.7071f
+		};
+
+		Mat result(3, 3);
+		M1.schur(result);
+
+		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i], SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
+
+
+		sp_float a[15] = {
+			1.0f, 0.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 0.0f
+		};
+		Mat A(5, 3, a);
+		Mat R(5, 3);
+		A.schur(R);
+
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, hessenberg)
@@ -254,6 +325,32 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat result(2, 2);
 		multiply(A, B, result);
+
+		Assert::IsTrue(isCloseEnough(result, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+
+
+
+
+		sp_float c[15] = {
+			1.0f, 0.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 1.0f,
+			0.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 0.0f
+		};
+		Mat C(5, 3, c);
+
+		sp_float d[9] = {
+			0.4082f, 0.8164f, 0.4082f,
+			0.5773f, -0.5773f, 0.5773f,
+			-0.7071f, 0.0f, 0.7071f
+		};
+		Mat D(3, 3, d);
+		Mat DT(3, 3, d);
+		D.transpose(DT);
+
+		result = Mat(5, 3);
+		multiply(C, DT, result);
 
 		Assert::IsTrue(isCloseEnough(result, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 	}

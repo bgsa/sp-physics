@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="startingFromColumnIndex">Starting from this index</param>
 		API_INTERFACE inline void divideRow(sp_float* matrix, const sp_uint colLength, const sp_uint lineIndex, const sp_float value, const sp_uint startingFromColumnIndex = ZERO_UINT)
 		{
-			const sp_float newValue = div(ONE_FLOAT, value);
+			const sp_float newValue = NAMESPACE_FOUNDATION::div(ONE_FLOAT, value);
 
 			for (register sp_uint column = startingFromColumnIndex; column < colLength; column++)
 				matrix[lineIndex * colLength + column] *= newValue;

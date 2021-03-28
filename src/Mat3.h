@@ -657,6 +657,15 @@ namespace NAMESPACE_PHYSICS
 			m32 = -m32;
 			m33 = -m33;
 		}
+
+		/// <summary>
+		/// Get the Schur decomposition.
+		/// It os also known as Gram-Schmidt
+		/// </summary>
+		/// <param name="output">OrthoNormal Matrix</param>
+		/// <returns>output parameter</returns>
+		API_INTERFACE void schur(Mat3& output) const;
+
 	};
 
 	const Mat3 Mat3Zeros = {

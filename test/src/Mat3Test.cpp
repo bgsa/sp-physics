@@ -54,7 +54,28 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(decomposeLDU);
 		SP_TEST_METHOD_DEF(decomposeLLt);
 		SP_TEST_METHOD_DEF(convert);
+		SP_TEST_METHOD_DEF(schur);
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, schur)
+	{
+		Mat3 matrix(
+			1.0f, 0.0f, 0.0f,
+			1.0f, 1.0f, 0.0f,
+			1.0f, 1.0f, 1.0f
+		);
+		Mat3 expected(
+			0.5773f, -0.8163f, 0.0f,
+			0.5773f, 0.4082f, -0.7071f,
+			0.5773f, 0.4082f, 0.7071f
+		);
+
+		Mat3 result;
+		matrix.schur(result);
+
+		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i], SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, adjoint)
 	{

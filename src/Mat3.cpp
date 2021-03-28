@@ -429,8 +429,8 @@ namespace NAMESPACE_PHYSICS
 		lower.m21 = m21;
 		lower.m31 = m31;
 
-		upper.m12 = div(m12, upper.m11);
-		upper.m13 = div(m13, upper.m11);
+		upper.m12 = NAMESPACE_FOUNDATION::div(m12, upper.m11);
+		upper.m13 = NAMESPACE_FOUNDATION::div(m13, upper.m11);
 		upper.m11 = ONE_FLOAT;
 
 		upper.m22 = -upper.m21 * upper.m12 + upper.m22;
@@ -442,7 +442,7 @@ namespace NAMESPACE_PHYSICS
 		upper.m31 = ZERO_FLOAT;
 
 		lower.m22 = upper.m22;
-		upper.m23 = div(upper.m23, upper.m22);
+		upper.m23 = NAMESPACE_FOUNDATION::div(upper.m23, upper.m22);
 		upper.m22 = ONE_FLOAT;
 
 		lower.m32 = upper.m32;
@@ -467,10 +467,10 @@ namespace NAMESPACE_PHYSICS
 		diagonal.m22 = lower.m22;
 		diagonal.m33 = lower.m33;
 
-		lower.m21 = div(lower.m21, lower.m11);
-		lower.m31 = div(lower.m31, lower.m11);
+		lower.m21 = NAMESPACE_FOUNDATION::div(lower.m21, lower.m11);
+		lower.m31 = NAMESPACE_FOUNDATION::div(lower.m31, lower.m11);
 
-		lower.m32 = div(lower.m32, lower.m22);
+		lower.m32 = NAMESPACE_FOUNDATION::div(lower.m32, lower.m22);
 
 		lower.m11 = lower.m22 = lower.m33 = ONE_FLOAT;
 
@@ -482,8 +482,8 @@ namespace NAMESPACE_PHYSICS
 		std::memcpy(&lower, Mat3Zeros, sizeof(Mat3));
 	
 		lower.m11 = sqrtf(m11);
-		lower.m21 = div(m21, lower.m11);
-		lower.m31 = div(m31, lower.m11);
+		lower.m21 = NAMESPACE_FOUNDATION::div(m21, lower.m11);
+		lower.m31 = NAMESPACE_FOUNDATION::div(m31, lower.m11);
 
 		lower.m22 = sqrtf(m22 - lower.m21 * lower.m21);
 
@@ -1029,7 +1029,7 @@ namespace NAMESPACE_PHYSICS
 	void Mat3::convert(Quat& output) const
 	{
 		output.w = sqrtf(ONE_FLOAT + m11 + m22 + m33) * HALF_FLOAT;
-		const sp_float w4 = div(ONE_FLOAT, (4.0f * output.w));
+		const sp_float w4 = NAMESPACE_FOUNDATION::div(ONE_FLOAT, (4.0f * output.w));
 		
 		output.x = (m32 - m23) * w4;
 		output.y = (m13 - m31) * w4;
@@ -1060,6 +1060,40 @@ namespace NAMESPACE_PHYSICS
 		multiply(eigenVectors, diagonal, eigenVectorsInverse, output);
 
 		return true;
+	}
+
+	void Mat3::schur(Mat3& output) const
+	{
+		const Vec3 u1(m11, m21, m31);
+		const Vec3 u2(m12, m22, m32);
+		const Vec3 u3(m13, m23, m33);
+
+		Vec3 v1(m11, m21, m31);
+
+		Vec3 vLengths = Vec3Zeros;
+		vLengths.x = v1.length();
+
+		Vec3 v2 = u2 - (v1 * u2.dot(v1)) / (vLengths.x * vLengths.x);
+		vLengths.y = v2.length();
+
+		Vec3 v3 = u3 - (v1 * u3.dot(v1)) / (vLengths.x * vLengths.x) - (v2 * u3.dot(v2)) / (vLengths.y * vLengths.y);
+		vLengths.z = v3.length();
+
+		vLengths.x = NAMESPACE_FOUNDATION::div(ONE_FLOAT, vLengths.x);
+		vLengths.y = NAMESPACE_FOUNDATION::div(ONE_FLOAT, vLengths.y);
+		vLengths.z = NAMESPACE_FOUNDATION::div(ONE_FLOAT, vLengths.z);
+
+		output.m11 = v1.x * vLengths.x;
+		output.m21 = v1.y * vLengths.x;
+		output.m31 = v1.z * vLengths.x;
+
+		output.m12 = v2.x * vLengths.y;
+		output.m22 = v2.y * vLengths.y;
+		output.m32 = v2.z * vLengths.y;
+
+		output.m13 = v3.x * vLengths.z;
+		output.m23 = v3.y * vLengths.z;
+		output.m33 = v3.z * vLengths.z;
 	}
 
 }

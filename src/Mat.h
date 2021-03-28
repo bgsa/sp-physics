@@ -23,9 +23,12 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>void</returns>
 		API_INTERFACE inline Mat(const sp_uint rows, const sp_uint columns)
 		{
+			sp_assert(rows != ZERO_UINT, "InvalidArgumentException");
+			sp_assert(columns != ZERO_UINT, "InvalidArgumentException");
+
 			_rows = rows;
 			_columns = columns;
-			_values = sp_mem_new(sp_float)[rows * columns];
+			_values = sp_mem_new_array(sp_float, rows * columns);
 		}
 
 		/// <summary>
@@ -37,11 +40,32 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>void</returns>
 		API_INTERFACE inline Mat(const sp_uint rows, const sp_uint columns, sp_float* values)
 		{
+			sp_assert(rows != ZERO_UINT, "InvalidArgumentException");
+			sp_assert(columns != ZERO_UINT, "InvalidArgumentException");
+
 			_rows = rows;
 			_columns = columns;
 			_values = sp_mem_new_array(sp_float, rows * columns);
 
 			std::memcpy(_values, values, sizeof(sp_float) * rows * columns);
+		}
+
+		/// <summary>
+		/// Constructor for generic matrix
+		/// </summary>
+		/// <param name="source">Matrix to be cloned</param>
+		/// <param name="columns">Column Length</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline Mat(const Mat* source)
+		{
+			sp_assert(source != nullptr, "InvalidArgumentException");
+
+			_rows = source->_rows;
+			_columns = source->_columns;
+
+			_values = sp_mem_new_array(sp_float, _rows * _columns);
+
+			std::memcpy(_values, source->_values, sizeof(sp_float) * _rows * _columns);
 		}
 
 		/// <summary>
@@ -95,6 +119,20 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Set this matrix to identity
+		/// </summary>
+		/// <returns>void</returns>
+		API_INTERFACE inline void setIdentity()
+		{
+			std::memset(_values, 0, sizeof(sp_float) * length());
+
+			const sp_uint minOrder = std::min(_rows, _columns);
+
+			for (sp_uint i = 0; i < minOrder; i++)
+				set(i, i, ONE_FLOAT);
+		}
+
+		/// <summary>
 		/// Check if the matrix is square
 		/// </summary>
 		/// <returns>True if the matrix is square orelse False</returns>
@@ -114,6 +152,13 @@ namespace NAMESPACE_PHYSICS
 			for (sp_uint i = 0; i < m; i++)
 				output[i] = get(i, i);
 		}
+
+		/// <summary>
+		/// Transpose A matrix
+		/// </summary>
+		/// <param name="output">Output Matrix</param>
+		/// <return>output parameter</return>
+		API_INTERFACE inline void transpose(Mat& output) const;
 
 		/// <summary>
 		/// Get the maximum element off diagonal of Symmetric matrix
@@ -197,13 +242,75 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Decompose this matrix in single values (SVD)
+		/// Swap/exchange two lines in the matrix
 		/// </summary>
-		/// <param name="s">S Matrix</param>
-		/// <param name="v">V Matrix</param>
-		/// <param name="d">D Matrix</param>
-		/// <returns></returns>
-		API_INTERFACE void svd(Mat& s, Mat& v, Mat& d) const;
+		/// <param name="line1Index">Line 1 Index</param>
+		/// <param name="line2Index">Line 2 Index</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void swapLines(const sp_uint line1Index, const sp_uint line2Index) const
+		{
+			const sp_size rowSize = sizeof(sp_float) * _columns;
+
+			sp_float* tempStorage = ALLOC_NEW_ARRAY(sp_float, _columns);
+
+			std::memcpy(tempStorage, &_values[line1Index * _columns], rowSize);
+			std::memcpy(&_values[line1Index * _columns], &_values[line2Index * _columns], rowSize);
+			std::memcpy(&_values[line2Index * _columns], tempStorage, rowSize);
+
+			ALLOC_RELEASE(tempStorage);
+		}
+
+		/// <summary>
+		/// Swap/exchange two columns in the matrix
+		/// </summary>
+		/// <param name="column1Index">Column 1 Index</param>
+		/// <param name="column2Index">Column 2 Index</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void swapColumns(const sp_uint column1Index, const sp_uint column2Index) const
+		{
+			for (sp_uint row = 0u; row < _rows; row++)
+			{
+				const sp_uint rowIndex = row * _columns;
+
+				const sp_float temp = _values[rowIndex + column1Index];
+				_values[rowIndex + column1Index] = _values[rowIndex + column2Index];
+				_values[rowIndex + column2Index] = temp;
+			}
+		}
+
+		/// <summary>
+		/// Get the eigen values and vectors from this matrix
+		/// </summary>
+		/// <param name="eigenValues">Eigen values output parameter</param>
+		/// <param name="eigenVectors">Eigen vectors output parameter</param>
+		/// <param name="iterations">Iterations count to converge</param>
+		/// <param name="maxIterations">Limit iterations, just in case not converge</param>
+		/// <param name="_epsilon">Error margin for convergence</param>
+		/// <returns>eigenValues and eigenVectors parameters</returns>
+		API_INTERFACE sp_bool eigenValuesAndVectors(sp_float* eigenValues, Mat& eigenVectors, 
+			sp_uint& iterations, const sp_uint maxIterations = SP_UINT_MAX,
+			const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
+
+		/// <summary>
+		/// Decompose this matrix in single values (SVD) using Jacobi method
+		/// </summary>
+		/// <param name="u">U Matrix (row x row)</param>
+		/// <param name="s">S Matrix (column x column)</param>
+		/// <param name="v">V Matrix (column x column)</param>
+		/// <param name="iterations">Number of iterations to converge</param>
+		/// <param name="maxIterations">Maximum of iterations to converge</param>
+		/// <param name="_epsilon">Error margin</param>
+		/// <returns>True if the method converged orelse False</returns>
+		API_INTERFACE sp_bool svd(Mat& u, Mat& s, Mat& v, sp_uint& iterations, 
+			const sp_uint maxIterations = SP_UINT_MAX, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
+
+		/// <summary>
+		/// Get the Schur decomposition.
+		/// It os also known as Gram-Schmidt
+		/// </summary>
+		/// <param name="output">OrthoNormal Matrix</param>
+		/// <returns>output parameter</returns>
+		API_INTERFACE void schur(Mat& output) const;
 
 		/// <summary>
 		/// Auto convertion to float*
@@ -247,6 +354,34 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index >= 0u && index < length(), "IndexOutOfrangeException");
 			return _values[index];
+		}
+
+		/// <summary>
+		/// Get formated matrix as string
+		/// </summary>
+		/// <param name="precision">Number precision of prints</param>
+		/// <returns>Content</returns>
+		API_INTERFACE inline std::string toString(const sp_int precision = 4)
+		{
+			std::string content;
+			const sp_uint _length = _rows * _columns;
+
+			for (sp_uint i = ZERO_UINT; i < _length; i++)
+			{
+				std::stringstream stream;
+				stream << std::fixed << std::setprecision(precision) << _values[i];
+				std::string numberAsString = stream.str();
+
+				if (_values[i] >= ZERO_FLOAT)
+					numberAsString = " " + numberAsString;
+
+				content += " " + numberAsString + " ";
+
+				if ((i + 1) % _columns == ZERO_UINT)
+					content += END_OF_LINE;
+			}
+
+			return content;
 		}
 
 		/// <summary>
@@ -419,6 +554,44 @@ namespace NAMESPACE_PHYSICS
 	/// <return>output parameter</return>
 	API_INTERFACE inline void multiply(const Mat& a, const Mat& b, Mat& output);
 	
+	/// <summary>
+	/// Multiply A matrix by B and by C matrix and put the result in output matrix parameter
+	/// output = A x B x C
+	/// </summary>
+	/// <param name="a">Input Matrix A</param>
+	/// <param name="b">Input Matrix B</param>
+	/// <param name="c">Input Matrix C</param>
+	/// <param name="output">Output Matrix</param>
+	/// <return>output parameter</return>
+	API_INTERFACE inline void multiply(const Mat& a, const Mat& b, const Mat& c, Mat& output);
+
+	API_INTERFACE void givensRotation(Mat& output, const sp_uint rowIndex, const sp_uint columnIndex, const sp_float sinTheta, const sp_float cosTheta);
+
+	API_INTERFACE void jacobiRotation(const Mat& input, const sp_float sinTheta, const sp_float cosTheta, const sp_uint rowIndex, const sp_uint columnIndex, Mat& output, Mat& jacobiRotation);
+
+	/// <summary>
+	/// Reverse Sort the eigenvalues and eigenvectors column
+	/// </summary>
+	/// <param name="eigenValues"></param>
+	/// <param name="eigenVectors"></param>
+	/// <param name="eigenValuesLength">EigenValues Length</param>
+	/// <returns>void</returns>
+	API_INTERFACE inline void sortEigens(sp_float* eigenValues, Mat& eigenVectors, const sp_uint eigenValuesLength)
+	{
+		for (sp_uint i = 0; i < eigenValuesLength - 1u; i++)
+			for (sp_uint j = i + 1u; j < eigenValuesLength; j++)
+				if (eigenValues[j] > eigenValues[i])
+				{
+					// swap eigenvalues
+					const sp_float temp = eigenValues[j];
+					eigenValues[j] = eigenValues[i];
+					eigenValues[i] = temp;
+
+					// swap eigenvectors
+					eigenVectors.swapColumns(i, j);
+				}
+	}
+
 }
 
 #endif // !MAT_HEADER

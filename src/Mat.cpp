@@ -3,27 +3,202 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	void Mat::svd(Mat& s, Mat& v, Mat& d) const
+	void Mat::transpose(Mat& output) const
 	{
+		for (register sp_uint row = 0u; row < _rows; row++)
+			for (register sp_uint column = 0u; column < _columns; column++)
+				output[column * _rows + row] = _values[row * _columns + column];
+	}
 
+	sp_bool Mat::eigenValuesAndVectors(sp_float* eigenValues, Mat& eigenVectors, sp_uint& iterations, const sp_uint maxIterations, const sp_float _epsilon) const
+	{
+#define aqq matrix.get(columnIndex, columnIndex)
+#define	app matrix.get(rowIndex, rowIndex)
+#define	apq matrix.get(rowIndex, columnIndex)
+
+		if (isSymmetric())
+		{
+			Mat matrix(this);
+			Mat temp(_columns, _columns);
+
+			eigenVectors.setIdentity();
+
+			iterations = ZERO_UINT;
+
+			sp_float offDiagonal = ZERO_FLOAT;
+
+			// get the square sum of the elements off diagonal
+			for (sp_uint row = ZERO_UINT; row < matrix.rows(); row++)
+				for (sp_uint column = row + ONE_UINT; column < matrix.columns(); column++)
+					offDiagonal += (matrix.get(row, column) * matrix.get(row, column));
+
+			while (!NAMESPACE_FOUNDATION::isCloseEnough(offDiagonal, ZERO_FLOAT, _epsilon) && iterations < maxIterations)
+			{
+				sp_uint rowIndex, columnIndex;
+				sp_float value;
+
+				matrix.maxOffDiagonal(columnIndex, rowIndex, value);
+
+				sp_float theta = (aqq - app) / (TWO_FLOAT * apq);
+
+				//If theta is so large that theta2 would overflow on the computer, 
+				// so we set t = 1 / (2 theta)
+
+				if (theta < ZERO_FLOAT)
+					theta = -theta;
+
+				const sp_float tangentTheta
+					= NAMESPACE_FOUNDATION::isCloseEnough(theta, ZERO_FLOAT, DefaultErrorMargin)
+					? ONE_FLOAT
+					: ONE_FLOAT / (theta + sign(theta) * sqrtf(ONE_FLOAT + theta * theta));
+				//: ONE_FLOAT / (theta + sqrtf(ONE_FLOAT + theta * theta));
+				//: sign(theta) / (fabsf(theta) + sqrtf(ONE_FLOAT + theta * theta));
+
+				const sp_float cosTheta = ONE_FLOAT / sqrtf(ONE_FLOAT + tangentTheta * tangentTheta);
+				const sp_float sinTheta = cosTheta * tangentTheta;
+
+				Mat jacobiRotationMatrix(3, 3);
+				jacobiRotation(matrix, sinTheta, cosTheta, rowIndex, columnIndex, matrix, jacobiRotationMatrix);
+
+				multiply(eigenVectors, jacobiRotationMatrix, temp);
+				std::memcpy(eigenVectors, temp, sizeof(sp_float) * temp.rows() * temp.columns());
+
+				matrix.primaryDiagonal(eigenValues);
+
+				offDiagonal = ZERO_FLOAT;
+				for (sp_uint row = ZERO_UINT; row < matrix.rows(); row++)
+					for (sp_uint column = row + ONE_UINT; column < matrix.columns(); column++)
+						offDiagonal += (matrix.get(row, column) * matrix.get(row, column));
+
+				iterations++;
+			}
+		}
+		else
+		{
+			sp_assert(false, "NotImplementedException");
+		}
+
+		return iterations != maxIterations;
+#undef apq
+#undef app
+#undef aqq
+	}
+
+	void Mat::schur(Mat& output) const
+	{
+		Vec* u = ALLOC_NEW_ARRAY(Vec, rows());
+		Vec* v = ALLOC_NEW_ARRAY(Vec, rows());
+		Vec vLengths(rows());
+
+		for (sp_uint column = 0; column < rows(); column++)
+		{
+			u[column].resize(rows());
+			v[column].resize(rows());
+		}
+
+		for (sp_uint row = 0; row < rows(); row++)
+		{
+			const sp_uint rowIndex = row * columns();
+
+			v[0][row] = _values[rowIndex];
+
+			for (sp_uint column = 0; column < columns(); column++)
+				u[column][row] = _values[rowIndex + column];
+		}
+
+		vLengths[0] = v[0].norm();
+
+		Vec temp1(rows());
+		Vec temp2(rows());
+		Vec tempOut(rows());
+
+		for (sp_uint row = ONE_UINT; row < rows(); row++)
+		{
+			tempOut.fill(ZERO_INT);
+
+			for (sp_uint i = ZERO_UINT; i < row; i++)
+			{
+				multiply(v[i], u[row].dot(v[i]), temp1);
+
+				div(temp1, vLengths[i] * vLengths[i], temp2);
+
+				diff(tempOut, temp2, tempOut);
+			}
+
+			add(u[row], tempOut, v[row]);
+
+			vLengths[row] = v[row].norm();
+		}
+
+		for (sp_uint column = ZERO_UINT; column < columns(); column++)
+		{
+			const sp_float inverseNorma = NAMESPACE_FOUNDATION::div(ONE_FLOAT, vLengths[column]);
+
+			for (sp_uint row = ZERO_UINT; row < rows(); row++)
+				output.set(row, column, v[column][row] * inverseNorma);
+		}
+	}
+
+	sp_bool Mat::svd(Mat& u, Mat& s, Mat& v, sp_uint& iterations, const sp_uint maxIterations, const sp_float _epsilon) const
+	{
+		Mat transposed(_columns, _rows);
+		transpose(transposed);
+
+		Mat _symmetric(_columns, _columns);
+		multiply(transposed, *this, _symmetric);
+
+		sp_float* eigenValues = ALLOC_NEW_ARRAY(sp_float, _columns);
+
+		if (!_symmetric.eigenValuesAndVectors(eigenValues, v, iterations, maxIterations, _epsilon))
+			return false;
+
+		sortEigens(eigenValues, v, _columns);
+
+		for (sp_uint i = 0; i < s.columns(); i++)
+			s.set(i, i, sqrtf(eigenValues[i]));
+
+		Mat temp(_rows, v.columns());
+		multiply(*this, v, temp);
+
+		for (sp_uint column = 0; column < temp.columns(); column++)
+		{
+			const sp_float value = NAMESPACE_FOUNDATION::div(ONE_FLOAT, s.get(column, column));
+
+			for (sp_uint row = 0; row < temp.rows(); row++)
+				u._values[row * u.columns() + column] = value * temp[row * temp.columns() + column];
+		}
+
+		std::string uS = u.toString();
+
+		ALLOC_RELEASE(eigenValues);
+		return true;
 	}
 
 	void multiply(const Mat& a, const Mat& b, Mat& output)
 	{
 		sp_assert(output.length() == a.rows() * b.columns(), "InvalidArgumentException");
-		sp_assert(a.rows() == b.columns() && b.rows() == a.columns(), "InvalidOperationException");
+		sp_assert(a.columns() == b.rows(), "InvalidOperationException");
 
 		std::memset(output, 0, sizeof(sp_float) * output.length());
 
 		for (register sp_uint row = 0u; row < a.rows(); row++)
 			for (register sp_uint column = 0u; column < b.columns(); column++)
 			{
-				const sp_uint outputIndex = row * a.rows() + column;
+				const sp_uint outputIndex = row * output.columns() + column;
 				const sp_uint rowIndex = row * a.columns();
 
 				for (register sp_uint k = 0u; k < a.columns(); k++)
 					output[outputIndex] += a[rowIndex + k] * b[k * b.columns() + column];
 			}
+	}
+
+	void multiply(const Mat& a, const Mat& b, const Mat& c, Mat& output)
+	{
+		Mat temp(a.rows(), b.columns());
+		std::memset(temp, 0, sizeof(sp_float) * temp.length());
+
+		multiply(a, b, temp);
+		multiply(temp, c, output);
 	}
 
 	void Mat::hessenberg(sp_float* matrix, const sp_uint columnLength, sp_float* output)
@@ -179,7 +354,7 @@ namespace NAMESPACE_PHYSICS
 				for (sp_uint i = k + 1u; i < n; i++)
 					temp += m[j * columnLength + i] * v[i];
 
-				u[j] = div(temp, rqs);
+				u[j] = NAMESPACE_FOUNDATION::div(temp, rqs);
 			}
 
 			// step 7:
@@ -190,7 +365,7 @@ namespace NAMESPACE_PHYSICS
 			// step 8:
 			std::memset(z, ZERO_INT, SIZEOF_FLOAT * n);
 			for (sp_uint j = k; j < n; j++)
-				z[j] = u[j] - div(prod, (2.0f * rqs)) * v[j];
+				z[j] = u[j] - NAMESPACE_FOUNDATION::div(prod, (2.0f * rqs)) * v[j];
 
 			std::memcpy(output, m, SIZEOF_FLOAT * n * n);
 
@@ -295,6 +470,28 @@ namespace NAMESPACE_PHYSICS
 		);
 
 		return result;
+	}
+
+	void givensRotation(Mat& output, const sp_uint rowIndex, const sp_uint columnIndex, const sp_float sinTheta, const sp_float cosTheta)
+	{
+		output.setIdentity();
+
+		output[columnIndex * output.columns() + columnIndex]
+			= output[rowIndex * output.columns() + rowIndex]
+			= sinTheta;
+
+		output[rowIndex * output.columns() + columnIndex] = -cosTheta;
+		output[columnIndex * output.columns() + rowIndex] = cosTheta;
+	}
+
+	void jacobiRotation(const Mat& input, const sp_float sinTheta, const sp_float cosTheta, const sp_uint rowIndex, const sp_uint columnIndex, Mat& output, Mat& jacobiRotation)
+	{
+		givensRotation(jacobiRotation, rowIndex, columnIndex, sinTheta, cosTheta);
+
+		Mat jacobiRotationT(jacobiRotation.rows(), jacobiRotation.columns());
+		jacobiRotation.transpose(jacobiRotationT);
+
+		multiply(jacobiRotationT, input, jacobiRotation, output);
 	}
 
 }

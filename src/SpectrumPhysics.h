@@ -34,6 +34,7 @@ namespace NAMESPACE_PHYSICS
 
 	enum class CollisionStatus { OUTSIDE, INLINE, INSIDE };
 
+	class Vec;
 	class Vec2;
 	class Vec3;
 	class Vec4;
@@ -91,6 +92,7 @@ namespace NAMESPACE_PHYSICS
 
 }
 
+#include "Vec.h"
 #include "Vec2.h"
 #include "Vec3.h"
 #include "Vec4.h"

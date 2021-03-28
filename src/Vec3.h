@@ -58,6 +58,20 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get the norma/length of the vector
+		/// </summary>
+		/// <param name="vector">Vector</param>
+		/// <returns>Length of the vector</returns>
+		API_INTERFACE inline sp_float length() const
+		{
+#ifdef AVX_ENABLED
+			return sp_vec3_length_simd(sp_vec3_convert_simd((*this))).m128_f32[0];
+#else
+			return sqrtf(vector.squaredLength());
+#endif
+		}
+
+		/// <summary>
 		/// Get the maximun value in the vector
 		/// </summary>
 		API_INTERFACE inline sp_float maximum() const
@@ -437,6 +451,20 @@ namespace NAMESPACE_PHYSICS
 		output.z = std::fabsf(input.z);
 	}
 
+	/// <summary>
+	/// Get the norma/length of the vector
+	/// </summary>
+	/// <param name="vector">Vector</param>
+	/// <returns>Length of the vector</returns>
+	API_INTERFACE inline sp_float length(const Vec3& vector)
+	{
+#ifdef AVX_ENABLED
+		return sp_vec3_length_simd(sp_vec3_convert_simd(vector)).m128_f32[0];
+#else
+		return sqrtf(vector.squaredLength());
+#endif
+	}
+
 	API_INTERFACE inline void add(const Vec3& vec1, const Vec3& vec2, Vec3& output)
 	{
 		output.x = vec1.x + vec2.x;
@@ -480,20 +508,6 @@ namespace NAMESPACE_PHYSICS
 		return difff.x <= _epsilon
 			&& difff.y <= _epsilon
 			&& difff.z <= _epsilon;
-	}
-
-	/// <summary>
-	/// Get the length of the vector
-	/// </summary>
-	/// <param name="vector">Vector</param>
-	/// <returns>Length of the vector</returns>
-	API_INTERFACE inline sp_float length(const Vec3& vector)
-	{
-#ifdef AVX_ENABLED
-		return sp_vec3_length_simd(sp_vec3_convert_simd(vector)).m128_f32[0];
-#else
-		return sqrtf(vector.squaredLength());
-#endif
 	}
 
 	/// <summary>
