@@ -96,6 +96,16 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Fill all matrix with the constant value
+		/// </summary>
+		/// <param name="value">Constant Value</param>
+		/// <returns>void</returns>
+		API_INTERFACE inline void fill(const sp_int value)
+		{
+			std::memset(_values, value, sizeof(sp_float) * length());
+		}
+
+		/// <summary>
 		/// Get an element (x,y) from matrix
 		/// </summary>
 		/// <param name="row">Row Index</param>
@@ -224,7 +234,7 @@ namespace NAMESPACE_PHYSICS
 		/// Check if the matrix is symmetric
 		/// </summary>
 		/// <returns>True if the matrix is symmetric orelse False</returns>
-		API_INTERFACE sp_bool isSymmetric() const
+		API_INTERFACE inline sp_bool isSymmetric() const
 		{
 			if (!isSquare())
 				return false;
@@ -305,12 +315,21 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint maxIterations = SP_UINT_MAX, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS) const;
 
 		/// <summary>
-		/// Get the Schur decomposition.
+		/// Get the gram-schmidt decomposition.
 		/// It os also known as Gram-Schmidt
 		/// </summary>
 		/// <param name="output">OrthoNormal Matrix</param>
 		/// <returns>output parameter</returns>
-		API_INTERFACE void schur(Mat& output) const;
+		API_INTERFACE void gramSchmidt(Mat& output) const;
+
+		/// <summary>
+		/// Decompose the matrix to QR
+		/// This QR algorithm uses Gram-Schmidt method
+		/// </summary>
+		/// <param name="q">Q Matrix</param>
+		/// <param name="r">R Matrix</param>
+		/// <returns>output parameters</returns>
+		API_INTERFACE void qr(Mat& q, Mat& r) const;
 
 		/// <summary>
 		/// Auto convertion to float*

@@ -659,12 +659,12 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get the Schur decomposition.
+		/// Get the gram-schmidt decomposition.
 		/// It os also known as Gram-Schmidt
 		/// </summary>
 		/// <param name="output">OrthoNormal Matrix</param>
 		/// <returns>output parameter</returns>
-		API_INTERFACE void schur(Mat3& output) const;
+		API_INTERFACE void gramSchmidt(Mat3& output) const;
 
 	};
 

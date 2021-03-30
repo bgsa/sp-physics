@@ -54,10 +54,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(decomposeLDU);
 		SP_TEST_METHOD_DEF(decomposeLLt);
 		SP_TEST_METHOD_DEF(convert);
-		SP_TEST_METHOD_DEF(schur);
+		SP_TEST_METHOD_DEF(gramSchmidt);
 	};
 
-	SP_TEST_METHOD(CLASS_NAME, schur)
+	SP_TEST_METHOD(CLASS_NAME, gramSchmidt)
 	{
 		Mat3 matrix(
 			1.0f, 0.0f, 0.0f,
@@ -71,7 +71,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		);
 
 		Mat3 result;
-		matrix.schur(result);
+		matrix.gramSchmidt(result);
 
 		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i], SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());

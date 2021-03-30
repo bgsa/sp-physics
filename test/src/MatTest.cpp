@@ -18,7 +18,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(svd);
 		SP_TEST_METHOD_DEF(householder);
 		SP_TEST_METHOD_DEF(hessenberg);
-		SP_TEST_METHOD_DEF(schur);
+		SP_TEST_METHOD_DEF(gramSchmidt);
 	};
 
 	SP_TEST_METHOD(CLASS_NAME, primaryDiagonal)
@@ -168,9 +168,26 @@ namespace NAMESPACE_PHYSICS_TEST
 		Mat expected(5, 3, a);
 		multiply(u, s, v, expected);
 		Assert::IsTrue(isCloseEnough(A, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+
+		/*  test for PCA  (can be removed)
+		sp_float aa[15] = {
+			0.0f,  1.0f, 10.0f,
+			0.0f, 10.0f, 10.0f,
+			0.0f, 20.0f, 0.0f,
+			0.0f, 30.0f, 0.0f,
+			0.0f, 40.0f, 10.0f
+		};
+		Mat AA(5, 3, aa);
+		Mat RR(5, 3);
+		AA.svd(u, s, v, iterations, SP_UINT_MAX, SP_EPSILON_TWO_DIGITS);
+
+		std::string us = u.toString();
+		std::string ss = s.toString();
+		std::string vs = v.toString();
+		*/
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, schur)
+	SP_TEST_METHOD(CLASS_NAME, gramSchmidt)
 	{
 		sp_float m1[9] = {
 			1.0f, 0.0f, 0.0f,
@@ -185,7 +202,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		};
 
 		Mat result(3, 3);
-		M1.schur(result);
+		M1.gramSchmidt(result);
 
 		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i], SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
@@ -200,8 +217,39 @@ namespace NAMESPACE_PHYSICS_TEST
 		};
 		Mat A(5, 3, a);
 		Mat R(5, 3);
-		A.schur(R);
+		A.gramSchmidt(R);
 
+		sp_float c[15] = {
+			0.7071f, -0.2673f,  0.4781f,
+			0.0f,     0.5345f, -0.1195f,
+			0.0f,     0.5345f,  0.7171f,
+			0.0f,     0.5345f, -0.1195f,
+			0.7071f,  0.2673f, -0.4781f
+		};
+		Mat C(5, 3, c);
+
+		Assert::IsTrue(isCloseEnough(C, R, SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
+
+		sp_float t[15] = {
+			1.0f, 2.0f, 3.0f,
+			4.0f, 5.0f, 6.0f,
+			0.0f, 1.0f, 5.0f,
+			6.0f, 0.0f, 7.0f,
+			7.0f, 2.0f, 6.0f
+		};
+		Mat T(5, 3, t);
+		T.gramSchmidt(R);
+
+		sp_float tr[15] = {
+			0.0990f,  0.3569f,  0.1677f,
+			0.3961f,  0.7776f, -0.1358f,
+			0.0f,     0.2167f,  0.8662f,
+			0.5941f, -0.4589f,  0.3674f,
+			0.6931f, -0.1020f, -0.2612f
+		};
+		Mat TR(5, 3, tr);
+
+		Assert::IsTrue(isCloseEnough(TR, R, SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, hessenberg)

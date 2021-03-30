@@ -1062,7 +1062,7 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	void Mat3::schur(Mat3& output) const
+	void Mat3::gramSchmidt(Mat3& output) const
 	{
 		const Vec3 u1(m11, m21, m31);
 		const Vec3 u2(m12, m22, m32);

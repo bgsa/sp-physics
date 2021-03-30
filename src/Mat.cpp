@@ -72,6 +72,11 @@ namespace NAMESPACE_PHYSICS
 
 				iterations++;
 			}
+
+			if (iterations == ZERO_UINT)
+			{
+				matrix.primaryDiagonal(eigenValues);
+			}
 		}
 		else
 		{
@@ -84,7 +89,7 @@ namespace NAMESPACE_PHYSICS
 #undef aqq
 	}
 
-	void Mat::schur(Mat& output) const
+	void Mat::gramSchmidt(Mat& output) const
 	{
 		Vec* u = ALLOC_NEW_ARRAY(Vec, rows());
 		Vec* v = ALLOC_NEW_ARRAY(Vec, rows());
@@ -120,7 +125,10 @@ namespace NAMESPACE_PHYSICS
 			{
 				multiply(v[i], u[row].dot(v[i]), temp1);
 
-				div(temp1, vLengths[i] * vLengths[i], temp2);
+				if (NAMESPACE_FOUNDATION::isCloseEnough(vLengths[i] * vLengths[i], ZERO_FLOAT))
+					temp2.fill(ZERO_INT);
+				else
+					div(temp1, vLengths[i] * vLengths[i], temp2);
 
 				diff(tempOut, temp2, tempOut);
 			}
@@ -132,11 +140,26 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint column = ZERO_UINT; column < columns(); column++)
 		{
-			const sp_float inverseNorma = NAMESPACE_FOUNDATION::div(ONE_FLOAT, vLengths[column]);
+			const sp_float inverseNorma 
+				= !NAMESPACE_FOUNDATION::isCloseEnough(vLengths[column], ZERO_FLOAT)
+				? NAMESPACE_FOUNDATION::div(ONE_FLOAT, vLengths[column])
+				: ZERO_FLOAT;
 
 			for (sp_uint row = ZERO_UINT; row < rows(); row++)
 				output.set(row, column, v[column][row] * inverseNorma);
 		}
+	}
+
+	void Mat::qr(Mat& q, Mat& r) const
+	{
+		gramSchmidt(q);
+
+		r.fill(ZERO_UINT);
+
+		for (sp_uint row = 0; row < rows(); row++)
+			for (sp_uint column = row + ONE_UINT; column < columns(); column++)
+				;
+				//r.set(row, column, );
 	}
 
 	sp_bool Mat::svd(Mat& u, Mat& s, Mat& v, sp_uint& iterations, const sp_uint maxIterations, const sp_float _epsilon) const
@@ -154,6 +177,7 @@ namespace NAMESPACE_PHYSICS
 
 		sortEigens(eigenValues, v, _columns);
 
+		s.fill(ZERO_UINT);
 		for (sp_uint i = 0; i < s.columns(); i++)
 			s.set(i, i, sqrtf(eigenValues[i]));
 
@@ -162,13 +186,14 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint column = 0; column < temp.columns(); column++)
 		{
-			const sp_float value = NAMESPACE_FOUNDATION::div(ONE_FLOAT, s.get(column, column));
+			const sp_float value
+				= ! NAMESPACE_FOUNDATION::isCloseEnough(s.get(column, column), ZERO_FLOAT)
+				? NAMESPACE_FOUNDATION::div(ONE_FLOAT, s.get(column, column))
+				: ZERO_FLOAT;
 
 			for (sp_uint row = 0; row < temp.rows(); row++)
 				u._values[row * u.columns() + column] = value * temp[row * temp.columns() + column];
 		}
-
-		std::string uS = u.toString();
 
 		ALLOC_RELEASE(eigenValues);
 		return true;
