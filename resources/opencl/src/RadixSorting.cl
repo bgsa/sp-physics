@@ -1,6 +1,31 @@
-#include "OpenCLBase.cl"
+#ifndef SP_RADIX_SORTING_OPENCL_HEADER
+#define SP_RADIX_SORTING_OPENCL_HEADER
 
-#define OFFSET_GLOBAL INPUT_STRIDE + INPUT_OFFSET
+#include "OpenCLBase.cl"
+#include "Vec3.cl"
+
+#ifdef INPUT_STRIDE
+    #define OFFSET_GLOBAL * INPUT_STRIDE
+#else
+    #define INPUT_STRIDE (1)
+#endif
+
+#ifdef INPUT_OFFSET
+    #ifdef OFFSET_GLOBAL
+        #undef OFFSET_GLOBAL
+        #define OFFSET_GLOBAL * INPUT_STRIDE + INPUT_OFFSET
+    #else
+        #define OFFSET_GLOBAL + INPUT_OFFSET
+    #endif
+#else
+    #define INPUT_OFFSET (0)
+#endif
+
+#ifndef OFFSET_GLOBAL
+    #define OFFSET_GLOBAL
+#endif
+
+
 #define BUCKET_LENGTH 10
 
 #ifndef INPUT_LENGTH
@@ -8,16 +33,16 @@
 #endif
 
 #define UPDATE_GLOBAL_OFFSET_TABLE()\
-            offsetTable[globalBucketOffset    ] = bucket[0]; \
-            offsetTable[globalBucketOffset + 1] = bucket[1]; \
-            offsetTable[globalBucketOffset + 2] = bucket[2]; \
-            offsetTable[globalBucketOffset + 3] = bucket[3]; \
-            offsetTable[globalBucketOffset + 4] = bucket[4]; \
-            offsetTable[globalBucketOffset + 5] = bucket[5]; \
-            offsetTable[globalBucketOffset + 6] = bucket[6]; \
-            offsetTable[globalBucketOffset + 7] = bucket[7]; \
-            offsetTable[globalBucketOffset + 8] = bucket[8]; \
-            offsetTable[globalBucketOffset + 9] = bucket[9];
+            offsetTable[globalBucketIndex    ] = bucket[0]; \
+            offsetTable[globalBucketIndex + 1] = bucket[1]; \
+            offsetTable[globalBucketIndex + 2] = bucket[2]; \
+            offsetTable[globalBucketIndex + 3] = bucket[3]; \
+            offsetTable[globalBucketIndex + 4] = bucket[4]; \
+            offsetTable[globalBucketIndex + 5] = bucket[5]; \
+            offsetTable[globalBucketIndex + 6] = bucket[6]; \
+            offsetTable[globalBucketIndex + 7] = bucket[7]; \
+            offsetTable[globalBucketIndex + 8] = bucket[8]; \
+            offsetTable[globalBucketIndex + 9] = bucket[9];
 
 #define INIT_START_INDEXES()\
             startIndex[0] = 0;                                                            \
@@ -31,7 +56,6 @@
             startIndex[8] = startIndex[7] + offsetTable[offsetTable_LastBucketIndex + 7]; \
             startIndex[9] = startIndex[8] + offsetTable[offsetTable_LastBucketIndex + 8];
 
-
 #define UPDATE_OFFSET_TABLE()\
             nextOffsetTable[offsetTableIndex    ] = previousOffsetTable[offset    ] + previousOffsetTable[offsetTableIndex    ]; \
             nextOffsetTable[offsetTableIndex + 1] = previousOffsetTable[offset + 1] + previousOffsetTable[offsetTableIndex + 1]; \
@@ -44,8 +68,6 @@
             nextOffsetTable[offsetTableIndex + 8] = previousOffsetTable[offset + 8] + previousOffsetTable[offsetTableIndex + 8]; \
             nextOffsetTable[offsetTableIndex + 9] = previousOffsetTable[offset + 9] + previousOffsetTable[offsetTableIndex + 9];
 
-
-
 #define MANTISSA_LENGTH 1000  // = 10^3  // 3 mantissas digits are taken
 #define DIGIT_WITH_POWER_D(doubleValue, power)\
                     (sp_uint) fmod( (doubleValue * MANTISSA_LENGTH) / power, 10.0)
@@ -56,6 +78,7 @@
 #define DIGIT(floatValue, idx)\
                     DIGIT_WITH_POWER_F( floatValue , pow(10.0, idx) )
 
+
 __kernel void count(
     __constant sp_float* input,
     __constant sp_uint * indexes,
@@ -63,20 +86,22 @@ __kernel void count(
     __global   sp_uint * offsetTable
     )
 {
+#define digitIndex (THREAD_OFFSET)
     __private const sp_uint   elementsPerWorkItem = max( (sp_uint) (INPUT_LENGTH / THREAD_LENGTH) , ONE_UINT );
-    __private const sp_uint   globalBucketOffset = (THREAD_ID - THREAD_OFFSET) * BUCKET_LENGTH;    
+    __private const sp_uint   globalBucketIndex = (THREAD_ID - THREAD_OFFSET) * BUCKET_LENGTH;
     __private const sp_uint   inputThreadIndex = (THREAD_ID - THREAD_OFFSET) * elementsPerWorkItem;
     __private       sp_uint   bucket[BUCKET_LENGTH];
-    __private const sp_double power = pow(10.0, THREAD_OFFSET);
+    __private const sp_double power = pow(10.0, digitIndex);
 
     SET_ARRAY_10_ELEMENTS( bucket, ZERO_UINT )
 
     for (sp_uint i = 0 ; i < elementsPerWorkItem; i++) // make private histogram for expoent of float
         bucket[
-            DIGIT_WITH_POWER( input[indexes[inputThreadIndex + i] * OFFSET_GLOBAL] , power )
+            DIGIT_WITH_POWER( input[indexes[inputThreadIndex + i] OFFSET_GLOBAL] , power )
         ]++;
 
     UPDATE_GLOBAL_OFFSET_TABLE();
+#undef digitIndex
 }
 
 __kernel void prefixScan(
@@ -149,7 +174,7 @@ __kernel void reorder(
     __private const sp_uint   elementsPerWorkItem = max( (sp_uint) (INPUT_LENGTH / THREAD_LENGTH) , ONE_UINT );
     __private const sp_uint   indexesInputBegin = (THREAD_ID - THREAD_OFFSET) * elementsPerWorkItem;
     __private const sp_uint   offsetTable_Index = (THREAD_ID - THREAD_OFFSET) * BUCKET_LENGTH;
-    __private const sp_uint   offsetTable_LastBucketIndex = ( min((sp_int)THREAD_LENGTH, INPUT_LENGTH) * BUCKET_LENGTH) - BUCKET_LENGTH;
+    __private const sp_uint   offsetTable_LastBucketIndex = ( min((sp_int)THREAD_LENGTH, (sp_int)INPUT_LENGTH) * BUCKET_LENGTH) - BUCKET_LENGTH;
     __private const sp_double power = pow(10.0, THREAD_OFFSET);
 
     __private sp_uint currentDigit;
@@ -159,7 +184,7 @@ __kernel void reorder(
 
     for (sp_int i = elementsPerWorkItem - ONE_INT; i >= ZERO_INT; i--)
     {
-        currentDigit = DIGIT_WITH_POWER( input[indexesInput[indexesInputBegin + i] * OFFSET_GLOBAL] , power );
+        currentDigit = DIGIT_WITH_POWER( input[indexesInput[indexesInputBegin + i] OFFSET_GLOBAL] , power );
 
         indexesOutput[
                         startIndex[currentDigit] + offsetTable[offsetTable_Index + currentDigit] - 1 // get the global output address where the element is going to be stored
@@ -176,19 +201,20 @@ __kernel void countNegatives(
     __global   sp_uint* offsetTable
 )
 {
-    __private const sp_uint   index = THREAD_ID;
-    __private const sp_uint   globalBucketOffset = index * TWO_UINT;
+#define index (THREAD_ID - THREAD_OFFSET)
+    __private const sp_uint globalBucketOffset = index * TWO_UINT;
 
-    if (input[indexes[index] * OFFSET_GLOBAL] < ZERO_FLOAT)
+    if (input[indexes[index] OFFSET_GLOBAL] < ZERO_FLOAT)
     {
-        offsetTable[globalBucketOffset] = 1u;
+        offsetTable[globalBucketOffset    ] = 1u;
         offsetTable[globalBucketOffset + 1] = 0u;
     }
     else
     {
-        offsetTable[globalBucketOffset] = 0u;
+        offsetTable[globalBucketOffset    ] = 0u;
         offsetTable[globalBucketOffset + 1] = 1u;
     }
+#undef index
 }
 
 __kernel void prefixScanNegatives(
@@ -201,12 +227,12 @@ __kernel void prefixScanNegatives(
 
     if (offsetTableIndex < offset)
     {
-        nextOffsetTable[offsetTableIndex] = previousOffsetTable[offsetTableIndex];
+        nextOffsetTable[offsetTableIndex    ] = previousOffsetTable[offsetTableIndex    ];
         nextOffsetTable[offsetTableIndex + 1] = previousOffsetTable[offsetTableIndex + 1];
     }
     else
     {
-        nextOffsetTable[offsetTableIndex] = previousOffsetTable[offset] + previousOffsetTable[offsetTableIndex];
+        nextOffsetTable[offsetTableIndex    ] = previousOffsetTable[offset    ] + previousOffsetTable[offsetTableIndex    ];
         nextOffsetTable[offsetTableIndex + 1] = previousOffsetTable[offset + 1] + previousOffsetTable[offsetTableIndex + 1];
     }
 }
@@ -218,8 +244,8 @@ __kernel void reorderNegatives(
     __global   sp_uint* indexesOutput
     )
 {
-    __private const sp_uint index = THREAD_ID;
-    __private const sp_uint offsetTable_Index = THREAD_ID * 2u;
+#define index (THREAD_ID - THREAD_OFFSET)
+    __private const sp_uint offsetTable_Index = index * 2u;
     __private const sp_uint offsetTable_LastBucketIndex = THREAD_LENGTH * 2u - 2u;
 
     __private const sp_uint negativeTotal = offsetTable[offsetTable_LastBucketIndex    ];
@@ -232,4 +258,8 @@ __kernel void reorderNegatives(
         indexesOutput[negativeTotal + previousPositives] = indexesInput[index];
     else 
         indexesOutput[negativeTotal - offsetTable[offsetTable_Index]] = indexesInput[index];
+#undef index
 }
+
+
+#endif // SP_RADIX_SORTING_OPENCL_HEADER

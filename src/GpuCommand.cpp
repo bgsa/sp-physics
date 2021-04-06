@@ -36,16 +36,11 @@ namespace NAMESPACE_PHYSICS
 
 	GpuCommand* GpuCommand::setInputParameter(void* value, sp_size sizeOfValue, cl_mem_flags memoryFlags, bool keepBuffer)
 	{
-		/* if (value == NULL)
-			memoryFlags |= CL_MEM_ALLOC_HOST_PTR;
-		else
-			memoryFlags |= CL_MEM_USE_HOST_PTR; */
-
 		cl_int errorCode;
 		cl_mem memoryBuffer = clCreateBuffer(deviceContext, memoryFlags, sizeOfValue, value, &errorCode);
 		HANDLE_OPENCL_ERROR(errorCode);
 
-		HANDLE_OPENCL_ERROR(clEnqueueWriteBuffer(commandQueue, memoryBuffer, CL_FALSE, 0, sizeOfValue, value, 0, NULL, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueWriteBuffer(commandQueue, memoryBuffer, CL_FALSE, 0, sizeOfValue, value, 0, NULL, NULL));
 
 		inputParameters.emplace_back(memoryBuffer);
 		inputParametersSize.emplace_back(sizeOfValue);
@@ -70,28 +65,33 @@ namespace NAMESPACE_PHYSICS
 		outputParameter = clCreateBuffer(deviceContext, CL_MEM_WRITE_ONLY | CL_MEM_ALLOC_HOST_PTR, sizeOfValue, NULL, &errorCode);
 		outputSize = sizeOfValue;
 
-		HANDLE_OPENCL_ERROR(errorCode);
+		HANDLE_OPENCL_RUNTIME_ERROR(errorCode);
 
 		return this;
 	}
 
-	GpuCommand* GpuCommand::updateInputParameterValue(sp_uint index, const void* value)
+	GpuCommand* GpuCommand::updateInputParameterValue(sp_uint index, const void* value, const sp_uint eventsLength, cl_event* events)
 	{
-		HANDLE_OPENCL_ERROR(clEnqueueWriteBuffer(commandQueue, 
+		cl_event currentEvent;
+
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueWriteBuffer(commandQueue,
 			inputParameters[index], 
 			CL_TRUE, 
 			0, 
 			inputParametersSize[index],
 			value, 
-			0, NULL, 
-			&lastEvent));
+			eventsLength, 
+			events,
+			&currentEvent));
+
+		lastEvent = currentEvent;
 
 		return this;
 	}
 
 	GpuCommand* GpuCommand::updateInputParameterValueAsync(sp_uint index, const void* value)
 	{
-		HANDLE_OPENCL_ERROR(
+		HANDLE_OPENCL_RUNTIME_ERROR(
 			clEnqueueWriteBuffer(
 				commandQueue,
 				inputParameters[index],
@@ -130,15 +130,15 @@ namespace NAMESPACE_PHYSICS
 		inputParametersKeep[index1] = inputParametersKeep[index2];
 		inputParametersKeep[index2] = temp3;
 
-		HANDLE_OPENCL_ERROR(clSetKernelArg(kernel, (cl_uint)index1, sizeof(cl_mem), &inputParameters[index1]));
-		HANDLE_OPENCL_ERROR(clSetKernelArg(kernel, (cl_uint)index2, sizeof(cl_mem), &inputParameters[index2]));
+		HANDLE_OPENCL_RUNTIME_ERROR(clSetKernelArg(kernel, (cl_uint)index1, sizeof(cl_mem), &inputParameters[index1]));
+		HANDLE_OPENCL_RUNTIME_ERROR(clSetKernelArg(kernel, (cl_uint)index2, sizeof(cl_mem), &inputParameters[index2]));
 
 		return this;
 	}
 
 	GpuCommand* GpuCommand::copyParameters(sp_uint targetParameterIndex, cl_mem source)
 	{
-		HANDLE_OPENCL_ERROR(clEnqueueCopyBuffer(
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueCopyBuffer(
 			commandQueue, 
 			source,
 			inputParameters[targetParameterIndex], 
@@ -157,17 +157,17 @@ namespace NAMESPACE_PHYSICS
 		cl_int errorCode;
 
 		kernel = clCreateKernel(program, kernelName, &errorCode);
-		HANDLE_OPENCL_ERROR(errorCode);
+		HANDLE_OPENCL_RUNTIME_ERROR(errorCode);
 
 		for (cl_uint i = 0; i < inputParameters.size(); i++)
-			HANDLE_OPENCL_ERROR(clSetKernelArg(kernel, i, sizeof(cl_mem), &inputParameters[i]));
+			HANDLE_OPENCL_RUNTIME_ERROR(clSetKernelArg(kernel, i, sizeof(cl_mem), &inputParameters[i]));
 
 		if (outputParameter != NULL)
-			HANDLE_OPENCL_ERROR(clSetKernelArg(kernel, (cl_uint) inputParameters.size(), sizeof(cl_mem), &outputParameter));
+			HANDLE_OPENCL_RUNTIME_ERROR(clSetKernelArg(kernel, (cl_uint) inputParameters.size(), sizeof(cl_mem), &outputParameter));
 
-		HANDLE_OPENCL_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_WORK_GROUP_SIZE, SIZEOF_SIZE, &workGroupSize, NULL));
-		HANDLE_OPENCL_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3 * SIZEOF_SIZE, &compileWorkGroupSize, NULL));
-		HANDLE_OPENCL_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_LOCAL_MEM_SIZE, SIZEOF_LONG, &localMemorySizeRequired, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_WORK_GROUP_SIZE, SIZEOF_SIZE, &workGroupSize, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3 * SIZEOF_SIZE, &compileWorkGroupSize, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_LOCAL_MEM_SIZE, SIZEOF_LONG, &localMemorySizeRequired, NULL));
 
 		return this;
 	}
@@ -223,23 +223,23 @@ namespace NAMESPACE_PHYSICS
 	{
 		if (kernel != nullptr)
 		{
-			HANDLE_OPENCL_ERROR(clReleaseKernel(kernel));
+			HANDLE_OPENCL_RUNTIME_ERROR(clReleaseKernel(kernel));
 			kernel = nullptr;
 		}
 			
 		if (program != nullptr)
 		{
-			HANDLE_OPENCL_ERROR(clReleaseProgram(program));
+			HANDLE_OPENCL_RUNTIME_ERROR(clReleaseProgram(program));
 			program = nullptr;
 		}
 		
 		for (sp_uint i = 0; i < inputParameters.size(); i++)
 			if (!inputParametersKeep[i]) 
-				HANDLE_OPENCL_ERROR(clReleaseMemObject(inputParameters[i]));
+				HANDLE_OPENCL_RUNTIME_ERROR(clReleaseMemObject(inputParameters[i]));
 
 		if (outputParameter != nullptr)
 		{
-			HANDLE_OPENCL_ERROR(clReleaseMemObject(outputParameter));
+			HANDLE_OPENCL_RUNTIME_ERROR(clReleaseMemObject(outputParameter));
 			outputParameter = nullptr;
 		}
 	}

@@ -289,6 +289,7 @@
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpAABBFactory.h" />
     <ClInclude Include="src\SpAlgorithms.h" />
+    <ClInclude Include="src\SpBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpCamera.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
@@ -354,6 +355,7 @@
     <Text Include="CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\opencl\src\AABB.cl" />
     <None Include="resources\opencl\src\BitonicSorting2Groups.cl" />
     <None Include="resources\opencl\src\BoundingVolumeFactory.cl" />
     <None Include="resources\opencl\src\CollisionResponse.cl" />

@@ -25,6 +25,7 @@ __kernel void handleCollision(
     if (isStaticObj1 && isStaticObj2) // if the objects are static, ignre them
         return;
 
+    /*
     const sp_bool isRestingObj1 = SpRigidBody3D_isResting(rigidBodies3D, physicIndex1);
     const sp_bool isRestingObj2 = SpRigidBody3D_isResting(rigidBodies3D, physicIndex2);
 
@@ -85,6 +86,7 @@ __kernel void handleCollision(
         SpRigidBody3D_setTorque(rigidBodies3D, physicIndex1, VEC3_ZERO);
         return;
     }
+    */
 
     const sp_uint temp = atomic_add(outputIndexesLength, 2);
     outputIndexes[temp    ] = index1;

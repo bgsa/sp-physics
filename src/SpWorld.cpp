@@ -30,8 +30,11 @@ namespace NAMESPACE_PHYSICS
 		_objectMapperGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 		_objectMapperGPU->init(sizeof(SpCollisionFeatures) * _objectsLengthAllocated, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
-		_boundingVolumesGPU = gpu->createBuffer(_boundingVolumes, sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
 		_rigidBodies3DGPU = gpu->createBuffer(_rigidBodies3D, sizeof(SpRigidBody3D) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
+
+		dop18Factory.initOutput(gpu, objectsLength);
+		aabbFactory.initOutput(gpu, dop18Factory.boundingVolumeGPU());
+		sphereFactory.initOutput(gpu, dop18Factory.boundingVolumeGPU());
 
 		physicSimulator = sp_mem_new(SpPhysicSimulator)();
 		physicSimulator->init();
@@ -56,12 +59,6 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumes = nullptr;
 		}
 
-		if (_boundingVolumesGPU != nullptr)
-		{
-			gpu->releaseBuffer(_boundingVolumesGPU);
-			_boundingVolumesGPU = nullptr;
-		}
-
 		if (_rigidBodies3D != nullptr)
 		{
 			sp_mem_release(_rigidBodies3D);
@@ -73,6 +70,11 @@ namespace NAMESPACE_PHYSICS
 			gpu->releaseBuffer(_rigidBodies3DGPU);
 			_rigidBodies3DGPU = nullptr;
 		}
+
+		dop18Factory.dispose();
+		aabbFactory.dispose();
+		sphereFactory.dispose();
+
 		if (_objectMapperGPU != nullptr)
 		{
 			sp_mem_delete(_objectMapperGPU, GpuBufferOpenCL);

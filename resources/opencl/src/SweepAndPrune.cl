@@ -1,47 +1,179 @@
 #include "OpenCLBase.cl"
 #include "DOP18.cl"
 #include "Sphere.cl"
+#include "AABB.cl"
 #include "SpRigidBody3D.cl"
 
-#define MIN_POINT_NEXT_ELEMENT    input[dopIndex2 + axis]
-#define MIN_POINT_NEXT_ELEMENT_X  input[dopIndex2     ]
-#define MIN_POINT_NEXT_ELEMENT_Y  input[dopIndex2 +  1]
-#define MIN_POINT_NEXT_ELEMENT_Z  input[dopIndex2 +  2]
-#define MIN_POINT_NEXT_ELEMENT_XY input[dopIndex2 +  3]
-#define MIN_POINT_NEXT_ELEMENT_YX input[dopIndex2 +  4]
-#define MIN_POINT_NEXT_ELEMENT_YZ input[dopIndex2 +  5]
-#define MIN_POINT_NEXT_ELEMENT_ZY input[dopIndex2 +  6]
-#define MIN_POINT_NEXT_ELEMENT_XZ input[dopIndex2 +  7]
-#define MIN_POINT_NEXT_ELEMENT_ZX input[dopIndex2 +  8]
-#define MAX_POINT_NEXT_ELEMENT_X  input[dopIndex2 +  9]
-#define MAX_POINT_NEXT_ELEMENT_Y  input[dopIndex2 + 10]
-#define MAX_POINT_NEXT_ELEMENT_Z  input[dopIndex2 + 11]
-#define MAX_POINT_NEXT_ELEMENT_XY input[dopIndex2 + 12]
-#define MAX_POINT_NEXT_ELEMENT_YX input[dopIndex2 + 13]
-#define MAX_POINT_NEXT_ELEMENT_YZ input[dopIndex2 + 14]
-#define MAX_POINT_NEXT_ELEMENT_ZY input[dopIndex2 + 15]
-#define MAX_POINT_NEXT_ELEMENT_XZ input[dopIndex2 + 16]
-#define MAX_POINT_NEXT_ELEMENT_ZX input[dopIndex2 + 17]
+#ifndef INPUT_STRIDE
+    #define INPUT_STRIDE (1)
+#endif
 
-#define MAX_POINT input[dopIndex1 + DOP18_ORIENTATIONS + axis]
-#define minPointX input[dopIndex1      ]
-#define minPointY input[dopIndex1  +  1]
-#define minPointZ input[dopIndex1  +  2]
-#define minPointXY input[dopIndex1 +  3]
-#define minPointYX input[dopIndex1 +  4]
-#define minPointYZ input[dopIndex1 +  5]
-#define minPointZY input[dopIndex1 +  6]
-#define minPointXZ input[dopIndex1 +  7]
-#define minPointZX input[dopIndex1 +  8]
-#define maxPointX input[dopIndex1  +  9]
-#define maxPointY input[dopIndex1  + 10]
-#define maxPointZ input[dopIndex1  + 11]
-#define maxPointXY input[dopIndex1 + 12]
-#define maxPointYX input[dopIndex1 + 13]
-#define maxPointYZ input[dopIndex1 + 14]
-#define maxPointZY input[dopIndex1 + 15]
-#define maxPointXZ input[dopIndex1 + 16]
-#define maxPointZX input[dopIndex1 + 17]
+#define DOP18_MIN_POINT_NEXT_ELEMENT    input[boundingVolumeIndex2 + axis]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_X  input[boundingVolumeIndex2     ]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_Y  input[boundingVolumeIndex2 +  1]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_Z  input[boundingVolumeIndex2 +  2]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_XY input[boundingVolumeIndex2 +  3]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_YX input[boundingVolumeIndex2 +  4]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_YZ input[boundingVolumeIndex2 +  5]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_ZY input[boundingVolumeIndex2 +  6]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_XZ input[boundingVolumeIndex2 +  7]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_ZX input[boundingVolumeIndex2 +  8]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_X  input[boundingVolumeIndex2 +  9]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_Y  input[boundingVolumeIndex2 + 10]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_Z  input[boundingVolumeIndex2 + 11]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_XY input[boundingVolumeIndex2 + 12]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_YX input[boundingVolumeIndex2 + 13]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_YZ input[boundingVolumeIndex2 + 14]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_ZY input[boundingVolumeIndex2 + 15]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_XZ input[boundingVolumeIndex2 + 16]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_ZX input[boundingVolumeIndex2 + 17]
+
+#define DOP18_MAX_POINT  input[boundingVolumeIndex1 + DOP18_ORIENTATIONS + axis]
+#define DOP18_minPointX  input[boundingVolumeIndex1     ]
+#define DOP18_minPointY  input[boundingVolumeIndex1 +  1]
+#define DOP18_minPointZ  input[boundingVolumeIndex1 +  2]
+#define DOP18_minPointXY input[boundingVolumeIndex1 +  3]
+#define DOP18_minPointYX input[boundingVolumeIndex1 +  4]
+#define DOP18_minPointYZ input[boundingVolumeIndex1 +  5]
+#define DOP18_minPointZY input[boundingVolumeIndex1 +  6]
+#define DOP18_minPointXZ input[boundingVolumeIndex1 +  7]
+#define DOP18_minPointZX input[boundingVolumeIndex1 +  8]
+#define DOP18_maxPointX  input[boundingVolumeIndex1 +  9]
+#define DOP18_maxPointY  input[boundingVolumeIndex1 + 10]
+#define DOP18_maxPointZ  input[boundingVolumeIndex1 + 11]
+#define DOP18_maxPointXY input[boundingVolumeIndex1 + 12]
+#define DOP18_maxPointYX input[boundingVolumeIndex1 + 13]
+#define DOP18_maxPointYZ input[boundingVolumeIndex1 + 14]
+#define DOP18_maxPointZY input[boundingVolumeIndex1 + 15]
+#define DOP18_maxPointXZ input[boundingVolumeIndex1 + 16]
+#define DOP18_maxPointZX input[boundingVolumeIndex1 + 17]
+
+#define AABB_MIN_POINT_NEXT_ELEMENT input[boundingVolumeIndex2                     + axis]
+#define AABB_MAX_POINT              input[boundingVolumeIndex1 + AABB_ORIENTATIONS + axis]
+
+#define AABB_MIN_POINT_NEXT_ELEMENT_X input[boundingVolumeIndex2       ]
+#define AABB_MIN_POINT_NEXT_ELEMENT_Y input[boundingVolumeIndex2 +    1]
+#define AABB_MIN_POINT_NEXT_ELEMENT_Z input[boundingVolumeIndex2 +    2]
+#define AABB_MAX_POINT_NEXT_ELEMENT_X input[boundingVolumeIndex2 +    3]
+#define AABB_MAX_POINT_NEXT_ELEMENT_Y input[boundingVolumeIndex2 +    4]
+#define AABB_MAX_POINT_NEXT_ELEMENT_Z input[boundingVolumeIndex2 +    5]
+
+#define AABB_minPointX  input[boundingVolumeIndex1     ]
+#define AABB_minPointY  input[boundingVolumeIndex1 +  1]
+#define AABB_minPointZ  input[boundingVolumeIndex1 +  2]
+#define AABB_maxPointX  input[boundingVolumeIndex1 +  3]
+#define AABB_maxPointY  input[boundingVolumeIndex1 +  4]
+#define AABB_maxPointZ  input[boundingVolumeIndex1 +  5]
+
+__kernel void buildInputElements(
+    __global   sp_float* boundingVolume,
+    __constant sp_int  * boundingVolumeType,
+    __constant sp_uint * indexes,
+    __constant sp_uint * inputLength,
+    __global   sp_float* output
+    )
+{
+#define axis THREAD_OFFSET
+
+    const sp_uint elementIndex = indexes[THREAD_ID - THREAD_OFFSET];
+
+    switch (*boundingVolumeType)
+    {
+    case 4: // DOP18
+        {
+            output[elementIndex] = boundingVolume[elementIndex * DOP18_STRIDE + axis];    
+            break;
+        }
+    case 3: // AABB
+        {
+            sp_uint axisId = axis;
+
+            switch(axis)
+            {
+            case DOP18_AXIS_UP_LEFT:
+            case DOP18_AXIS_UP_RIGHT:
+            case DOP18_AXIS_LEFT_DEPTH:
+            case DOP18_AXIS_RIGHT_DEPTH:
+                {
+                    axisId = DOP18_AXIS_X;
+                    break;
+                }
+            case DOP18_AXIS_UP_FRONT:
+            case DOP18_AXIS_UP_DEPTH:
+                {
+                    axisId = DOP18_AXIS_Z;
+                    break;
+                }
+            }
+
+            output[elementIndex] = boundingVolume[elementIndex * AABB_STRIDE + axisId];
+            break;
+        }
+    case 1: // SPHERE
+        {
+            Vec3 axisVector;
+
+            switch (axis)
+            {
+            case DOP18_AXIS_X:
+            {
+                vec3_right(axisVector);
+                break;
+            }
+            case DOP18_AXIS_Y:
+            {
+                vec3_up(axisVector);
+                break;
+            }
+            case DOP18_AXIS_Z:
+            {
+                vec3_front(axisVector);
+                break;
+            }
+            case DOP18_AXIS_UP_LEFT:
+            {
+                vec3_up_left(axisVector);
+                break;
+            }
+            case DOP18_AXIS_UP_RIGHT:
+            {
+                vec3_up_right(axisVector);
+                break;
+            }
+            case DOP18_AXIS_UP_FRONT:
+            {
+                vec3_up_front(axisVector);
+                break;
+            }
+            case DOP18_AXIS_UP_DEPTH:
+            {
+                vec3_up_depth(axisVector);
+                break;
+            }
+            case DOP18_AXIS_LEFT_DEPTH:
+            {
+                vec3_left_depth(axisVector);
+                break;
+            }
+            case DOP18_AXIS_RIGHT_DEPTH:
+            {
+                vec3_right_depth(axisVector);
+                break;
+            }
+            }
+
+            Vec3 center;
+            center.x = boundingVolume[elementIndex * SPHERE_STRIDE    ];
+            center.y = boundingVolume[elementIndex * SPHERE_STRIDE + 1];
+            center.z = boundingVolume[elementIndex * SPHERE_STRIDE + 2];
+
+            output[elementIndex] = vec3_dot_vec3(axisVector, center) / vec3_dot_vec3(axisVector, axisVector);
+            break;
+        }
+    }
+
+#undef axis
+}
 
 __kernel void sweepAndPruneSingleAxis(
 	__global   sp_float* input,
@@ -51,34 +183,34 @@ __kernel void sweepAndPruneSingleAxis(
 	__global   sp_uint * outputLength, 
 	__global   sp_uint * output)
 {
-    __private const sp_uint axis = THREAD_OFFSET;
-    __private const sp_uint index = THREAD_ID - THREAD_OFFSET;
+#define axis THREAD_OFFSET
+#define index (THREAD_ID - THREAD_OFFSET)
 
     if (index + 1u > *indexesLength)
         return;
 
     const sp_uint objIndex1 = indexes[index];
-    const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
+    const sp_uint boundingVolumeIndex1 = objIndex1 * DOP18_STRIDE;
 
     //const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex1 * SP_RIGID_BODY_3D_SIZE);
 
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
         const sp_uint objIndex2 = indexes[j];
-        const sp_uint dopIndex2 = objIndex2 * INPUT_STRIDE;
+        const sp_uint boundingVolumeIndex2 = objIndex2 * DOP18_STRIDE;
 
-        if (MAX_POINT < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
+        if (DOP18_MAX_POINT < DOP18_MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
             return;
 
-        if (   (maxPointX  >= MIN_POINT_NEXT_ELEMENT_X  && minPointX  <= MAX_POINT_NEXT_ELEMENT_X)
-            && (maxPointY  >= MIN_POINT_NEXT_ELEMENT_Y  && minPointY  <= MAX_POINT_NEXT_ELEMENT_Y)
-            && (maxPointZ  >= MIN_POINT_NEXT_ELEMENT_Z  && minPointZ  <= MAX_POINT_NEXT_ELEMENT_Z)
-            && (maxPointXY >= MIN_POINT_NEXT_ELEMENT_XY && minPointXY <= MAX_POINT_NEXT_ELEMENT_XY)
-            && (maxPointYX >= MIN_POINT_NEXT_ELEMENT_YX && minPointYX <= MAX_POINT_NEXT_ELEMENT_YX)
-            && (maxPointYZ >= MIN_POINT_NEXT_ELEMENT_YZ && minPointYZ <= MAX_POINT_NEXT_ELEMENT_YZ)
-            && (maxPointZY >= MIN_POINT_NEXT_ELEMENT_ZY && minPointZY <= MAX_POINT_NEXT_ELEMENT_ZY)
-            && (maxPointXZ >= MIN_POINT_NEXT_ELEMENT_XZ && minPointXZ <= MAX_POINT_NEXT_ELEMENT_XZ)
-            && (maxPointZX >= MIN_POINT_NEXT_ELEMENT_ZX && minPointZX <= MAX_POINT_NEXT_ELEMENT_ZX)  
+        if (   (DOP18_maxPointX  >= DOP18_MIN_POINT_NEXT_ELEMENT_X  && DOP18_minPointX  <= DOP18_MAX_POINT_NEXT_ELEMENT_X)
+            && (DOP18_maxPointY  >= DOP18_MIN_POINT_NEXT_ELEMENT_Y  && DOP18_minPointY  <= DOP18_MAX_POINT_NEXT_ELEMENT_Y)
+            && (DOP18_maxPointZ  >= DOP18_MIN_POINT_NEXT_ELEMENT_Z  && DOP18_minPointZ  <= DOP18_MAX_POINT_NEXT_ELEMENT_Z)
+            && (DOP18_maxPointXY >= DOP18_MIN_POINT_NEXT_ELEMENT_XY && DOP18_minPointXY <= DOP18_MAX_POINT_NEXT_ELEMENT_XY)
+            && (DOP18_maxPointYX >= DOP18_MIN_POINT_NEXT_ELEMENT_YX && DOP18_minPointYX <= DOP18_MAX_POINT_NEXT_ELEMENT_YX)
+            && (DOP18_maxPointYZ >= DOP18_MIN_POINT_NEXT_ELEMENT_YZ && DOP18_minPointYZ <= DOP18_MAX_POINT_NEXT_ELEMENT_YZ)
+            && (DOP18_maxPointZY >= DOP18_MIN_POINT_NEXT_ELEMENT_ZY && DOP18_minPointZY <= DOP18_MAX_POINT_NEXT_ELEMENT_ZY)
+            && (DOP18_maxPointXZ >= DOP18_MIN_POINT_NEXT_ELEMENT_XZ && DOP18_minPointXZ <= DOP18_MAX_POINT_NEXT_ELEMENT_XZ)
+            && (DOP18_maxPointZX >= DOP18_MIN_POINT_NEXT_ELEMENT_ZX && DOP18_minPointZX <= DOP18_MAX_POINT_NEXT_ELEMENT_ZX)  
         )
         {
             //const sp_uint isStaticObj2 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex2 * SP_RIGID_BODY_3D_SIZE);
@@ -90,6 +222,9 @@ __kernel void sweepAndPruneSingleAxis(
             output[temp + 1] = objIndex2;
         }
     }
+
+#undef index
+#undef axis
 }
 
 
@@ -101,28 +236,28 @@ __kernel void sweepAndPruneSingleAxisAABB(
     __global   sp_uint* outputLength,
     __global   sp_uint* output)
 {
-    __private const sp_uint axis = THREAD_OFFSET;
-    __private const sp_uint index = THREAD_ID - THREAD_OFFSET;
+#define axis THREAD_OFFSET
+#define index (THREAD_ID - THREAD_OFFSET)
 
     if (index + 1u > * indexesLength)
         return;
 
     const sp_uint objIndex1 = indexes[index];
-    const sp_uint dopIndex1 = objIndex1 * INPUT_STRIDE;
+    const sp_uint boundingVolumeIndex1 = objIndex1 * AABB_STRIDE;
 
     //const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex1 * SP_RIGID_BODY_3D_SIZE);
 
     for (sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
         const sp_uint objIndex2 = indexes[j];
-        const sp_uint dopIndex2 = objIndex2 * INPUT_STRIDE;
+        const sp_uint boundingVolumeIndex2 = objIndex2 * AABB_STRIDE;
 
-        if (MAX_POINT < MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
+        if (AABB_MAX_POINT < AABB_MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
             return;
 
-        if ((maxPointX >= MIN_POINT_NEXT_ELEMENT_X && minPointX <= MAX_POINT_NEXT_ELEMENT_X)
-            && (maxPointY >= MIN_POINT_NEXT_ELEMENT_Y && minPointY <= MAX_POINT_NEXT_ELEMENT_Y)
-            && (maxPointZ >= MIN_POINT_NEXT_ELEMENT_Z && minPointZ <= MAX_POINT_NEXT_ELEMENT_Z)
+        if (   (AABB_maxPointX >= AABB_MIN_POINT_NEXT_ELEMENT_X && AABB_minPointX <= AABB_MAX_POINT_NEXT_ELEMENT_X)
+            && (AABB_maxPointY >= AABB_MIN_POINT_NEXT_ELEMENT_Y && AABB_minPointY <= AABB_MAX_POINT_NEXT_ELEMENT_Y)
+            && (AABB_maxPointZ >= AABB_MIN_POINT_NEXT_ELEMENT_Z && AABB_minPointZ <= AABB_MAX_POINT_NEXT_ELEMENT_Z)
         )
         {
             //const sp_uint isStaticObj2 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex2 * SP_RIGID_BODY_3D_SIZE);
@@ -134,6 +269,9 @@ __kernel void sweepAndPruneSingleAxisAABB(
             output[temp + 1] = objIndex2;
         }
     }
+
+#undef index
+#undef axis
 }
 
 
@@ -145,9 +283,8 @@ __kernel void sweepAndPruneSingleAxisSphere(
     __global   sp_uint* outputLength,
     __global   sp_uint* output)
 {
+#define index (THREAD_ID - THREAD_OFFSET)
 #define beginIntervalObj2 (positionObj2.x - rayObj2)
-
-    const sp_uint index = THREAD_ID - THREAD_OFFSET;
 
     if (index + 1u > *indexesLength)
         return;
@@ -186,4 +323,5 @@ __kernel void sweepAndPruneSingleAxisSphere(
     }
 
 #undef beginIntervalObj2
+#undef index
 }

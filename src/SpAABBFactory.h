@@ -5,7 +5,7 @@
 #include "AABB.h"
 #include "DOP18.h"
 #include "SpMesh.h"
-#include "FileSystem.h"
+#include "SpBoundingVolumeFactory.h"
 
 #ifdef OPENCL_ENABLED
 	#include "GpuCommand.h"
@@ -18,37 +18,8 @@ namespace NAMESPACE_PHYSICS
 	/// Factory for AABB (6-DOP) with 3 orientations and 6 Polytopos
 	/// </summary>
 	class SpAABBFactory
+		: public SpBoundingVolumeFactory
 	{
-	private:
-
-#ifdef OPENCL_ENABLED
-		GpuCommand* command;
-		sp_size globalWorkSize[3] = { 0, 0, 0 };
-		sp_size localWorkSize[3] = { 0, 0, 0 };
-		cl_program program;
-
-		void initProgram(GpuDevice* gpu)
-		{
-			SpDirectory* filename = SpDirectory::currentDirectory()
-				->add(SP_DIRECTORY_OPENCL_SOURCE)
-				->add("BoundingVolumeFactory.cl");
-
-			SP_FILE file;
-			file.open(filename->name()->data(), std::ios::in);
-			sp_mem_delete(filename, SpDirectory);
-			sp_size fileSize = file.length();
-			sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
-			file.read(source, fileSize);
-			file.close();
-
-			const sp_char* buildOptions = nullptr;
-
-			sp_uint programIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
-			ALLOC_RELEASE(source);
-			program = gpu->commandManager->cachedPrograms[programIndex];
-		}
-#endif
-
 	public:
 
 		/// <summary>
@@ -97,7 +68,7 @@ namespace NAMESPACE_PHYSICS
 
 #ifdef OPENCL_ENABLED
 
-		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU, cl_mem output)
+		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU)
 		{
 			initProgram(gpu);
 
@@ -110,13 +81,8 @@ namespace NAMESPACE_PHYSICS
 				->setInputParameter(meshCacheVertexesLength)
 				->setInputParameter(meshCacheGPU)
 				->setInputParameter(transformationsGPU, inputLength * sizeof(SpTransform))
-				->setInputParameter(output, inputLength * sizeof(DOP18))
+				->setInputParameter(_boundingVolumesGPU, inputLength * sizeof(AABB))
 				->buildFromProgram(program, "buildAABB");
-		}
-
-		API_INTERFACE void buildGPU() const
-		{
-			command->execute(1u, globalWorkSize, localWorkSize);
 		}
 
 #endif

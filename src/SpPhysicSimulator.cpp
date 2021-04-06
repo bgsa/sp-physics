@@ -28,26 +28,20 @@ namespace NAMESPACE_PHYSICS
 		_sapCollisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		_sapCollisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << world->objectsLengthAllocated()
-			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-			<< " -DINPUT_OFFSET=" << 0
-			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
-
 		sapDOP18 = sp_mem_new(SweepAndPrune)();
-		sapDOP18->init(gpu, buildOptions.str().c_str());
-		sapDOP18->setParameters(world->_boundingVolumesGPU, world->objectsLengthAllocated(),
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, world->_rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
+		sapDOP18->init(gpu, nullptr);
+		sapDOP18->setParameters(world->dop18Factory.boundingVolumeGPU(), world->objectsLengthAllocated(), BoundingVolumeType::DOP18,
+			DOP18_STRIDER, world->_rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxis");
 
 		sapAABB = sp_mem_new(SweepAndPrune)();
-		sapAABB->init(gpu, buildOptions.str().c_str());
-		sapAABB->setParameters(world->_boundingVolumesGPU, world->objectsLengthAllocated(),
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, world->_rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
+		sapAABB->init(gpu, nullptr);
+		sapAABB->setParameters(world->dop18Factory.boundingVolumeGPU(), world->objectsLengthAllocated(), BoundingVolumeType::AABB,
+			AABB_STRIDER, world->_rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisAABB");
 
 		sapSphere = sp_mem_new(SweepAndPrune)();
-		sapSphere->init(gpu, buildOptions.str().c_str());
-		sapSphere->setParameters(world->_boundingVolumesGPU, world->objectsLengthAllocated(),
-			DOP18_STRIDER, 0, DOP18_ORIENTATIONS, world->_rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisSphere");
+		sapSphere->init(gpu, nullptr);
+		sapSphere->setParameters(world->dop18Factory.boundingVolumeGPU(), world->objectsLengthAllocated(), BoundingVolumeType::Sphere,
+			SPHERE_STRIDE, world->_rigidBodies3DGPU, sizeof(SpRigidBody3D), _sapCollisionIndexesLengthGPU, _sapCollisionIndexesGPU, "sweepAndPruneSingleAxisSphere");
 
 		collisionResponseGPU = sp_mem_new(SpCollisionResponseGPU);
 		collisionResponseGPU->init(gpu, nullptr);
@@ -264,7 +258,7 @@ namespace NAMESPACE_PHYSICS
 		world->_meshCacheUpdater.execute();
 
 		// build bounding volumes Sphere
-		world->sphereFactory.buildGPU();
+		world->sphereFactory.execute();
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update();
@@ -273,7 +267,8 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint paresBroadPhaseSphere = sapResult.length;
 
 		// build bounding volumes AABB
-		world->aabbFactory.buildGPU();
+		world->aabbFactory.execute();
+
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update(); 
@@ -282,7 +277,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_uint paresBroadPhaseAABB = sapResult.length;
 
 		// build bounding volumes 18-DOP
-		world->dop18Factory.buildGPU();
+		world->dop18Factory.execute();
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update();

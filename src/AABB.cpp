@@ -2,95 +2,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	AABB::AABB()
-	{
-		this->minPoint = Vec3(-0.5f, -0.5f, -0.5f);
-		this->maxPoint = -this->minPoint;
-	}
-
-	AABB::AABB(Vec3 minPoint, Vec3 maxPoint)
-	{
-		this->minPoint = minPoint;
-		this->maxPoint = maxPoint;
-	}
-
-	AABB::AABB(Vec3 minPoint, sp_float width, sp_float height, sp_float depth)
-	{
-		this->minPoint = minPoint;
-
-		maxPoint = Vec3(
-			minPoint.x + width,
-			minPoint.y + height,
-			minPoint.z + depth
-			);
-	}
-
-	Vec3 AABB::center() const
-	{
-		return (maxPoint + minPoint) * 0.5f;
-	}
-
-	Vec3 AABB::centerOfBoundingVolume() const
-	{
-		return center();
-	}
-
-	sp_float AABB::squaredDistance(const Vec3& target)
-	{
-		sp_float result = 0.0f;
-
-		// For each axis count any excess distance outside box extents 
-		for (sp_int axis = 0; axis < 3; axis++)
-		{
-			sp_float v = target[axis];
-
-			if (v < minPoint[axis])
-				result += (minPoint[axis] - v) * (minPoint[axis] - v);
-
-			if (v > maxPoint[axis])
-				result += (v - maxPoint[axis]) * (v - maxPoint[axis]);
-		}
-
-		return result;
-	}
-
-	sp_float AABB::distance(const Vec3& target)
-	{
-		return (sp_float) sqrtf(squaredDistance(target));
-	}
-
-	void AABB::translate(const Vec3& translation)
-	{
-		minPoint += translation;
-		maxPoint += translation;
-	}
-
-	void AABB::scale(const Vec3& factor)
-	{
-		minPoint.x *= factor.x;
-		minPoint.y *= factor.y;
-		minPoint.z *= factor.z;
-
-		maxPoint.x *= factor.x;
-		maxPoint.y *= factor.y;
-		maxPoint.z *= factor.z;
-	}
-
-	void AABB::rotate(const Vec3& factor) { }
-
-	CollisionStatus AABB::collisionStatus(const AABB& aabb) 
-	{
-		if (maxPoint.x < aabb.minPoint.x || minPoint.x > aabb.maxPoint.x)
-			return CollisionStatus::OUTSIDE;
-
-		if (maxPoint.y < aabb.minPoint.y || minPoint.y > aabb.maxPoint.y)
-			return CollisionStatus::OUTSIDE;
-
-		if (maxPoint.z < aabb.minPoint.z || minPoint.z > aabb.maxPoint.z)
-			return CollisionStatus::OUTSIDE;
-
-		return CollisionStatus::INSIDE;
-	}
 
 	CollisionStatus AABB::collisionStatus(const Plane& plane)
 	{
@@ -245,31 +156,6 @@ namespace NAMESPACE_PHYSICS
 			return true;
 
 		return false;
-	}
-
-	sp_size AABB::operator()(const AABB& aabb) const
-	{
-		sp_float hash = 1.0f;
-		const sp_float constant = 3.0f;
-
-		hash = constant * hash + aabb.minPoint.x;
-		hash = constant * hash + aabb.minPoint.y;
-		hash = constant * hash + aabb.minPoint.z;
-		hash = constant * hash + aabb.maxPoint.x;
-		hash = constant * hash + aabb.maxPoint.y;
-		hash = constant * hash + aabb.maxPoint.z;
-
-		return size_t(hash);
-	}
-
-	sp_bool AABB::operator()(const AABB& aabb1, const AABB& aabb2) const
-	{
-		return aabb1 == aabb2;
-	}
-
-	BoundingVolumeType AABB::type() const
-	{
-		return BoundingVolumeType::AABB;
 	}
 
 }

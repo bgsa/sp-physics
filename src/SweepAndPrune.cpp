@@ -166,8 +166,8 @@ namespace NAMESPACE_PHYSICS
 			return this;
 
 		radixSorting = sp_mem_new(GpuRadixSorting)();
-		radixSorting->init(gpu, buildOptions);
-		
+		radixSorting->init(gpu, nullptr);
+
 		SpDirectory* filename = SpDirectory::currentDirectory()
 			->add(SP_DIRECTORY_OPENCL_SOURCE)
 			->add("SweepAndPrune.cl");
@@ -186,7 +186,7 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(source);
 		return this;
 	}
-	
+
 	void SweepAndPrune::initIndexes(sp_uint inputLength)
 	{
 		indexesLengthGPU = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
@@ -198,22 +198,32 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
-	void SweepAndPrune::setParameters(cl_mem inputGpu, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem rigidBodies, const sp_uint rigidBodiesSize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName)
+	void SweepAndPrune::setParameters(cl_mem boundingVolumesGpu, sp_uint boundingVolumesLength, BoundingVolumeType boundingVolumeType, sp_uint strider, cl_mem rigidBodies, const sp_uint rigidBodySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName)
 	{
-		globalWorkSize[0] = inputLength;
+		globalWorkSize[0] = boundingVolumesLength;
 		localWorkSize[0] = 1u;
 
-		const sp_uint collisionsSize = inputLength * 2u * SP_SAP_MAX_COLLISION_PER_OBJECT * SIZEOF_UINT;
+		const sp_uint collisionsSize = boundingVolumesLength * 2u * SP_SAP_MAX_COLLISION_PER_OBJECT * SIZEOF_UINT;
 
-		initIndexes(inputLength);
+		initIndexes(boundingVolumesLength);
 
-		radixSorting->setParameters(inputGpu, inputLength, indexesGPU, indexesLengthGPU, strider);
+		elementsGPU = gpu->createBuffer(sizeof(sp_float) * boundingVolumesLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		commandBuildElements = gpu->commandManager->createCommand()
+			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * SIZEOF_FLOAT)
+			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGPU, boundingVolumesLength * SIZEOF_UINT)
+			->setInputParameter(indexesLengthGPU, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(elementsGPU, sizeof(sp_float) * boundingVolumesLength)
+			->buildFromProgram(sapProgram, "buildInputElements");
+
+		radixSorting->setParameters(elementsGPU, boundingVolumesLength, indexesGPU, indexesLengthGPU, ONE_UINT);
 
 		commandSaPCollisions = gpu->commandManager->createCommand()
-			->setInputParameter(inputGpu, inputLength * strider * SIZEOF_FLOAT)
-			->setInputParameter(rigidBodies, inputLength * rigidBodiesSize)
+			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * SIZEOF_FLOAT)
+			->setInputParameter(rigidBodies, boundingVolumesLength * rigidBodySize)
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
-			->setInputParameter(indexesGPU, inputLength * SIZEOF_UINT)
+			->setInputParameter(indexesGPU, boundingVolumesLength * SIZEOF_UINT)
 			->setInputParameter(outputIndexLength, SIZEOF_UINT)
 			->setInputParameter(outputIndex, collisionsSize)
 			->buildFromProgram(sapProgram, commandName);
@@ -221,40 +231,59 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
-		sp_uint zeroValue = ZERO_UINT;
+		commandBuildElements->execute(ONE_UINT, globalWorkSize, localWorkSize, &axis, previousEvents, previousEventsLength);
 
-		cl_mem sortedIndexes = radixSorting->execute(previousEventsLength, previousEvents);
-		lastEvent = radixSorting->lastEvent;
- 
 		/*
-		// check if sorting is OK
-		const sp_uint len = inputLenLen;
-		const sp_uint floatsLength = 18;
-		sp_float* kdops = ALLOC_ARRAY(sp_float, len * floatsLength);
-		lastEvent = gpu->commandManager->readBuffer(input, len * floatsLength * 4, kdops, ONE_UINT, &lastEvent);
-		sp_uint* buffer = ALLOC_ARRAY(sp_uint, len);
-		lastEvent = gpu->commandManager->readBuffer(sortedIndexes, 4 * len, buffer, ONE_UINT, &lastEvent);
-		sp_log_info1s("BEGIN SORT"); sp_log_newline();
+		AABB aabbs[512];
+		gpu->commandManager->readBuffer(commandBuildElements->getInputParameter(0), sizeof(AABB) * 512, aabbs);
+
+		sp_float elements[512];
+		gpu->commandManager->readBuffer(commandBuildElements->getInputParameter(4), sizeof(sp_float) * 512, elements);
+		*/
+
+		/*
+		sp_uint* indexes = ALLOC_ARRAY(sp_uint, len);
+		gpu->commandManager->readBuffer(indexesGPU, sizeof(sp_uint) * len, indexes, ONE_UINT, &commandBuildElements->lastEvent);
+
+		sp_float* elements = ALLOC_ARRAY(sp_float, len);
+		gpu->commandManager->readBuffer(elementsGPU, sizeof(sp_float) * len, elements, ONE_UINT, &commandBuildElements->lastEvent);
+
+		sp_log_info1s("BEGIN INDEXES"); sp_log_newline();
 		for (sp_uint i = 0; i < len; i++)
 		{
-			sp_float valueX = kdops[buffer[i] * floatsLength ];
-			sp_log_info1f(valueX);
+			sp_log_info1u(indexes[i]); 
+			sp_log_info1s(" -> ");
+			sp_log_info1f(elements[indexes[i]]);
+
 			sp_log_newline();
 		}
-		sp_log_info1s("END SORT"); sp_log_newline();
-		ALLOC_RELEASE(buffer);
-
-		for (sp_uint i = 0; i < len * 18; i++)
-		{
-			sp_log_info1f(kdops[i]);
-			sp_log_info1s("f, ");
-		}
+		sp_log_info1s("END INDEXES"); sp_log_newline();
 		*/
+
+		cl_mem sortedIndexes = radixSorting->execute(ONE_UINT, &commandBuildElements->lastEvent);
+
+		/* check if sorting is OK		
+		sp_uint* sorted = ALLOC_ARRAY(sp_uint, len);
+		lastEvent = gpu->commandManager->readBuffer(sortedIndexes, 4 * len, sorted, ONE_UINT, &radixSorting->lastEvent);
+
+		sp_log_info1s("SORTED INDEXES INDEXES"); sp_log_newline();
+		for (sp_uint i = 0; i < len; i++)
+		{
+			sp_log_info1u(sorted[i]);
+			sp_log_info1s(" -> ");
+			sp_log_info1f(elements[sorted[i]]); 
+
+			sp_log_newline();
+		}
+		sp_log_info1s("END SORTED INDEXES"); sp_log_newline();
+		*/
+
+		sp_uint zeroValue = ZERO_UINT;
 
 		commandSaPCollisions
 			->updateInputParameter(3, sortedIndexes)
 			->updateInputParameterValue(4, &zeroValue)
-			->execute(1, globalWorkSize, localWorkSize, 0, &lastEvent, ONE_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &axis, &radixSorting->lastEvent, ONE_UINT);
 
 		lastEvent = commandSaPCollisions->lastEvent;
 

@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuCommand* setInputParameter(cl_mem buffer, sp_size sizeOfValue);
 		API_INTERFACE GpuCommand* setInputParameter(GpuBufferOpenCL* buffer);
 
-		API_INTERFACE GpuCommand* updateInputParameterValue(sp_uint index, const void* value);
+		API_INTERFACE GpuCommand* updateInputParameterValue(sp_uint index, const void* value, const sp_uint eventsLength = ZERO_UINT, cl_event* events = nullptr);
 		API_INTERFACE GpuCommand* updateInputParameterValueAsync(sp_uint index, const void* value);
 		API_INTERFACE GpuCommand* updateInputParameter(sp_uint index, cl_mem memoryBuffer);
 
@@ -76,7 +76,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void fetchInOutParameter(sp_uint index, T* result)
 		{
 			sp_size size = inputParametersSize[index];
-			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, &lastEvent));
+			HANDLE_OPENCL_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, &lastEvent));
 		}
 
 		API_INTERFACE void fetchInOutParameter(void* buffer, sp_uint index);

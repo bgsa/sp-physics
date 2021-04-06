@@ -44,7 +44,6 @@ namespace NAMESPACE_PHYSICS
 
 		// GPU data
 		GpuBufferOpenCL* _inputLengthGPU;
-		cl_mem _boundingVolumesGPU;
 		cl_mem _rigidBodies3DGPU;
 		cl_mem _transformsGPU;
 		SpGpuTextureBuffer* _transformsGPUBuffer;
@@ -133,9 +132,9 @@ namespace NAMESPACE_PHYSICS
 			_meshCacheUpdater.init(gpu);
 			_meshCacheUpdater.setParameters(_inputLengthGPU, _objectMapperGPU, _meshesGPU, _meshesIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
 
-			dop18Factory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
-			aabbFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
-			sphereFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _boundingVolumesGPU);
+			dop18Factory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
+			aabbFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
+			sphereFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
 #endif
 			ALLOC_RELEASE(meshCacheIndexes);
 		}

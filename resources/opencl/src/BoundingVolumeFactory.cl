@@ -1,5 +1,9 @@
+#ifndef BOUNDING_VOLUME_FACTORY_OPENCL_HEADER
+#define BOUNDING_VOLUME_FACTORY_OPENCL_HEADER
+
 #include "OpenCLBase.cl"
 #include "DOP18.cl"
+#include "AABB.cl"
 #include "Sphere.cl"
 #include "Plane3D.cl"
 #include "SpTransformation.cl"
@@ -270,16 +274,16 @@ __kernel void buildAABB(
         right += 0.1f;
     }
 
-    sp_uint outputIndex = THREAD_ID * DOP18_STRIDE;
+    sp_uint outputIndex = THREAD_ID * AABB_STRIDE;
 
-    output[outputIndex + DOP18_AXIS_X] = left;
-    output[outputIndex + DOP18_AXIS_Y] = down;
-    output[outputIndex + DOP18_AXIS_Z] = depth;
+    output[outputIndex + AABB_AXIS_X] = left;
+    output[outputIndex + AABB_AXIS_Y] = down;
+    output[outputIndex + AABB_AXIS_Z] = depth;
     
-    outputIndex += DOP18_ORIENTATIONS;
-    output[outputIndex + DOP18_AXIS_X] = right;
-    output[outputIndex + DOP18_AXIS_Y] = up;
-    output[outputIndex + DOP18_AXIS_Z] = front;
+    outputIndex += AABB_ORIENTATIONS;
+    output[outputIndex + AABB_AXIS_X] = right;
+    output[outputIndex + AABB_AXIS_Y] = up;
+    output[outputIndex + AABB_AXIS_Z] = front;
 }
 
 
@@ -314,10 +318,12 @@ __kernel void buildSphere(
             distance = currentDistance;
     }
 
-    const sp_uint outputIndex = THREAD_ID * 4;
+    const sp_uint outputIndex = THREAD_ID * SPHERE_STRIDE;
 
     output[outputIndex     ] = position.x;
     output[outputIndex + 1u] = position.y;
     output[outputIndex + 2u] = position.z;    
     output[outputIndex + 3u] = (sp_float) sqrt(distance);
 }
+
+#endif // BOUNDING_VOLUME_FACTORY_OPENCL_HEADER

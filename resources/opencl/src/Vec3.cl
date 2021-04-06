@@ -4,12 +4,36 @@
 #define VEC3_HEADER
 
 typedef float3 Vec3;
-/*
-typedef struct Vec3
-{
-	sp_float x, y, z;
-} Vec3;
-*/
+
+#define vec3_up(vec) \
+	vec.x =  0.0f;   \
+	vec.y =  1.0f;   \
+	vec.z =  0.0f;
+
+#define vec3_down(vec) \
+	vec.x =  0.0f;     \
+	vec.y = -1.0f;     \
+	vec.z =  0.0f;
+
+#define vec3_left(vec) \
+	vec.x = -1.0f;     \
+	vec.y =  0.0f;     \
+	vec.z =  0.0f;
+
+#define vec3_right(vec) \
+	vec.x =  1.0f;      \
+	vec.y =  0.0f;      \
+	vec.z =  0.0f;
+
+#define vec3_depth(vec) \
+	vec.x =  0.0f;      \
+	vec.y =  0.0f;      \
+	vec.z = -1.0f;
+
+#define vec3_front(vec) \
+	vec.x =  0.0f;      \
+	vec.y =  0.0f;      \
+	vec.z =  1.0f;
 
 #define vec3_up_left(vec) \
 	vec.x = -1.0f; \
@@ -80,7 +104,7 @@ inline void vec3_abs(const Vec3 vec, Vec3* result)
 }
 
 #define vec3_dot_vec3(vector1, vector2) \
-	vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z
+	(vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z)
 
 
 #define squared_distance(vector1, vector2) \

@@ -49,16 +49,19 @@ namespace NAMESPACE_PHYSICS
 		: public GpuComposedCommand
 	{
 	private:
+		
+#ifdef OPENCL_ENABLED
+		GpuDevice* gpu;
+		cl_program sapProgram;
 
-#if OPENCL_ENABLED
-		GpuDevice* gpu = nullptr;
-		cl_program sapProgram = nullptr;
+		GpuRadixSorting* radixSorting;
+		GpuCommand* commandSaPCollisions;
+		GpuCommand* commandBuildElements;
 
-		GpuRadixSorting* radixSorting = nullptr;
-		GpuCommand* commandSaPCollisions = nullptr;
+		cl_mem indexesLengthGPU;
+		cl_mem indexesGPU;
 
-		cl_mem indexesLengthGPU = nullptr;
-		cl_mem indexesGPU = nullptr;
+		cl_mem elementsGPU;
 
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
@@ -67,6 +70,30 @@ namespace NAMESPACE_PHYSICS
 #endif // OPENCL_ENABLED
 
 	public:
+		sp_uint axis;
+
+		/// <summary>
+		/// Default constructor
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline SweepAndPrune()
+		{
+			axis = DOP18_AXIS_X;
+
+#ifdef OPENCL_ENABLED
+			gpu = nullptr;
+			sapProgram = nullptr;
+
+			radixSorting = nullptr;
+			commandSaPCollisions = nullptr;
+			commandBuildElements = nullptr;
+
+			indexesLengthGPU = nullptr;
+			indexesGPU = nullptr;
+
+			elementsGPU = nullptr;
+#endif // OPENCL_ENABLED
+		}
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method
@@ -90,7 +117,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(cl_mem input, sp_uint inputLength, sp_uint strider, sp_uint offset, sp_size axisLength, cl_mem rigidBodies, const sp_uint rigidBodiesSize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName);
+		API_INTERFACE void setParameters(cl_mem boundingVolumesGpu, sp_uint boundingVolumesLength, BoundingVolumeType boundingVolumeType, sp_uint strider, cl_mem rigidBodies, const sp_uint rigidBodySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName);
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method in GPU
@@ -146,6 +173,12 @@ namespace NAMESPACE_PHYSICS
 				commandSaPCollisions = nullptr;
 			}
 
+			if (commandBuildElements != nullptr)
+			{
+				sp_mem_delete(commandBuildElements, GpuCommand);
+				commandBuildElements = nullptr;
+			}
+
 			if (indexesGPU != nullptr)
 			{
 				gpu->releaseBuffer(indexesGPU);
@@ -156,6 +189,12 @@ namespace NAMESPACE_PHYSICS
 			{
 				gpu->releaseBuffer(indexesLengthGPU);
 				indexesLengthGPU = nullptr;
+			}
+
+			if (elementsGPU != nullptr)
+			{
+				gpu->releaseBuffer(elementsGPU);
+				elementsGPU = nullptr;
 			}
 #endif // OPENCL_ENABLED
 		}

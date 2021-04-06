@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Handle Build errors
 		///</summary>
-		API_INTERFACE static void handleBuildError(int errorCode, cl_program program, cl_device_id deviceId)
+		API_INTERFACE static void handleBuildError(sp_int errorCode, cl_program program, cl_device_id deviceId)
 		{
 			if (errorCode == CL_BUILD_PROGRAM_FAILURE)
 			{
@@ -57,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Handle Runtime errors
 		///</summary>
-		API_INTERFACE static void handleRuntimeError(int errorCode)
+		API_INTERFACE static void handleRuntimeError(sp_int errorCode)
 		{
 			std::string runtimeError = runtimeErrorMessage(errorCode);
 			sp_assert(errorCode == CL_SUCCESS, runtimeError.c_str());
@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Handle Compile errors
 		///</summary>
-		API_INTERFACE static void handleCompileError(int errorCode)
+		API_INTERFACE static void handleCompileError(sp_int errorCode)
 		{
 			std::string compileError = compileErrorMessage(errorCode);
 			sp_assert(errorCode == CL_SUCCESS, compileError.c_str());
@@ -75,7 +75,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Get the runtime error message, given the opencl code
 		///</summary>
-		API_INTERFACE static std::string runtimeErrorMessage(int errorCode)
+		API_INTERFACE static std::string runtimeErrorMessage(sp_int errorCode)
 		{
 			switch (errorCode)
 			{
@@ -150,7 +150,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		///Get the compile error message, given the opencl code
 		///</summary>
-		API_INTERFACE static std::string compileErrorMessage(int errorCode)
+		API_INTERFACE static std::string compileErrorMessage(sp_int errorCode)
 		{
 			switch (errorCode)
 			{

@@ -10,17 +10,10 @@
 
 namespace NAMESPACE_PHYSICS
 {
+#define SPHERE_STRIDE (4)
 
 	class Sphere
-		: public BoundingVolume
 	{
-	private:
-
-		/// <summary>
-		/// This method is not applied to k-DOPs
-		/// </summary>
-		API_INTERFACE void rotate(const Vec3& angles) override;
-
 	public:
 		Vec3 center;
 		sp_float ray;
@@ -56,21 +49,14 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE Sphere(const Vec3 &point1, const Vec3 &point2, const Vec3 &point3, const Vec3 &point4);
 
 		/// <summary>
-		/// Get the center of sphere
-		/// </summary>
-		API_INTERFACE inline Vec3 centerOfBoundingVolume() const override {
-			return center;
-		}
-
-		/// <summary>
 		/// Translate the bounding volume
 		/// </summary>
-		API_INTERFACE void translate(const Vec3& translation) override;
+		API_INTERFACE void translate(const Vec3& translation);
 
 		/// <summary>
 		/// Scale the bounding volume (only in X, Y and Z)
 		/// </summary>
-		API_INTERFACE void scale(const Vec3& factor) override;
+		API_INTERFACE void scale(const Vec3& factor);
 
 		/// <summary>
 		/// Check the status of collision against the point
@@ -111,18 +97,6 @@ namespace NAMESPACE_PHYSICS
 		/// Returns the type og bounding volume
 		/// </summary>
 		API_INTERFACE BoundingVolumeType type() const;
-
-		/// <summary>
-		/// Releases all allocated resouces
-		/// </summary>
-		API_INTERFACE virtual void dispose() override
-		{
-		}
-
-		API_INTERFACE virtual const sp_char* toString() override
-		{
-			return "Sphere Bounding Volume";
-		}
 
 	};
 

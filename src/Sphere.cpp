@@ -148,8 +148,6 @@ namespace NAMESPACE_PHYSICS
 		ray *= factor.x;
 	}
 
-	void Sphere::rotate(const Vec3& rotation) { }
-
 	CollisionStatus Sphere::collisionStatus(const Vec3 &point)  const
 	{
 		sp_float distanceToPoint = distance(center, point);

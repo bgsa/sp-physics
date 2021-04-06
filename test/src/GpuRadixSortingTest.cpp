@@ -142,9 +142,22 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	public:
 		SP_TEST_METHOD_DEF(radixGPU_Count);
+		SP_TEST_METHOD_DEF(radixGPU_Count2);
+		SP_TEST_METHOD_DEF(radixGPU_Count3);
+		SP_TEST_METHOD_DEF(radixGPU_Count4);
+		SP_TEST_METHOD_DEF(radixGPU_Count_Negative5);
 		SP_TEST_METHOD_DEF(radixGPU_PrefixScan);
+		SP_TEST_METHOD_DEF(radixGPU_PrefixScan2);
+		SP_TEST_METHOD_DEF(radixGPU_PrefixScan3);
+		SP_TEST_METHOD_DEF(radixGPU_PrefixScan4);
+		SP_TEST_METHOD_DEF(radixGPU_PrefixScan_Negative5);
+		SP_TEST_METHOD_DEF(radixGPU_Reorder2);
+		SP_TEST_METHOD_DEF(radixGPU_Reorder3);
+		SP_TEST_METHOD_DEF(radixGPU_Reorder4);
+		SP_TEST_METHOD_DEF(radixGPU_Reorder_Negative5);
 		SP_TEST_METHOD_DEF(radixGPU_1);
 		SP_TEST_METHOD_DEF(radixGPU_2);
+		SP_TEST_METHOD_DEF(radixGPU_3);
 		SP_TEST_METHOD_DEF(radixGPU_WithNegatives);
 		SP_TEST_METHOD_DEF(radixGPU_WithKDOPs);
 		SP_TEST_METHOD_DEF(radixGPU_WithKDOPs_2);
@@ -159,13 +172,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint count = (sp_uint)std::pow(2.0, 17.0);
 		sp_float* input = getRandom(count);
 
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count;
-		buildOptions << " -DINPUT_STRIDE=1";
-		buildOptions << " -DINPUT_OFFSET=0";
-
 		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
-		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(count);
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -181,29 +189,28 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
 
 		ALLOC_RELEASE(source);
 
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		
-		sp_uint offsetPrefixScanCpu = 10;
 		sp_bool useExpoent = false;
 		sp_uint digitIndex = 3;
 		sp_uint stride = 1u;
 		sp_uint offset = 0u;
 		const sp_uint inputSize = count * stride * SIZEOF_FLOAT;
 
-		cl_mem inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
+		cl_mem inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem indexesGpu = commandIndexes->execute();
-		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		cl_mem useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE);
-		cl_mem output = gpu->createBuffer(count * SIZEOF_UINT, CL_MEM_READ_WRITE);
+		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem output = gpu->createBuffer(count * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		const sp_uint offsetTableSize = SIZEOF_UINT * 10 * count;
-		cl_mem offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
-		cl_mem offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
+		cl_mem offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		cl_mem offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		cl_mem offsetTableResult = offsetTable2;
 
 		const sp_uint threadsLength = gpu->getThreadLength(count) / 2;
@@ -238,6 +245,464 @@ namespace NAMESPACE_PHYSICS_TEST
 		ALLOC_RELEASE(input);
 	}
 
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count2)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint expected[200] = {
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0
+		};
+
+		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
+		commandIndexes->init(gpu, nullptr);
+		commandIndexes->setParametersCreateIndexes(inputLength);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+
+		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+		const sp_uint elementsPerThread = inputLength / threadsLength;
+
+		sp_uint digitIndex = 3;
+		const sp_uint inputSize = inputLength * SIZEOF_FLOAT;
+		const sp_uint offsetTableSize = SIZEOF_UINT * 10 * inputLength;
+
+		cl_mem inputGpu = gpu->createBuffer(values, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem output = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandCount = gpu->commandManager->createCommand()
+			->setInputParameter(inputGpu, inputSize)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
+			->setInputParameter(offsetTableGPU, offsetTableSize)
+			->buildFromProgram(program, "count")
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
+
+		sp_float* temp = ALLOC_ARRAY(sp_float, inputLength);
+		gpu->commandManager->readBuffer(inputGpu, inputSize, temp, ONE_UINT, &commandCount->lastEvent);
+
+		sp_uint* offsetTable = (sp_uint*) ALLOC_SIZE(offsetTableSize);
+		std::memset(offsetTable, 0, offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+
+		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
+		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10 / elementsPerThread; i++)
+		{
+			for (sp_uint j = 0; j < 10; j++)
+			{
+				sp_log_info1u(offsetTable[i * 10 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		for (sp_uint shift = 0; shift < threadsLength * 10; shift += 10)
+		{
+			sp_uint value = 0u;
+
+			for (sp_uint i = 0; i < 10; i++)
+				value += offsetTable[i + shift];
+
+			if (value != inputLength / threadsLength)
+				Assert::Fail(L"Wrong value.", LINE_INFO());
+		}
+
+		for (sp_uint i = 0; i < 200; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandCount, GpuCommand);
+		gpu->releaseBuffer(output);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count3)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint inputIndexes[20] = {
+			12, 16, 2, 8, 11, 17, 18, 0, 1, 7, 5, 6, 9, 13, 15, 3, 4, 10, 19, 14
+		};
+		sp_uint expected[200] = {
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+		};
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+
+		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+		const sp_uint elementsPerThread = inputLength / threadsLength;
+
+		sp_uint digitIndex = 4;
+		const sp_uint inputSize = inputLength * SIZEOF_FLOAT;
+		const sp_uint offsetTableSize = SIZEOF_UINT * 10 * inputLength;
+
+		cl_mem inputGpu = gpu->createBuffer(values, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesGpu = gpu->createBuffer(inputIndexes, sizeof(sp_uint) * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem output = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandCount = gpu->commandManager->createCommand()
+			->setInputParameter(inputGpu, inputSize)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
+			->setInputParameter(offsetTableGPU, offsetTableSize)
+			->buildFromProgram(program, "count")
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
+
+		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
+		std::memset(offsetTable, 0, offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+
+		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
+		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10 / elementsPerThread; i++)
+		{
+			for (sp_uint j = 0; j < 10; j++)
+			{
+				sp_log_info1u(offsetTable[i * 10 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		for (sp_uint shift = 0; shift < threadsLength * 10; shift += 10)
+		{
+			sp_uint value = 0u;
+
+			for (sp_uint i = 0; i < 10; i++)
+				value += offsetTable[i + shift];
+
+			if (value != inputLength / threadsLength)
+				Assert::Fail(L"Wrong value.", LINE_INFO());
+		}
+
+		for (sp_uint i = 0; i < 200; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandCount, GpuCommand);
+		gpu->releaseBuffer(output);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count4)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint inputIndexes[20] = {
+			2, 17, 5, 14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19
+		};
+		sp_uint expected[200] = {
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+
+		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+		const sp_uint elementsPerThread = inputLength / threadsLength;
+
+		sp_uint digitIndex = 5;
+		const sp_uint inputSize = inputLength * SIZEOF_FLOAT;
+		const sp_uint offsetTableSize = SIZEOF_UINT * 10 * inputLength;
+
+		cl_mem inputGpu = gpu->createBuffer(values, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesGpu = gpu->createBuffer(inputIndexes, sizeof(sp_uint) * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem output = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandCount = gpu->commandManager->createCommand()
+			->setInputParameter(inputGpu, inputSize)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
+			->setInputParameter(offsetTableGPU, offsetTableSize)
+			->buildFromProgram(program, "count")
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
+
+		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
+		std::memset(offsetTable, 0, offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+
+		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
+		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10 / elementsPerThread; i++)
+		{
+			for (sp_uint j = 0; j < 10; j++)
+			{
+				sp_log_info1u(offsetTable[i * 10 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		for (sp_uint shift = 0; shift < threadsLength * 10; shift += 10)
+		{
+			sp_uint value = 0u;
+
+			for (sp_uint i = 0; i < 10; i++)
+				value += offsetTable[i + shift];
+
+			if (value != inputLength / threadsLength)
+				Assert::Fail(L"Wrong value.", LINE_INFO());
+		}
+
+		for (sp_uint i = 0; i < 200; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandCount, GpuCommand);
+		gpu->releaseBuffer(output);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count_Negative5)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint inputIndexes[20] = {
+			14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19, 2, 17, 5
+		};
+		sp_uint expected[40] = {
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1
+		};
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+
+		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+		const sp_uint elementsPerThread = inputLength / threadsLength;
+
+		const sp_uint inputSize = inputLength * SIZEOF_FLOAT;
+		const sp_uint offsetTableSize = SIZEOF_UINT * 2 * inputLength;
+
+		cl_mem inputGpu = gpu->createBuffer(values, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesGpu = gpu->createBuffer(inputIndexes, sizeof(sp_uint) * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandCount = gpu->commandManager->createCommand()
+			->setInputParameter(inputGpu, inputSize)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
+			->setInputParameter(offsetTableGPU, offsetTableSize)
+			->buildFromProgram(program, "countNegatives")
+			->execute(1, globalWorkSize, localWorkSize, 0, NULL, ZERO_UINT);
+
+		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
+		std::memset(offsetTable, 0, offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+
+		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
+		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 2 / elementsPerThread; i++)
+		{
+			for (sp_uint j = 0; j < 2; j++)
+			{
+				sp_log_info1u(offsetTable[i * 2 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		for (sp_uint i = 0; i < 40; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandCount, GpuCommand);
+	}
+
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan)
 	{
 		GpuContext* context = GpuContext::init();
@@ -246,13 +711,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint count = (sp_uint)std::pow(2.0, 17.0);
 		sp_float* input = getRandom(count);
 
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count;
-		buildOptions << " -DINPUT_STRIDE=1";
-		buildOptions << " -DINPUT_OFFSET=0";
-
 		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
-		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(count);
 		
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -268,13 +728,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
 
 		ALLOC_RELEASE(source);
 
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 
-		sp_uint offsetPrefixScanCpu = 10;
 		sp_bool useExpoent = false;
 		sp_uint digitIndex = 0;
 		sp_uint stride = 1u;
@@ -300,14 +759,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
 
-		cl_mem inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY);
+		cl_mem inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem indexesGpu = commandIndexes->execute();
-		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY);
-		cl_mem output = gpu->createBuffer(count * SIZEOF_UINT, CL_MEM_READ_WRITE);
+		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
+		cl_mem output = gpu->createBuffer(count * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
-		cl_mem offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
+		cl_mem offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		GpuCommand* commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
@@ -414,44 +873,1056 @@ namespace NAMESPACE_PHYSICS_TEST
 		ALLOC_RELEASE(input);
 	}
 
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan2)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint count = 20;
+		sp_uint offsetTableValues[200] = {
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+			0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0
+		};
+
+		sp_uint threadsLength = gpu->getThreadLength(count);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, count);
+		const sp_uint elementsPerThread = count / threadsLength;
+		const sp_uint maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength))) + ONE_UINT;
+
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
+		cl_mem offsetTable1GPU = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem offsetTable2GPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandPrefixScan = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
+		GpuCommand* commandPrefixScanSwapped = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
+		sp_size eventLength = ZERO_UINT;
+		cl_event* previousEvents = nullptr;
+		sp_bool offsetChanged = false;
+		sp_uint offsetPrefixScanCpu = 10;
+		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
+		{
+			if (offsetChanged)
+			{
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+			}
+			else
+			{
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+
+				if (eventLength == ZERO_UINT)
+				{
+					eventLength = ONE_UINT;
+					previousEvents = ALLOC_NEW(cl_event)();
+				}
+
+				previousEvents[0] = commandPrefixScan->lastEvent;
+			}	
+
+			offsetChanged = !offsetChanged;
+			offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
+		}
+
+		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTable2GPU, offsetTableSize, offsetTable, ONE_UINT, previousEvents);
+
+		sp_log_info1s("BEGIN OFFSET2"); sp_log_newline();
+		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10; i++)
+		{
+			for (sp_uint j = 0; j < 10; j++)
+			{
+				sp_log_info1u(offsetTable[i * 10 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		sp_uint expected[200] = {
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
+			0, 0, 1, 1, 1, 0, 0, 1, 1, 0,
+			0, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+			0, 0, 1, 1, 1, 0, 2, 1, 1, 0,
+			0, 0, 1, 1, 2, 0, 2, 1, 1, 0,
+			0, 0, 2, 1, 2, 0, 2, 1, 1, 0,
+			0, 0, 2, 1, 2, 0, 3, 1, 1, 0,
+			0, 0, 2, 1, 2, 0, 3, 1, 2, 0,
+			0, 0, 3, 1, 2, 0, 3, 1, 2, 0,
+			1, 0, 3, 1, 2, 0, 3, 1, 2, 0,
+			1, 0, 3, 1, 2, 0, 4, 1, 2, 0,
+			1, 0, 3, 1, 2, 0, 4, 1, 2, 1,
+			1, 0, 3, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 3, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 4, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 5, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 5, 1, 2, 0, 5, 1, 3, 1
+		};
+
+		for (sp_uint i = 0; i < 200; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandPrefixScanSwapped, GpuCommand);
+		sp_mem_delete(commandPrefixScan, GpuCommand);
+		gpu->releaseBuffer(offsetTable1GPU);
+		gpu->releaseBuffer(offsetTable2GPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan3)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint count = 20;
+		sp_uint offsetTableValues[200] = {
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+			0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 1, 0, 0, 0, 0, 0, 0, 0
+		};
+
+		sp_uint threadsLength = gpu->getThreadLength(count);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, count);
+		const sp_uint elementsPerThread = count / threadsLength;
+		const sp_uint maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength))) + ONE_UINT;
+
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
+		cl_mem offsetTable1GPU = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem offsetTable2GPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandPrefixScan = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
+		GpuCommand* commandPrefixScanSwapped = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
+		sp_size eventLength = ZERO_UINT;
+		cl_event* previousEvents = nullptr;
+		sp_bool offsetChanged = false;
+		sp_uint offsetPrefixScanCpu = 10;
+		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
+		{
+			if (offsetChanged)
+			{
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+			}
+			else
+			{
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+
+				if (eventLength == ZERO_UINT)
+				{
+					eventLength = ONE_UINT;
+					previousEvents = ALLOC_NEW(cl_event)();
+				}
+
+				previousEvents[0] = commandPrefixScan->lastEvent;
+			}
+
+			offsetChanged = !offsetChanged;
+			offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
+		}
+
+		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTable2GPU, offsetTableSize, offsetTable, ONE_UINT, previousEvents);
+
+		sp_log_info1s("BEGIN OFFSET2"); sp_log_newline();
+		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10; i++)
+		{
+			for (sp_uint j = 0; j < 10; j++)
+			{
+				sp_log_info1u(offsetTable[i * 10 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		sp_uint expected[200] = {
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+			1, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+			1, 0, 0, 1, 0, 0, 0, 0, 2, 0,
+			1, 0, 0, 1, 0, 0, 0, 1, 2, 0,
+			2, 0, 0, 1, 0, 0, 0, 1, 2, 0,
+			2, 0, 0, 1, 0, 0, 0, 2, 2, 0,
+			2, 0, 0, 2, 0, 0, 0, 2, 2, 0,
+			2, 0, 0, 2, 0, 0, 0, 2, 3, 0,
+			2, 0, 0, 2, 0, 0, 0, 3, 3, 0,
+			3, 0, 0, 2, 0, 0, 0, 3, 3, 0,
+			3, 0, 0, 2, 0, 1, 0, 3, 3, 0,
+			3, 0, 0, 2, 1, 1, 0, 3, 3, 0,
+			3, 0, 0, 2, 1, 1, 0, 4, 3, 0,
+			3, 0, 0, 2, 1, 2, 0, 4, 3, 0,
+			3, 0, 0, 2, 1, 2, 0, 4, 4, 0,
+			3, 0, 0, 2, 1, 2, 0, 5, 4, 0,
+			3, 0, 0, 3, 1, 2, 0, 5, 4, 0,
+			3, 0, 0, 3, 1, 2, 0, 5, 5, 0,
+			3, 0, 1, 3, 1, 2, 0, 5, 5, 0
+		};
+
+		for (sp_uint i = 0; i < 200; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandPrefixScanSwapped, GpuCommand);
+		sp_mem_delete(commandPrefixScan, GpuCommand);
+		gpu->releaseBuffer(offsetTable1GPU);
+		gpu->releaseBuffer(offsetTable2GPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan4)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint count = 20;
+		sp_uint offsetTableValues[200] = {
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+
+		sp_uint threadsLength = gpu->getThreadLength(count);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, count);
+		const sp_uint elementsPerThread = count / threadsLength;
+		const sp_uint maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength))) + ONE_UINT;
+
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
+		cl_mem offsetTable1GPU = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem offsetTable2GPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandPrefixScan = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
+		GpuCommand* commandPrefixScanSwapped = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScan");
+
+		sp_size eventLength = ZERO_UINT;
+		cl_event* previousEvents = nullptr;
+		sp_bool offsetChanged = false;
+		sp_uint offsetPrefixScanCpu = 10;
+		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
+		{
+			if (offsetChanged)
+			{
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+			}
+			else
+			{
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+
+				if (eventLength == ZERO_UINT)
+				{
+					eventLength = ONE_UINT;
+					previousEvents = ALLOC_NEW(cl_event)();
+				}
+
+				previousEvents[0] = commandPrefixScan->lastEvent;
+			}
+
+			offsetChanged = !offsetChanged;
+			offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
+		}
+
+		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTable2GPU, offsetTableSize, offsetTable, ONE_UINT, previousEvents);
+
+		sp_log_info1s("BEGIN OFFSET2"); sp_log_newline();
+		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10; i++)
+		{
+			for (sp_uint j = 0; j < 10; j++)
+			{
+				sp_log_info1u(offsetTable[i * 10 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		sp_uint expected[200] = {
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			2, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			3, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			4, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			5, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			6, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			7, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			8, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			9, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			10, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			11, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			12, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			13, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			14, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			15, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			16, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			17, 3, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+
+		for (sp_uint i = 0; i < 200; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandPrefixScanSwapped, GpuCommand);
+		sp_mem_delete(commandPrefixScan, GpuCommand);
+		gpu->releaseBuffer(offsetTable1GPU);
+		gpu->releaseBuffer(offsetTable2GPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan_Negative5)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint count = 20;
+		sp_uint offsetTableValues[40] = {
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1,
+			0, 1
+		};
+
+		sp_uint threadsLength = gpu->getThreadLength(count);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, count);
+		const sp_uint elementsPerThread = count / threadsLength;
+		const sp_uint maxIteration = (sp_uint)std::ceil(std::log(multiplyBy2(threadsLength))) + ONE_UINT;
+
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
+		cl_mem offsetTable1GPU = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem offsetTable2GPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandPrefixScan = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScanNegatives");
+
+		GpuCommand* commandPrefixScanSwapped = gpu->commandManager->createCommand()
+			->setInputParameter(offsetTable2GPU, offsetTableSize)
+			->setInputParameter(offsetTable1GPU, offsetTableSize)
+			->buildFromProgram(program, "prefixScanNegatives");
+
+		sp_size eventLength = ZERO_UINT;
+		cl_event* previousEvents = nullptr;
+		sp_bool offsetChanged = false;
+		sp_uint offsetPrefixScanCpu = 2;
+		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
+		{
+			if (offsetChanged)
+			{
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+			}
+			else
+			{
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+
+				if (eventLength == ZERO_UINT)
+				{
+					eventLength = ONE_UINT;
+					previousEvents = ALLOC_NEW(cl_event)();
+				}
+
+				previousEvents[0] = commandPrefixScan->lastEvent;
+			}
+
+			offsetChanged = !offsetChanged;
+			offsetPrefixScanCpu = multiplyBy2(offsetPrefixScanCpu);
+		}
+
+		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
+		gpu->commandManager->readBuffer(offsetTable2GPU, offsetTableSize, offsetTable, ONE_UINT, previousEvents);
+
+		sp_log_info1s("BEGIN OFFSET2"); sp_log_newline();
+		for (sp_uint i = 0; i < 20; i++)
+		{
+			for (sp_uint j = 0; j < 2; j++)
+			{
+				sp_log_info1u(offsetTable[i * 2 + j]);
+				sp_log_info1s(", ");
+			}
+			sp_log_newline();
+		}
+		sp_log_info1s("END OFFSET TABLE"); sp_log_newline();
+
+		sp_uint expected[40] = {
+			0, 1,
+			0, 2,
+			0, 3,
+			0, 4,
+			0, 5,
+			0, 6,
+			0, 7,
+			0, 8,
+			0, 9,
+			0, 10,
+			0, 11,
+			0, 12,
+			0, 13,
+			0, 14,
+			0, 15,
+			0, 16,
+			0, 17,
+			0, 18,
+			0, 19,
+			0, 20
+		};
+
+		for (sp_uint i = 0; i < 40; i++)
+			Assert::AreEqual(expected[i], offsetTable[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandPrefixScanSwapped, GpuCommand);
+		sp_mem_delete(commandPrefixScan, GpuCommand);
+		gpu->releaseBuffer(offsetTable1GPU);
+		gpu->releaseBuffer(offsetTable2GPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder2)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint offsetTableValues[200] = {
+			0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 1, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 1, 1, 0, 0, 0, 0, 0,
+			0, 0, 1, 1, 1, 0, 0, 1, 0, 0,
+			0, 0, 1, 1, 1, 0, 0, 1, 1, 0,
+			0, 0, 1, 1, 1, 0, 1, 1, 1, 0,
+			0, 0, 1, 1, 1, 0, 2, 1, 1, 0,
+			0, 0, 1, 1, 2, 0, 2, 1, 1, 0,
+			0, 0, 2, 1, 2, 0, 2, 1, 1, 0,
+			0, 0, 2, 1, 2, 0, 3, 1, 1, 0,
+			0, 0, 2, 1, 2, 0, 3, 1, 2, 0,
+			0, 0, 3, 1, 2, 0, 3, 1, 2, 0,
+			1, 0, 3, 1, 2, 0, 3, 1, 2, 0,
+			1, 0, 3, 1, 2, 0, 4, 1, 2, 0,
+			1, 0, 3, 1, 2, 0, 4, 1, 2, 1,
+			1, 0, 3, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 3, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 4, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 5, 1, 2, 0, 5, 1, 2, 1,
+			2, 0, 5, 1, 2, 0, 5, 1, 3, 1
+		};
+
+		sp_uint indexes[20] = {
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
+		};
+
+		sp_uint expected[20] = {
+			12, 16, 2, 8, 11, 17, 18, 0, 1, 7, 5, 6, 9, 13, 15, 3, 4, 10, 19, 14 
+		};
+		
+		sp_uint digitIndex = 3;
+		sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
+		cl_mem offsetTable = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandReorder = gpu->commandManager->createCommand()
+			->setInputParameter(values, sizeof(sp_float) * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT)
+			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
+			->buildFromProgram(program, "reorder")
+			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex);
+
+		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+
+		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
+		for (sp_uint i = 0; i < inputLength; i++)
+		{
+			sp_log_info1u(result[i]);
+			sp_log_info1s(" -> ");
+			sp_log_info1u(values[result[i]]);
+			sp_log_newline();
+		}
+		sp_log_info1s("END OUTPUT INDEXES"); sp_log_newline();
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandReorder, GpuCommand);
+		gpu->releaseBuffer(offsetTable);
+		gpu->releaseBuffer(indexesOutputGpu);
+		gpu->releaseBuffer(indexesInputGPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder3)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint offsetTableValues[200] = {
+			0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+			0, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+			1, 0, 0, 1, 0, 0, 0, 0, 1, 0,
+			1, 0, 0, 1, 0, 0, 0, 0, 2, 0,
+			1, 0, 0, 1, 0, 0, 0, 1, 2, 0,
+			2, 0, 0, 1, 0, 0, 0, 1, 2, 0,
+			2, 0, 0, 1, 0, 0, 0, 2, 2, 0,
+			2, 0, 0, 2, 0, 0, 0, 2, 2, 0,
+			2, 0, 0, 2, 0, 0, 0, 2, 3, 0,
+			2, 0, 0, 2, 0, 0, 0, 3, 3, 0,
+			3, 0, 0, 2, 0, 0, 0, 3, 3, 0,
+			3, 0, 0, 2, 0, 1, 0, 3, 3, 0,
+			3, 0, 0, 2, 1, 1, 0, 3, 3, 0,
+			3, 0, 0, 2, 1, 1, 0, 4, 3, 0,
+			3, 0, 0, 2, 1, 2, 0, 4, 3, 0,
+			3, 0, 0, 2, 1, 2, 0, 4, 4, 0,
+			3, 0, 0, 2, 1, 2, 0, 5, 4, 0,
+			3, 0, 0, 3, 1, 2, 0, 5, 4, 0,
+			3, 0, 0, 3, 1, 2, 0, 5, 5, 0,
+			3, 0, 1, 3, 1, 2, 0, 5, 5, 0
+		};
+
+		sp_uint indexes[20] = {
+			12, 16, 2, 8, 11, 17, 18, 0, 1, 7, 5, 6, 9, 13, 15, 3, 4, 10, 19, 14
+		};
+
+		sp_uint expected[20] = {
+			2, 17, 5, 14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19
+		};
+
+		sp_uint digitIndex = 4;
+		sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
+		cl_mem offsetTable = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandReorder = gpu->commandManager->createCommand()
+			->setInputParameter(values, sizeof(sp_float) * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT)
+			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
+			->buildFromProgram(program, "reorder")
+			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex);
+
+		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+
+		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
+		for (sp_uint i = 0; i < inputLength; i++)
+		{
+			sp_log_info1u(result[i]);
+			sp_log_info1s(" -> ");
+			sp_log_info1u(values[result[i]]);
+			sp_log_newline();
+		}
+		sp_log_info1s("END OUTPUT INDEXES"); sp_log_newline();
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandReorder, GpuCommand);
+		gpu->releaseBuffer(offsetTable);
+		gpu->releaseBuffer(indexesOutputGpu);
+		gpu->releaseBuffer(indexesInputGPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder4)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint offsetTableValues[200] = {
+			0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			1, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			2, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			3, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			4, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			5, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			6, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			7, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			8, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			9, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			10, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			11, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			12, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			13, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			14, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			15, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			16, 3, 0, 0, 0, 0, 0, 0, 0, 0,
+			17, 3, 0, 0, 0, 0, 0, 0, 0, 0
+		};
+
+		sp_uint indexes[20] = {
+			2, 17, 5, 14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19
+		};
+
+		sp_uint expected[20] = {
+			14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19, 2, 17, 5
+		};
+
+		sp_uint digitIndex = 5;
+		sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
+		cl_mem offsetTable = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandReorder = gpu->commandManager->createCommand()
+			->setInputParameter(values, sizeof(sp_float) * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT)
+			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
+			->buildFromProgram(program, "reorder")
+			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex);
+
+		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+
+		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
+		for (sp_uint i = 0; i < inputLength; i++)
+		{
+			sp_log_info1u(result[i]);
+			sp_log_info1s(" -> ");
+			sp_log_info1u(values[result[i]]);
+			sp_log_newline();
+		}
+		sp_log_info1s("END OUTPUT INDEXES"); sp_log_newline();
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandReorder, GpuCommand);
+		gpu->releaseBuffer(offsetTable);
+		gpu->releaseBuffer(indexesOutputGpu);
+		gpu->releaseBuffer(indexesInputGPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder_Negative5)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("RadixSorting.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, nullptr);
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+		sp_uint offsetTableValues[40] = {
+			0, 1,
+			0, 2,
+			0, 3,
+			0, 4,
+			0, 5,
+			0, 6,
+			0, 7,
+			0, 8,
+			0, 9,
+			0, 10,
+			0, 11,
+			0, 12,
+			0, 13,
+			0, 14,
+			0, 15,
+			0, 16,
+			0, 17,
+			0, 18,
+			0, 19,
+			0, 20
+		};
+
+		sp_uint indexes[20] = {
+			14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19, 2, 17, 5
+		};
+
+		sp_uint expected[20] = {
+			14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19, 2, 17, 5
+		};
+
+		sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
+		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
+		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
+
+		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy2(threadsLength);
+		cl_mem offsetTable = gpu->createBuffer(offsetTableValues, offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* commandReorder = gpu->commandManager->createCommand()
+			->setInputParameter(&inputLength, SIZEOF_UINT)
+			->setInputParameter(offsetTable, offsetTableSize)
+			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
+			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
+			->buildFromProgram(program, "reorderNegatives")
+			->execute(ONE_UINT, globalWorkSize, localWorkSize);
+
+		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+
+		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
+		for (sp_uint i = 0; i < inputLength; i++)
+		{
+			sp_log_info1u(result[i]);
+			sp_log_info1s(" -> ");
+			sp_log_info1u(values[result[i]]);
+			sp_log_newline();
+		}
+		sp_log_info1s("END OUTPUT INDEXES"); sp_log_newline();
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual(expected[i], result[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandReorder, GpuCommand);
+		gpu->releaseBuffer(offsetTable);
+		gpu->releaseBuffer(indexesOutputGpu);
+		gpu->releaseBuffer(indexesInputGPU);
+		ALLOC_RELEASE(offsetTable);
+	}
+
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_1)
 	{
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
-		createIndexes->init(gpu, nullptr);
-
 		sp_uint inputLength = (sp_uint)std::pow(2.0, 17.0);
+		cl_mem inputLengthGPU = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+
+		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
+		createIndexes
+			->init(gpu, nullptr)
+			->setParametersCreateIndexes(inputLength);
+		cl_mem initialIndexes = createIndexes->execute();
+
 		const sp_uint maxIterations = 20;
 		for (sp_size i = 0; i < maxIterations; i++)
 		{	
 			sp_float* input1 = getRandom(inputLength);
 			input1[2] = -0.01f;
 			sp_float* input2 = ALLOC_COPY(input1, sp_float, inputLength);
-			cl_mem inputGpu = gpu->createBuffer(input2, SIZEOF_FLOAT * inputLength, CL_MEM_READ_ONLY, true);
 
-			cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
-			createIndexes->setParametersCreateIndexes(inputLength);
-			cl_mem newIndexes = createIndexes->execute();
+			cl_mem inputGpu = gpu->createBuffer(input2, SIZEOF_FLOAT * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 
 			AlgorithmSorting::native(input1, inputLength);
 
-			std::ostringstream buildOptions;
-			buildOptions << " -DINPUT_LENGTH=" << inputLength
-						 << " -DINPUT_STRIDE=1"
-						 << " -DINPUT_OFFSET=0";
-			
-			sp_uint strider = 1u;
-			sp_uint offset = 0u;
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
-			radixGpu->init(gpu, buildOptions.str().c_str())
-				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider);
 
-			cl_mem output = radixGpu->execute();
+			cl_mem output = radixGpu
+						->init(gpu, nullptr)
+						->setParameters(inputGpu, inputLength, initialIndexes, inputLengthGPU)
+						->execute();
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
 			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+
+			for (sp_uint i = 0; i < 10; i++)
+			{
+				sp_log_debug1u(input1[i]);
+				sp_log_debug1s(" == ");
+				sp_log_debug1u(input2[orderedIndexes[i]]);
+				sp_log_debug1s(" -> ");
+				sp_log_debug1u(orderedIndexes[i]);
+				sp_log_newline();
+			}
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
@@ -480,16 +1951,16 @@ namespace NAMESPACE_PHYSICS_TEST
 			sp_size length = (sp_size)std::pow(2.0, 17.0);
 			AABB* input1 = getRandomAABBs(length);
 			AABB* input2 = ALLOC_COPY(input1, AABB, length);
-			cl_mem inputGpu = gpu->createBuffer(input2, sizeof(AABB) * length, CL_MEM_READ_ONLY, true);
+			cl_mem inputGpu = gpu->createBuffer(input2, sizeof(AABB) * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 
-			cl_mem newIndexesLength = gpu->createBuffer(&length, SIZEOF_UINT, CL_MEM_READ_WRITE);
+			cl_mem newIndexesLength = gpu->createBuffer(&length, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 			createIndexes->setParametersCreateIndexes(length);
 			cl_mem newIndexes = createIndexes->execute();
 
 			std::ostringstream buildOptions;
 			buildOptions << " -DINPUT_LENGTH=" << length
-						<< " -DINPUT_STRIDE=" << AABB_STRIDER
-						<< " -DINPUT_OFFSET=" << AABB_OFFSET;
+				<< " -DINPUT_STRIDE=" << AABB_STRIDER
+				<< " -DINPUT_OFFSET=0";
 
 			GpuRadixSorting* radixSorting = ALLOC_NEW(GpuRadixSorting)();
 			radixSorting->init(gpu, buildOptions.str().c_str())
@@ -524,6 +1995,78 @@ namespace NAMESPACE_PHYSICS_TEST
 		ALLOC_DELETE(createIndexes, GpuIndexes);
 	}
 
+	SP_TEST_METHOD(CLASS_NAME, radixGPU_3)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
+		createIndexes->init(gpu, nullptr);
+
+		sp_uint inputLength = 20;
+		sp_float values[20] = {
+			33.0f, 84.0f, 102.0f, 87.0f,
+			78.0f, 106.0f, 56.0f, 74.0f,
+			82.0f, 46.0f, 38.0f, 72.0f,
+			80.0f, 76.0f, 29.0f, 56.0f,
+			30.0f, 102.0f, 72.0f, 88.0f
+		};
+
+		sp_float* values2 = ALLOC_COPY(values, sp_float, inputLength);
+		cl_mem inputGpu = gpu->createBuffer(values2, SIZEOF_FLOAT * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+
+		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		createIndexes->setParametersCreateIndexes(inputLength);
+		cl_mem newIndexes = createIndexes->execute();
+
+		sp_uint* initialIndexes = ALLOC_ARRAY(sp_uint, inputLength);
+		gpu->commandManager->readBuffer(newIndexes, inputLength * SIZEOF_UINT, initialIndexes, ONE_UINT, &createIndexes->lastEvent);
+
+		sp_log_info1s("BEGIN VALUES 1"); sp_log_newline();
+		for (sp_uint i = 0; i < inputLength; i++)
+		{
+			sp_log_info1u(initialIndexes[i]);
+			sp_log_info1s(" -> ");
+			sp_log_info1f(values[initialIndexes[i]]);
+			sp_log_newline();
+		}
+		sp_log_info1s("END"); sp_log_newline();
+
+		AlgorithmSorting::native(values2, inputLength);
+
+		sp_uint strider = 1u;
+		sp_uint offset = 0u;
+		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
+		radixGpu->init(gpu, nullptr)
+			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider);
+
+		cl_mem output = radixGpu->execute();
+
+		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
+		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+
+		sp_log_info1s("BEGIN VALUES 1"); sp_log_newline();
+		for (sp_uint i = 0; i < inputLength; i++)
+		{
+			sp_log_info1u(orderedIndexes[i]);
+			sp_log_info1s(" -> ");
+			sp_log_info1f(values[orderedIndexes[i]]);
+			sp_log_info1s(" == ");
+			sp_log_info1f(values2[i]);
+			sp_log_newline();
+		}
+		sp_log_info1s("END"); sp_log_newline();
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual(values2[i], values[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
+
+		gpu->releaseBuffer(inputGpu);
+		ALLOC_DELETE(radixGpu, GpuRadixSorting);
+		ALLOC_RELEASE(values2);
+
+		ALLOC_DELETE(createIndexes, GpuIndexes);
+	}
+
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_WithNegatives)
 	{
 		GpuContext* context = GpuContext::init();
@@ -536,21 +2079,16 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
 		createIndexes->init(gpu, nullptr);
 
-		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
+		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		createIndexes->setParametersCreateIndexes(inputLength);
 		cl_mem newIndexes = createIndexes->execute();
 
 		sp_float input1[8] = { 50.0f, 2.0f, -5.0f, 4.0f, 12.0f, -10.0f, -1.0f, 30.0f };
 		sp_float input2[8] = { 50.0f, 2.0f, -5.0f, 4.0f, 12.0f, -10.0f, -1.0f, 30.0f };
-		cl_mem inputGpu = gpu->createBuffer(input2, SIZEOF_FLOAT * inputLength, CL_MEM_READ_ONLY, true);
-
-		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << inputLength
-			<< " -DINPUT_STRIDE=1"
-			<< " -DINPUT_OFFSET=0";
+		cl_mem inputGpu = gpu->createBuffer(input2, SIZEOF_FLOAT * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 
 		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
-		radixGpu->init(gpu, buildOptions.str().c_str())
+		radixGpu->init(gpu, nullptr)
 			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider);
 
 		AlgorithmSorting::native(input1, inputLength);
@@ -580,19 +2118,24 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_uint inputLength = (sp_uint)std::pow(2.0, 17.0);
 
+		cl_mem inputLengthGPU = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+
 		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
-		createIndexes->init(gpu, nullptr);
+		createIndexes->init(gpu, nullptr)
+						->setParametersCreateIndexes(inputLength);
+		cl_mem newIndexes = createIndexes->execute();
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength
+			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
+			<< " -DINPUT_OFFSET=" << 0;
 
 		for (sp_uint i = 0; i < maxIterations; i++)
 		{
 			DOP18* input1 = getRandomKDOPs(inputLength);
 			input1[2].min[0] = -0.01f;
 			DOP18* input2 = ALLOC_COPY(input1, DOP18, inputLength);
-			cl_mem inputGpu = gpu->createBuffer(input2, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY, true);
-
-			cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
-			createIndexes->setParametersCreateIndexes(inputLength);
-			cl_mem newIndexes = createIndexes->execute();
+			cl_mem inputGpu = gpu->createBuffer(input2, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
@@ -601,16 +2144,10 @@ namespace NAMESPACE_PHYSICS_TEST
 			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			std::chrono::nanoseconds ms1 = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 
-			std::ostringstream buildOptions;
-			buildOptions << " -DINPUT_LENGTH=" << inputLength
-				<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-				<< " -DINPUT_OFFSET=" << 0
-				<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
-
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 			radixGpu
 				->init(gpu, buildOptions.str().c_str())
-				->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER);
+				->setParameters(inputGpu, inputLength, newIndexes, inputLengthGPU, DOP18_STRIDER);
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
@@ -654,17 +2191,16 @@ namespace NAMESPACE_PHYSICS_TEST
 			-17.7899f, 43.73000f, 2.750000f, -64.2699f, 26.19000f, 46.73000f, 38.23000f, -14.7899f, -23.2899f, -14.9900f, 46.73000f, 5.750000f, -58.9699f, 31.49000f, 52.23000f, 43.73000f, -9.49000f, -17.9900f
 		};
 		DOP18* input1 = (DOP18*)values;
-		cl_mem inputGpu = gpu->createBuffer(input1, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY, true);
+		cl_mem inputGpu = gpu->createBuffer(input1, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 
-		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
+		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		createIndexes->setParametersCreateIndexes(inputLength);
 		cl_mem newIndexes = createIndexes->execute();
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << inputLength
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-			<< " -DINPUT_OFFSET=" << 0
-			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
+			<< " -DINPUT_OFFSET=" << 0;
 
 		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 		radixGpu
@@ -700,8 +2236,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		input1[2].min[0] = -0.01f;
 		DOP18* input2 = ALLOC_COPY(input1, DOP18, inputLength);
 
-		cl_mem inputGpu = gpu->createBuffer(input2, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY, true);
-		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE);
+		cl_mem inputGpu = gpu->createBuffer(input2, DOP18_SIZE * inputLength, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
 		createIndexes->init(gpu, nullptr);
@@ -711,8 +2247,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << inputLength
 			<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-			<< " -DINPUT_OFFSET=" << 0
-			<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
+			<< " -DINPUT_OFFSET=" << 0;
 
 		GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 		radixGpu

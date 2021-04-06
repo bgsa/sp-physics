@@ -2295,6 +2295,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(findCollisions_WithKDOPs);
 
 #ifdef OPENCL_ENABLED
+		SP_TEST_METHOD_DEF(buildInputElements1);
+		SP_TEST_METHOD_DEF(buildInputElements2);
+		SP_TEST_METHOD_DEF(buildInputElements3);
+		SP_TEST_METHOD_DEF(buildInputElements4);
+		SP_TEST_METHOD_DEF(buildInputElements5);
+		SP_TEST_METHOD_DEF(buildInputElements6);
 		SP_TEST_METHOD_DEF(findCollisionsGPU_WithAABB);
 		SP_TEST_METHOD_DEF(findCollisionsGPU_WithKDOPs);
 #endif
@@ -2363,34 +2369,455 @@ namespace NAMESPACE_PHYSICS_TEST
 
 #ifdef OPENCL_ENABLED
 
+	SP_TEST_METHOD(CLASS_NAME, buildInputElements1)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 5u;
+		DOP18 dops[5u];
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			dops[i].translate(Vec3(i * 10.0f, 0.0f, 0.0f));
+
+		const sp_uint groupLength = gpu->getGroupLength(inputLength, inputLength);
+		const sp_size globalWorkSize[3] = { inputLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength;
+		buildOptions << " -DINPUT_STRIDE=" << DOP18_STRIDER;
+		buildOptions << " -DINPUT_OFFSET=0";
+
+		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
+		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->setParametersCreateIndexes(inputLength);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SweepAndPrune.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::DOP18;
+
+		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		sp_uint indexesCPU[5];
+		gpu->commandManager->readBuffer(indexesGpu, inputLength * SIZEOF_FLOAT, indexesCPU);
+
+		sp_size axis = DOP18_AXIS_X;
+
+		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
+			->setInputParameter(dops, inputLength * sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
+			->buildFromProgram(program, "buildInputElements")
+			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+
+		sp_float elements[5];
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandBuildElements, GpuCommand);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, buildInputElements2)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 5u;
+		DOP18 dops[5u];
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			dops[i].translate(Vec3(0.0f, i * 10.0f, 0.0f));
+
+		const sp_uint groupLength = gpu->getGroupLength(inputLength, inputLength);
+		const sp_size globalWorkSize[3] = { inputLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength;
+		buildOptions << " -DINPUT_STRIDE=" << DOP18_STRIDER;
+		buildOptions << " -DINPUT_OFFSET=0";
+
+		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
+		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->setParametersCreateIndexes(inputLength);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SweepAndPrune.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::DOP18;
+
+		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		sp_uint indexesCPU[5];
+		gpu->commandManager->readBuffer(indexesGpu, inputLength * SIZEOF_FLOAT, indexesCPU);
+
+		sp_size axis = DOP18_AXIS_Y;
+
+		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
+			->setInputParameter(dops, inputLength * sizeof(DOP18), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
+			->buildFromProgram(program, "buildInputElements")
+			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+
+		sp_float elements[5];
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandBuildElements, GpuCommand);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, buildInputElements3)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 5u;
+		AABB aabbs[5u];
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			aabbs[i].translate(Vec3(0.0f, i * 10.0f, 0.0f));
+
+		const sp_uint groupLength = gpu->getGroupLength(inputLength, inputLength);
+		const sp_size globalWorkSize[3] = { inputLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength;
+		buildOptions << " -DINPUT_STRIDE=" << DOP18_STRIDER;
+		buildOptions << " -DINPUT_OFFSET=0";
+
+		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
+		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->setParametersCreateIndexes(inputLength);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SweepAndPrune.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::AABB;
+
+		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		sp_uint indexesCPU[5];
+		gpu->commandManager->readBuffer(indexesGpu, inputLength * SIZEOF_FLOAT, indexesCPU);
+
+		sp_size axis = DOP18_AXIS_Y;
+
+		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
+			->setInputParameter(aabbs, inputLength * sizeof(AABB), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
+			->buildFromProgram(program, "buildInputElements")
+			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+
+		sp_float elements[5];
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandBuildElements, GpuCommand);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, buildInputElements4)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 5u;
+		AABB aabbs[5u];
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			aabbs[i].translate(Vec3(0.0f, 0.0f, i * 10.0f));
+
+		const sp_uint groupLength = gpu->getGroupLength(inputLength, inputLength);
+		const sp_size globalWorkSize[3] = { inputLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength;
+		buildOptions << " -DINPUT_STRIDE=" << DOP18_STRIDER;
+		buildOptions << " -DINPUT_OFFSET=0";
+
+		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
+		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->setParametersCreateIndexes(inputLength);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SweepAndPrune.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::AABB;
+
+		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		sp_uint indexesCPU[5];
+		gpu->commandManager->readBuffer(indexesGpu, inputLength * SIZEOF_FLOAT, indexesCPU);
+
+		sp_size axis = DOP18_AXIS_UP_DEPTH;
+
+		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
+			->setInputParameter(aabbs, inputLength * sizeof(AABB), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
+			->buildFromProgram(program, "buildInputElements")
+			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+
+		sp_float elements[5];
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandBuildElements, GpuCommand);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, buildInputElements5)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 5u;
+		Sphere spheres[5u];
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			spheres[i].translate(Vec3((i * 10.0f) - 5.0f, 0.0f, 0.0f));
+
+		const sp_uint groupLength = gpu->getGroupLength(inputLength, inputLength);
+		const sp_size globalWorkSize[3] = { inputLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength;
+		buildOptions << " -DINPUT_STRIDE=" << DOP18_STRIDER;
+		buildOptions << " -DINPUT_OFFSET=0";
+
+		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
+		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->setParametersCreateIndexes(inputLength);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SweepAndPrune.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::Sphere;
+
+		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		sp_uint indexesCPU[5];
+		gpu->commandManager->readBuffer(indexesGpu, inputLength * SIZEOF_FLOAT, indexesCPU);
+
+		sp_size axis = DOP18_AXIS_X;
+
+		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
+			->setInputParameter(spheres, inputLength * sizeof(Sphere), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
+			->buildFromProgram(program, "buildInputElements")
+			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+
+		sp_float elements[5];
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			Assert::AreEqual((sp_float)(i * 10u) - 5.0f, elements[i], L"Wrong value.", LINE_INFO());
+
+		sp_mem_delete(commandBuildElements, GpuCommand);
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, buildInputElements6)
+	{
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		sp_uint inputLength = 5u;
+		Sphere spheres[5u];
+
+		for (sp_uint i = 0; i < inputLength; i++)
+			spheres[i].translate(Vec3((i * 10.0f) - 5.0f, 0.0f, 0.0f));
+
+		const sp_uint groupLength = gpu->getGroupLength(inputLength, inputLength);
+		const sp_size globalWorkSize[3] = { inputLength, 0, 0 };
+		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
+
+		std::ostringstream buildOptions;
+		buildOptions << " -DINPUT_LENGTH=" << inputLength;
+		buildOptions << " -DINPUT_STRIDE=" << DOP18_STRIDER;
+		buildOptions << " -DINPUT_OFFSET=0";
+
+		GpuIndexes* commandIndexes = ALLOC_NEW(GpuIndexes)();
+		commandIndexes->init(gpu, buildOptions.str().c_str());
+		commandIndexes->setParametersCreateIndexes(inputLength);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("SweepAndPrune.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+
+		ALLOC_RELEASE(source);
+
+		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::Sphere;
+
+		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		sp_uint indexesCPU[5];
+		gpu->commandManager->readBuffer(indexesGpu, inputLength * SIZEOF_FLOAT, indexesCPU);
+
+		sp_size axis = DOP18_AXIS_UP_RIGHT;
+
+		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
+			->setInputParameter(spheres, inputLength * sizeof(Sphere), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
+			->buildFromProgram(program, "buildInputElements")
+			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+
+		sp_float elements[5];
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+
+		sp_uint index = ZERO_UINT;
+		for (sp_float i = -3.53606796f; i < inputLength; i += 7.07213593f)
+		{
+			Assert::AreEqual(i, elements[index], L"Wrong value.", LINE_INFO());
+			index++;
+		}
+
+		sp_mem_delete(commandBuildElements, GpuCommand);
+	}
+
 	SP_TEST_METHOD(CLASS_NAME, findCollisionsGPU_WithAABB)
 	{
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
-		//const size_t count = 1000;
-		const sp_uint count = (sp_uint)std::pow(2.0, 17.0);
-		AABB* aabbs1 = getRandomAABBs(count, 10000);
+		const size_t count = 20;
+		//const sp_uint count = (sp_uint)std::pow(2.0, 17.0);
+		AABB* aabbs1 = getRandomAABBs(count, 100);
 		AABB* aabbs2 = ALLOC_COPY(aabbs1, AABB, count);
-		cl_mem inputGpu = gpu->createBuffer(aabbs2, sizeof(AABB) * count, CL_MEM_READ_ONLY, true);
-		cl_mem outputGpu = gpu->createBuffer(sizeof(AABB) * count * 2, CL_MEM_READ_ONLY);
-		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_ONLY);
+		cl_mem aabbsGpu = gpu->createBuffer(aabbs2, sizeof(AABB) * count, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem outputGpu = gpu->createBuffer(sizeof(sp_uint) * count * 20, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		cl_mem outputLengthGpu = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		SpRigidBody3D* rigidBodies = ALLOC_NEW_ARRAY(SpRigidBody3D, count);
 		for (sp_uint i = 0; i < count; i++)
 			rigidBodies[i].mass(8.0f);
-		cl_mem physcPropertiesGpu = gpu->createBuffer(rigidBodies, sizeof(SpRigidBody3D) * count, CL_MEM_READ_WRITE, true);
+		cl_mem rigidBodiesGpu = gpu->createBuffer(rigidBodies, sizeof(SpRigidBody3D) * count, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
 
 		std::ostringstream buildOptions;
-		buildOptions << " -DINPUT_LENGTH=" << count
-					<< " -DINPUT_STRIDE=" << AABB_STRIDER
-					<< " -DINPUT_OFFSET=" << AABB_OFFSET
-					<< " -DORIENTATION_LENGTH=" << AABB_ORIENTATION;
+		buildOptions << " -DINPUT_LENGTH=" << count;
 		
 		SweepAndPrune* sap = ALLOC_NEW(SweepAndPrune)();
 		sap->init(gpu, buildOptions.str().c_str());
-		sap->setParameters(inputGpu, count, AABB_STRIDER, AABB_OFFSET, AABB_ORIENTATION, 
-			physcPropertiesGpu, sizeof(SpRigidBody3D), outputGpu, outputLengthGpu, "");
+		sap->setParameters(aabbsGpu, count, BoundingVolumeType::AABB, AABB_STRIDER,
+			rigidBodiesGpu, sizeof(SpRigidBody3D), outputLengthGpu, outputGpu, "sweepAndPruneSingleAxisAABB");
 
 		PerformanceCounter counter; counter.start();
 		SweepAndPruneResult result1 = SweepAndPrune::findCollisions(aabbs1, count);
@@ -2401,10 +2828,19 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_longlong currentTime2 = counter.diff();
 
 		sp_uint collisionsLength = sap->fetchCollisionLength();
+		//sp_uint* indexes = (sp_uint*) ALLOC_SIZE(sizeof(sp_uint) * count * 2);
+		sp_uint* indexes = (sp_uint*) ALLOC_SIZE(640);
+		sap->fetchCollisionIndexes(indexes);
+
+		if (result1.length != collisionsLength)
+			int a = 1;
 
 		Assert::AreEqual(result1.length, collisionsLength, L"wrong value", LINE_INFO());
 
-		gpu->releaseBuffer(inputGpu);
+		gpu->releaseBuffer(aabbsGpu);
+		gpu->releaseBuffer(outputGpu);
+		gpu->releaseBuffer(outputLengthGpu);		
+		ALLOC_RELEASE(indexes);
 		ALLOC_DELETE(sap, SweepAndPrune);
 	}
 
@@ -2427,25 +2863,23 @@ namespace NAMESPACE_PHYSICS_TEST
 		DOP18* kdops2 = ALLOC_COPY(kdops1, DOP18, length);
 		cl_mem inputGpu = gpu->createBuffer(kdops2, DOP18_SIZE * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		
-		const sp_size rigidBodiesSize = sizeof(SpRigidBody3D);
 		SpRigidBody3D* rigidBodies = ALLOC_NEW_ARRAY(SpRigidBody3D, length);
 		for (sp_uint i = 0; i < length; i++)
 			rigidBodies[i].mass(8.0f);
 
 		const sp_size axis = ZERO_UINT;
-		cl_mem physcPropertiesGpu = gpu->createBuffer(rigidBodies, rigidBodiesSize * length, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR , true);
-		cl_mem outputGpu = gpu->createBuffer(SIZEOF_UINT * length * SP_SAP_MAX_COLLISION_PER_OBJECT, CL_MEM_READ_ONLY);
-		cl_mem outputLengthGpu = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_ONLY);
+		cl_mem rigidBodiesGpu = gpu->createBuffer(rigidBodies, sizeof(SpRigidBody3D) * length, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR , true);
+		cl_mem outputGpu = gpu->createBuffer(SIZEOF_UINT * length * SP_SAP_MAX_COLLISION_PER_OBJECT, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		cl_mem outputLengthGpu = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << length
 					<< " -DINPUT_STRIDE=" << DOP18_STRIDER
-					<< " -DINPUT_OFFSET=" << axis
-					<< " -DORIENTATION_LENGTH=" << DOP18_ORIENTATIONS;
+					<< " -DINPUT_OFFSET=" << axis;
 
 		sap.init(gpu, buildOptions.str().c_str());
-		sap.setParameters(inputGpu, length, DOP18_STRIDER, axis, DOP18_ORIENTATIONS, physcPropertiesGpu,
-			rigidBodiesSize, outputLengthGpu, outputGpu, "");
+		sap.setParameters(inputGpu, length, BoundingVolumeType::DOP18, DOP18_STRIDER, rigidBodiesGpu,
+			sizeof(SpRigidBody3D), outputLengthGpu, outputGpu, "sweepAndPruneSingleAxis");
 
 		performanceCounter.start();
 
