@@ -186,7 +186,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_double GpuCommand::getTimeOfExecution()
 	{
-		sp_assert(lastEvent != NULL, "NullPointerException");
+		sp_assert(lastEvent != NULL, "InvalidOperationException");
 
 		cl_ulong timeStart, timeEnd;
 

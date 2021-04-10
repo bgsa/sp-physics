@@ -41,7 +41,7 @@ namespace NAMESPACE_PHYSICS
 
 		diff(ray->direction, ray->point, ray->direction);
 		
-		normalize(&ray->direction);
+		normalize(ray->direction);
 	}
 
 	void SpEdgeMesh::addFace(const SpFaceMesh& face)

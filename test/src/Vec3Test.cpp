@@ -255,7 +255,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		counter.start();
 
 		for (sp_uint i = 0; i < 100000; i++)
-			NAMESPACE_PHYSICS::normalize(vector, &result);
+			NAMESPACE_PHYSICS::normalize(vector, result);
 
 		sp_longlong elapsedTime = counter.diff();
 

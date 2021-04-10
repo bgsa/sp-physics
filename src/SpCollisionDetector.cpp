@@ -1215,7 +1215,7 @@ namespace NAMESPACE_PHYSICS
 			details->contactPoints[0] = contact;
 			details->centerContactPoint = contact;
 
-			normalize(&details->collisionNormal);
+			normalize(details->collisionNormal);
 
 			return true;
 		}

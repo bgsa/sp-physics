@@ -18,16 +18,16 @@ namespace NAMESPACE_PHYSICS
 		faces[1][2] = faces[2][1] = faces[3][1] = tetrahedron[3];
 
 		cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0], &faces[0][3]);
-		normalize(&faces[0][3]); //ABC
+		normalize(faces[0][3]); //ABC
 
 		cross(tetrahedron[2] - tetrahedron[0], tetrahedron[3] - tetrahedron[0], &faces[1][3]);
-		normalize(&faces[1][3]); //ACD
+		normalize(faces[1][3]); //ACD
 
 		cross(tetrahedron[3] - tetrahedron[0], tetrahedron[1] - tetrahedron[0], &faces[2][3]);
-		normalize(&faces[2][3]); //ADB
+		normalize(faces[2][3]); //ADB
 
 		cross(tetrahedron[3] - tetrahedron[1], tetrahedron[2] - tetrahedron[1], &faces[3][3]);
-		normalize(&faces[3][3]); //BDC
+		normalize(faces[3][3]); //BDC
 
 		sp_uint num_faces = 4u;
 		sp_int closest_face;
@@ -119,7 +119,7 @@ namespace NAMESPACE_PHYSICS
 				faces[num_faces][1] = loose_edges[i][1];
 				faces[num_faces][2] = newSimplexPoint;
 				cross(loose_edges[i][0] - loose_edges[i][1], loose_edges[i][0] - newSimplexPoint, &faces[num_faces][3]);
-				normalize(&faces[num_faces][3]);
+				normalize(faces[num_faces][3]);
 
 				//Check for wrong normal to maintain CCW winding
 				if (faces[num_faces][0].dot(faces[num_faces][3]) + EPA_BIAS < ZERO_FLOAT)

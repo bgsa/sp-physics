@@ -204,7 +204,7 @@ namespace NAMESPACE_PHYSICS
 	void Line3D::intersectionOnRay(const Plane& plane, Vec3* point) const
 	{
 		Vec3 lineDirection;
-		normalize(point2 - point1, &lineDirection);
+		normalize(point2 - point1, lineDirection);
 
 		sp_float d = plane.getDcomponent();
 
@@ -221,7 +221,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 lineDirection;
 		Vec3 point1ToSphere = point1 - sphere.center;
 
-		direction(&lineDirection);
+		direction(lineDirection);
 
 		const sp_float b = point1ToSphere.dot(lineDirection);
 		const sp_float c = point1ToSphere.dot(point1ToSphere) - (sphere.ray * sphere.ray);
@@ -289,7 +289,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float tmin = ZERO_FLOAT;
 		sp_float tmax = SP_FLOAT_MAX;
 		Vec3 lineDirection;
-		direction(&lineDirection);
+		direction(lineDirection);
 
 		// For all three slabs (planes on AABB)
 		for (int i = 0; i < 3; i++) 

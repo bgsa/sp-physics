@@ -15,6 +15,7 @@ namespace NAMESPACE_PHYSICS
 		sp_size _frameId;
 		Vec3 _gravityForce;
 		sp_bool _simulationEnabled;
+		sp_uint _pcaExecutionPerFrame;
 
 		SpPhysicSettings()
 		{
@@ -22,6 +23,7 @@ namespace NAMESPACE_PHYSICS
 			_physicVelocity = 0.003f;
 			_gravityForce = Vec3(0.0f, -9.8f, 0.0f);
 			_restingVelocityEpsilon = 0.09f;
+			_pcaExecutionPerFrame = 30u;
 			enableSimulation();
 		}
 		
@@ -32,6 +34,16 @@ namespace NAMESPACE_PHYSICS
 			static SpPhysicSettings* _settings = sp_mem_new(SpPhysicSettings)();
 			return _settings;
 		}
+
+		/// <summary>
+		/// Get how many frames PCA should wait to execute
+		/// </summary>
+		/// <returns>Frame Length</returns>
+		API_INTERFACE inline sp_uint pcaExecutionPerFrame() const
+		{
+			return _pcaExecutionPerFrame;
+		}
+		
 
 		API_INTERFACE inline sp_size frameId() const
 		{

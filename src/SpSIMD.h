@@ -16,7 +16,7 @@ namespace NAMESPACE_PHYSICS
 	#define sp_vec3_sqrt_sse(vec3_sse) _mm_sqrt_ss(vec3_sse)
 
 	#define sp_vec3_convert_simd(v) _mm_set_ps(ZERO_FLOAT, v.z, v.y, v.x)
-	#define sp_vec3_convert_ref_simd(v) _mm_set_ps(ZERO_FLOAT, v->z, v->y, v->x)
+	#define sp_vec3_convert_ref_simd(v) _mm_set_ps(ZERO_FLOAT, v.z, v.y, v.x)
 
 	#define sp_vec3_add_simd(vec3_simd1, vec3_simd2) _mm_add_ps(vec3_simd1, vec3_simd2)
 

@@ -21,6 +21,7 @@
 #include "SpAABBFactory.h"
 #include "GpuBufferOpenCL.h"
 #include "SpCollisionResponseShapeMatching.h"
+#include "SpCSVFileWriter.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -28,6 +29,8 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		GpuDevice* gpu;
+
+		SpCSVFileWriter* csvFile; // TODO: REMOVER !
 		
 		cl_event lastEvent;
 		cl_mem _collisionIndexesGPU;
@@ -69,7 +72,26 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 
-		API_INTERFACE SpPhysicSimulator() { }
+		/// <summary>
+		/// Default constructor
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE SpPhysicSimulator() 
+		{
+			csvFile = sp_mem_new(SpCSVFileWriter)("resultado.csv");
+			csvFile
+				->addHeader("FRAME ID")
+				->addHeader("BUILD DOP18")
+				->addHeader("QTD PARES DOP18")
+				->addHeader("TEMPO SAP DOP18")
+				->addHeader("BUILD AABB")
+				->addHeader("QTD PARES AABB")
+				->addHeader("TEMPO SAP AABB")
+				->addHeader("BUILD SPHERE")
+				->addHeader("QTD PARES SPHERE")
+				->addHeader("TEMPO SAP SPHERE")
+				->newRecord();
+		}
 
 		SpPhysicIntegrator* integrator;
 

@@ -39,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the direction of line
 		///</summary>
-		API_INTERFACE inline void direction(Vec3* output) const
+		API_INTERFACE inline void direction(Vec3& output) const
 		{
 			NAMESPACE_PHYSICS::normalize(point2 - point1, output);
 		}
@@ -86,8 +86,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_bool isParallel(const Line3D& line, const sp_float _epsilon = DefaultErrorMargin) const
 		{
 			Vec3 direction1, direction2;
-			direction(&direction1);
-			line.direction(&direction2);
+			direction(direction1);
+			line.direction(direction2);
 
 			Vec3 crossedVector;
 			NAMESPACE_PHYSICS::cross(direction2, direction1, &crossedVector);
@@ -122,7 +122,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE sp_bool isPerpendicular(const Vec3& _direction, const sp_float _epsilon = DefaultErrorMargin) const
 		{
 			Vec3 _direction2;
-			direction(&_direction2);
+			direction(_direction2);
 
 			return NAMESPACE_FOUNDATION::isCloseEnough(_direction.dot(_direction2), ZERO_FLOAT, _epsilon);
 		}

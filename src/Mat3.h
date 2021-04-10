@@ -86,6 +86,15 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Check the matrix is singular / invertible
+		/// </summary>
+		/// <returns>True it the matrix is singular orelse False</returns>
+		API_INTERFACE inline sp_bool isSingular() const
+		{
+			return NAMESPACE_FOUNDATION::isCloseEnough(determinant(), ZERO_FLOAT);
+		}
+
+		/// <summary>
 		/// Check the matrix is diagonally dominant
 		/// </summary>
 		/// <returns>True if it is diagonally dominant orelse False</returns>

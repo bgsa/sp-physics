@@ -48,7 +48,7 @@ namespace NAMESPACE_PHYSICS
 	Vec3 Particle::direction() 
 	{
 		Vec3 result;
-		normalize(position - previousPosition, &result);
+		normalize(position - previousPosition, result);
 		return result;
 	}
 
@@ -62,7 +62,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 direction = this->position - particle.position;
 
 		Vec3 normalizedVec;
-		normalize(direction, &normalizedVec);
+		normalize(direction, normalizedVec);
 
 		return direction.dot(normalizedVec);
 	}

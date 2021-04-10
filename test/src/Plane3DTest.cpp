@@ -88,7 +88,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec3 point = { 2.0f, 1.0f, -1.0f };
 		Vec3 vector = { 1.0f, -2.0f, 3.0f };
-		normalize(&vector);
+		normalize(vector);
 
 		Vec4 expected = Vec4(0.267f, -0.534f, 0.801f, -0.801f);
 
@@ -179,11 +179,11 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Plane plane1;
 		plane1.point = Vec3(1.0f, 1.0f, 1.0f);
-		normalize(plane1.point, &plane1.normalVector);
+		normalize(plane1.point, plane1.normalVector);
 
 		Plane plane2;
 		plane2.point = Vec3(1.0f, 1.0f, 1.0f);
-		normalize(Vec3(1.0f, -2.0f, 3.0f), &plane2.normalVector);
+		normalize(Vec3(1.0f, -2.0f, 3.0f), plane2.normalVector);
 
 		Vec4 a, b;
 		plane1.equation(&a);
@@ -248,7 +248,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, distance_point_Test4)
 	{
 		Vec3 normal(0.0f, 1.0f, 1.0f);
-		normalize(&normal);
+		normalize(normal);
 
 		Plane plane = Plane(Vec3(0.0f, 0.0f, 0.0f), normal);
 		Vec3 point = Vec3(0.0f, 0.0f, 10.0f);

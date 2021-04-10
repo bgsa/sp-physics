@@ -20,10 +20,10 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCamera::updateViewMatrix()
 	{
-		normalize(position - target, &_forward);   //zAxis
+		normalize(position - target, _forward);   //zAxis
 		
 		cross(_forward, _up, &_right);
-		normalize(&_right);     //xAxis
+		normalize(_right);     //xAxis
 
 		Vec3 cameraUp;
 		cross(_right, _forward, &cameraUp);      //yAxis

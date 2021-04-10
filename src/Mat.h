@@ -87,6 +87,18 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get a Column Vector
+		/// <param name="index">Column Index</param>
+		/// <param name="vector">Output vector</param>
+		/// </summary>
+		/// <returns>vector parameter</returns>
+		API_INTERFACE inline void column(const sp_uint index, sp_float* vector) const
+		{
+			for (sp_uint row = 0; row < _rows; row++)
+				vector[row] = get(row, index);
+		}
+
+		/// <summary>
 		/// Get the Element Length
 		/// </summary>
 		/// <returns>Element Length</returns>

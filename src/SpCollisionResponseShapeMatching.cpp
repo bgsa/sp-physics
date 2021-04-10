@@ -26,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 
 	Eigen::EigenSolver<Eigen::MatrixXf> solver;
 
-	void SpCollisionResponseShapeMatching::shapeMatch(SpRigidBodyShapeMatch* shape)
+	sp_bool SpCollisionResponseShapeMatching::shapeMatch(SpRigidBodyShapeMatch* shape)
 	{
 		Vec3 centerOfMassAfterCollision;
 		shape->centerOfMass(centerOfMassAfterCollision);
@@ -54,7 +54,10 @@ namespace NAMESPACE_PHYSICS
 
 		Mat3 sqrtSymetric;
 		if (!sqrtm(symetricMatrix, sqrtSymetric, 40))
-			return;
+			return false;
+
+		if (sqrtSymetric.isSingular()) // matriz cannot be inverted
+			return false;
 
 		Mat3 sqrtSymetricInv;
 		inverse(sqrtSymetric, sqrtSymetricInv);
@@ -70,9 +73,11 @@ namespace NAMESPACE_PHYSICS
 
 			add(newPosition, centerOfMassAfterCollision, shape->particles[i]);
 		}
+
+		return true;
 	}
 
-	void SpCollisionResponseShapeMatching::updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape)
+	sp_bool SpCollisionResponseShapeMatching::updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape)
 	{
 		SpRigidBody3D* rigidBody = SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex);
 		const Vec3* particles = shape->particles;
@@ -104,7 +109,10 @@ namespace NAMESPACE_PHYSICS
 		multiply(temp, matrixApq, symetricMatrix);
 
 		if (!sqrtm(symetricMatrix, temp, 40))
-			return;
+			return false;
+
+		if (temp.isSingular()) // matrix cannot be inverted
+			return false;
 
 		Mat3 sqrtSymetricInv;
 		inverse(temp, sqrtSymetricInv);
@@ -121,6 +129,8 @@ namespace NAMESPACE_PHYSICS
 
 		transformation->position = centerOfMassAfterCollision;
 		rigidBody->currentState.position(transformation->position);
+
+		return true;
 	}
 
 	sp_bool SpCollisionResponseShapeMatching::hasPlaneCollision(SpRigidBodyShapeMatch* shape, SpCollisionDetails* collisionManifold, sp_uint& pointsLength, SpVertexMesh** points)
@@ -256,7 +266,7 @@ namespace NAMESPACE_PHYSICS
 			Vec3 directionObj1;
 			shape1->centerOfMass(directionObj1);
 			diff(shape1->particles[mesh1Points[0]->index()], directionObj1, directionObj1);
-			normalize(&directionObj1);
+			normalize(directionObj1);
 
 			if (directionObj1.dot(collisionManifold.collisionNormal) > ZERO_FLOAT)
 				normalToObj1 = collisionManifold.collisionNormal;
@@ -272,7 +282,7 @@ namespace NAMESPACE_PHYSICS
 			Vec3 directionObj2;
 			shape2->centerOfMass(directionObj2);
 			diff(shape2->particles[mesh2Points[0]->index()], directionObj2, directionObj2);
-			normalize(&directionObj2);
+			normalize(directionObj2);
 
 			if (directionObj2.dot(collisionManifold.collisionNormal) > ZERO_FLOAT)
 				normalToObj1 = -collisionManifold.collisionNormal;

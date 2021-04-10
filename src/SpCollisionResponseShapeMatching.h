@@ -50,7 +50,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_bool hasPlaneCollision(SpRigidBodyShapeMatch* shape, SpCollisionDetails* collisionManifold, sp_uint& pointsLength, SpVertexMesh** points);
 
-		void shapeMatch(SpRigidBodyShapeMatch* shape);
+		sp_bool shapeMatch(SpRigidBodyShapeMatch* shape);
 
 	public:
 
@@ -58,7 +58,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void solve(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2);
 
-		API_INTERFACE void updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape);
+		API_INTERFACE sp_bool updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape);
 
 	};
 

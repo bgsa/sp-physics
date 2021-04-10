@@ -535,7 +535,7 @@ namespace NAMESPACE_PHYSICS
 	/// </summary>
 	/// <param name="vector">Vector to be normalized</param>
 	/// <returns>void</returns>
-	API_INTERFACE inline void normalize(Vec3* vector)
+	API_INTERFACE inline void normalize(Vec3& vector)
 	{
 #ifdef AVX_ENABLED
 		const __m128 v = sp_vec3_convert_ref_simd(vector); // convert
@@ -543,9 +543,9 @@ namespace NAMESPACE_PHYSICS
 		const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot); // root reverse
 		const sp_float* result = sp_vec3_mult_simd(v, vDotSquaredRoot).m128_f32;
 		
-		vector->x = result[0];
-		vector->y = result[1];
-		vector->z = result[2];
+		vector.x = result[0];
+		vector.y = result[1];
+		vector.z = result[2];
 #else
 		const sp_float len = length(*vector);
 
@@ -553,9 +553,9 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float vectorLengthInverted = ONE_FLOAT / len;
 
-		vector->x *= vectorLengthInverted;
-		vector->y *= vectorLengthInverted;
-		vector->z *= vectorLengthInverted;
+		vector.x *= vectorLengthInverted;
+		vector.y *= vectorLengthInverted;
+		vector.z *= vectorLengthInverted;
 #endif
 	}
 
@@ -565,7 +565,7 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="input">Vector to be normalized</param>
 	/// <param name="output">Normalized vector</param>
 	/// <returns>void</returns>
-	API_INTERFACE inline void normalize(const Vec3& input, Vec3* output)
+	API_INTERFACE inline void normalize(const Vec3& input, Vec3& output)
 	{
 #ifdef AVX_ENABLED
 		const __m128 v = sp_vec3_convert_simd(input);
@@ -573,7 +573,7 @@ namespace NAMESPACE_PHYSICS
 		const __m128 vDotSquaredRoot = sp_vec3_rsqrt_simd(vDot); // root
 		const __m128 result = sp_vec3_mult_simd(v, vDotSquaredRoot);
 
-		std::memcpy(output, result.m128_f32, SIZEOF_FLOAT * 3u);
+		std::memcpy(output, result.m128_f32, sizeof(sp_float) * VEC3_LENGTH);
 #else
 		const sp_float len = NAMESPACE_PHYSICS::length(input);
 
@@ -581,9 +581,9 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float vectorLengthInverted = ONE_FLOAT / len;
 
-		output->x = input.x * vectorLengthInverted;
-		output->y = input.y * vectorLengthInverted;
-		output->z = input.z * vectorLengthInverted;
+		output.x = input.x * vectorLengthInverted;
+		output.y = input.y * vectorLengthInverted;
+		output.z = input.z * vectorLengthInverted;
 #endif
 	}
 

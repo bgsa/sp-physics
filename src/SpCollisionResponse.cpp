@@ -12,7 +12,7 @@ namespace NAMESPACE_PHYSICS
 		if (NAMESPACE_FOUNDATION::isCloseEnough(length(tangent), ZERO_FLOAT, SP_EPSILON_TWO_DIGITS))
 			return;
 
-		normalize(&tangent);
+		normalize(tangent);
 
 		Vec3 temp1, temp2, d2, d3, temp;
 		cross(rayToContactObj1, tangent, &temp1);

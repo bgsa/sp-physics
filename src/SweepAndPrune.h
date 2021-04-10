@@ -107,6 +107,38 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE static void findCollisions(DOP18* kdops, sp_uint* indexes, sp_uint length, SweepAndPruneResult* resultCpu);
 
+		/// <summary>
+		/// Get the best axis to sweep and prune
+		/// </summary>
+		/// <param name="output">Axis</param>
+		/// <returns>output axis parameter; True if the method converged orelse False</returns>
+		API_INTERFACE sp_bool pca(Vec3& output, const sp_uint maxIterations = SP_UINT_MAX) const;
+
+		/// <summary>
+		/// Given an axis, get the axis ID based on k-DOP axis (9 axis availables)
+		/// </summary>
+		API_INTERFACE inline sp_uint axisId(const Vec3& axis) const
+		{
+			sp_float value = axis.dot(DOP18_NORMALS[DOP18_PLANES_LEFT_INDEX]);
+			sp_uint id = DOP18_PLANES_LEFT_INDEX;
+
+			for (sp_uint i = DOP18_PLANES_LEFT_INDEX + 1u; i <= DOP18_PLANES_LEFT_FRONT_INDEX; i++)
+			{
+				Vec3 v;
+				NAMESPACE_PHYSICS::normalize(DOP18_NORMALS[i], v);
+
+				const sp_float newValue = axis.dot(v);
+
+				if (newValue > value)
+				{
+					value = newValue;
+					id = divideBy2(i);
+				}
+			}
+
+			return id;
+		}
+
 #ifdef OPENCL_ENABLED
 
 		///<summary>

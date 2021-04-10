@@ -1,8 +1,13 @@
 #include "SpPhysicSimulator.h"
 #include "SpWorldManager.h"
+#include "SpString.h"
 
 namespace NAMESPACE_PHYSICS
 {
+	Timer tt;
+	sp_uint pcaFrameCounter = SP_UINT_MAX;
+	sp_char table[10000];
+	sp_char pca[1000];
 
 	void SpPhysicSimulator::init()
 	{
@@ -239,7 +244,6 @@ namespace NAMESPACE_PHYSICS
 		return pairsLength;
 	}
 
-	Timer tt;
 	void SpPhysicSimulator::run(const sp_float elapsedTime)
 	{
 		SpWorld* world = SpWorldManagerInstance->current();
@@ -256,9 +260,40 @@ namespace NAMESPACE_PHYSICS
 
 		// update mesh cache vertexes
 		world->_meshCacheUpdater.execute();
+		
+		sp_char text[20];
+		SpString::convert(SpPhysicSettings::instance()->frameId(), text);
+		csvFile->addValue(text);
+
+		//sp_log_debug1sfnl("FRAME ID: ", SpPhysicSettings::instance()->frameId());
+
+		if (pcaFrameCounter > SpPhysicSettings::instance()->pcaExecutionPerFrame())
+		{
+			Vec3 axis;
+
+			tt.update();
+			if (sapDOP18->pca(axis, 50u))
+			{
+				sp_float timePCA = tt.elapsedTime();
+
+				sapDOP18->axis = sapDOP18->axisId(axis);
+				sapAABB->axis = sapDOP18->axis;
+				sapSphere->axis = sapDOP18->axis;
+
+				sp_log_debug1s("PCA AXIS:"); sp_log_newline();
+				sp_log_debugXf(axis, 3u); sp_log_newline();
+				sp_log_debug1s("PCA AXIS ID:"); sp_log_newline();
+				sp_log_debug1u(sapDOP18->axis); sp_log_newline();
+				sp_log_debug1s("PCA TIME:"); sp_log_newline();
+				sp_log_debug1f(timePCA); sp_log_newline();
+			}
+			pcaFrameCounter = ZERO_UINT;
+		}
+		pcaFrameCounter++;
 
 		// build bounding volumes Sphere
 		world->sphereFactory.execute();
+		const sp_float timeBuildSpheres = (sp_float) world->sphereFactory.timeOfLastExecution();
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update();
@@ -268,7 +303,7 @@ namespace NAMESPACE_PHYSICS
 
 		// build bounding volumes AABB
 		world->aabbFactory.execute();
-
+		const sp_float timeBuildAABBs = (sp_float)world->aabbFactory.timeOfLastExecution();
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update(); 
@@ -278,20 +313,55 @@ namespace NAMESPACE_PHYSICS
 
 		// build bounding volumes 18-DOP
 		world->dop18Factory.execute();
+		const sp_float timeBuildDOP18 = (sp_float)world->dop18Factory.timeOfLastExecution();
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update();
 		findCollisionsGpuDOP18(&sapResult);
 		const sp_float timeBroadPhaseDOP18 = tt.elapsedTime();
-		const sp_float paresBroadPhaseDOP18 = sapResult.length;
+		const sp_uint paresBroadPhaseDOP18 = sapResult.length;
 
+		SpString::convert(timeBuildDOP18, text);
+		csvFile->addValue(text);
 
-		sp_log_debug1sfnl("Pares DOP18: ", (sp_float) paresBroadPhaseDOP18);
-		sp_log_debug1sfnl("Tempo DOP18: ", timeBroadPhaseDOP18);
-		sp_log_debug1sfnl("Pares AABB: ", (sp_float)paresBroadPhaseAABB);
-		sp_log_debug1sfnl("Tempo AABB: ", timeBroadPhaseAABB); 
-		sp_log_debug1sfnl("Pares Sphere: ", (sp_float)paresBroadPhaseSphere);
-		sp_log_debug1sfnl("Tempo Sphere: ", timeBroadPhaseSphere);
+		SpString::convert(paresBroadPhaseDOP18, text);
+		csvFile->addValue(text);
+
+		SpString::convert(timeBroadPhaseDOP18, text);
+		csvFile->addValue(text);
+
+		//sp_log_debug1sfnl("Tempo Build DOP18: ", timeBuildDOP18);
+		//sp_log_debug1sfnl("Pares DOP18: ", (sp_float) paresBroadPhaseDOP18);
+		//sp_log_debug1sfnl("Tempo DOP18: ", timeBroadPhaseDOP18);
+
+		SpString::convert(timeBuildAABBs, text);
+		csvFile->addValue(text);
+
+		SpString::convert(paresBroadPhaseAABB, text);
+		csvFile->addValue(text);
+
+		SpString::convert(timeBroadPhaseAABB, text);
+		csvFile->addValue(text);
+
+		//sp_log_debug1sfnl("Tempo Build AABB: ", timeBuildAABBs);
+		//sp_log_debug1sfnl("Pares AABB: ", (sp_float)paresBroadPhaseAABB);
+		//sp_log_debug1sfnl("Tempo AABB: ", timeBroadPhaseAABB); 
+
+		SpString::convert(timeBuildSpheres, text);
+		csvFile->addValue(text);
+
+		SpString::convert(paresBroadPhaseSphere, text);
+		csvFile->addValue(text);
+
+		SpString::convert(timeBroadPhaseSphere, text);
+		csvFile->addValue(text);
+
+		csvFile->newRecord();
+
+		//sp_log_debug1sfnl("Tempo Build Sphere: ", timeBuildSpheres);
+		//sp_log_debug1sfnl("Pares Sphere: ", (sp_float)paresBroadPhaseSphere);
+		//sp_log_debug1sfnl("Tempo Sphere: ", timeBroadPhaseSphere);
+
 
 		//const sp_uint collisionsWith18DOP = sapResult.length;
 		//sp_log_info1s("Collisions: "); sp_log_info1u(sapResult.length); sp_log_newline();
@@ -453,6 +523,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_mem_delete(collisionResponseGPU, SpCollisionResponseGPU);
 			collisionResponseGPU = nullptr;
+		}
+
+		if (csvFile != nullptr)
+		{
+			sp_mem_delete(csvFile, SpCSVFileWriter);
+			csvFile = nullptr;
 		}
 	}
 

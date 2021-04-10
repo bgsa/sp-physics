@@ -1,5 +1,6 @@
 #include "SweepAndPrune.h"
 #include "SpPhysicSimulator.h"
+#include "SpWorld.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -154,6 +155,44 @@ namespace NAMESPACE_PHYSICS
 
 		ALLOC_RELEASE(activeListIndex);
 		resultCpu->length = divideBy2(resultCpu->length);
+	}
+
+	sp_bool SweepAndPrune::pca(Vec3& output, const sp_uint maxIterations) const
+	{
+		SpWorld* world = SpWorldManagerInstance->current();
+
+		Mat matrix(world->objectsLength(), 3u);
+		sp_float* values = matrix;
+
+		for (sp_uint i = 0; i < world->objectsLength(); i++)
+			std::memcpy(&values[i * 3u], world->transforms(i)->position, sizeof(Vec3));
+
+		sp_uint iterations;
+		Mat u(matrix.rows(), matrix.rows()), s(matrix.columns(), matrix.columns()), v(matrix.columns(), matrix.columns());
+
+		if (!matrix.svd(u, s, v, iterations, maxIterations))
+			return false;
+
+		sp_uint eigenVectorIndex = ZERO_UINT;
+		sp_float maxEigenValue = s.get(0u, 0u);
+
+		sp_float eigenValue = s.get(1u, 1u);
+		if (eigenValue > maxEigenValue)
+		{
+			eigenVectorIndex = ONE_UINT;
+			maxEigenValue = eigenValue;
+		}
+
+		eigenValue = s.get(2u, 2u);
+		if (eigenValue > maxEigenValue)
+		{
+			eigenVectorIndex = TWO_UINT;
+			maxEigenValue = eigenValue;
+		}
+
+		v.column(eigenVectorIndex, output);
+
+		return true;
 	}
 
 #ifdef OPENCL_ENABLED

@@ -78,6 +78,11 @@ namespace NAMESPACE_PHYSICS
 			command->execute(1u, globalWorkSize, localWorkSize);
 		}
 
+		API_INTERFACE inline sp_double timeOfLastExecution() const
+		{
+			return command->getTimeOfExecution();
+		}
+
 		API_INTERFACE virtual void dispose()
 		{
 			if (command != nullptr)

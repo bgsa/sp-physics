@@ -21,7 +21,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		point = Vec3(ZERO_FLOAT, ZERO_FLOAT, -d / c);
 
-		normalize(Vec3(a, b, c), &normalVector);
+		normalize(Vec3(a, b, c), normalVector);
 		distanceFromOrigin = normalVector.dot(point);
 	}
 

@@ -289,7 +289,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, createRotate)
 	{
 		Vec3 axis(1.0f, 0.0f, 1.0f);
-		normalize(&axis);
+		normalize(axis);
 		SP_CONSTEXPR sp_float angle = degreesToRadians(60.0f);
 
 		Quat result = Quat::createRotate(angle, axis);
