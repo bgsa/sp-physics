@@ -967,16 +967,18 @@ namespace NAMESPACE_PHYSICS
 	
 	void inverse(const Mat3& input, Mat3& output)
 	{
-		const sp_float det = ONE_FLOAT / input.determinant();
+		const sp_float det = input.determinant();
 
 		sp_assert(!NAMESPACE_FOUNDATION::isCloseEnough(det, ZERO_FLOAT, SP_EPSILON_FIVE_DIGITS), "InvalidOperationException"); // matrix is singular
+
+		const sp_float detInverse = ONE_FLOAT / det;
 
 		for (sp_int i = 0; i < MAT3_ROW_LENGTH; i++)
 			for (sp_int j = 0; j < MAT3_ROW_LENGTH; j++)
 			{
 				const sp_float detij = input.determinantIJ(j, i);
 
-				output[i * MAT3_ROW_LENGTH + j] = det * 
+				output[i * MAT3_ROW_LENGTH + j] = detInverse *
 					((i + j) & 0x1 ? -detij : detij);
 			}
 	}

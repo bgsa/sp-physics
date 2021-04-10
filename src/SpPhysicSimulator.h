@@ -90,6 +90,7 @@ namespace NAMESPACE_PHYSICS
 				->addHeader("BUILD SPHERE")
 				->addHeader("QTD PARES SPHERE")
 				->addHeader("TEMPO SAP SPHERE")
+				->addHeader("NARROW PHASE")
 				->newRecord();
 		}
 

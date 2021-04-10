@@ -6,8 +6,6 @@ namespace NAMESPACE_PHYSICS
 {
 	Timer tt;
 	sp_uint pcaFrameCounter = SP_UINT_MAX;
-	sp_char table[10000];
-	sp_char pca[1000];
 
 	void SpPhysicSimulator::init()
 	{
@@ -261,31 +259,19 @@ namespace NAMESPACE_PHYSICS
 		// update mesh cache vertexes
 		world->_meshCacheUpdater.execute();
 		
-		sp_char text[20];
-		SpString::convert(SpPhysicSettings::instance()->frameId(), text);
-		csvFile->addValue(text);
-
-		//sp_log_debug1sfnl("FRAME ID: ", SpPhysicSettings::instance()->frameId());
-
+		csvFile->addValue(SpPhysicSettings::instance()->frameId());
+		
 		if (pcaFrameCounter > SpPhysicSettings::instance()->pcaExecutionPerFrame())
 		{
 			Vec3 axis;
 
-			tt.update();
+			//tt.update();
 			if (sapDOP18->pca(axis, 50u))
 			{
-				sp_float timePCA = tt.elapsedTime();
-
+				//sp_float timePCA = tt.elapsedTime();
 				sapDOP18->axis = sapDOP18->axisId(axis);
 				sapAABB->axis = sapDOP18->axis;
 				sapSphere->axis = sapDOP18->axis;
-
-				sp_log_debug1s("PCA AXIS:"); sp_log_newline();
-				sp_log_debugXf(axis, 3u); sp_log_newline();
-				sp_log_debug1s("PCA AXIS ID:"); sp_log_newline();
-				sp_log_debug1u(sapDOP18->axis); sp_log_newline();
-				sp_log_debug1s("PCA TIME:"); sp_log_newline();
-				sp_log_debug1f(timePCA); sp_log_newline();
 			}
 			pcaFrameCounter = ZERO_UINT;
 		}
@@ -321,42 +307,17 @@ namespace NAMESPACE_PHYSICS
 		const sp_float timeBroadPhaseDOP18 = tt.elapsedTime();
 		const sp_uint paresBroadPhaseDOP18 = sapResult.length;
 
-		SpString::convert(timeBuildDOP18, text);
-		csvFile->addValue(text);
+		csvFile->addValue(timeBuildDOP18);
+		csvFile->addValue(paresBroadPhaseDOP18);
+		csvFile->addValue(timeBroadPhaseDOP18);
 
-		SpString::convert(paresBroadPhaseDOP18, text);
-		csvFile->addValue(text);
+		csvFile->addValue(timeBuildAABBs);
+		csvFile->addValue(paresBroadPhaseAABB);
+		csvFile->addValue(timeBroadPhaseAABB);
 
-		SpString::convert(timeBroadPhaseDOP18, text);
-		csvFile->addValue(text);
-
-		//sp_log_debug1sfnl("Tempo Build DOP18: ", timeBuildDOP18);
-		//sp_log_debug1sfnl("Pares DOP18: ", (sp_float) paresBroadPhaseDOP18);
-		//sp_log_debug1sfnl("Tempo DOP18: ", timeBroadPhaseDOP18);
-
-		SpString::convert(timeBuildAABBs, text);
-		csvFile->addValue(text);
-
-		SpString::convert(paresBroadPhaseAABB, text);
-		csvFile->addValue(text);
-
-		SpString::convert(timeBroadPhaseAABB, text);
-		csvFile->addValue(text);
-
-		//sp_log_debug1sfnl("Tempo Build AABB: ", timeBuildAABBs);
-		//sp_log_debug1sfnl("Pares AABB: ", (sp_float)paresBroadPhaseAABB);
-		//sp_log_debug1sfnl("Tempo AABB: ", timeBroadPhaseAABB); 
-
-		SpString::convert(timeBuildSpheres, text);
-		csvFile->addValue(text);
-
-		SpString::convert(paresBroadPhaseSphere, text);
-		csvFile->addValue(text);
-
-		SpString::convert(timeBroadPhaseSphere, text);
-		csvFile->addValue(text);
-
-		csvFile->newRecord();
+		csvFile->addValue(timeBuildSpheres);
+		csvFile->addValue(paresBroadPhaseSphere);
+		csvFile->addValue(timeBroadPhaseSphere);
 
 		//sp_log_debug1sfnl("Tempo Build Sphere: ", timeBuildSpheres);
 		//sp_log_debug1sfnl("Pares Sphere: ", (sp_float)paresBroadPhaseSphere);
@@ -377,49 +338,9 @@ namespace NAMESPACE_PHYSICS
 
 		world->updateDataOnCPU();
 
-		//SpThreadPool* threadPool = SpThreadPool::instance();
-
-		/*
-		SpCollisionGroups groups(_objectsLength, multiplyBy2(sapResult.length));
-		groupCollisions(sapResult, &groups);
-
-		sp_uint taskIndex = ZERO_UINT;
-		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, multiplyBy4(_objectsLength));
-		SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, multiplyBy4(_objectsLength));
-
-		for (sp_uint i = 0; i < groups.groupLength; i++)
-		{
-			sp_uint* pairs = ALLOC_ARRAY(sp_uint, multiplyBy2(50));
-			sp_uint pairsLength = pairsLeaf(groups, groups.groups[i], pairs);
-
-			for (sp_uint j = 0; j < pairsLength; j+=2)
-			{
-				detailsArray[taskIndex].objIndex1 = pairs[j];
-				detailsArray[taskIndex].objIndex2 = pairs[j + 1];
-				detailsArray[taskIndex].timeStep = elapsedTime;
-				detailsArray[taskIndex].cacheObj1 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[taskIndex].objIndex1)->meshIndex)->vertexesMesh->length());
-				detailsArray[taskIndex].cacheObj2 = ALLOC_NEW(SpMeshCache)(mesh(collisionFeatures(detailsArray[taskIndex].objIndex2)->meshIndex)->vertexesMesh->length());
-
-				tasks[taskIndex].func = &SpPhysicSimulator::handleCollisionCPU;
-				//tasks[taskIndex].func = &SpPhysicSimulator::handleCollisionGPU;
-				tasks[taskIndex].parameter = &detailsArray[taskIndex];
-
-				threadPool->schedule(&tasks[taskIndex]);
-				//handleCollisionCPU(&detailsArray[taskIndex]);
-				taskIndex++;
-			}
-
-			ALLOC_RELEASE(pairs);
-		}
-		*/
-
-
 		tt.update();
 
 		SpCollisionDetails* detailsArray = ALLOC_NEW_ARRAY(SpCollisionDetails, sapResult.length);
-		//SpThreadTask* tasks = ALLOC_NEW_ARRAY(SpThreadTask, sapResult.length);
-		//std::thread** threads = ALLOC_ARRAY(std::thread*, sapResult.length);
-
 		SpCollisionResponseShapeMatching shapeMatching;
 
 		SpMeshCache** caches = ALLOC_NEW_ARRAY(SpMeshCache*, world->objectsLength());
@@ -446,6 +367,7 @@ namespace NAMESPACE_PHYSICS
 				shapeMatching.initShape(obj2, shapes[obj2]);
 			}
 		}
+
 		// many shape match iterations
 		for (sp_uint iterations = 0u; iterations < 10u; iterations++)
 		{
@@ -480,8 +402,8 @@ namespace NAMESPACE_PHYSICS
 				dispatchEvent(&detailsArray[i]);
 		*/
 
-		sp_float et = tt.elapsedTime();
-		sp_log_debug1sfnl("TIME: ", et);
+		csvFile->addValue(tt.elapsedTime());
+		csvFile->newRecord();
 
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;
