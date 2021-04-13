@@ -8,62 +8,62 @@
     #define INPUT_STRIDE (1)
 #endif
 
-#define DOP18_MIN_POINT_NEXT_ELEMENT    input[boundingVolumeIndex2 + axis]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_X  input[boundingVolumeIndex2     ]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_Y  input[boundingVolumeIndex2 +  1]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_Z  input[boundingVolumeIndex2 +  2]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_XY input[boundingVolumeIndex2 +  3]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_YX input[boundingVolumeIndex2 +  4]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_YZ input[boundingVolumeIndex2 +  5]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_ZY input[boundingVolumeIndex2 +  6]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_XZ input[boundingVolumeIndex2 +  7]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_ZX input[boundingVolumeIndex2 +  8]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_X  input[boundingVolumeIndex2 +  9]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_Y  input[boundingVolumeIndex2 + 10]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_Z  input[boundingVolumeIndex2 + 11]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_XY input[boundingVolumeIndex2 + 12]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_YX input[boundingVolumeIndex2 + 13]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_YZ input[boundingVolumeIndex2 + 14]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_ZY input[boundingVolumeIndex2 + 15]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_XZ input[boundingVolumeIndex2 + 16]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_ZX input[boundingVolumeIndex2 + 17]
+#define DOP18_MIN_POINT_NEXT_ELEMENT    boundingVolumes[boundingVolumeIndex2 + axis]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_X  boundingVolumes[boundingVolumeIndex2     ]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_Y  boundingVolumes[boundingVolumeIndex2 +  1]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_Z  boundingVolumes[boundingVolumeIndex2 +  2]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_XY boundingVolumes[boundingVolumeIndex2 +  3]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_YX boundingVolumes[boundingVolumeIndex2 +  4]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_YZ boundingVolumes[boundingVolumeIndex2 +  5]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_ZY boundingVolumes[boundingVolumeIndex2 +  6]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_XZ boundingVolumes[boundingVolumeIndex2 +  7]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_ZX boundingVolumes[boundingVolumeIndex2 +  8]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_X  boundingVolumes[boundingVolumeIndex2 +  9]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_Y  boundingVolumes[boundingVolumeIndex2 + 10]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_Z  boundingVolumes[boundingVolumeIndex2 + 11]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_XY boundingVolumes[boundingVolumeIndex2 + 12]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_YX boundingVolumes[boundingVolumeIndex2 + 13]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_YZ boundingVolumes[boundingVolumeIndex2 + 14]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_ZY boundingVolumes[boundingVolumeIndex2 + 15]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_XZ boundingVolumes[boundingVolumeIndex2 + 16]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_ZX boundingVolumes[boundingVolumeIndex2 + 17]
 
-#define DOP18_MAX_POINT  input[boundingVolumeIndex1 + DOP18_ORIENTATIONS + axis]
-#define DOP18_minPointX  input[boundingVolumeIndex1     ]
-#define DOP18_minPointY  input[boundingVolumeIndex1 +  1]
-#define DOP18_minPointZ  input[boundingVolumeIndex1 +  2]
-#define DOP18_minPointXY input[boundingVolumeIndex1 +  3]
-#define DOP18_minPointYX input[boundingVolumeIndex1 +  4]
-#define DOP18_minPointYZ input[boundingVolumeIndex1 +  5]
-#define DOP18_minPointZY input[boundingVolumeIndex1 +  6]
-#define DOP18_minPointXZ input[boundingVolumeIndex1 +  7]
-#define DOP18_minPointZX input[boundingVolumeIndex1 +  8]
-#define DOP18_maxPointX  input[boundingVolumeIndex1 +  9]
-#define DOP18_maxPointY  input[boundingVolumeIndex1 + 10]
-#define DOP18_maxPointZ  input[boundingVolumeIndex1 + 11]
-#define DOP18_maxPointXY input[boundingVolumeIndex1 + 12]
-#define DOP18_maxPointYX input[boundingVolumeIndex1 + 13]
-#define DOP18_maxPointYZ input[boundingVolumeIndex1 + 14]
-#define DOP18_maxPointZY input[boundingVolumeIndex1 + 15]
-#define DOP18_maxPointXZ input[boundingVolumeIndex1 + 16]
-#define DOP18_maxPointZX input[boundingVolumeIndex1 + 17]
+#define DOP18_MAX_POINT  boundingVolumes[boundingVolumeIndex1 + DOP18_ORIENTATIONS + axis]
+#define DOP18_minPointX  boundingVolumes[boundingVolumeIndex1     ]
+#define DOP18_minPointY  boundingVolumes[boundingVolumeIndex1 +  1]
+#define DOP18_minPointZ  boundingVolumes[boundingVolumeIndex1 +  2]
+#define DOP18_minPointXY boundingVolumes[boundingVolumeIndex1 +  3]
+#define DOP18_minPointYX boundingVolumes[boundingVolumeIndex1 +  4]
+#define DOP18_minPointYZ boundingVolumes[boundingVolumeIndex1 +  5]
+#define DOP18_minPointZY boundingVolumes[boundingVolumeIndex1 +  6]
+#define DOP18_minPointXZ boundingVolumes[boundingVolumeIndex1 +  7]
+#define DOP18_minPointZX boundingVolumes[boundingVolumeIndex1 +  8]
+#define DOP18_maxPointX  boundingVolumes[boundingVolumeIndex1 +  9]
+#define DOP18_maxPointY  boundingVolumes[boundingVolumeIndex1 + 10]
+#define DOP18_maxPointZ  boundingVolumes[boundingVolumeIndex1 + 11]
+#define DOP18_maxPointXY boundingVolumes[boundingVolumeIndex1 + 12]
+#define DOP18_maxPointYX boundingVolumes[boundingVolumeIndex1 + 13]
+#define DOP18_maxPointYZ boundingVolumes[boundingVolumeIndex1 + 14]
+#define DOP18_maxPointZY boundingVolumes[boundingVolumeIndex1 + 15]
+#define DOP18_maxPointXZ boundingVolumes[boundingVolumeIndex1 + 16]
+#define DOP18_maxPointZX boundingVolumes[boundingVolumeIndex1 + 17]
 
-#define AABB_MIN_POINT_NEXT_ELEMENT input[boundingVolumeIndex2                     + axis]
-#define AABB_MAX_POINT              input[boundingVolumeIndex1 + AABB_ORIENTATIONS + axis]
+#define AABB_MIN_POINT_NEXT_ELEMENT boundingVolumes[boundingVolumeIndex2                     + axis]
+#define AABB_MAX_POINT              boundingVolumes[boundingVolumeIndex1 + AABB_ORIENTATIONS + axis]
 
-#define AABB_MIN_POINT_NEXT_ELEMENT_X input[boundingVolumeIndex2       ]
-#define AABB_MIN_POINT_NEXT_ELEMENT_Y input[boundingVolumeIndex2 +    1]
-#define AABB_MIN_POINT_NEXT_ELEMENT_Z input[boundingVolumeIndex2 +    2]
-#define AABB_MAX_POINT_NEXT_ELEMENT_X input[boundingVolumeIndex2 +    3]
-#define AABB_MAX_POINT_NEXT_ELEMENT_Y input[boundingVolumeIndex2 +    4]
-#define AABB_MAX_POINT_NEXT_ELEMENT_Z input[boundingVolumeIndex2 +    5]
+#define AABB_MIN_POINT_NEXT_ELEMENT_X boundingVolumes[boundingVolumeIndex2       ]
+#define AABB_MIN_POINT_NEXT_ELEMENT_Y boundingVolumes[boundingVolumeIndex2 +    1]
+#define AABB_MIN_POINT_NEXT_ELEMENT_Z boundingVolumes[boundingVolumeIndex2 +    2]
+#define AABB_MAX_POINT_NEXT_ELEMENT_X boundingVolumes[boundingVolumeIndex2 +    3]
+#define AABB_MAX_POINT_NEXT_ELEMENT_Y boundingVolumes[boundingVolumeIndex2 +    4]
+#define AABB_MAX_POINT_NEXT_ELEMENT_Z boundingVolumes[boundingVolumeIndex2 +    5]
 
-#define AABB_minPointX  input[boundingVolumeIndex1     ]
-#define AABB_minPointY  input[boundingVolumeIndex1 +  1]
-#define AABB_minPointZ  input[boundingVolumeIndex1 +  2]
-#define AABB_maxPointX  input[boundingVolumeIndex1 +  3]
-#define AABB_maxPointY  input[boundingVolumeIndex1 +  4]
-#define AABB_maxPointZ  input[boundingVolumeIndex1 +  5]
+#define AABB_minPointX  boundingVolumes[boundingVolumeIndex1     ]
+#define AABB_minPointY  boundingVolumes[boundingVolumeIndex1 +  1]
+#define AABB_minPointZ  boundingVolumes[boundingVolumeIndex1 +  2]
+#define AABB_maxPointX  boundingVolumes[boundingVolumeIndex1 +  3]
+#define AABB_maxPointY  boundingVolumes[boundingVolumeIndex1 +  4]
+#define AABB_maxPointZ  boundingVolumes[boundingVolumeIndex1 +  5]
 
 __kernel void buildInputElements(
     __global   sp_float* boundingVolume,
@@ -167,7 +167,9 @@ __kernel void buildInputElements(
             center.y = boundingVolume[elementIndex * SPHERE_STRIDE + 1];
             center.z = boundingVolume[elementIndex * SPHERE_STRIDE + 2];
 
-            output[elementIndex] = vec3_dot_vec3(axisVector, center) / vec3_dot_vec3(axisVector, axisVector);
+#define ray boundingVolume[elementIndex * SPHERE_STRIDE + 3]
+            output[elementIndex] = (vec3_dot_vec3(axisVector, center) / vec3_dot_vec3(axisVector, axisVector)) - ray;
+#undef ray
             break;
         }
     }
@@ -176,7 +178,8 @@ __kernel void buildInputElements(
 }
 
 __kernel void sweepAndPruneSingleAxis(
-	__global   sp_float* input,
+	__global   sp_float* boundingVolumes,
+    __global   sp_float* elements,
     __global   sp_float* rigidBodies3D,
 	__constant sp_uint * indexesLength, 
     __global   sp_uint * indexes, 
@@ -229,7 +232,8 @@ __kernel void sweepAndPruneSingleAxis(
 
 
 __kernel void sweepAndPruneSingleAxisAABB(
-    __global   sp_float* input,
+    __global   sp_float* boundingVolumes,
+    __global   sp_float* elements,
     __global   sp_float* rigidBodies3D,
     __constant sp_uint* indexesLength,
     __global   sp_uint* indexes,
@@ -276,15 +280,16 @@ __kernel void sweepAndPruneSingleAxisAABB(
 
 
 __kernel void sweepAndPruneSingleAxisSphere(
-    __global   sp_float* input,
+    __global   sp_float* boundingVolumes,
+    __global   sp_float* elements,
     __global   sp_float* rigidBodies3D,
-    __constant sp_uint* indexesLength,
-    __global   sp_uint* indexes,
-    __global   sp_uint* outputLength,
-    __global   sp_uint* output)
+    __constant sp_uint * indexesLength,
+    __global   sp_uint * indexes,
+    __global   sp_uint * outputLength,
+    __global   sp_uint * output)
 {
+#define axis THREAD_OFFSET
 #define index (THREAD_ID - THREAD_OFFSET)
-#define beginIntervalObj2 (positionObj2.x - rayObj2)
 
     if (index + 1u > *indexesLength)
         return;
@@ -293,28 +298,29 @@ __kernel void sweepAndPruneSingleAxisSphere(
     const sp_uint boundingVolumeIndex1 = objIndex1 * SPHERE_STRIDE;
 
     Vec3 positionObj1;
-    positionObj1.x         = input[boundingVolumeIndex1    ];
-    positionObj1.y         = input[boundingVolumeIndex1 + 1];
-    positionObj1.z         = input[boundingVolumeIndex1 + 2];
-    const sp_float rayObj1 = input[boundingVolumeIndex1 + 3];
+    positionObj1.x         = boundingVolumes[boundingVolumeIndex1    ];
+    positionObj1.y         = boundingVolumes[boundingVolumeIndex1 + 1];
+    positionObj1.z         = boundingVolumes[boundingVolumeIndex1 + 2];
+    const sp_float rayObj1 = boundingVolumes[boundingVolumeIndex1 + 3];
 
-    const sp_float endIntervalObj1   = positionObj1.x + rayObj1;
+    const sp_float endObj1 = elements[objIndex1] + (rayObj1 * TWO_FLOAT);
 
     for (sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
         const sp_uint objIndex2 = indexes[j];
+
+        if (elements[objIndex2] > endObj1)
+            return;
+
         const sp_uint boundingVolumeIndex2 = objIndex2 * SPHERE_STRIDE;
 
         Vec3 positionObj2;
-        positionObj2.x         = input[boundingVolumeIndex2    ];
-        positionObj2.y         = input[boundingVolumeIndex2 + 1];
-        positionObj2.z         = input[boundingVolumeIndex2 + 2];
-        const sp_float rayObj2 = input[boundingVolumeIndex2 + 3];
+        positionObj2.x         = boundingVolumes[boundingVolumeIndex2    ];
+        positionObj2.y         = boundingVolumes[boundingVolumeIndex2 + 1];
+        positionObj2.z         = boundingVolumes[boundingVolumeIndex2 + 2];
+        const sp_float rayObj2 = boundingVolumes[boundingVolumeIndex2 + 3];
 
-        if (endIntervalObj1 < beginIntervalObj2)
-            return;
-
-        if (rayObj1 + rayObj2 > distance(positionObj1, positionObj2))
+        if (rayObj1 + rayObj2 >= distance(positionObj1, positionObj2))
         {
             const sp_uint temp = atomic_add(outputLength, 2);
             output[temp    ] = objIndex1;
@@ -322,6 +328,6 @@ __kernel void sweepAndPruneSingleAxisSphere(
         }
     }
 
-#undef beginIntervalObj2
 #undef index
+#undef axis
 }

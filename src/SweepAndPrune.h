@@ -172,7 +172,7 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE inline void updatePhysicProperties(void* rigidBodies3D)
 		{
-			commandSaPCollisions->updateInputParameterValue(1u, rigidBodies3D);
+			commandSaPCollisions->updateInputParameterValue(2u, rigidBodies3D);
 			lastEvent = commandSaPCollisions->lastEvent;
 		}
 

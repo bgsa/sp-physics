@@ -302,18 +302,18 @@ __kernel void buildSphere(
     Vec3 position;
     sp_transformation_get_position(transformations, THREAD_ID * SP_TRANSFORMATION_STRIDER, &position);
 
-    sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
+    const sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
     sp_float distance = SP_FLOAT_MIN;
 
     for (sp_uint i = 0u; i < *meshCacheVertexesLength; i++)
     {
         Vec3 vertex;
-        vertex.x = meshCache[vertexIndex];
+        vertex.x = meshCache[vertexIndex     ];
         vertex.y = meshCache[vertexIndex + 1u];
         vertex.z = meshCache[vertexIndex + 2u];
 
         const sp_float currentDistance = squared_distance(position, vertex);
-
+        
         if (currentDistance > distance)
             distance = currentDistance;
     }

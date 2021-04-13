@@ -165,7 +165,11 @@ namespace NAMESPACE_PHYSICS
 	void SpPhysicSimulator::findCollisionsGpuDOP18(SweepAndPruneResult* result)
 	{
 		sapDOP18->execute(ONE_UINT, &sapDOP18->lastEvent);
+
+		result->length = sapDOP18->fetchCollisionLength();
+		sapDOP18->fetchCollisionIndexes(result->indexes);
 		
+		/*
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
 
 		collisionResponseGPU->execute(ONE_UINT, &sapDOP18->lastEvent);
@@ -173,11 +177,16 @@ namespace NAMESPACE_PHYSICS
 
 		collisionResponseGPU->fetchCollisionLength(&result->length);
 		collisionResponseGPU->fetchCollisions(result->indexes);
+		*/
 	}
 	void SpPhysicSimulator::findCollisionsGpuAABB(SweepAndPruneResult* result)
 	{
 		sapAABB->execute(ONE_UINT, &sapAABB->lastEvent);
 
+		result->length = sapAABB->fetchCollisionLength();
+		sapAABB->fetchCollisionIndexes(result->indexes);
+
+		/*
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
 
 		collisionResponseGPU->execute(ONE_UINT, &sapAABB->lastEvent);
@@ -185,11 +194,16 @@ namespace NAMESPACE_PHYSICS
 
 		collisionResponseGPU->fetchCollisionLength(&result->length);
 		collisionResponseGPU->fetchCollisions(result->indexes);
+		*/
 	}
 	void SpPhysicSimulator::findCollisionsGpuSphere(SweepAndPruneResult& result)
 	{
 		sapSphere->execute(ONE_UINT, &sapSphere->lastEvent);
 
+		result.length = sapSphere->fetchCollisionLength();
+		sapSphere->fetchCollisionIndexes(result.indexes);
+
+		/*
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
 
 		collisionResponseGPU->execute(ONE_UINT, &sapSphere->lastEvent);
@@ -197,6 +211,7 @@ namespace NAMESPACE_PHYSICS
 
 		collisionResponseGPU->fetchCollisionLength(&result.length);
 		collisionResponseGPU->fetchCollisions(result.indexes);
+		*/
 	}
 
 	void SpPhysicSimulator::groupCollisions(const SweepAndPruneResult& sapResult, SpCollisionGroups* collisionGroups)
@@ -279,6 +294,7 @@ namespace NAMESPACE_PHYSICS
 
 		// build bounding volumes Sphere
 		world->sphereFactory.execute();
+		
 		const sp_float timeBuildSpheres = (sp_float) world->sphereFactory.timeOfLastExecution();
 
 		// find collisions pair on GPU using Bounding Volume
@@ -318,14 +334,6 @@ namespace NAMESPACE_PHYSICS
 		csvFile->addValue(timeBuildSpheres);
 		csvFile->addValue(paresBroadPhaseSphere);
 		csvFile->addValue(timeBroadPhaseSphere);
-
-		//sp_log_debug1sfnl("Tempo Build Sphere: ", timeBuildSpheres);
-		//sp_log_debug1sfnl("Pares Sphere: ", (sp_float)paresBroadPhaseSphere);
-		//sp_log_debug1sfnl("Tempo Sphere: ", timeBroadPhaseSphere);
-
-
-		//const sp_uint collisionsWith18DOP = sapResult.length;
-		//sp_log_info1s("Collisions: "); sp_log_info1u(sapResult.length); sp_log_newline();
 
 		// release GPU shared buffer OpenCL and OpenGL
 		gpu->commandManager->releaseGLObjects(world->_transformsGPU);
@@ -395,12 +403,6 @@ namespace NAMESPACE_PHYSICS
 				shapes[obj2]->isDirty = false;
 			}
 		}
-
-		/* dispatch collision events
-		for (sp_uint i = 0; i < sapResult.length; i++)
-			if (!detailsArray[i].ignoreCollision)
-				dispatchEvent(&detailsArray[i]);
-		*/
 
 		csvFile->addValue(tt.elapsedTime());
 		csvFile->newRecord();

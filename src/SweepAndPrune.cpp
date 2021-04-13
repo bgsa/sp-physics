@@ -260,6 +260,7 @@ namespace NAMESPACE_PHYSICS
 
 		commandSaPCollisions = gpu->commandManager->createCommand()
 			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * SIZEOF_FLOAT)
+			->setInputParameter(elementsGPU, sizeof(sp_float) * boundingVolumesLength)
 			->setInputParameter(rigidBodies, boundingVolumesLength * rigidBodySize)
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(indexesGPU, boundingVolumesLength * SIZEOF_UINT)
@@ -272,21 +273,18 @@ namespace NAMESPACE_PHYSICS
 	{
 		commandBuildElements->execute(ONE_UINT, globalWorkSize, localWorkSize, &axis, previousEvents, previousEventsLength);
 
-		/*
-		AABB aabbs[512];
-		gpu->commandManager->readBuffer(commandBuildElements->getInputParameter(0), sizeof(AABB) * 512, aabbs);
+		/* debugging
+		Sphere ss[512];
+		gpu->commandManager->readBuffer(commandBuildElements->getInputParameter(0), sizeof(Sphere) * 512, ss);
 
 		sp_float elements[512];
 		gpu->commandManager->readBuffer(commandBuildElements->getInputParameter(4), sizeof(sp_float) * 512, elements);
+
+		sp_uint* indexes = ALLOC_ARRAY(sp_uint, 512);
+		gpu->commandManager->readBuffer(indexesGPU, sizeof(sp_uint) * 512, indexes, ONE_UINT, &commandBuildElements->lastEvent);
 		*/
 
 		/*
-		sp_uint* indexes = ALLOC_ARRAY(sp_uint, len);
-		gpu->commandManager->readBuffer(indexesGPU, sizeof(sp_uint) * len, indexes, ONE_UINT, &commandBuildElements->lastEvent);
-
-		sp_float* elements = ALLOC_ARRAY(sp_float, len);
-		gpu->commandManager->readBuffer(elementsGPU, sizeof(sp_float) * len, elements, ONE_UINT, &commandBuildElements->lastEvent);
-
 		sp_log_info1s("BEGIN INDEXES"); sp_log_newline();
 		for (sp_uint i = 0; i < len; i++)
 		{
@@ -301,12 +299,14 @@ namespace NAMESPACE_PHYSICS
 
 		cl_mem sortedIndexes = radixSorting->execute(ONE_UINT, &commandBuildElements->lastEvent);
 
-		/* check if sorting is OK		
-		sp_uint* sorted = ALLOC_ARRAY(sp_uint, len);
-		lastEvent = gpu->commandManager->readBuffer(sortedIndexes, 4 * len, sorted, ONE_UINT, &radixSorting->lastEvent);
+		/* // check if sorting is OK		
+		sp_uint* sorted = ALLOC_ARRAY(sp_uint, 512);
+		lastEvent = gpu->commandManager->readBuffer(sortedIndexes, 4 * 512, sorted, ONE_UINT, &radixSorting->lastEvent);
+		*/ 
 
+		/*
 		sp_log_info1s("SORTED INDEXES INDEXES"); sp_log_newline();
-		for (sp_uint i = 0; i < len; i++)
+		for (sp_uint i = 0; i < 512; i++)
 		{
 			sp_log_info1u(sorted[i]);
 			sp_log_info1s(" -> ");
@@ -320,26 +320,26 @@ namespace NAMESPACE_PHYSICS
 		sp_uint zeroValue = ZERO_UINT;
 
 		commandSaPCollisions
-			->updateInputParameter(3, sortedIndexes)
-			->updateInputParameterValue(4, &zeroValue)
+			->updateInputParameter(4, sortedIndexes)
+			->updateInputParameterValue(5, &zeroValue)
 			->execute(1, globalWorkSize, localWorkSize, &axis, &radixSorting->lastEvent, ONE_UINT);
 
 		lastEvent = commandSaPCollisions->lastEvent;
 
-		return commandSaPCollisions->getInputParameter(4u);
+		return commandSaPCollisions->getInputParameter(5u);
 	}
 
 	sp_uint SweepAndPrune::fetchCollisionLength()
 	{
 		sp_uint value;
-		commandSaPCollisions->fetchInOutParameter<sp_uint>(4, &value);
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(5, &value);
 		
 		return divideBy2(value);
 	}
 
 	void SweepAndPrune::fetchCollisionIndexes(sp_uint* output) const
 	{
-		commandSaPCollisions->fetchInOutParameter<sp_uint>(5, output);
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(6, output);
 	}
 
 #endif // OPENCL_ENALBED
