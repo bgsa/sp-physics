@@ -3,7 +3,6 @@
 
 #include "SpectrumPhysics.h"
 #include "AABB.h"
-#include "DOP18.h"
 #include "SpMesh.h"
 #include "SpBoundingVolumeFactory.h"
 
@@ -41,28 +40,28 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint indexFront = mesh->support(Vec3Front, cache->vertexes, vertex1)->index();
 			const sp_uint indexDepth = mesh->support(Vec3Depth, cache->vertexes, vertex1)->index();
 
-			output->max[DOP18_AXIS_Y] = cache->vertexes[indexUp].y;
-			output->min[DOP18_AXIS_Y] = cache->vertexes[indexDown].y;
-			if (output->min[DOP18_AXIS_Y] == output->max[DOP18_AXIS_Y])
+			output->max[AABB_AXIS_Y] = cache->vertexes[indexUp].y;
+			output->min[AABB_AXIS_Y] = cache->vertexes[indexDown].y;
+			if (output->min[AABB_AXIS_Y] == output->max[AABB_AXIS_Y])
 			{
-				output->max[DOP18_AXIS_Y] += 0.01f;
-				output->min[DOP18_AXIS_Y] -= 0.01f;
+				output->max[AABB_AXIS_Y] += 0.01f;
+				output->min[AABB_AXIS_Y] -= 0.01f;
 			}
 
-			output->max[DOP18_AXIS_X] = cache->vertexes[indexRight].x;
-			output->min[DOP18_AXIS_X] = cache->vertexes[indexLeft].x;
-			if (output->min[DOP18_AXIS_X] == output->max[DOP18_AXIS_X])
+			output->max[AABB_AXIS_X] = cache->vertexes[indexRight].x;
+			output->min[AABB_AXIS_X] = cache->vertexes[indexLeft].x;
+			if (output->min[AABB_AXIS_X] == output->max[AABB_AXIS_X])
 			{
-				output->max[DOP18_AXIS_X] += 0.01f;
-				output->min[DOP18_AXIS_X] -= 0.01f;
+				output->max[AABB_AXIS_X] += 0.01f;
+				output->min[AABB_AXIS_X] -= 0.01f;
 			}
 
-			output->max[DOP18_AXIS_Z] = cache->vertexes[indexFront].z;
-			output->min[DOP18_AXIS_Z] = cache->vertexes[indexDepth].z;
-			if (output->min[DOP18_AXIS_Z] == output->max[DOP18_AXIS_Z])
+			output->max[AABB_AXIS_Z] = cache->vertexes[indexFront].z;
+			output->min[AABB_AXIS_Z] = cache->vertexes[indexDepth].z;
+			if (output->min[AABB_AXIS_Z] == output->max[AABB_AXIS_Z])
 			{
-				output->max[DOP18_AXIS_Z] += 0.01f;
-				output->min[DOP18_AXIS_Z] -= 0.01f;
+				output->max[AABB_AXIS_Z] += 0.01f;
+				output->min[AABB_AXIS_Z] -= 0.01f;
 			}
 		}
 

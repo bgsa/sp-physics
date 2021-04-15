@@ -14,6 +14,10 @@ namespace NAMESPACE_PHYSICS
 #define AABB_OFFSET      (2)
 #define AABB_ORIENTATION (3)
 
+#define AABB_AXIS_X (0)
+#define AABB_AXIS_Y (1)
+#define AABB_AXIS_Z (2)
+
 	class AABB
 	{
 	public:

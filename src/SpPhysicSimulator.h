@@ -3,7 +3,6 @@
 
 #include "SpectrumPhysics.h"
 #include "GpuContext.h"
-#include "DOP18.h"
 #include "SweepAndPrune.h"
 #include "SpEventDispatcher.h"
 #include "SpPhysicObject.h"

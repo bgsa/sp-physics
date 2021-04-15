@@ -3,7 +3,6 @@
 
 #include "SpectrumPhysics.h"
 #include "FileSystem.h"
-#include "DOP18.h"
 
 #ifdef OPENCL_ENABLED
 	#include "GpuCommand.h"

@@ -4,7 +4,6 @@
 #define SP_COLLISION_RESPONSE_GPU_HEADER
 
 #include "SpectrumPhysics.h"
-#include "DOP18.h"
 #include "GpuContext.h"
 #include "SpRigidBody3D.h"
 #include "FileSystem.h"
