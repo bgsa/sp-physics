@@ -110,6 +110,17 @@ namespace NAMESPACE_PHYSICS
 			HANDLE_OPENCL_ERROR(clReleaseMemObject(memoryBuffer));
 		}
 
+		API_INTERFACE inline void releaseEvent(cl_event evt)
+		{
+			HANDLE_OPENCL_ERROR(clReleaseEvent(evt));
+		}
+
+		API_INTERFACE inline void releaseEvents(const sp_uint eventsLength, cl_event* evts)
+		{
+			for (sp_uint i = 0; i < eventsLength; i++)
+				releaseEvent(evts[i]);
+		}
+
 		API_INTERFACE inline void releaseBuffer(size_t length, cl_mem memoryBuffers ...)
 		{
 			va_list parameters;

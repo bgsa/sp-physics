@@ -275,7 +275,9 @@ namespace NAMESPACE_PHYSICS
 				->use()
 				->updateData(size, _transforms);
 
-			gpu->commandManager->releaseGLObjects(_transformsGPU);
+			cl_event evt;
+			gpu->commandManager->releaseGLObjects(_transformsGPU, ZERO_UINT, NULL, &evt);
+			gpu->releaseEvent(evt);
 		}
 
 		API_INTERFACE void translate(const sp_uint index, const Vec3& translation)

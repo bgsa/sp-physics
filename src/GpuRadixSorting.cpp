@@ -160,12 +160,14 @@ namespace NAMESPACE_PHYSICS
 			if (indexesChanged)
 			{
 				commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, previousEventsLength);
+
 				previousEvents = &commandCountSwapped->lastEvent;
 				previousEventsLength = ONE_UINT;
 			}
 			else
 			{
 				commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, previousEventsLength);
+
 				previousEvents = &commandCount->lastEvent;
 				previousEventsLength = ONE_UINT;
 			}
@@ -177,11 +179,15 @@ namespace NAMESPACE_PHYSICS
 				if (offsetChanged)
 				{
 					commandPrefixScanSwaped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, ONE_UINT);
+					gpu->releaseEvent(previousEvents[0]);
+
 					previousEvents[0] = commandPrefixScanSwaped->lastEvent;
 				}
 				else
 				{
 					commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, ONE_UINT);
+					gpu->releaseEvent(previousEvents[0]);
+
 					previousEvents[0] = commandPrefixScan->lastEvent;
 				}
 
@@ -196,11 +202,15 @@ namespace NAMESPACE_PHYSICS
 			if (indexesChanged)
 			{
 				commandReorderSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, ONE_UINT);
+				gpu->releaseEvent(previousEvents[0]);
+
 				previousEvents[0] = commandReorderSwapped->lastEvent;
 			}
 			else
 			{
 				commandReorder->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEvents, ONE_UINT);
+				gpu->releaseEvent(previousEvents[0]);
+
 				previousEvents[0] = commandReorder->lastEvent;
 			}
 
@@ -237,6 +247,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		commandCountNegative->execute(ONE_UINT, totalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
+		gpu->releaseEvent(previousEvent);
 		previousEvent = commandCountNegative->lastEvent;
 
 		/* DEBUG PURPOSE
@@ -267,6 +278,9 @@ namespace NAMESPACE_PHYSICS
 			commandPrefixScanNegative
 				->swapInputParameter(ZERO_UINT, ONE_UINT)
 				->execute(1, totalWorkSize, localWorkSize, &offsetPrefixScanCpu, &previousEvent, ONE_UINT);
+
+			gpu->releaseEvent(previousEvent);
+
 			previousEvent = commandPrefixScanNegative->lastEvent;
 
 			offsetChanged = !offsetChanged;
@@ -293,6 +307,8 @@ namespace NAMESPACE_PHYSICS
 		*/
 	
 		commandReorderNegative->execute(1, totalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
+		gpu->releaseEvent(previousEvent);
+
 		this->lastEvent = commandReorderNegative->lastEvent;
 
 		return commandReorderNegative->getInputParameter(3u);

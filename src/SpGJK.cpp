@@ -5,10 +5,12 @@ namespace NAMESPACE_PHYSICS
 
 	void epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon)
 	{
-#define EPA_MAX_NUM_FACES 1024
+#define EPA_MAX_NUM_FACES 128
 #define EPA_MAX_NUM_LOOSE_EDGES 64
 #define EPA_MAX_NUM_ITERATIONS 64
 #define EPA_BIAS 0.000001
+#define EPA_TOLERANCE 0.0001
+
 		Vec3 faces[EPA_MAX_NUM_FACES][4]; //Array of faces, each with 3 verts and a normal
 
 		//Init with final simplex from GJK
@@ -57,7 +59,7 @@ namespace NAMESPACE_PHYSICS
 				newSimplexPoint
 			);
 
-			if (newSimplexPoint.dot(search_dir) - depth < SP_EPSILON_THREE_DIGITS)
+			if (newSimplexPoint.dot(search_dir) - depth < EPA_TOLERANCE)
 			{
 				//Convergence (new point is not significantly further from origin)
 				multiply(faces[closest_face][3], newSimplexPoint.dot(search_dir), normal); // dot vertex with normal to resolve collision along normal!
@@ -95,7 +97,9 @@ namespace NAMESPACE_PHYSICS
 
 						if (!found_edge) //add current edge to list
 						{ 
-							sp_assert(num_loose_edges<EPA_MAX_NUM_LOOSE_EDGES, "ApplicationException");
+							// sp_assert(num_loose_edges<EPA_MAX_NUM_LOOSE_EDGES, "ApplicationException");
+							if (num_loose_edges >= EPA_MAX_NUM_LOOSE_EDGES) 
+								break;
 
 							loose_edges[num_loose_edges][0] = current_edge[0];
 							loose_edges[num_loose_edges][1] = current_edge[1];
@@ -113,7 +117,9 @@ namespace NAMESPACE_PHYSICS
 			//Reconstruct polytope with newSimplexPoint added
 			for (sp_int i = 0; i < num_loose_edges; i++)
 			{
-				sp_assert(num_faces < EPA_MAX_NUM_FACES, "ApplicationException");
+				//sp_assert(num_faces < EPA_MAX_NUM_FACES, "ApplicationException");
+				if (num_faces >= EPA_MAX_NUM_FACES) 
+					break;
 
 				faces[num_faces][0] = loose_edges[i][0];
 				faces[num_faces][1] = loose_edges[i][1];
@@ -135,6 +141,7 @@ namespace NAMESPACE_PHYSICS
 		// Return most recent closest point
 		multiply(faces[closest_face][3], faces[closest_face][0].dot(faces[closest_face][3]), normal);
 	
+#undef EPA_TOLERANCE
 #undef EPA_BIAS
 #undef EPA_MAX_NUM_ITERATIONS
 #undef EPA_MAX_NUM_LOOSE_EDGES

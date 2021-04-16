@@ -55,8 +55,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_uint length;
 		sp_uint* indexesResult = ALLOC_ARRAY(sp_uint, 4);
-		response.fetchCollisionLength(&length);
-		response.fetchCollisions(indexesResult);
+		cl_event evt;
+		response.fetchCollisionLength(&length, &evt);
+		response.fetchCollisions(indexesResult, &evt);
 
 		SpRigidBody3D* resultProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, 2u);
 		gpu->commandManager->readBuffer(rigidBodies3DGPU, sizeof(SpRigidBody3D) * 2u, resultProperties);

@@ -2827,10 +2827,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		sap->execute();
 		sp_longlong currentTime2 = counter.diff();
 
-		sp_uint collisionsLength = sap->fetchCollisionLength();
+		cl_event evt;
+		sp_uint collisionsLength = sap->fetchCollisionLength(&evt);
 		//sp_uint* indexes = (sp_uint*) ALLOC_SIZE(sizeof(sp_uint) * count * 2);
 		sp_uint* indexes = (sp_uint*) ALLOC_SIZE(640);
-		sap->fetchCollisionIndexes(indexes);
+		sap->fetchCollisionIndexes(indexes, &evt);
 
 		if (result1.length != collisionsLength)
 			int a = 1;
@@ -2898,7 +2899,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		sap.execute();
 		sp_longlong gpuPerformance = performanceCounter.diff();
 
-		sp_uint collisionsLength = sap.fetchCollisionLength();
+		cl_event evt;
+		sp_uint collisionsLength = sap.fetchCollisionLength(&evt);
 
 		Assert::AreEqual(expected.length, collisionsLength, L"wrong value", LINE_INFO());
 

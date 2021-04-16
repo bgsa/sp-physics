@@ -34,11 +34,9 @@ namespace NAMESPACE_PHYSICS
 			return _event;
 		}
 
-		API_INTERFACE inline cl_event releaseGLObjects(cl_mem buffer, sp_uint eventLength = ZERO_UINT, cl_event* events = nullptr)
+		API_INTERFACE inline void releaseGLObjects(cl_mem buffer, sp_uint eventLength, cl_event* events, cl_event* evt)
 		{
-			cl_event _event;
-			clEnqueueReleaseGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, &_event);
-			return _event;
+			clEnqueueReleaseGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, evt);
 		}
 
 		API_INTERFACE cl_event readBuffer(cl_mem gpuBuffer, sp_size bufferSize, void* cpuBuffer, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr)

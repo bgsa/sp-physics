@@ -389,8 +389,8 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool hasTempEdge(sp_uint** mapVertexEdge, sp_uint index, sp_uint value)
 	{
-		for (sp_uint i = 0; i < mapVertexEdge[index][0] + 1; i++)
-			if (mapVertexEdge[index][i + 1] == value)
+		for (sp_uint i = 1u; i < mapVertexEdge[index][0] + 1; i++)
+			if (mapVertexEdge[index][i] == value)
 				return true;
 
 		return false;

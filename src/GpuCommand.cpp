@@ -207,7 +207,7 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(localWorkSize[0] != ZERO_SIZE, "InvalidArgumentException");
 		sp_assert(globalWorkSize[0] % localWorkSize[0] == 0, "InvalidArgumentException");
 		
-		HANDLE_OPENCL_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, threadOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, &lastEvent));
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, threadOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, &lastEvent));
 
 		return this;
 	}

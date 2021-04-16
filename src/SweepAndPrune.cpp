@@ -258,6 +258,11 @@ namespace NAMESPACE_PHYSICS
 
 		radixSorting->setParameters(elementsGPU, boundingVolumesLength, indexesGPU, indexesLengthGPU, ONE_UINT);
 
+		const sp_uint outputIndexLengthCPU = multiplyBy2(boundingVolumesLength) * SP_SAP_MAX_COLLISION_PER_OBJECT;
+		const sp_uint outputIndexSize = outputIndexLengthCPU * SIZEOF_UINT;
+		result = sp_mem_new_array(sp_uint, outputIndexLengthCPU);
+		cl_mem outIdx = gpu->createBuffer(result, outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
+
 		commandSaPCollisions = gpu->commandManager->createCommand()
 			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * SIZEOF_FLOAT)
 			->setInputParameter(elementsGPU, sizeof(sp_float) * boundingVolumesLength)
@@ -265,13 +270,15 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(indexesGPU, boundingVolumesLength * SIZEOF_UINT)
 			->setInputParameter(outputIndexLength, SIZEOF_UINT)
-			->setInputParameter(outputIndex, collisionsSize)
+			//->setInputParameter(outputIndex, collisionsSize)
+			->setInputParameter(outIdx, collisionsSize)
 			->buildFromProgram(sapProgram, commandName);
 	}
 
 	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents)
 	{
 		commandBuildElements->execute(ONE_UINT, globalWorkSize, localWorkSize, &axis, previousEvents, previousEventsLength);
+		gpu->releaseEvent(previousEvents[0]);
 
 		/* debugging
 		Sphere ss[512];
@@ -298,6 +305,7 @@ namespace NAMESPACE_PHYSICS
 		*/
 
 		cl_mem sortedIndexes = radixSorting->execute(ONE_UINT, &commandBuildElements->lastEvent);
+		gpu->releaseEvent(commandBuildElements->lastEvent);
 
 		/* // check if sorting is OK		
 		sp_uint* sorted = ALLOC_ARRAY(sp_uint, 512);
@@ -323,23 +331,24 @@ namespace NAMESPACE_PHYSICS
 			->updateInputParameter(4, sortedIndexes)
 			->updateInputParameterValue(5, &zeroValue)
 			->execute(1, globalWorkSize, localWorkSize, &axis, &radixSorting->lastEvent, ONE_UINT);
+		gpu->releaseEvent(radixSorting->lastEvent);
 
 		lastEvent = commandSaPCollisions->lastEvent;
 
 		return commandSaPCollisions->getInputParameter(5u);
 	}
 
-	sp_uint SweepAndPrune::fetchCollisionLength()
+	sp_uint SweepAndPrune::fetchCollisionLength(cl_event* evt)
 	{
 		sp_uint value;
-		commandSaPCollisions->fetchInOutParameter<sp_uint>(5, &value);
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(5, &value, ONE_UINT, &commandSaPCollisions->lastEvent, evt);
 		
 		return divideBy2(value);
 	}
 
-	void SweepAndPrune::fetchCollisionIndexes(sp_uint* output) const
+	void SweepAndPrune::fetchCollisionIndexes(sp_uint* output, cl_event* evt) const
 	{
-		commandSaPCollisions->fetchInOutParameter<sp_uint>(6, output);
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(6, output, ONE_UINT, &commandSaPCollisions->lastEvent, evt);
 	}
 
 #endif // OPENCL_ENALBED

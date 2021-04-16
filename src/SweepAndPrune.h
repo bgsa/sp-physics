@@ -49,7 +49,8 @@ namespace NAMESPACE_PHYSICS
 		: public GpuComposedCommand
 	{
 	private:
-		
+		sp_uint* result;
+
 #ifdef OPENCL_ENABLED
 		GpuDevice* gpu;
 		cl_program sapProgram;
@@ -160,12 +161,12 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the length of collisions pairs detected
 		///</summary>
-		API_INTERFACE sp_uint fetchCollisionLength();
+		API_INTERFACE sp_uint fetchCollisionLength(cl_event* evt);
 
 		/// <summary>
 		/// Get the colision index pairs
 		/// </summary>
-		API_INTERFACE void fetchCollisionIndexes(sp_uint* output) const;
+		API_INTERFACE void fetchCollisionIndexes(sp_uint* output, cl_event* evt) const;
 
 		///<summary>
 		/// Update rigid bodies data on GPU

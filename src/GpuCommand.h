@@ -73,10 +73,10 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		template <typename T>
-		API_INTERFACE inline void fetchInOutParameter(sp_uint index, T* result)
+		API_INTERFACE inline void fetchInOutParameter(sp_uint index, T* result, const sp_uint eventsLength, cl_event* events, cl_event* currentEvent)
 		{
 			sp_size size = inputParametersSize[index];
-			HANDLE_OPENCL_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, 0, NULL, &lastEvent));
+			HANDLE_OPENCL_ERROR(clEnqueueReadBuffer(commandQueue, inputParameters[index], CL_TRUE, 0, size, result, eventsLength, events, currentEvent));
 		}
 
 		API_INTERFACE void fetchInOutParameter(void* buffer, sp_uint index);

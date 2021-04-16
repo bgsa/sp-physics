@@ -10,6 +10,8 @@ namespace NAMESPACE_PHYSICS
 
 		cl_int errorCode;
 
+		deviceContext = nullptr;
+
 	#ifdef WINDOWS
 		HGLRC glCtx = wglGetCurrentContext();
 		if (glCtx != nullptr)
@@ -18,10 +20,10 @@ namespace NAMESPACE_PHYSICS
 												CL_WGL_HDC_KHR,(intptr_t)wglGetCurrentDC(),
 												CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
 
-			this->deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
+			deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
 		}
 		else
-			this->deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
+			deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
 	#else
 		if (glCtx != nullptr)
 		{
@@ -29,10 +31,10 @@ namespace NAMESPACE_PHYSICS
 			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platform,
 												CL_GLX_DISPLAY_KHR,(intptr_t)glXGetCurrentDisplay(),
 												CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
-			this->deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
+			deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
 		}
 		else
-			this->deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
+			deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
 	#endif
 		HANDLE_OPENCL_ERROR(errorCode);
 		
@@ -169,7 +171,11 @@ namespace NAMESPACE_PHYSICS
 			commandManager = nullptr;
 		}
 
-		clReleaseContext(deviceContext);
+		if (deviceContext != nullptr)
+		{
+			clReleaseContext(deviceContext);
+			deviceContext = nullptr;
+		}
 
 		ALLOC_RELEASE(driverVersion);
 		ALLOC_RELEASE(version);

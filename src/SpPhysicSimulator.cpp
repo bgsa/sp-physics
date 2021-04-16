@@ -162,12 +162,18 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(sortedIndexes);
 	}
 
-	void SpPhysicSimulator::findCollisionsGpuDOP18(SweepAndPruneResult* result)
+	void SpPhysicSimulator::findCollisionsGpuDOP18(SweepAndPruneResult& result)
 	{
 		sapDOP18->execute(ONE_UINT, &sapDOP18->lastEvent);
 
-		result->length = sapDOP18->fetchCollisionLength();
-		sapDOP18->fetchCollisionIndexes(result->indexes);
+		cl_event evt;
+		result.length = sapDOP18->fetchCollisionLength(&evt);
+		gpu->releaseEvent(evt);
+
+		sapDOP18->fetchCollisionIndexes(result.indexes, &evt);
+		gpu->releaseEvent(evt);
+
+		gpu->releaseEvent(sapDOP18->lastEvent);
 		
 		/*
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
@@ -179,12 +185,18 @@ namespace NAMESPACE_PHYSICS
 		collisionResponseGPU->fetchCollisions(result->indexes);
 		*/
 	}
-	void SpPhysicSimulator::findCollisionsGpuAABB(SweepAndPruneResult* result)
+	void SpPhysicSimulator::findCollisionsGpuAABB(SweepAndPruneResult& result)
 	{
 		sapAABB->execute(ONE_UINT, &sapAABB->lastEvent);
 
-		result->length = sapAABB->fetchCollisionLength();
-		sapAABB->fetchCollisionIndexes(result->indexes);
+		cl_event evt;
+		result.length = sapAABB->fetchCollisionLength(&evt);
+		gpu->releaseEvent(evt);
+
+		sapAABB->fetchCollisionIndexes(result.indexes, &evt);
+		gpu->releaseEvent(evt);
+
+		gpu->releaseEvent(sapAABB->lastEvent);
 
 		/*
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
@@ -200,8 +212,15 @@ namespace NAMESPACE_PHYSICS
 	{
 		sapSphere->execute(ONE_UINT, &sapSphere->lastEvent);
 
-		result.length = sapSphere->fetchCollisionLength();
-		sapSphere->fetchCollisionIndexes(result.indexes);
+		cl_event evt;
+		result.length = sapSphere->fetchCollisionLength(&evt);
+		gpu->releaseEvent(evt);
+
+		sapSphere->fetchCollisionIndexes(result.indexes, &evt);
+		gpu->releaseEvent(evt);
+
+		gpu->releaseEvent(sapSphere->lastEvent);
+
 
 		/*
 		collisionResponseGPU->updateParameters(_sapCollisionIndexesGPU, _sapCollisionIndexesLengthGPU);
@@ -261,7 +280,6 @@ namespace NAMESPACE_PHYSICS
 	{
 		SpWorld* world = SpWorldManagerInstance->current();
 
-		SpPhysicSettings* physicSettings = SpPhysicSettings::instance();
 		SweepAndPruneResult sapResult;
 		sapResult.indexes = ALLOC_ARRAY(sp_uint, multiplyBy2(world->objectsLength()) * SP_SAP_MAX_COLLISION_PER_OBJECT);
 
@@ -274,7 +292,7 @@ namespace NAMESPACE_PHYSICS
 		// update mesh cache vertexes
 		world->_meshCacheUpdater.execute();
 		
-		csvFile->addValue(SpPhysicSettings::instance()->frameId());
+		// csvFile->addValue(SpPhysicSettings::instance()->frameId());
 		
 		if (pcaFrameCounter > SpPhysicSettings::instance()->pcaExecutionPerFrame())
 		{
@@ -291,7 +309,7 @@ namespace NAMESPACE_PHYSICS
 			pcaFrameCounter = ZERO_UINT;
 		}
 		pcaFrameCounter++;
-
+		
 		// build bounding volumes Sphere
 		world->sphereFactory.execute();
 		
@@ -309,7 +327,7 @@ namespace NAMESPACE_PHYSICS
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update(); 
-		findCollisionsGpuAABB(&sapResult);
+		findCollisionsGpuAABB(sapResult);
 		const sp_float timeBroadPhaseAABB = tt.elapsedTime();
 		const sp_uint paresBroadPhaseAABB = sapResult.length;
 
@@ -319,10 +337,11 @@ namespace NAMESPACE_PHYSICS
 
 		// find collisions pair on GPU using Bounding Volume
 		tt.update();
-		findCollisionsGpuDOP18(&sapResult);
+		findCollisionsGpuDOP18(sapResult);
 		const sp_float timeBroadPhaseDOP18 = tt.elapsedTime();
 		const sp_uint paresBroadPhaseDOP18 = sapResult.length;
 
+		/*
 		csvFile->addValue(timeBuildDOP18);
 		csvFile->addValue(paresBroadPhaseDOP18);
 		csvFile->addValue(timeBroadPhaseDOP18);
@@ -334,9 +353,12 @@ namespace NAMESPACE_PHYSICS
 		csvFile->addValue(timeBuildSpheres);
 		csvFile->addValue(paresBroadPhaseSphere);
 		csvFile->addValue(timeBroadPhaseSphere);
+		*/
 
 		// release GPU shared buffer OpenCL and OpenGL
-		gpu->commandManager->releaseGLObjects(world->_transformsGPU);
+		cl_event evt;
+		gpu->commandManager->releaseGLObjects(world->_transformsGPU, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		// Run on CPU way
 		//updateMeshCache();
@@ -352,7 +374,7 @@ namespace NAMESPACE_PHYSICS
 		SpCollisionResponseShapeMatching shapeMatching;
 
 		SpMeshCache** caches = ALLOC_NEW_ARRAY(SpMeshCache*, world->objectsLength());
-		std::memset(caches, ZERO_INT, SIZEOF_WORD * world->objectsLength());
+		std::memset(caches, ZERO_INT, SIZEOF_INT * world->objectsLength());
 
 		SpRigidBodyShapeMatch** shapes = ALLOC_NEW_ARRAY(SpRigidBodyShapeMatch*, world->objectsLength());
 		std::memset(shapes, ZERO_INT, SIZEOF_INT * world->objectsLength());
@@ -404,8 +426,9 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		csvFile->addValue(tt.elapsedTime());
-		csvFile->newRecord();
+
+		// csvFile->addValue(tt.elapsedTime());
+		// csvFile->newRecord();
 
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;
@@ -449,11 +472,13 @@ namespace NAMESPACE_PHYSICS
 			collisionResponseGPU = nullptr;
 		}
 
+/*
 		if (csvFile != nullptr)
 		{
 			sp_mem_delete(csvFile, SpCSVFileWriter);
 			csvFile = nullptr;
 		}
+		*/
 	}
 
 	SpPhysicSimulator::~SpPhysicSimulator()

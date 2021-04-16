@@ -97,9 +97,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_size elementIndex = 2u;
 		sp_float* result = (sp_float*)ALLOC_SIZE(sizePhysicProperties);
+		cl_event evt;
 		command
 			->execute(1, globalWorkSize, localWorkSize, &elementIndex)
-			->fetchInOutParameter<sp_float>(1u, result);
+			->fetchInOutParameter<sp_float>(1u, result, ONE_UINT, &command->lastEvent, &evt);
 
 		const sp_float* expected = (sp_float*)&rigidBodies[elementIndex];
 		const sp_uint floatsInProperties = sizePhysicProperties / sizeof(sp_float);
@@ -175,9 +176,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_size elementIndex = 2u;
 		sp_bool result;
+		cl_event evt;
 		command
 			->execute(1, globalWorkSize, localWorkSize, &elementIndex)
-			->fetchInOutParameter<sp_bool>(1u, &result);
+			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &command->lastEvent, &evt);
 
 		const sp_bool expected = rigidBodies3D[elementIndex].isResting();
 
@@ -223,16 +225,17 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_uint index = 0u;
 		sp_bool result;
+		cl_event evt;
 		command
 			->execute(1, globalWorkSize, localWorkSize, &index)
-			->fetchInOutParameter<sp_bool>(1u, &result);
+			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &command->lastEvent, &evt);
 
 		Assert::IsTrue(result, L"wrong value", LINE_INFO());
 
 		index = 1u;
 		command
 			->execute(1, globalWorkSize, localWorkSize, &index)
-			->fetchInOutParameter<sp_bool>(1u, &result);
+			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &command->lastEvent, &evt);
 
 		Assert::IsFalse(result, L"wrong value", LINE_INFO());
 

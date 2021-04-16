@@ -29,7 +29,7 @@ namespace NAMESPACE_PHYSICS
 	private:
 		GpuDevice* gpu;
 
-		SpCSVFileWriter* csvFile; // TODO: REMOVER !
+		// SpCSVFileWriter* csvFile; // TODO: REMOVER !
 		
 		cl_event lastEvent;
 		cl_mem _collisionIndexesGPU;
@@ -57,8 +57,8 @@ namespace NAMESPACE_PHYSICS
 		void addFriction(SpRigidBody3D* obj1Properties, SpRigidBody3D* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
-		void findCollisionsGpuDOP18(SweepAndPruneResult* result);
-		void findCollisionsGpuAABB(SweepAndPruneResult* result);
+		void findCollisionsGpuDOP18(SweepAndPruneResult& result);
+		void findCollisionsGpuAABB(SweepAndPruneResult& result);
 		void findCollisionsGpuSphere(SweepAndPruneResult& result);
 		
 		/// <summary>
@@ -77,6 +77,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE SpPhysicSimulator() 
 		{
+			/*
 			csvFile = sp_mem_new(SpCSVFileWriter)("resultado.csv");
 			csvFile
 				->addHeader("FRAME ID")
@@ -91,6 +92,7 @@ namespace NAMESPACE_PHYSICS
 				->addHeader("TEMPO SAP SPHERE")
 				->addHeader("NARROW PHASE")
 				->newRecord();
+				*/
 		}
 
 		SpPhysicIntegrator* integrator;

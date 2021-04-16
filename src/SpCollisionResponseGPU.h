@@ -89,18 +89,18 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Get the length of collisions pairs
 		///</summary>
-		API_INTERFACE inline void fetchCollisionLength(sp_uint* length)
+		API_INTERFACE inline void fetchCollisionLength(sp_uint* length, cl_event* evt)
 		{
-			command->fetchInOutParameter<sp_uint>(3u, length);
+			command->fetchInOutParameter<sp_uint>(3u, length, ONE_UINT, &command->lastEvent, evt);
 			length[0] = divideBy2(length[0]);
 		}
 
 		///<summary>
 		/// Get the collisions pairs
 		///</summary>
-		API_INTERFACE inline void fetchCollisions(sp_uint* indexes)
+		API_INTERFACE inline void fetchCollisions(sp_uint* indexes, cl_event* evt)
 		{
-			command->fetchInOutParameter<sp_uint>(4u, indexes);
+			command->fetchInOutParameter<sp_uint>(4u, indexes, ONE_UINT, &command->lastEvent, evt);
 		}
 
 		///<summary>
