@@ -112,10 +112,9 @@ namespace NAMESPACE_PHYSICS
 		indexesSwapped = !indexesSwapped;
 	}
 
-	cl_mem GpuReverse::execute(sp_uint previousEventsLength, cl_event* previousEvents)
+	cl_mem GpuReverse::execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* currentEvent)
 	{
-		commandReverse->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, previousEvents, previousEventsLength);
-		lastEvent = commandReverse->lastEvent;
+		commandReverse->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, previousEventsLength, previousEvents, currentEvent);
 
 		if (indexesSwapped)
 			return inputGpu;

@@ -46,11 +46,9 @@ namespace NAMESPACE_PHYSICS
 			->buildFromProgram(program, "create");
 	}
 
-	cl_mem GpuIndexes::execute(sp_uint previousEventsLength, cl_event* previousEvents)
+	cl_mem GpuIndexes::execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* currentEvents)
 	{
-		commandInitIndexes->execute(1, createIndexesGlobalWorkSize, createIndexesLocalWorkSize, 0, previousEvents, previousEventsLength);
-		lastEvent = commandInitIndexes->lastEvent;
-
+		commandInitIndexes->execute(1, createIndexesGlobalWorkSize, createIndexesLocalWorkSize, 0, previousEventsLength, previousEvents, currentEvents);
 		return output;
 	}
 

@@ -38,9 +38,7 @@ namespace NAMESPACE_PHYSICS
 		cl_mem inputLengthGpu;
 		
 	public:
-
 		cl_mem output;
-		cl_event lastEvent;
 
 		API_INTERFACE GpuFindMinMax* init(GpuDevice* gpu, const sp_char* buildOptions);
 

@@ -31,13 +31,15 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint input[count] = { 1u, 2u, 4u, 5u, 3u };
 		sp_uint expected[count] = { 3u, 5u, 4u, 2u, 1u };
 
+		cl_event evt;
 		cl_mem output = commandReverse
 			->init(gpu, NULL)
 			->setParameters(input, count)
-			->execute();
+			->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, ONE_UINT, &commandReverse->lastEvent);
+		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], values[i], L"Wrong value.", LINE_INFO());

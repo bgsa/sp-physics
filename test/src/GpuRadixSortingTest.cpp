@@ -202,7 +202,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		const sp_uint inputSize = count * stride * SIZEOF_FLOAT;
 
 		cl_mem inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
-		cl_mem indexesGpu = commandIndexes->execute();
+
+		cl_event evt;
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
+
 		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem useExpoentGpu = gpu->createBuffer(&useExpoent, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
@@ -224,10 +228,12 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count")
-			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, orderedIndexes, ONE_UINT, &commandCount->lastEvent);
+		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, orderedIndexes, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint shift = 0; shift < threadsLength * 10; shift+=10)
 		{
@@ -304,7 +310,6 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 
-
 		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
 		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
@@ -316,7 +321,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		const sp_uint offsetTableSize = SIZEOF_UINT * 10 * inputLength;
 
 		cl_mem inputGpu = gpu->createBuffer(values, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
-		cl_mem indexesGpu = commandIndexes->execute();
+
+		cl_event evt;
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
+
 		cl_mem indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem output = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
@@ -327,14 +336,17 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTableGPU, offsetTableSize)
 			->buildFromProgram(program, "count")
-			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_float* temp = ALLOC_ARRAY(sp_float, inputLength);
-		gpu->commandManager->readBuffer(inputGpu, inputSize, temp, ONE_UINT, &commandCount->lastEvent);
+		gpu->commandManager->readBuffer(inputGpu, inputSize, temp, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint* offsetTable = (sp_uint*) ALLOC_SIZE(offsetTableSize);
 		std::memset(offsetTable, 0, offsetTableSize);
-		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
 		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10 / elementsPerThread; i++)
@@ -441,17 +453,19 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem output = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		cl_event evt;
 		GpuCommand* commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTableGPU, offsetTableSize)
 			->buildFromProgram(program, "count")
-			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
 		std::memset(offsetTable, 0, offsetTableSize);
-		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, NULL);
 
 		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
 		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10 / elementsPerThread; i++)
@@ -558,17 +572,20 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem output = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		cl_event evt;
 		GpuCommand* commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTableGPU, offsetTableSize)
 			->buildFromProgram(program, "count")
-			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, NULL, ZERO_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
 		std::memset(offsetTable, 0, offsetTableSize);
-		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
 		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 10 / elementsPerThread; i++)
@@ -673,17 +690,20 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem indexesLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem offsetTableGPU = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		cl_event evt;
 		GpuCommand* commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTableGPU, offsetTableSize)
 			->buildFromProgram(program, "countNegatives")
-			->execute(1, globalWorkSize, localWorkSize, 0, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, 0, NULL, ZERO_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint* offsetTable = (sp_uint*)ALLOC_SIZE(offsetTableSize);
 		std::memset(offsetTable, 0, offsetTableSize);
-		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &commandCount->lastEvent);
+		gpu->commandManager->readBuffer(offsetTableGPU, offsetTableSize, offsetTable, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("BEGIN OFFSET TABLE"); sp_log_newline();
 		for (sp_uint i = 0; i < offsetTableSize / sizeof(sp_uint) / 2 / elementsPerThread; i++)
@@ -760,7 +780,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
 
 		cl_mem inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
-		cl_mem indexesGpu = commandIndexes->execute();
+
+		cl_event evt;
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
+
 		cl_mem indexesLengthGpu = gpu->createBuffer(&count, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem offsetGpu = gpu->createBuffer(&offset, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		cl_mem output = gpu->createBuffer(count * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
@@ -768,13 +792,15 @@ namespace NAMESPACE_PHYSICS_TEST
 		const sp_uint offsetTableSize = SIZEOF_UINT * multiplyBy10(threadsLength);
 		cl_mem offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		
 		GpuCommand* commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(indexesGpu, SIZEOF_UINT * count)
 			->setInputParameter(indexesLengthGpu, SIZEOF_UINT)
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count")
-			->execute(1, globalWorkSize, localWorkSize, &digitIndex);
+			->execute(1, globalWorkSize, localWorkSize, &digitIndex, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		GpuCommand* commandPrefixScanUp = gpu->commandManager->createCommand()
 			->setInputParameter(offsetTable1, offsetTableSize)
@@ -785,7 +811,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			->buildFromProgram(program, "prefixScanDown");
 
 		sp_uint* temp = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, temp, ONE_UINT, &commandCount->lastEvent);
+		gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, temp, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint shift = 0; shift < threadsLength * 10; shift += 10)
 		{
@@ -812,10 +839,13 @@ namespace NAMESPACE_PHYSICS_TEST
 			if (globalWorkSize[0] < localWorkSize[0])
 				localWorkSize[0] = globalWorkSize[0];
 
-			commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset);
+			cl_event evt;
+			commandPrefixScanUp->execute(1, globalWorkSize, localWorkSize, &offset, ZERO_UINT, NULL, &evt);
 			
 			// test scan up
-			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, ONE_UINT, &commandPrefixScanUp->lastEvent);
+			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, ONE_UINT, &evt);
+			gpu->releaseEvent(evt);
+
 			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
 			{
 				sp_uint sum = 0;
@@ -840,10 +870,10 @@ namespace NAMESPACE_PHYSICS_TEST
 			else
 				localWorkSize[0] = nextDivisorOf(globalWorkSize[0], defaultLocalWorkSize);
 
-			commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset);
+			commandPrefixScanDown->execute(1, globalWorkSize, localWorkSize, &offset, ZERO_UINT, NULL, NULL);
 
 			// test scan down
-			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, ONE_UINT, &commandPrefixScanDown->lastEvent);
+			gpu->commandManager->readBuffer(offsetTable1, offsetTableSize, result, ZERO_UINT, NULL);
 			for (sp_uint w = 0; w < globalWorkSize[0]; w++)
 			{
 				sp_uint sum = 0;
@@ -945,26 +975,30 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size eventLength = ZERO_UINT;
 		cl_event* previousEvents = nullptr;
+		cl_event evt;
 		sp_bool offsetChanged = false;
 		sp_uint offsetPrefixScanCpu = 10;
 		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
 		{
 			if (offsetChanged)
 			{
-				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
-				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
+				gpu->releaseEvents(eventLength, previousEvents);
+				previousEvents[0] = evt;
 			}
 			else
 			{
-				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
 
 				if (eventLength == ZERO_UINT)
 				{
 					eventLength = ONE_UINT;
 					previousEvents = ALLOC_NEW(cl_event)();
 				}
+				else
+					gpu->releaseEvents(eventLength, previousEvents);
 
-				previousEvents[0] = commandPrefixScan->lastEvent;
+				previousEvents[0] = evt;
 			}	
 
 			offsetChanged = !offsetChanged;
@@ -1091,26 +1125,31 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size eventLength = ZERO_UINT;
 		cl_event* previousEvents = nullptr;
+		cl_event evt;
 		sp_bool offsetChanged = false;
 		sp_uint offsetPrefixScanCpu = 10;
 		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
 		{
 			if (offsetChanged)
 			{
-				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
-				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
+				gpu->releaseEvents(eventLength, previousEvents);
+				previousEvents[0] = evt;
+				
 			}
 			else
 			{
-				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
 
 				if (eventLength == ZERO_UINT)
 				{
 					eventLength = ONE_UINT;
 					previousEvents = ALLOC_NEW(cl_event)();
 				}
+				else
+					gpu->releaseEvents(eventLength, previousEvents);
 
-				previousEvents[0] = commandPrefixScan->lastEvent;
+				previousEvents[0] = evt;
 			}
 
 			offsetChanged = !offsetChanged;
@@ -1237,26 +1276,30 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size eventLength = ZERO_UINT;
 		cl_event* previousEvents = nullptr;
+		cl_event evt;
 		sp_bool offsetChanged = false;
 		sp_uint offsetPrefixScanCpu = 10;
 		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
 		{
 			if (offsetChanged)
 			{
-				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
-				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
+				gpu->releaseEvents(eventLength, previousEvents);
+				previousEvents[0] = evt;
 			}
 			else
 			{
-				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
 
 				if (eventLength == ZERO_UINT)
 				{
 					eventLength = ONE_UINT;
 					previousEvents = ALLOC_NEW(cl_event)();
 				}
+				else
+					gpu->releaseEvents(eventLength, previousEvents);
 
-				previousEvents[0] = commandPrefixScan->lastEvent;
+				previousEvents[0] = evt;
 			}
 
 			offsetChanged = !offsetChanged;
@@ -1382,27 +1425,30 @@ namespace NAMESPACE_PHYSICS_TEST
 			->buildFromProgram(program, "prefixScanNegatives");
 
 		sp_size eventLength = ZERO_UINT;
-		cl_event* previousEvents = nullptr;
+		cl_event evt, *previousEvents = nullptr;
 		sp_bool offsetChanged = false;
 		sp_uint offsetPrefixScanCpu = 2;
 		for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
 		{
 			if (offsetChanged)
 			{
-				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
-				previousEvents[0] = commandPrefixScanSwapped->lastEvent;
+				commandPrefixScanSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
+				gpu->releaseEvents(eventLength, previousEvents);
+				previousEvents[0] = evt;
 			}
 			else
 			{
-				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, previousEvents, eventLength);
+				commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, eventLength, previousEvents, &evt);
 
 				if (eventLength == ZERO_UINT)
 				{
 					eventLength = ONE_UINT;
 					previousEvents = ALLOC_NEW(cl_event)();
 				}
+				else
+					gpu->releaseEvents(eventLength, previousEvents);
 
-				previousEvents[0] = commandPrefixScan->lastEvent;
+				previousEvents[0] = evt;
 			}
 
 			offsetChanged = !offsetChanged;
@@ -1531,6 +1577,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		cl_event evt;
 		GpuCommand* commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(values, sizeof(sp_float) * inputLength)
 			->setInputParameter(&inputLength, SIZEOF_UINT)
@@ -1538,10 +1585,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder")
-			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex);
+			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, ZERO_UINT, NULL, &evt);
 
 		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
 		for (sp_uint i = 0; i < inputLength; i++)
@@ -1637,6 +1685,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		cl_event evt;
 		GpuCommand* commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(values, sizeof(sp_float) * inputLength)
 			->setInputParameter(&inputLength, SIZEOF_UINT)
@@ -1644,10 +1693,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder")
-			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex);
+			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, ZERO_UINT, NULL, &evt);
 
 		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
 		for (sp_uint i = 0; i < inputLength; i++)
@@ -1743,6 +1793,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		cl_event evt;
 		GpuCommand* commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(values, sizeof(sp_float) * inputLength)
 			->setInputParameter(&inputLength, SIZEOF_UINT)
@@ -1750,10 +1801,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorder")
-			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex);
+			->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, ZERO_UINT, NULL, &evt);
 
 		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
 		for (sp_uint i = 0; i < inputLength; i++)
@@ -1848,16 +1900,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem indexesInputGPU = gpu->createBuffer(indexes, SIZEOF_UINT * inputLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		cl_mem indexesOutputGpu = gpu->createBuffer(sizeof(sp_uint) * inputLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
+		cl_event evt;
 		GpuCommand* commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(&inputLength, SIZEOF_UINT)
 			->setInputParameter(offsetTable, offsetTableSize)
 			->setInputParameter(indexesInputGPU, SIZEOF_UINT * inputLength)
 			->setInputParameter(indexesOutputGpu, SIZEOF_UINT * inputLength)
 			->buildFromProgram(program, "reorderNegatives")
-			->execute(ONE_UINT, globalWorkSize, localWorkSize);
+			->execute(ONE_UINT, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &evt);
 
 		sp_uint* result = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &commandReorder->lastEvent);
+		gpu->commandManager->readBuffer(indexesOutputGpu, sizeof(sp_uint) * inputLength, result, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("OUTPUT INDEXES"); sp_log_newline();
 		for (sp_uint i = 0; i < inputLength; i++)
@@ -1891,7 +1945,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		createIndexes
 			->init(gpu, nullptr)
 			->setParametersCreateIndexes(inputLength);
-		cl_mem initialIndexes = createIndexes->execute();
+		cl_mem initialIndexes = createIndexes->execute(ZERO_UINT, NULL, NULL);
 
 		const sp_uint maxIterations = 20;
 		for (sp_size i = 0; i < maxIterations; i++)
@@ -1906,13 +1960,15 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			GpuRadixSorting* radixGpu = ALLOC_NEW(GpuRadixSorting)();
 
+			cl_event evt;
 			cl_mem output = radixGpu
 						->init(gpu, nullptr)
 						->setParameters(inputGpu, inputLength, initialIndexes, inputLengthGPU)
-						->execute();
+						->execute(ZERO_UINT, NULL, &evt);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &evt);
+			gpu->releaseEvent(evt);
 
 			for (sp_uint i = 0; i < 10; i++)
 			{
@@ -1955,7 +2011,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			cl_mem newIndexesLength = gpu->createBuffer(&length, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 			createIndexes->setParametersCreateIndexes(length);
-			cl_mem newIndexes = createIndexes->execute();
+			cl_mem newIndexes = createIndexes->execute(ZERO_UINT, NULL, NULL);
 
 			std::ostringstream buildOptions;
 			buildOptions << " -DINPUT_LENGTH=" << length
@@ -1975,14 +2031,16 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
-			cl_mem output = radixSorting->execute();
+			cl_event evt;
+			cl_mem output = radixSorting->execute(ZERO_UINT, NULL, &evt);
 
 			currentTime2 = std::chrono::high_resolution_clock::now();
 			std::chrono::milliseconds ms2 = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime2 - currentTime);
 			times[i] = ms2;
 
 			sp_size* result = ALLOC_ARRAY(sp_size, length * SIZEOF_UINT);
-			gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, result, ONE_UINT, &radixSorting->lastEvent);
+			gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, result, ONE_UINT, &evt);
+			gpu->releaseEvent(evt);
 
 			for (sp_uint i = 0; i < length; i++)
 				Assert::AreEqual(input1[i].minPoint.x, input2[result[i]].minPoint.x, L"Wrong value.", LINE_INFO());
@@ -2017,10 +2075,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		createIndexes->setParametersCreateIndexes(inputLength);
-		cl_mem newIndexes = createIndexes->execute();
+		cl_event evt;
+		cl_mem newIndexes = createIndexes->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* initialIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(newIndexes, inputLength * SIZEOF_UINT, initialIndexes, ONE_UINT, &createIndexes->lastEvent);
+		gpu->commandManager->readBuffer(newIndexes, inputLength * SIZEOF_UINT, initialIndexes, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("BEGIN VALUES 1"); sp_log_newline();
 		for (sp_uint i = 0; i < inputLength; i++)
@@ -2040,10 +2100,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		radixGpu->init(gpu, nullptr)
 			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, strider);
 
-		cl_mem output = radixGpu->execute();
+		cl_mem output = radixGpu->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_log_info1s("BEGIN VALUES 1"); sp_log_newline();
 		for (sp_uint i = 0; i < inputLength; i++)
@@ -2081,7 +2142,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		createIndexes->setParametersCreateIndexes(inputLength);
-		cl_mem newIndexes = createIndexes->execute();
+		cl_mem newIndexes = createIndexes->execute(ZERO_UINT, NULL, NULL);
 
 		sp_float input1[8] = { 50.0f, 2.0f, -5.0f, 4.0f, 12.0f, -10.0f, -1.0f, 30.0f };
 		sp_float input2[8] = { 50.0f, 2.0f, -5.0f, 4.0f, 12.0f, -10.0f, -1.0f, 30.0f };
@@ -2093,10 +2154,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		AlgorithmSorting::native(input1, inputLength);
 
-		cl_mem output = radixGpu->execute();
+		cl_event evt;
+		cl_mem output = radixGpu->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual(input1[i], input2[orderedIndexes[i]], L"Wrong value.", LINE_INFO());
@@ -2123,7 +2186,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
 		createIndexes->init(gpu, nullptr)
 						->setParametersCreateIndexes(inputLength);
-		cl_mem newIndexes = createIndexes->execute();
+		cl_mem newIndexes = createIndexes->execute(ZERO_UINT, NULL, NULL);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << inputLength
@@ -2151,14 +2214,16 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			currentTime = std::chrono::high_resolution_clock::now();
 
-			cl_mem output = radixGpu->execute();
+			cl_event evt;
+			cl_mem output = radixGpu->execute(ZERO_UINT, NULL, &evt);
 
 			currentTime2 = std::chrono::high_resolution_clock::now();
 			times[i] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
 			minTime = std::min(times[i], minTime);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+			gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &evt);
+			gpu->releaseEvent(evt);
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				for (sp_uint j = 0; i < DOP18_ORIENTATIONS; i++)
@@ -2195,7 +2260,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		cl_mem newIndexesLength = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		createIndexes->setParametersCreateIndexes(inputLength);
-		cl_mem newIndexes = createIndexes->execute();
+		cl_mem newIndexes = createIndexes->execute(ZERO_UINT, NULL, NULL);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << inputLength
@@ -2207,10 +2272,12 @@ namespace NAMESPACE_PHYSICS_TEST
 			->init(gpu, buildOptions.str().c_str())
 			->setParameters(inputGpu, inputLength, newIndexes, newIndexesLength, DOP18_STRIDER);
 
-		cl_mem output = radixGpu->execute();
+		cl_event evt;
+		cl_mem output = radixGpu->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+		gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint exepectedIndexes[] = { 0, 3, 2, 1 };
 		for (sp_uint i = 0; i < inputLength; i++)
@@ -2242,7 +2309,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
 		createIndexes->init(gpu, nullptr);
 		createIndexes->setParametersCreateIndexes(inputLength);
-		cl_mem newIndexes = createIndexes->execute();
+		cl_event evt;
+		cl_mem newIndexes = createIndexes->execute(ZERO_UINT, NULL, &evt);
 
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_LENGTH=" << inputLength
@@ -2256,15 +2324,17 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		AlgorithmSorting::quickSortNative(input1, inputLength, DOP18_SIZE, comparatorXAxisForQuickSortKDOP);
 
-		cl_event lastEvent = createIndexes->lastEvent;
+		cl_event pEvent = evt, lastEvent;
 		sp_uint eventsLength = ONE_UINT;
 		 
 		for (sp_uint i = 0; i < maxIterations; i++)
 		{
-			cl_mem output = radixGpu->execute(eventsLength, &lastEvent);
+			cl_mem output = radixGpu->execute(eventsLength, &pEvent, &lastEvent);
+			gpu->releaseEvent(pEvent);
 
 			sp_uint* buffer = ALLOC_ARRAY(sp_uint, inputLength);
 			lastEvent = gpu->commandManager->readBuffer(output, 4 * inputLength, buffer, ONE_UINT, &lastEvent);
+			
 			std::stringstream ss;
 			ss << "BEGIN SORT" << END_OF_LINE;
 			for (size_t i = 0; i < 64; i++)
@@ -2274,7 +2344,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			ALLOC_RELEASE(buffer);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
-			lastEvent = gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &radixGpu->lastEvent);
+			lastEvent = gpu->commandManager->readBuffer(output, inputLength * SIZEOF_UINT, orderedIndexes, ONE_UINT, &lastEvent);
+			std::swap(lastEvent, pEvent);
 
 			for (sp_uint i = 0; i < inputLength; i++)
 				for (sp_uint j = 0; i < DOP18_ORIENTATIONS; i++)

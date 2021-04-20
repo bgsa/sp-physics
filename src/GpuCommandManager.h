@@ -27,11 +27,9 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE sp_uint cacheProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions);
 
-		API_INTERFACE inline cl_event acquireGLObjects(cl_mem buffer, sp_uint eventLength = ZERO_UINT, cl_event* events = nullptr)
-		{
-			cl_event _event;
-			clEnqueueAcquireGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, &_event);
-			return _event;
+		API_INTERFACE inline void acquireGLObjects(cl_mem buffer, sp_uint eventLength, cl_event* events, cl_event* evt)
+		{	
+			clEnqueueAcquireGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, evt);
 		}
 
 		API_INTERFACE inline void releaseGLObjects(cl_mem buffer, sp_uint eventLength, cl_event* events, cl_event* evt)
@@ -53,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 			return evt;
 		}
 
-		API_INTERFACE cl_event updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr);
+		API_INTERFACE void updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength, cl_event* eventsToWait, cl_event* evt);
 
 		API_INTERFACE cl_event copyBuffer(cl_mem source, cl_mem destiny, const sp_size sizeToCopy
 			, const sp_size sourceOffset = 0, const sp_size destinyOffset = 0

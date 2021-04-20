@@ -70,10 +70,8 @@ namespace NAMESPACE_PHYSICS
 		return this;
 	}
 
-	GpuCommand* GpuCommand::updateInputParameterValue(sp_uint index, const void* value, const sp_uint eventsLength, cl_event* events)
+	GpuCommand* GpuCommand::updateInputParameterValue(sp_uint index, const void* value, const sp_uint eventsLength, cl_event* previousEvents, cl_event* currentEvent)
 	{
-		cl_event currentEvent;
-
 		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueWriteBuffer(commandQueue,
 			inputParameters[index], 
 			CL_TRUE, 
@@ -81,15 +79,13 @@ namespace NAMESPACE_PHYSICS
 			inputParametersSize[index],
 			value, 
 			eventsLength, 
-			events,
-			&currentEvent));
-
-		lastEvent = currentEvent;
+			previousEvents,
+			currentEvent));
 
 		return this;
 	}
 
-	GpuCommand* GpuCommand::updateInputParameterValueAsync(sp_uint index, const void* value)
+	GpuCommand* GpuCommand::updateInputParameterValueAsync(sp_uint index, const void* value, cl_event* currentEvent)
 	{
 		HANDLE_OPENCL_RUNTIME_ERROR(
 			clEnqueueWriteBuffer(
@@ -100,7 +96,7 @@ namespace NAMESPACE_PHYSICS
 				inputParametersSize[index],
 				value,
 				0, NULL,
-				&lastEvent
+				currentEvent
 			)
 		);
 
@@ -184,15 +180,15 @@ namespace NAMESPACE_PHYSICS
 		return buildFromProgram(program, kernelName);
 	}
 
-	sp_double GpuCommand::getTimeOfExecution()
+	sp_double GpuCommand::getTimeOfExecution(cl_event evt)
 	{
-		sp_assert(lastEvent != NULL, "InvalidOperationException");
+		sp_assert(evt != NULL, "InvalidArgumentException");
 
 		cl_ulong timeStart, timeEnd;
 
-		clWaitForEvents(1, &lastEvent);
-		clGetEventProfilingInfo(lastEvent, CL_PROFILING_COMMAND_START, sizeof(timeStart), &timeStart, NULL);
-		clGetEventProfilingInfo(lastEvent, CL_PROFILING_COMMAND_END, sizeof(timeEnd), &timeEnd, NULL);
+		clWaitForEvents(1, &evt);
+		clGetEventProfilingInfo(evt, CL_PROFILING_COMMAND_START, sizeof(timeStart), &timeStart, NULL);
+		clGetEventProfilingInfo(evt, CL_PROFILING_COMMAND_END, sizeof(timeEnd), &timeEnd, NULL);
 
 		return (timeEnd - timeStart) / 1000000.0;
 	}
@@ -202,12 +198,12 @@ namespace NAMESPACE_PHYSICS
 		clFinish(commandQueue);
 	}
 
-	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset, cl_event* eventstoWait, const sp_uint eventLength)
+	GpuCommand* GpuCommand::execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset, sp_uint eventLength, cl_event* eventstoWait, cl_event* evt)
 	{
 		sp_assert(localWorkSize[0] != ZERO_SIZE, "InvalidArgumentException");
 		sp_assert(globalWorkSize[0] % localWorkSize[0] == 0, "InvalidArgumentException");
 		
-		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, threadOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, &lastEvent));
+		HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueNDRangeKernel(commandQueue, kernel, workDimnmsion, threadOffset, globalWorkSize, localWorkSize, eventLength, eventstoWait, evt));
 
 		return this;
 	}

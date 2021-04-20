@@ -156,25 +156,26 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using Sweep and Prune method in GPU
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) override;
+		API_INTERFACE cl_mem execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt) override;
 
 		///<summary>
 		/// Get the length of collisions pairs detected
 		///</summary>
-		API_INTERFACE sp_uint fetchCollisionLength(cl_event* evt);
+		API_INTERFACE sp_uint fetchCollisionLength(const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt);
 
 		/// <summary>
 		/// Get the colision index pairs
 		/// </summary>
-		API_INTERFACE void fetchCollisionIndexes(sp_uint* output, cl_event* evt) const;
+		API_INTERFACE void fetchCollisionIndexes(sp_uint* output, const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt) const;
 
 		///<summary>
 		/// Update rigid bodies data on GPU
 		///</summary>
 		API_INTERFACE inline void updatePhysicProperties(void* rigidBodies3D)
 		{
-			commandSaPCollisions->updateInputParameterValue(2u, rigidBodies3D);
-			lastEvent = commandSaPCollisions->lastEvent;
+			cl_event evt;
+			commandSaPCollisions->updateInputParameterValue(2u, rigidBodies3D, ZERO_UINT, NULL, &evt);
+			gpu->releaseEvent(evt);
 		}
 
 		///<summary>
@@ -182,8 +183,9 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE inline void updateBoundingVolumes(void* boudingVolumes)
 		{
-			commandSaPCollisions->updateInputParameterValue(0u, boudingVolumes);
-			lastEvent = commandSaPCollisions->lastEvent;
+			cl_event evt;
+			commandSaPCollisions->updateInputParameterValue(0u, boudingVolumes, ZERO_UINT, NULL, &evt);
+			gpu->releaseEvent(evt);
 		}
 
 #endif // OPENCL_ENABLED

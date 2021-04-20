@@ -16,8 +16,6 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 
-		cl_event lastEvent = nullptr;
-
 		/// <summary>
 		/// Init the command
 		/// </summary>
@@ -26,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Execute the command
 		/// </summary>
-		API_INTERFACE virtual cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) = 0;
+		API_INTERFACE virtual cl_mem execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt) = 0;
 
 	};
 

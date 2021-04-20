@@ -24,8 +24,6 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	Eigen::EigenSolver<Eigen::MatrixXf> solver;
-
 	sp_bool SpCollisionResponseShapeMatching::shapeMatch(SpRigidBodyShapeMatch* shape)
 	{
 		Vec3 centerOfMassAfterCollision;
@@ -34,7 +32,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float mass = ONE_FLOAT / SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex)->massInverse();
 
 		Mat3 matrixApq;
-		std::memcpy(&matrixApq , &Mat3Zeros, sizeof(Mat3));
+		std::memcpy(matrixApq.values(), Mat3Zeros, sizeof(Mat3));
 
 		const Vec3* particles = shape->particles;
 
@@ -77,7 +75,7 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	sp_bool SpCollisionResponseShapeMatching::updateFromShape(const sp_uint objIndex, const SpCollisionDetails* details, const SpRigidBodyShapeMatch* shape)
+	sp_bool SpCollisionResponseShapeMatching::updateFromShape(const SpRigidBodyShapeMatch* shape)
 	{
 		SpRigidBody3D* rigidBody = SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex);
 		const Vec3* particles = shape->particles;
@@ -128,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 		rigidBody->currentState.orientation(transformation->orientation);
 
 		transformation->position = centerOfMassAfterCollision;
-		rigidBody->currentState.position(transformation->position);
+		rigidBody->currentState.position(centerOfMassAfterCollision);
 
 		return true;
 	}
@@ -138,6 +136,8 @@ namespace NAMESPACE_PHYSICS
 		SpWorldManagerInstance->current()
 			->mesh(SpWorldManagerInstance->current()->collisionFeatures(shape->objectIndex)->meshIndex)
 			->supportAll(Vec3Down, shape->particles, pointsLength, points);
+
+		sp_assert(pointsLength > ZERO_UINT, "ApplicationException");
 
 		const sp_float pointY = shape->particles[points[0]->index()].y;
 
@@ -168,23 +168,16 @@ namespace NAMESPACE_PHYSICS
 		if (!gjk(mesh1, shape1->particles, mesh2, shape2->particles, tetrahedron))
 			return false;
 
-		epa(tetrahedron, mesh1, shape1->particles, mesh2, shape2->particles, collisionManifold->collisionNormal, collisionManifold->depth);
+		if (!epa(tetrahedron, mesh1, shape1->particles, mesh2, shape2->particles, collisionManifold->collisionNormal, collisionManifold->depth))
+			return false;
+
+		/*
+		if (collisionManifold->depth >= 2.0f)
+			collisionManifold->depth = 2.0f;
+		*/
 
 		mesh1->supportAll(-collisionManifold->collisionNormal, shape1->particles, mesh1PointsLength, mesh1Points, SP_EPSILON_TWO_DIGITS);
 		mesh2->supportAll(collisionManifold->collisionNormal, shape2->particles, mesh2PointsLength, mesh2Points, SP_EPSILON_TWO_DIGITS);
-
-		/*
-		sp_char text[5000];
-		sp_uint textLength, textLength2 = ZERO_UINT;
-		Matlab::convert(*mesh1, shape1->particles, "mesh1", "red", text, &textLength);
-		textLength --;
-		Matlab::convert(*mesh2, shape2->particles, "mesh2", "green", &text[textLength], &textLength2);
-		textLength += textLength2;
-		Matlab::display(-10, 10, -10, 10, -10, 10, &text[textLength -1u], &textLength2);
-		textLength += textLength2;
-		Matlab::drawSphere(Vec3Zeros, 0.1f, &text[textLength - 1u], &textLength2);
-		textLength += textLength2;
-		*/
 
 		if (mesh1PointsLength == ONE_UINT)
 		{
@@ -244,14 +237,14 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::updateParticlesShape(SpRigidBodyShapeMatch* shape, const Vec3& collisionNormal, const sp_float depth, sp_uint& pointsLength, SpVertexMesh** points)
 	{
-		const sp_float coeficientOfRestitution = 0.5f;
-
 		for (sp_uint i = 0u; i < pointsLength; i++)
 		{
 			const sp_uint pointIndex = points[i]->index();
 
+			sp_assert(pointIndex < shape->particlesLength, "ApplicationException");
+
 			const Vec3 newPosition = (-collisionNormal * depth) + shape->particles[pointIndex];
-		
+
 			shape->particles[pointIndex] = newPosition;
 		}
 	}

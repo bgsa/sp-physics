@@ -39,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Create Indexes buffer ( 0, 1, 2, ... , length ) on GPU
 		/// </summary>
-		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr);
+		API_INTERFACE cl_mem execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* currentEvent);
 
 		/// <summary>
 		/// Release all alocated resources

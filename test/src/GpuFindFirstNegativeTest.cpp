@@ -57,7 +57,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		sp_uint globalWorkSize[3] = { length, 0u, 0u };
 		sp_uint localWorkSize[3] = { 1u, 0u, 0u };
-		command->execute(1u, globalWorkSize, localWorkSize);
+
+		cl_event evt;
+		command->execute(1u, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint result;
 		gpu->commandManager->readBuffer(outputGpu, SIZEOF_UINT, &result);
@@ -99,7 +102,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_uint globalWorkSize[3] = { length - 1u, 0u, 0u };
 		sp_uint localWorkSize[3] = { 1u, 0u, 0u };
-		command->execute(1u, globalWorkSize, localWorkSize);
+
+		cl_event evt;
+		command->execute(1u, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint result;
 		gpu->commandManager->readBuffer(outputGpu, SIZEOF_UINT, &result);
@@ -141,7 +147,10 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_uint globalWorkSize[3] = { length - 1u, 0u, 0u };
 		sp_uint localWorkSize[3] = { 1u, 0u, 0u };
-		command->execute(1u, globalWorkSize, localWorkSize);
+
+		cl_event evt;
+		command->execute(1u, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint result;
 		gpu->commandManager->readBuffer(outputGpu, SIZEOF_UINT, &result);

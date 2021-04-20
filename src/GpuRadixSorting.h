@@ -46,6 +46,8 @@ namespace NAMESPACE_PHYSICS
 		cl_mem inputIndexesGpu;
 		cl_mem outputIndexesGpu;
 
+		cl_mem executeNegatives(sp_bool indexChanged, cl_event previousEvent, cl_event* evt);
+
 	public:
 
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;
@@ -54,9 +56,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void updateIndexes(cl_mem newIndexes, cl_mem newIndexesLength);
 
-		API_INTERFACE cl_mem execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr) override;
-
-		API_INTERFACE cl_mem executeNegatives(sp_bool indexChanged);
+		API_INTERFACE cl_mem execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt) override;
 
 		API_INTERFACE void dispose() override;
 

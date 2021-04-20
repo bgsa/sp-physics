@@ -233,7 +233,7 @@ namespace NAMESPACE_PHYSICS
 		GpuIndexes* createIndexes = sp_mem_new(GpuIndexes)();
 		createIndexes->init(gpu, nullptr);
 		createIndexes->setParametersCreateIndexes(inputLength);
-		indexesGPU = createIndexes->execute();
+		indexesGPU = createIndexes->execute(ZERO_UINT, NULL, NULL);
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
@@ -258,11 +258,6 @@ namespace NAMESPACE_PHYSICS
 
 		radixSorting->setParameters(elementsGPU, boundingVolumesLength, indexesGPU, indexesLengthGPU, ONE_UINT);
 
-		const sp_uint outputIndexLengthCPU = multiplyBy2(boundingVolumesLength) * SP_SAP_MAX_COLLISION_PER_OBJECT;
-		const sp_uint outputIndexSize = outputIndexLengthCPU * SIZEOF_UINT;
-		result = sp_mem_new_array(sp_uint, outputIndexLengthCPU);
-		cl_mem outIdx = gpu->createBuffer(result, outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
-
 		commandSaPCollisions = gpu->commandManager->createCommand()
 			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * SIZEOF_FLOAT)
 			->setInputParameter(elementsGPU, sizeof(sp_float) * boundingVolumesLength)
@@ -270,15 +265,15 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
 			->setInputParameter(indexesGPU, boundingVolumesLength * SIZEOF_UINT)
 			->setInputParameter(outputIndexLength, SIZEOF_UINT)
-			//->setInputParameter(outputIndex, collisionsSize)
-			->setInputParameter(outIdx, collisionsSize)
+			->setInputParameter(outputIndex, collisionsSize)
 			->buildFromProgram(sapProgram, commandName);
 	}
 
-	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents)
+	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
 	{
-		commandBuildElements->execute(ONE_UINT, globalWorkSize, localWorkSize, &axis, previousEvents, previousEventsLength);
-		gpu->releaseEvent(previousEvents[0]);
+		cl_event lastEvent;
+
+		commandBuildElements->execute(ONE_UINT, globalWorkSize, localWorkSize, &axis, previousEventsLength, previousEvents, &lastEvent);
 
 		/* debugging
 		Sphere ss[512];
@@ -304,8 +299,8 @@ namespace NAMESPACE_PHYSICS
 		sp_log_info1s("END INDEXES"); sp_log_newline();
 		*/
 
-		cl_mem sortedIndexes = radixSorting->execute(ONE_UINT, &commandBuildElements->lastEvent);
-		gpu->releaseEvent(commandBuildElements->lastEvent);
+		cl_mem sortedIndexes = radixSorting->execute(ONE_UINT, &lastEvent, evt);
+		gpu->releaseEvent(lastEvent);
 
 		/* // check if sorting is OK		
 		sp_uint* sorted = ALLOC_ARRAY(sp_uint, 512);
@@ -329,26 +324,26 @@ namespace NAMESPACE_PHYSICS
 
 		commandSaPCollisions
 			->updateInputParameter(4, sortedIndexes)
-			->updateInputParameterValue(5, &zeroValue)
-			->execute(1, globalWorkSize, localWorkSize, &axis, &radixSorting->lastEvent, ONE_UINT);
-		gpu->releaseEvent(radixSorting->lastEvent);
+			->updateInputParameterValue(5, &zeroValue, ZERO_UINT, NULL, NULL)
+			->execute(1, globalWorkSize, localWorkSize, &axis, ONE_UINT, evt, &lastEvent);
+		gpu->releaseEvent(evt[0]);
 
-		lastEvent = commandSaPCollisions->lastEvent;
+		evt[0] = lastEvent;
 
 		return commandSaPCollisions->getInputParameter(5u);
 	}
 
-	sp_uint SweepAndPrune::fetchCollisionLength(cl_event* evt)
+	sp_uint SweepAndPrune::fetchCollisionLength(const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
 	{
 		sp_uint value;
-		commandSaPCollisions->fetchInOutParameter<sp_uint>(5, &value, ONE_UINT, &commandSaPCollisions->lastEvent, evt);
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(5, &value, previousEventsLength, previousEvents, evt);
 		
 		return divideBy2(value);
 	}
 
-	void SweepAndPrune::fetchCollisionIndexes(sp_uint* output, cl_event* evt) const
+	void SweepAndPrune::fetchCollisionIndexes(sp_uint* output, const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt) const
 	{
-		commandSaPCollisions->fetchInOutParameter<sp_uint>(6, output, ONE_UINT, &commandSaPCollisions->lastEvent, evt);
+		commandSaPCollisions->fetchInOutParameter<sp_uint>(6, output, previousEventsLength, previousEvents, evt);
 	}
 
 #endif // OPENCL_ENALBED

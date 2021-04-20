@@ -19,9 +19,9 @@ namespace NAMESPACE_PHYSICS
 		return this;
 	}
 
-	GpuBufferOpenCL* GpuBufferOpenCL::update(void* value, const sp_uint eventLength, cl_event* events)
+	GpuBufferOpenCL* GpuBufferOpenCL::update(void* value, const sp_uint eventLength, cl_event* events, cl_event* evt)
 	{
-		_gpu->commandManager->updateBuffer(_buffer, _size, value, eventLength, events);
+		_gpu->commandManager->updateBuffer(_buffer, _size, value, eventLength, events, evt);
 		return this;
 	}
 

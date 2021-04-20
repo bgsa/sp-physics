@@ -21,7 +21,6 @@ namespace NAMESPACE_PHYSICS
 		sp_size localWorkSize[3] = { 0,0,0 };
 
 	public:
-		cl_event lastEvent = nullptr;
 
 		API_INTERFACE void init(GpuDevice* gpu, const char* buildOptions = NULL)
 		{
@@ -63,14 +62,9 @@ namespace NAMESPACE_PHYSICS
 				->buildFromProgram(program, "update");
 		}
 	
-		API_INTERFACE inline void execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr)
+		API_INTERFACE inline void execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
 		{
-			const sp_uint zeroValue = ZERO_UINT;
-
-			command
-				->execute(1, globalWorkSize, localWorkSize, 0, previousEvents, previousEventsLength);
-
-			lastEvent = command->lastEvent;
+			command->execute(1, globalWorkSize, localWorkSize, 0, previousEventsLength, previousEvents, evt);
 		}
 
 		/// <summary>

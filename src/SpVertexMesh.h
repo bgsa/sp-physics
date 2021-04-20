@@ -52,6 +52,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>Global Vertex Index</returns>
 		API_INTERFACE inline sp_uint edgeVertexIndex(const sp_uint vertexIndex) const
 		{
+			sp_assert(vertexIndex < _edgeVertexIndex->length(), "InvalidArgumentException");
 			return _edgeVertexIndex->get(vertexIndex);
 		}
 		

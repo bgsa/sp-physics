@@ -31,9 +31,6 @@ namespace NAMESPACE_PHYSICS
 		GpuCommand(cl_device_id deviceId, cl_context deviceContext, cl_command_queue commandQueue);
 
 	public:
-
-		cl_event lastEvent = NULL;
-
 		sp_size workGroupSize;
 		sp_size compileWorkGroupSize[3];
 		sp_ulong localMemorySizeRequired;
@@ -47,8 +44,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuCommand* setInputParameter(cl_mem buffer, sp_size sizeOfValue);
 		API_INTERFACE GpuCommand* setInputParameter(GpuBufferOpenCL* buffer);
 
-		API_INTERFACE GpuCommand* updateInputParameterValue(sp_uint index, const void* value, const sp_uint eventsLength = ZERO_UINT, cl_event* events = nullptr);
-		API_INTERFACE GpuCommand* updateInputParameterValueAsync(sp_uint index, const void* value);
+		API_INTERFACE GpuCommand* updateInputParameterValue(sp_uint index, const void* value, const sp_uint eventsLength, cl_event* events, cl_event* currentEvent);
+		API_INTERFACE GpuCommand* updateInputParameterValueAsync(sp_uint index, const void* value, cl_event* currentEvent);
 		API_INTERFACE GpuCommand* updateInputParameter(sp_uint index, cl_mem memoryBuffer);
 
 		API_INTERFACE cl_mem getOutputParameter();
@@ -61,15 +58,15 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE GpuCommand* buildFromProgram(cl_program program, const sp_char* kernelName);
 		API_INTERFACE GpuCommand* build(const sp_char* source, sp_size sourceSize, const sp_char* kernelName, const sp_char* buildOptions = NULL);
 
-		API_INTERFACE GpuCommand* execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset = 0, cl_event* events = NULL, const sp_uint eventLength = 0);
+		API_INTERFACE GpuCommand* execute(sp_uint workDimnmsion, const sp_size globalWorkSize[3], const sp_size localWorkSize[3], const sp_size* threadOffset, const sp_uint eventLength, cl_event* events, cl_event* evt);
 
 		API_INTERFACE void waitToFinish();
 
-		API_INTERFACE sp_double getTimeOfExecution();
+		API_INTERFACE sp_double getTimeOfExecution(cl_event evt);
 
 		API_INTERFACE inline void fetch(void* buffer)
 		{
-			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, buffer, 0, NULL, &lastEvent));
+			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReadBuffer(commandQueue, outputParameter, CL_TRUE, 0, outputSize, buffer, 0, NULL, NULL));
 		}
 
 		template <typename T>

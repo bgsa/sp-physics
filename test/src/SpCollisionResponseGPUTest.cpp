@@ -51,13 +51,19 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem outputIndexesLengthGPU = gpu->createBuffer(&outputIndexesLength, SIZEOF_UINT, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
 
 		response.setParameters(indexesGPU, indexesLengthGPU, indexesLength, rigidBodies3DGPU, outputIndexesGPU, outputIndexesLengthGPU, 4 * SIZEOF_UINT);
-		response.execute();
+
+		cl_event evt;
+		response.execute(ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint length;
 		sp_uint* indexesResult = ALLOC_ARRAY(sp_uint, 4);
-		cl_event evt;
-		response.fetchCollisionLength(&length, &evt);
-		response.fetchCollisions(indexesResult, &evt);
+
+		response.fetchCollisionLength(&length, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
+
+		response.fetchCollisions(indexesResult, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		SpRigidBody3D* resultProperties = ALLOC_NEW_ARRAY(SpRigidBody3D, 2u);
 		gpu->commandManager->readBuffer(rigidBodies3DGPU, sizeof(SpRigidBody3D) * 2u, resultProperties);

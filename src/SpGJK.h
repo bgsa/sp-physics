@@ -35,8 +35,8 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="mesh1">Mesh 1</param>
 	/// <param name="mesh2">Mesh 2</param>
 	/// <param name="output"></param>
-	/// <returns>output parameter</returns>
-	API_INTERFACE void epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS);
+	/// <returns>True if the algorithm converged orelse False</returns>
+	API_INTERFACE sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS);
 
 #undef SP_GJK_MAX_ITERATIONS
 }

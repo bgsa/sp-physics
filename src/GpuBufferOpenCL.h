@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline GpuBufferOpenCL* init(const sp_size size, void* value, cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		
-		API_INTERFACE inline GpuBufferOpenCL* update(void* value, const sp_uint eventLength = ZERO_UINT, cl_event* events = nullptr);
+		API_INTERFACE inline GpuBufferOpenCL* update(void* value, const sp_uint eventLength, cl_event* events, cl_event* evt);
 
 		API_INTERFACE inline void dispose();
 

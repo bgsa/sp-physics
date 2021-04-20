@@ -2413,7 +2413,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::DOP18;
 
-		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
 		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		sp_uint indexesCPU[5];
@@ -2421,6 +2421,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size axis = DOP18_AXIS_X;
 
+		cl_event evt;
 		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
 			->setInputParameter(dops, inputLength * sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
@@ -2428,10 +2429,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
 			->buildFromProgram(program, "buildInputElements")
-			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &axis, ZERO_UINT, NULL, &evt);
 
 		sp_float elements[5];
-		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
@@ -2483,7 +2485,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::DOP18;
 
-		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
 		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		sp_uint indexesCPU[5];
@@ -2491,6 +2493,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size axis = DOP18_AXIS_Y;
 
+		cl_event evt;
 		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
 			->setInputParameter(dops, inputLength * sizeof(DOP18), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
@@ -2498,10 +2501,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
 			->buildFromProgram(program, "buildInputElements")
-			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &axis, ZERO_UINT, NULL, &evt);
 
 		sp_float elements[5];
-		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
@@ -2553,7 +2557,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::AABB;
 
-		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
 		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		sp_uint indexesCPU[5];
@@ -2561,6 +2565,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size axis = DOP18_AXIS_Y;
 
+		cl_event evt;
 		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
 			->setInputParameter(aabbs, inputLength * sizeof(AABB), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
@@ -2568,10 +2573,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
 			->buildFromProgram(program, "buildInputElements")
-			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &axis, ZERO_UINT, NULL, &evt);
 
 		sp_float elements[5];
-		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
@@ -2623,7 +2629,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::AABB;
 
-		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
 		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		sp_uint indexesCPU[5];
@@ -2631,6 +2637,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size axis = DOP18_AXIS_UP_DEPTH;
 
+		cl_event evt;
 		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
 			->setInputParameter(aabbs, inputLength * sizeof(AABB), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
@@ -2638,10 +2645,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
 			->buildFromProgram(program, "buildInputElements")
-			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &axis, ZERO_UINT, NULL, &evt);
 
 		sp_float elements[5];
-		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual((sp_float)(i * 10u) - 0.5f, elements[i], L"Wrong value.", LINE_INFO());
@@ -2693,7 +2701,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::Sphere;
 
-		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
 		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		sp_uint indexesCPU[5];
@@ -2701,6 +2709,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size axis = DOP18_AXIS_X;
 
+		cl_event evt;
 		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
 			->setInputParameter(spheres, inputLength * sizeof(Sphere), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
@@ -2708,10 +2717,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
 			->buildFromProgram(program, "buildInputElements")
-			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &axis, ZERO_UINT, NULL, &evt);
 
 		sp_float elements[5];
-		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < inputLength; i++)
 			Assert::AreEqual((sp_float)(i * 10u) - 5.0f, elements[i], L"Wrong value.", LINE_INFO());
@@ -2763,7 +2773,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::Sphere;
 
-		cl_mem indexesGpu = commandIndexes->execute();
+		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
 		cl_mem elementsGPU = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		sp_uint indexesCPU[5];
@@ -2771,6 +2781,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_size axis = DOP18_AXIS_UP_RIGHT;
 
+		cl_event evt;
 		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()
 			->setInputParameter(spheres, inputLength * sizeof(Sphere), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
@@ -2778,10 +2789,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(elementsGPU, inputLength * SIZEOF_FLOAT)
 			->buildFromProgram(program, "buildInputElements")
-			->execute(1, globalWorkSize, localWorkSize, &axis, NULL, ZERO_UINT);
+			->execute(1, globalWorkSize, localWorkSize, &axis, ZERO_UINT, NULL, &evt);
 
 		sp_float elements[5];
-		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements);
+		gpu->commandManager->readBuffer(elementsGPU, inputLength * SIZEOF_FLOAT, elements, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		sp_uint index = ZERO_UINT;
 		for (sp_float i = -3.53606796f; i < inputLength; i += 7.07213593f)
@@ -2824,14 +2836,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_longlong currentTime1 = counter.diff();
 		
 		counter.start();
-		sap->execute();
+		sap->execute(ZERO_UINT, NULL, NULL);
 		sp_longlong currentTime2 = counter.diff();
 
 		cl_event evt;
-		sp_uint collisionsLength = sap->fetchCollisionLength(&evt);
+		sp_uint collisionsLength = sap->fetchCollisionLength(ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
+
 		//sp_uint* indexes = (sp_uint*) ALLOC_SIZE(sizeof(sp_uint) * count * 2);
 		sp_uint* indexes = (sp_uint*) ALLOC_SIZE(640);
-		sap->fetchCollisionIndexes(indexes, &evt);
+		sap->fetchCollisionIndexes(indexes, ZERO_UINT, NULL, &evt);
+		gpu->releaseEvent(evt);
 
 		if (result1.length != collisionsLength)
 			int a = 1;
@@ -2895,12 +2910,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_longlong cpuPerformance = performanceCounter.diff();
 
-		performanceCounter.start();
-		sap.execute();
-		sp_longlong gpuPerformance = performanceCounter.diff();
-
 		cl_event evt;
-		sp_uint collisionsLength = sap.fetchCollisionLength(&evt);
+		performanceCounter.start();
+		sap.execute(ZERO_UINT, NULL, &evt);
+		sp_longlong gpuPerformance = performanceCounter.diff();
+		
+		sp_uint collisionsLength = sap.fetchCollisionLength(ZERO_UINT, &evt, NULL);
 
 		Assert::AreEqual(expected.length, collisionsLength, L"wrong value", LINE_INFO());
 

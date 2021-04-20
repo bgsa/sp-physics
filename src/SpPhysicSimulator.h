@@ -31,7 +31,6 @@ namespace NAMESPACE_PHYSICS
 
 		// SpCSVFileWriter* csvFile; // TODO: REMOVER !
 		
-		cl_event lastEvent;
 		cl_mem _collisionIndexesGPU;
 		cl_mem _collisionIndexesLengthGPU;
 		cl_mem _sapCollisionIndexesGPU;
@@ -57,9 +56,9 @@ namespace NAMESPACE_PHYSICS
 		void addFriction(SpRigidBody3D* obj1Properties, SpRigidBody3D* obj2Properties, const Vec3& relativeVel, const Vec3& collisionNormal, const Vec3& rayToContactObj1, const Vec3& rayToContactObj2, const sp_float& j);
 
 		void findCollisionsCpu(SweepAndPruneResult* result);
-		void findCollisionsGpuDOP18(SweepAndPruneResult& result);
-		void findCollisionsGpuAABB(SweepAndPruneResult& result);
-		void findCollisionsGpuSphere(SweepAndPruneResult& result);
+		void findCollisionsGpuDOP18(SweepAndPruneResult& result, const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* currentEvent);
+		void findCollisionsGpuAABB(SweepAndPruneResult& result, const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* currentEvent);
+		void findCollisionsGpuSphere(SweepAndPruneResult& result, const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* currentEvent);
 		
 		/// <summary>
 		/// Update transformations and physicproperties on GPU

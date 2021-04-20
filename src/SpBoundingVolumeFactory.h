@@ -72,14 +72,14 @@ namespace NAMESPACE_PHYSICS
 			_boundingVolumesGPU = gpu->createBuffer(sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		}
 	
-		API_INTERFACE virtual void execute() const
+		API_INTERFACE virtual void execute(const sp_uint eventsLength, cl_event* eventsToWait, cl_event* evt) const
 		{
-			command->execute(1u, globalWorkSize, localWorkSize);
+			command->execute(1u, globalWorkSize, localWorkSize, NULL, eventsLength, eventsToWait, evt);
 		}
 
-		API_INTERFACE inline sp_double timeOfLastExecution() const
+		API_INTERFACE inline sp_double timeOfLastExecution(cl_event evt) const
 		{
-			return command->getTimeOfExecution();
+			return command->getTimeOfExecution(evt);
 		}
 
 		API_INTERFACE virtual void dispose()

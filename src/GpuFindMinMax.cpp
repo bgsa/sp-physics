@@ -10,7 +10,6 @@ namespace NAMESPACE_PHYSICS
 			return this;
 
 		this->gpu = gpu;
-		this->lastEvent = nullptr;
 
 		commandIndexes = ALLOC_NEW(GpuIndexes)();
 		commandIndexes->init(gpu, buildOptions);
@@ -35,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 		if (indexes == NULL)
 		{
 			commandIndexes->setParametersCreateIndexes(indexLength);
-			indexesGpu = commandIndexes->execute();
+			indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
 		}
 
 		const sp_uint realIndexLength = indexLength;
@@ -88,29 +87,29 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem GpuFindMinMax::execute()
 	{
-		cl_event previousEvent = nullptr;
-		lastEvent = nullptr;
+		cl_event previousEvent = nullptr, currentEvent = nullptr;
 
 		commandFindMinMaxByThread
-			->execute(1, globalWorkSize, localWorkSize, ZERO_UINT, NULL, ZERO_UINT);
-		previousEvent = commandFindMinMaxByThread->lastEvent;
+			->execute(1, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &previousEvent);
 
 		globalWorkSize[0] = (sp_size) std::ceil(globalWorkSize[0] / TWO_DOUBLE);
 
 		if (isIndexLengthOdd) 
 		{
 			commandFindMinMaxParallelReduce_Odd
-				->execute(ONE_UINT, globalWorkSizeOdd, localWorkSizeOdd, 0, &previousEvent, ONE_UINT);
-			lastEvent = commandFindMinMaxParallelReduce_Odd->lastEvent;
-			std::swap(lastEvent, previousEvent);
+				->execute(ONE_UINT, globalWorkSizeOdd, localWorkSizeOdd, 0, ONE_UINT, &previousEvent, &currentEvent);
+
+			gpu->releaseEvent(previousEvent);
+			std::swap(currentEvent, previousEvent);
 		}
 
 		if (localWorkSize[0] > 1)
 		{
 			commandFindMinMaxParallelReduce
-				->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
-			lastEvent = commandFindMinMaxParallelReduce->lastEvent;
-			std::swap(lastEvent, previousEvent);
+				->execute(1, globalWorkSize, localWorkSize, 0, ONE_UINT , &previousEvent, &currentEvent);
+
+			gpu->releaseEvent(previousEvent);
+			std::swap(currentEvent, previousEvent);
 
 			globalWorkSize[0] = std::max((sp_uint)std::ceil(globalWorkSize[0] / TWO_DOUBLE), ONE_UINT);
 			localWorkSize[0]  = std::max((sp_uint)std::ceil(localWorkSize[0] / TWO_DOUBLE), ONE_UINT);
@@ -118,9 +117,10 @@ namespace NAMESPACE_PHYSICS
 			while (globalWorkSize[0] != localWorkSize[0])
 			{
 				commandFindMinMaxParallelReduce
-					->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
-				lastEvent = commandFindMinMaxParallelReduce->lastEvent;
-				std::swap(lastEvent, previousEvent);
+					->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, ONE_UINT, &previousEvent, &currentEvent);
+
+				gpu->releaseEvent(previousEvent);
+				std::swap(currentEvent, previousEvent);
 
 				globalWorkSize[0] = divideBy2(globalWorkSize[0]);
 			}
@@ -132,9 +132,10 @@ namespace NAMESPACE_PHYSICS
 		while (globalWorkSize[0] != 1)
 		{
 			commandFindMinMaxParallelReduce
-				->execute(1, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
-			lastEvent = commandFindMinMaxParallelReduce->lastEvent;
-			std::swap(lastEvent, previousEvent);
+				->execute(1, globalWorkSize, localWorkSize, 0, ONE_UINT, &previousEvent, &currentEvent);
+
+			gpu->releaseEvent(previousEvent);
+			std::swap(currentEvent, previousEvent);
 
 			globalWorkSize[0] = (sp_uint) std::ceil( globalWorkSize[0] / TWO_DOUBLE );
 			//localWorkSize[0] = globalWorkSize[0];
@@ -143,9 +144,12 @@ namespace NAMESPACE_PHYSICS
 		if (indexLength > TWO_UINT)
 		{
 			commandFindMinMaxParallelReduce_OneThread
-				->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, &previousEvent, ONE_UINT);
-			lastEvent = commandFindMinMaxParallelReduce_OneThread->lastEvent;
+				->execute(ONE_UINT, globalWorkSize, localWorkSize, 0, ONE_UINT, &previousEvent, &currentEvent);
+
+			gpu->releaseEvent(previousEvent);
 		}
+
+		gpu->releaseEvent(currentEvent);
 
 		return output;
 	}

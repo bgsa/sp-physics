@@ -64,10 +64,8 @@ namespace NAMESPACE_PHYSICS
 		return (sp_uint) cachedPrograms.size() - 1;
 	}
 
-	cl_event GpuCommandManager::updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength, cl_event* eventsToWait)
+	void GpuCommandManager::updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength, cl_event* eventsToWait, cl_event* evt)
 	{
-		cl_event evt;
-
 		HANDLE_OPENCL_ERROR(clEnqueueWriteBuffer(commandQueue,
 			gpuBuffer,
 			CL_TRUE,
@@ -75,9 +73,7 @@ namespace NAMESPACE_PHYSICS
 			gpuSizeBuffer,
 			value,
 			eventsLength, eventsToWait,
-			&evt));
-
-		return evt;
+			evt));
 	}
 
 	cl_event GpuCommandManager::copyBuffer(cl_mem source, cl_mem destiny, const sp_size sizeToCopy, const sp_size sourceOffset, const sp_size destinyOffset, sp_uint eventsLength, cl_event* eventsToWait)

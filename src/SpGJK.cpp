@@ -3,7 +3,7 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	void epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon)
+	sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon)
 	{
 #define EPA_MAX_NUM_FACES 128
 #define EPA_MAX_NUM_LOOSE_EDGES 64
@@ -63,7 +63,7 @@ namespace NAMESPACE_PHYSICS
 			{
 				//Convergence (new point is not significantly further from origin)
 				multiply(faces[closest_face][3], newSimplexPoint.dot(search_dir), normal); // dot vertex with normal to resolve collision along normal!
-				return;
+				return true;
 			}
 
 			Vec3 loose_edges[EPA_MAX_NUM_LOOSE_EDGES][2]; //keep track of edges we need to fix after removing faces
@@ -140,7 +140,7 @@ namespace NAMESPACE_PHYSICS
 	
 		// Return most recent closest point
 		multiply(faces[closest_face][3], faces[closest_face][0].dot(faces[closest_face][3]), normal);
-	
+		return false;
 #undef EPA_TOLERANCE
 #undef EPA_BIAS
 #undef EPA_MAX_NUM_ITERATIONS

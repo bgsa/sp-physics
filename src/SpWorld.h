@@ -106,7 +106,9 @@ namespace NAMESPACE_PHYSICS
 			SpPoolMemoryAllocator::main()->disableMemoryAlignment();
 
 #ifdef OPENCL_ENABLED
-			_objectMapperGPU->update(_objectMapper);
+			cl_event evt;
+			_objectMapperGPU->update(_objectMapper, ZERO_UINT, NULL, &evt);
+			gpu->releaseEvent(evt);
 
 			SpMesh* lastMesh = _meshes->data()[collisionFeatures(_objectsLength - 1u)->meshIndex];
 			SpEdgeMesh* lastEdge = lastMesh->edges->data()[lastMesh->edges->length() - 1u];
@@ -127,7 +129,8 @@ namespace NAMESPACE_PHYSICS
 			_meshCacheVertexesLengthGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 			_meshCacheVertexesLengthGPU->init(_objectsLength * SIZEOF_UINT, meshCacheVertexesLength, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR);
 
-			_inputLengthGPU->update(&_objectsLength);
+			_inputLengthGPU->update(&_objectsLength, ZERO_UINT, NULL, &evt);
+			gpu->releaseEvent(evt);
 
 			_meshCacheUpdater.init(gpu);
 			_meshCacheUpdater.setParameters(_inputLengthGPU, _objectMapperGPU, _meshesGPU, _meshesIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
@@ -243,18 +246,17 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Update transformations and rigid bodies on GPU
 		/// </summary>
-		API_INTERFACE inline void updateDataOnGPU()
+		API_INTERFACE inline void updateDataOnGPU(cl_event* evt)
 		{
-			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms);
+			gpu->commandManager->updateBuffer(_transformsGPU, sizeof(SpTransform) * _objectsLength, _transforms, ZERO_UINT, NULL, evt);
 		}
 
 		/// <summary>
 		/// Update rigid bodies changed by GPU filter response
 		/// </summary>
-		API_INTERFACE inline void updateDataOnCPU()
+		API_INTERFACE inline cl_event updateDataOnCPU()
 		{
-			cl_event evt1 = gpu->commandManager->readBuffer(_rigidBodies3DGPU, sizeof(SpRigidBody3D) * _objectsLength, _rigidBodies3D);
-			gpu->waitEvents(ONE_UINT, &evt1);
+			return gpu->commandManager->readBuffer(_rigidBodies3DGPU, sizeof(SpRigidBody3D) * _objectsLength, _rigidBodies3D);
 		}
 
 		API_INTERFACE inline void updateTransformsOnGPU()
@@ -269,13 +271,14 @@ namespace NAMESPACE_PHYSICS
 				else
 					size += SIZEOF_TWO_WORDS;
 
-			gpu->commandManager->acquireGLObjects(_transformsGPU);
+			cl_event evt;
+			gpu->commandManager->acquireGLObjects(_transformsGPU, ZERO_UINT, NULL, &evt);
+			gpu->releaseEvent(evt);
 
 			_transformsGPUBuffer
 				->use()
 				->updateData(size, _transforms);
-
-			cl_event evt;
+			
 			gpu->commandManager->releaseGLObjects(_transformsGPU, ZERO_UINT, NULL, &evt);
 			gpu->releaseEvent(evt);
 		}

@@ -23,7 +23,6 @@ namespace NAMESPACE_PHYSICS
 		sp_size localWorkSize[3] = { 0,0,0 };
 
 	public:
-		cl_event lastEvent = nullptr;
 
 		///<summary>
 		/// Init Collision Response Algorithm on GPU
@@ -75,32 +74,30 @@ namespace NAMESPACE_PHYSICS
 		/// Find the collisions using COllision Response method in GPU
 		/// Returns the pair indexes
 		///</summary>
-		API_INTERFACE void execute(sp_uint previousEventsLength = ZERO_UINT, cl_event* previousEvents = nullptr)
+		API_INTERFACE void execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
 		{
 			const sp_uint zeroValue = ZERO_UINT;
 
 			command
-				->updateInputParameterValue(3u, &zeroValue)
-				->execute(1, globalWorkSize, localWorkSize, 0, previousEvents, previousEventsLength);
-
-			lastEvent = command->lastEvent;
+				->updateInputParameterValue(3u, &zeroValue, previousEventsLength, previousEvents, NULL)
+				->execute(1, globalWorkSize, localWorkSize, 0, previousEventsLength, previousEvents, evt);
 		}
 
 		///<summary>
 		/// Get the length of collisions pairs
 		///</summary>
-		API_INTERFACE inline void fetchCollisionLength(sp_uint* length, cl_event* evt)
+		API_INTERFACE inline void fetchCollisionLength(sp_uint* length, const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
 		{
-			command->fetchInOutParameter<sp_uint>(3u, length, ONE_UINT, &command->lastEvent, evt);
+			command->fetchInOutParameter<sp_uint>(3u, length, previousEventsLength, previousEvents, evt);
 			length[0] = divideBy2(length[0]);
 		}
 
 		///<summary>
 		/// Get the collisions pairs
 		///</summary>
-		API_INTERFACE inline void fetchCollisions(sp_uint* indexes, cl_event* evt)
+		API_INTERFACE inline void fetchCollisions(sp_uint* indexes, const sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
 		{
-			command->fetchInOutParameter<sp_uint>(4u, indexes, ONE_UINT, &command->lastEvent, evt);
+			command->fetchInOutParameter<sp_uint>(4u, indexes, previousEventsLength, previousEvents, evt);
 		}
 
 		///<summary>

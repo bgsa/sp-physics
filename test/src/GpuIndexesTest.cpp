@@ -39,10 +39,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(length);
 
-		cl_mem output = commandIndexes->execute();
+		cl_event evt;
+		cl_mem output = commandIndexes->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, length);
-		gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, values, ONE_UINT, &commandIndexes->lastEvent);
+		gpu->commandManager->readBuffer(output, length * SIZEOF_UINT, values, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < length; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
@@ -64,10 +66,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(count);
 
-		cl_mem output = commandIndexes->execute();
+		cl_event evt;
+		cl_mem output = commandIndexes->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, ONE_UINT, &commandIndexes->lastEvent);
+		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());
@@ -89,10 +93,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(count);
 
-		cl_mem output = commandIndexes->execute();
+		cl_event evt;
+		cl_mem output = commandIndexes->execute(ZERO_UINT, NULL, &evt);
 
 		sp_uint* values = ALLOC_ARRAY(sp_uint, count);
-		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values);
+		gpu->commandManager->readBuffer(output, count * SIZEOF_UINT, values, ONE_UINT, &evt);
+		gpu->releaseEvent(evt);
 
 		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(i, values[i], L"Wrong value.", LINE_INFO());

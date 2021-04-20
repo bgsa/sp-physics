@@ -97,10 +97,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_size elementIndex = 2u;
 		sp_float* result = (sp_float*)ALLOC_SIZE(sizePhysicProperties);
-		cl_event evt;
+		cl_event evt, evt2;
 		command
-			->execute(1, globalWorkSize, localWorkSize, &elementIndex)
-			->fetchInOutParameter<sp_float>(1u, result, ONE_UINT, &command->lastEvent, &evt);
+			->execute(1, globalWorkSize, localWorkSize, &elementIndex, ZERO_UINT, NULL, &evt)
+			->fetchInOutParameter<sp_float>(1u, result, ONE_UINT, &evt, &evt2);
+		gpu->releaseEvent(evt);
+		gpu->releaseEvent(evt2);
 
 		const sp_float* expected = (sp_float*)&rigidBodies[elementIndex];
 		const sp_uint floatsInProperties = sizePhysicProperties / sizeof(sp_float);
@@ -176,10 +178,12 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		const sp_size elementIndex = 2u;
 		sp_bool result;
-		cl_event evt;
+		cl_event evt, evt2;
 		command
-			->execute(1, globalWorkSize, localWorkSize, &elementIndex)
-			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &command->lastEvent, &evt);
+			->execute(1, globalWorkSize, localWorkSize, &elementIndex, ZERO_UINT, NULL, &evt)
+			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &evt, &evt2);
+		gpu->releaseEvent(evt);
+		gpu->releaseEvent(evt2);
 
 		const sp_bool expected = rigidBodies3D[elementIndex].isResting();
 
@@ -225,17 +229,21 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_uint index = 0u;
 		sp_bool result;
-		cl_event evt;
+		cl_event evt, evt2;
 		command
-			->execute(1, globalWorkSize, localWorkSize, &index)
-			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &command->lastEvent, &evt);
+			->execute(1, globalWorkSize, localWorkSize, &index, ZERO_UINT, NULL, &evt)
+			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &evt, &evt2);
+		gpu->releaseEvent(evt);
+		gpu->releaseEvent(evt2);
 
 		Assert::IsTrue(result, L"wrong value", LINE_INFO());
 
 		index = 1u;
 		command
-			->execute(1, globalWorkSize, localWorkSize, &index)
-			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &command->lastEvent, &evt);
+			->execute(1, globalWorkSize, localWorkSize, &index, ZERO_UINT, NULL, &evt)
+			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &evt, &evt2);
+		gpu->releaseEvent(evt);
+		gpu->releaseEvent(evt2);
 
 		Assert::IsFalse(result, L"wrong value", LINE_INFO());
 
