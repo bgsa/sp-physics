@@ -80,6 +80,13 @@ namespace NAMESPACE_PHYSICS
 			sp_mem_delete(_objectMapperGPU, GpuBufferOpenCL);
 			_objectMapperGPU = nullptr;
 		}
+
+		if (renderer != nullptr)
+		{
+			renderer->dispose();
+			sp_mem_release(renderer);
+			renderer = nullptr;
+		}
 	}
 
 }

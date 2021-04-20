@@ -14,6 +14,7 @@
 #include "SpAABBFactory.h"
 #include "SpMeshCacheUpdaterGPU.h"
 #include "SpPhysicSimulator.h"
+#include "SpIRendererManager.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -54,6 +55,8 @@ namespace NAMESPACE_PHYSICS
 		GpuBufferOpenCL* _meshCacheIndexesGPU;
 		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
 		SpMeshCacheUpdaterGPU _meshCacheUpdater;
+
+		SpIRendererManager* renderer;
 
 		void initMeshCache()
 		{

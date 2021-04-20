@@ -305,6 +305,11 @@
     <ClInclude Include="src\SpGame2D.h" />
     <ClInclude Include="src\SpGame3D.h" />
     <ClInclude Include="src\SpGJK.h" />
+    <ClInclude Include="src\SpIGraphicObject.h" />
+    <ClInclude Include="src\SpIGraphicObject2D.h" />
+    <ClInclude Include="src\SpIGraphicObject3D.h" />
+    <ClInclude Include="src\SpIGraphicObjectList3D.h" />
+    <ClInclude Include="src\SpIRendererManager.h" />
     <ClInclude Include="src\SpMapleExporter.h" />
     <ClInclude Include="src\SpMatlabExporter.h" />
     <ClInclude Include="src\SpMesh.h" />
@@ -323,6 +328,7 @@
     <ClInclude Include="src\SpInertiaTensor.h" />
     <ClInclude Include="src\SpMeshCache.h" />
     <ClInclude Include="src\SpMeshCacheUpdaterGPU.h" />
+    <ClInclude Include="src\SpRenderData.h" />
     <ClInclude Include="src\SpWorld.h" />
     <ClInclude Include="src\SpOptimization.h" />
     <ClInclude Include="src\SpPhysicIntegrator.h" />
