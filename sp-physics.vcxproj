@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -301,6 +301,9 @@
     <ClInclude Include="src\SpCollisionResponseShapeMatching.h" />
     <ClInclude Include="src\SpDOP18Factory.h" />
     <ClInclude Include="src\SpFaceMesh.h" />
+    <ClInclude Include="src\SpGame.h" />
+    <ClInclude Include="src\SpGame2D.h" />
+    <ClInclude Include="src\SpGame3D.h" />
     <ClInclude Include="src\SpGJK.h" />
     <ClInclude Include="src\SpMapleExporter.h" />
     <ClInclude Include="src\SpMatlabExporter.h" />

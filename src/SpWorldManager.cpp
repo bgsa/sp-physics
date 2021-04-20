@@ -23,6 +23,11 @@ namespace NAMESPACE_PHYSICS
 		SpWorldManagerInstance->_current->init(maxObjects);
 	}
 
+	sp_bool SpWorldManager::isInitialized()
+	{
+		return SpWorldManagerInstance != nullptr;
+	}
+
 	void SpWorldManager::dispose()
 	{
 		if (SpWorldManagerInstance == nullptr)

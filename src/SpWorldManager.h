@@ -20,6 +20,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE static void init();
 
+		API_INTERFACE static sp_bool isInitialized();
+
 		API_INTERFACE static void dispose();
 		
 	};
