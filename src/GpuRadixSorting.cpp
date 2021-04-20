@@ -25,10 +25,9 @@ namespace NAMESPACE_PHYSICS
 		file.read(source, fileSize);
 		file.close();
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
-		ALLOC_RELEASE(source);
-		program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);
 
+		ALLOC_RELEASE(source);
 		return this;
 	}
 
@@ -325,6 +324,12 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(commandPrefixScanSwaped, GpuCommand);
 		sp_mem_delete(commandReorder, GpuCommand);
 		sp_mem_delete(commandReorderSwapped, GpuCommand);
+
+		if (program != nullptr)
+		{
+			HANDLE_OPENCL_ERROR(clReleaseProgram(program));
+			program = nullptr;
+		}
 	}
 }
 

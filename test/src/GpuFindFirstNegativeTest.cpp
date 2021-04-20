@@ -36,8 +36,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
-		const sp_uint programIndex = gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str());
-		cl_program program = gpu->commandManager->cachedPrograms[programIndex];
+		cl_program program;
+		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str(), &program);
 
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
@@ -81,9 +81,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
-		const sp_uint programIndex = gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str());
-		cl_program program = gpu->commandManager->cachedPrograms[programIndex];
-
+		cl_program program;
+		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str(), &program);
+		
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
 
@@ -126,9 +126,9 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
-		const sp_uint programIndex = gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str());
-		cl_program program = gpu->commandManager->cachedPrograms[programIndex];
-
+		cl_program program;
+		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str(), &program);
+		
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
 

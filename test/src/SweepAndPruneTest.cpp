@@ -2406,11 +2406,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		cl_program program; 
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str(), &program);
 
 		ALLOC_RELEASE(source);
 
-		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::DOP18;
 
 		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
@@ -2478,11 +2478,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		cl_program program;
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str(), &program);
 
 		ALLOC_RELEASE(source);
 
-		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::DOP18;
 
 		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
@@ -2550,11 +2550,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		cl_program program; 
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str(), &program);
 
 		ALLOC_RELEASE(source);
 
-		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::AABB;
 
 		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
@@ -2622,11 +2622,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		cl_program program; 
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str(), &program);
 
 		ALLOC_RELEASE(source);
 
-		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::AABB;
 
 		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
@@ -2694,11 +2694,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		cl_program program; 
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str(), &program);
 
 		ALLOC_RELEASE(source);
 
-		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::Sphere;
 
 		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);
@@ -2766,11 +2766,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		sp_mem_delete(filename, SpDirectory);
 
-		sp_uint radixSortProgramIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str());
+		cl_program program; 
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions.str().c_str(), &program);
 
 		ALLOC_RELEASE(source);
 
-		cl_program program = gpu->commandManager->cachedPrograms[radixSortProgramIndex];
 		sp_int boundingVolumeType = (sp_int)BoundingVolumeType::Sphere;
 
 		cl_mem indexesGpu = commandIndexes->execute(ZERO_UINT, NULL, NULL);

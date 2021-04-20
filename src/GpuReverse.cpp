@@ -24,12 +24,9 @@ namespace NAMESPACE_PHYSICS
 		file.read(source, fileSize);
 		file.close();
 
-		sp_uint programIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);
 
 		ALLOC_RELEASE(source);
-
-		program = gpu->commandManager->cachedPrograms[programIndex];
-
 		return this;
 	}
 
@@ -137,6 +134,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_mem_delete(commandReverse, GpuCommand);
 			commandReverse = nullptr;
+		}
+
+		if (program != nullptr)
+		{
+			HANDLE_OPENCL_ERROR(clReleaseProgram(program));
+			program = nullptr;
 		}
 	}
 

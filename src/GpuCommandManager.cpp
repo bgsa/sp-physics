@@ -30,13 +30,13 @@ namespace NAMESPACE_PHYSICS
 		return sp_mem_new(GpuCommand)(deviceId, deviceContext, commandQueue);
 	}
 
-	sp_uint GpuCommandManager::cacheProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions)
+	void GpuCommandManager::buildProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions, cl_program* program)
 	{
-		cl_int errorCode;
-		cl_program program = clCreateProgramWithSource(deviceContext, 1, &source, &sourceSize, &errorCode);
-		HANDLE_OPENCL_ERROR(errorCode);
+		sp_assert(program != nullptr, "InvalidArgumentException");
 
-		cachedPrograms.emplace_back(program);
+		cl_int errorCode;
+		program[0] = clCreateProgramWithSource(deviceContext, 1, &source, &sourceSize, &errorCode);
+		HANDLE_OPENCL_ERROR(errorCode);
 
 		sp_uint computeUnits;
 		clGetDeviceInfo(deviceId, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(computeUnits), &computeUnits, NULL);
@@ -58,10 +58,8 @@ namespace NAMESPACE_PHYSICS
 		if (buildOptions != NULL)
 			options	<< " " << buildOptions;
 		
-		errorCode = clBuildProgram(program, 1, &deviceId, options.str().c_str(), NULL, NULL);
-		HANDLE_OPENCL_BUILD_ERROR(errorCode, program, deviceId);
-
-		return (sp_uint) cachedPrograms.size() - 1;
+		errorCode = clBuildProgram(program[0], 1, &deviceId, options.str().c_str(), NULL, NULL);
+		HANDLE_OPENCL_BUILD_ERROR(errorCode, program[0], deviceId);
 	}
 
 	void GpuCommandManager::updateBuffer(cl_mem gpuBuffer, sp_size gpuSizeBuffer, const void* value, sp_uint eventsLength, cl_event* eventsToWait, cl_event* evt)
@@ -100,9 +98,6 @@ namespace NAMESPACE_PHYSICS
 	{
 		HANDLE_OPENCL_ERROR(clFlush(commandQueue));
 		HANDLE_OPENCL_ERROR(clFinish(commandQueue));
-
-		for (sp_uint i = 0 ; i < cachedPrograms.size() ; i++ )
-			HANDLE_OPENCL_ERROR(clReleaseProgram(cachedPrograms[i]));
 
 		HANDLE_OPENCL_ERROR(clReleaseCommandQueue(commandQueue));
 	}

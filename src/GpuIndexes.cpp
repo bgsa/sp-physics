@@ -24,12 +24,9 @@ namespace NAMESPACE_PHYSICS
 		file.read(sourceBasic, fileSize);
 		file.close();
 
-		const sp_uint createIndexesProgramIndex = gpu->commandManager->cacheProgram(sourceBasic, SIZEOF_CHAR * fileSize, buildOptions);
+		gpu->commandManager->buildProgram(sourceBasic, SIZEOF_CHAR * fileSize, buildOptions, &program);
 
 		ALLOC_RELEASE(sourceBasic);
-
-		program = gpu->commandManager->cachedPrograms[createIndexesProgramIndex];
-
 		return this;
 	}
 
@@ -58,6 +55,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_mem_delete(commandInitIndexes, GpuCommand);
 			commandInitIndexes = nullptr;
+		}
+
+		if (program != nullptr)
+		{
+			HANDLE_OPENCL_ERROR(clReleaseProgram(program));
+			program = nullptr;
 		}
 	}
 

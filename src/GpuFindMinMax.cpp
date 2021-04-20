@@ -21,9 +21,8 @@ namespace NAMESPACE_PHYSICS
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 		
-		const sp_uint findMinMaxProgramIndex = this->gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions);
-		findMinMaxProgram = gpu->commandManager->cachedPrograms[findMinMaxProgramIndex];
-
+		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions, &findMinMaxProgram);
+		
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
 		return this;
@@ -165,6 +164,12 @@ namespace NAMESPACE_PHYSICS
 
 		if (commandFindMinMaxParallelReduce_Odd != nullptr)
 			commandFindMinMaxParallelReduce_Odd->~GpuCommand();
+
+		if (findMinMaxProgram != nullptr)
+		{
+			HANDLE_OPENCL_ERROR(clReleaseProgram(findMinMaxProgram));
+			findMinMaxProgram = nullptr;
+		}
 	}
 }
 

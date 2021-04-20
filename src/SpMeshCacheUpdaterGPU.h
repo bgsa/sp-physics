@@ -13,14 +13,21 @@ namespace NAMESPACE_PHYSICS
 	class SpMeshCacheUpdaterGPU
 	{
 	private:
-		GpuDevice* gpu = nullptr;
-		GpuCommand* command = nullptr;
-		cl_program program = nullptr;
+		GpuDevice* gpu;
+		GpuCommand* command;
+		cl_program program;
 		
 		sp_size globalWorkSize[3] = { 0,0,0 };
 		sp_size localWorkSize[3] = { 0,0,0 };
 
 	public:
+
+		API_INTERFACE SpMeshCacheUpdaterGPU()
+		{
+			gpu = nullptr;
+			command = nullptr;
+			program = nullptr;
+		}
 
 		API_INTERFACE void init(GpuDevice* gpu, const char* buildOptions = NULL)
 		{
@@ -38,9 +45,7 @@ namespace NAMESPACE_PHYSICS
 			file.read(source, fileSize);
 			file.close();
 
-			const sp_uint commandIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
-			program = gpu->commandManager->cachedPrograms[commandIndex];
-
+			gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);			
 			ALLOC_RELEASE(source);
 		}
 
@@ -76,6 +81,12 @@ namespace NAMESPACE_PHYSICS
 			{
 				sp_mem_delete(command, GpuCommand);
 				command = nullptr;
+			}
+
+			if (program != nullptr)
+			{
+				HANDLE_OPENCL_ERROR(clReleaseProgram(program));
+				program = nullptr;
 			}
 		}
 

@@ -81,16 +81,16 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 
-		sp_uint sapIndex = gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr);
-		cl_program sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
-
+		cl_program program;
+		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr, &program);
+		
 		sp_mem_delete(source, SpString);
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
 			->setInputParameter(physcPropertiesGpu, sizePhysicProperties * length)
 			->setInputParameter(outputGpu, sizePhysicProperties)
-			->buildFromProgram(sapProgram, "fetch");
+			->buildFromProgram(program, "fetch");
 
 		const sp_size globalWorkSize[3] = { 1, 0, 0 };
 		const sp_size localWorkSize[3] = { 1, 0, 0 };
@@ -162,8 +162,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 
-		sp_uint sapIndex = gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr);
-		cl_program sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
+		cl_program program; 
+		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr, &program);
 
 		sp_mem_delete(source, SpString);
 
@@ -171,7 +171,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->createCommand()
 			->setInputParameter(physcPropertiesGpu, sizeof(SpRigidBody3D) * length)
 			->setInputParameter(outputGpu, sizeof(sp_bool))
-			->buildFromProgram(sapProgram, "isResting");
+			->buildFromProgram(program, "isResting");
 
 		const sp_size globalWorkSize[3] = { 1, 0, 0 };
 		const sp_size localWorkSize[3] = { 1, 0, 0 };
@@ -213,16 +213,16 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 
-		sp_uint sapIndex = gpu->commandManager->cacheProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr);
-		cl_program sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
-
+		cl_program program;
+		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr, &program);
+		
 		sp_mem_delete(source, SpString);
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
 			->setInputParameter(rigidBodies3DGpu, sizeof(SpRigidBody3D) * 2u)
 			->setInputParameter(outputGpu, sizeof(sp_bool))
-			->buildFromProgram(sapProgram, "isStatic");
+			->buildFromProgram(program, "isStatic");
 
 		const sp_size globalWorkSize[3] = { 1, 0, 0 };
 		const sp_size localWorkSize[3] = { 1, 0, 0 };

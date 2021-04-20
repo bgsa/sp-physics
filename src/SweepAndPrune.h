@@ -231,6 +231,12 @@ namespace NAMESPACE_PHYSICS
 				gpu->releaseBuffer(elementsGPU);
 				elementsGPU = nullptr;
 			}
+
+			if (sapProgram != nullptr)
+			{
+				HANDLE_OPENCL_ERROR(clReleaseProgram(sapProgram));
+				sapProgram = nullptr;
+			}
 #endif // OPENCL_ENABLED
 		}
 

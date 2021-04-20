@@ -21,11 +21,10 @@ namespace NAMESPACE_PHYSICS
 		GpuCommandManager(cl_context deviceContext, cl_device_id deviceId, cl_queue_properties queueProperties = ZERO_SIZE);
 
 	public:
-		std::vector<cl_program> cachedPrograms;
 
 		API_INTERFACE GpuCommand* createCommand();
 
-		API_INTERFACE sp_uint cacheProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions);
+		API_INTERFACE void buildProgram(const sp_char* source, sp_size sourceSize, const sp_char* buildOptions, cl_program* program);
 
 		API_INTERFACE inline void acquireGLObjects(cl_mem buffer, sp_uint eventLength, cl_event* events, cl_event* evt)
 		{	

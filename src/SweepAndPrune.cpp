@@ -219,9 +219,8 @@ namespace NAMESPACE_PHYSICS
 		file.read(source, fileSize);
 		file.close();
 
-		sp_uint sapIndex = gpu->commandManager->cacheProgram(source, SIZEOF_CHAR * fileSize, buildOptions);
-		sapProgram = gpu->commandManager->cachedPrograms[sapIndex];
-
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &sapProgram);
+		
 		ALLOC_RELEASE(source);
 		return this;
 	}
