@@ -4,10 +4,6 @@
 
 #define CLASS_NAME HashGridTest
 
-#ifdef WINDOWS
-	#include <Windows.h>
-#endif
-
 #include <iostream>
 #include <sstream>
 
