@@ -30,6 +30,7 @@ namespace NAMESPACE_PHYSICS
 		GpuDevice* gpu;
 
 	public:
+		sp_char name[256];
 		SpPhysicSimulator* physicSimulator;
 
 		DOP18* _boundingVolumes;

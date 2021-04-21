@@ -8,8 +8,7 @@ namespace NAMESPACE_PHYSICS
 	void SpWorldManager::init()
 	{
 		SpWorldManagerInstance = sp_mem_new(SpWorldManager)();
-		SpWorldManagerInstance->_current = sp_mem_new(SpWorld)();
-
+		
 		//const sp_uint maxObjects = 2u;
 		//const sp_uint maxObjects = 3u;
 		//const sp_uint maxObjects = 4u;
@@ -23,6 +22,16 @@ namespace NAMESPACE_PHYSICS
 		SpWorldManagerInstance->_current->init(maxObjects);
 	}
 
+	SpWorldManager::SpWorldManager()
+	{
+		_worlds = sp_mem_new(SpVector<SpWorld*>)();
+
+		_current = sp_mem_new(SpWorld)();
+		strcpy(_current->name, "World 1");
+
+		_worlds->add(_current);
+	}
+
 	sp_bool SpWorldManager::isInitialized()
 	{
 		return SpWorldManagerInstance != nullptr;
@@ -33,11 +42,12 @@ namespace NAMESPACE_PHYSICS
 		if (SpWorldManagerInstance == nullptr)
 			return;
 
-		if (SpWorldManagerInstance->_current != nullptr)
+		if (SpWorldManagerInstance->_worlds != nullptr)
 		{
-			sp_mem_delete(SpWorldManagerInstance->_current, SpWorld);
-			SpWorldManagerInstance->_current = nullptr;
+			sp_mem_delete(SpWorldManagerInstance->_worlds, SpVector<SpWorld*>);
+			SpWorldManagerInstance->_worlds = nullptr;
 		}
+		SpWorldManagerInstance->_current = nullptr;
 
 		sp_mem_delete(SpWorldManagerInstance, SpWorldManager);
 		SpWorldManagerInstance = nullptr;
