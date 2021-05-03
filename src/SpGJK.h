@@ -38,6 +38,17 @@ namespace NAMESPACE_PHYSICS
 	/// <returns>True if the algorithm converged orelse False</returns>
 	API_INTERFACE sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS);
 
+	/// <summary>
+	/// Get the Minkowsky differeces vertexes from two meshes
+	/// </summary>
+	/// <param name="vertexesMesh1Length">Vertexes Length of Mesh 1</param>
+	/// <param name="vertexesMesh1">Vertexes of Mesh 1</param>
+	/// <param name="vertexesMesh2Length">Vertexes Length of Mesh 2</param>
+	/// <param name="vertexesMesh2">Vertexes of Mesh 2</param>
+	/// <param name="output">Minkowsky differeces vertexes</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE void minkowsky(const sp_uint vertexesMesh1Length, const Vec3* vertexesMesh1, const sp_uint vertexesMesh2Length, const Vec3* vertexesMesh2, Vec3* output);
+
 #undef SP_GJK_MAX_ITERATIONS
 }
 

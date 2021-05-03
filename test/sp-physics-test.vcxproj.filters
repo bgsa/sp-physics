@@ -200,6 +200,12 @@
     <ClCompile Include="src\SpRigidBody3DGPUTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpGJKTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpCollisionResponseShapeMatchingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="NatvisFile.natvis" />

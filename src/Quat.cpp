@@ -39,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 		if (tmp1 <= ZERO_FLOAT)
 			return Vec3(ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT);
 
-		const sp_float tmp2 = ONE_FLOAT / std::sqrtf(tmp1);
+		const sp_float tmp2 = ONE_FLOAT / sp_sqrt(tmp1);
 
 		return Vec3(x * tmp2, y * tmp2, z * tmp2);
 	}

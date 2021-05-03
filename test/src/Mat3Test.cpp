@@ -11,6 +11,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	public:
 		SP_TEST_METHOD_DEF(get);
 		SP_TEST_METHOD_DEF(adjoint);
+		SP_TEST_METHOD_DEF(inverse);
+		SP_TEST_METHOD_DEF(transpose);
 		SP_TEST_METHOD_DEF(Mat3_getAxisX_Test);
 		SP_TEST_METHOD_DEF(Mat3_getAxisY_Test);
 		SP_TEST_METHOD_DEF(Mat3_getAxisZ_Test);
@@ -20,11 +22,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Mat3_createTranslate_Test);
 		SP_TEST_METHOD_DEF(Mat3_primaryDiagonal_Test);
 		SP_TEST_METHOD_DEF(Mat3_secondaryDiagonal_Test);
-		SP_TEST_METHOD_DEF(transpose);
 		SP_TEST_METHOD_DEF(Mat3_createScaled_Test);
 		SP_TEST_METHOD_DEF(Mat3_createRotate_Test);
 		SP_TEST_METHOD_DEF(Mat3_scale_Test);
-		SP_TEST_METHOD_DEF(Mat3_determinant_Test);
+		SP_TEST_METHOD_DEF(determinant);
+		SP_TEST_METHOD_DEF(determinantByLU);
 		SP_TEST_METHOD_DEF(Mat3_sizeInBytes_Test);
 		SP_TEST_METHOD_DEF(Mat3_clone_Test);
 		SP_TEST_METHOD_DEF(eigenValueAndVectorMax);
@@ -56,6 +58,26 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(convert);
 		SP_TEST_METHOD_DEF(gramSchmidt);
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, inverse)
+	{
+		Mat3 matrix(
+			33.991f, 0.22471f, 1.4762f,
+			0.22471f, 33.287f, -5.0573f,
+			1.4762f, -5.0573f, 0.83545f
+		);
+		Mat3 expected(
+			18655.0f, -63912.0f, 0.0f,
+			-63912.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 0.0f
+		);
+
+		Mat3 result;
+		NAMESPACE_PHYSICS::inverse(matrix, result);
+
+		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i], SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, gramSchmidt)
 	{
@@ -792,17 +814,35 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong number", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Mat3_determinant_Test)
+	SP_TEST_METHOD(CLASS_NAME, determinant)
 	{
 		Mat3 matrix = {
 			2.0f, 5.0f, 6.0f,
 			1.0f, 6.0f, 7.0f,
 			-1.0f, 2.0f, 3.0f
 		};
-		sp_float expected = 6.0f;
 		sp_float result = matrix.determinant();
 
-		Assert::AreEqual(expected, result, L"Wrong value", LINE_INFO());
+		Assert::AreEqual(6.0f, result, L"Wrong value", LINE_INFO());
+
+		Mat3 matrix2 = {
+			33.991f, 0.22471f, 1.4762f,
+			0.22471f, 33.287f,  -5.0573f,
+			1.4762f, -5.0573f, 0.83545f
+		};
+		result = matrix2.determinant();
+		Asserts::isCloseEnough(-0.0219f, result, SP_EPSILON_FOUR_DIGITS, L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, determinantByLU)
+	{
+		Mat3 matrix2 = {
+			33.991f, 0.22471f, 1.4762f,
+			0.22471f, 33.287f,  -5.0573f,
+			1.4762f, -5.0573f, 0.83545f
+		};
+		const sp_float result = matrix2.determinantByLU();
+		Asserts::isCloseEnough(-0.0218f, result, SP_EPSILON_FOUR_DIGITS, L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Mat3_sizeInBytes_Test)

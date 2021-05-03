@@ -567,7 +567,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float sineAngle = sinf(angleRadians);
 		const sp_float cosineAngle = cosf(angleRadians);
 
-		const sp_float mag = sqrtf(x * x + y * y + z * z);
+		const sp_float mag = sp_sqrt(x * x + y * y + z * z);
 
 		if (NAMESPACE_FOUNDATION::isCloseEnough(mag, ZERO_FLOAT))
 		{

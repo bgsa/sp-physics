@@ -155,7 +155,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_float length() const
 		{
-			return std::sqrtf(x * x + y * y + z * z + w * w);
+			return sp_sqrt(x * x + y * y + z * z + w * w);
 		}
 
 		/// <summary>
@@ -165,7 +165,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			// TODO: TESTS !!!!
 			if (std::fabsf(w) > std::cosf(0.5f))
-				return std::asinf(sqrtf(x * x + y * y + z * z)) * TWO_FLOAT;
+				return std::asinf(sp_sqrt(x * x + y * y + z * z)) * TWO_FLOAT;
 
 			return acos(w) * TWO_FLOAT;
 		}

@@ -255,6 +255,38 @@ namespace NAMESPACE_PHYSICS
 			index[0] = len + tempLength;
 		}
 
+		API_INTERFACE inline void convert(const sp_uint vertexesLength, const Vec3* vertexes, const sp_char* listName, sp_char* output, sp_uint& index)
+		{
+			const sp_uint nameLength = strlen(listName);
+
+			std::memcpy(&output[index], listName, nameLength);
+			index += nameLength;
+
+			std::memcpy(&output[index], " = [", 4);
+			index += 4u;
+
+			sp_uint tempLength = ZERO_UINT;
+
+			for (sp_uint i = 0; i < vertexesLength; i++)
+			{
+				tempLength = ZERO_UINT;
+
+				convert(vertexes[i], &output[index], &tempLength);
+				index += tempLength;
+
+				std::memcpy(&output[index], "; ", 2);
+				index += 2u;
+			}
+
+			tempLength = ZERO_UINT;
+			convert(vertexes[vertexesLength - 1u], &output[index], &tempLength);
+			index += tempLength;
+
+			std::memcpy(&output[index], "];", 2);
+			output[index + 2u] = END_OF_STRING;
+			index += 2u;
+		}
+
 		API_INTERFACE inline void convertFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const sp_char* faceName, const sp_char* colorName, sp_char* output, sp_uint* index)
 		{
 			const sp_uint nameLength = strlen(faceName);

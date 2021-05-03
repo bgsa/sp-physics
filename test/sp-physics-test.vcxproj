@@ -36,6 +36,7 @@
     <ClCompile Include="src\MatTest.cpp" />
     <ClCompile Include="src\SpCollisionResponseGPUTest.cpp" />
     <ClCompile Include="src\SpDOP18FactoryTest.cpp" />
+    <ClCompile Include="src\SpGJKTest.cpp" />
     <ClCompile Include="src\SpOptimizationTest.cpp" />
     <ClCompile Include="src\AlgorithmSecantTest.cpp" />
     <ClCompile Include="src\AlgorithmSortingTest.cpp" />
@@ -72,6 +73,7 @@
     <ClCompile Include="src\SphereTest.cpp" />
     <ClCompile Include="src\SpMeshTest.cpp" />
     <ClCompile Include="src\SpRigidBody3DGPUTest.cpp" />
+    <ClCompile Include="src\SpCollisionResponseShapeMatchingTest.cpp" />
     <ClCompile Include="src\SpTransformTest.cpp" />
     <ClCompile Include="src\SweepAndPruneTest.cpp" />
     <ClCompile Include="src\SystemOfLinearEquationsTest.cpp" />
@@ -210,8 +212,8 @@ xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\$(Configuration)\*" "$(TargetDir)"
 mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
 xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
 xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
-
-</Command>
+mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\models\rocks"
+xcopy /Y /S "$(SolutionDir)sp-frontend\resources\models\rocks\*"  "$(ProjectDir)lib\x86\$(Configuration)\resources\models\rocks"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -238,7 +240,8 @@ xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\$(Configuration)\*" "$(TargetDir)"
 mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
 xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
 xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
-
+mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\models\rocks"
+xcopy /Y /S "$(SolutionDir)sp-frontend\resources\models\rocks\*"  "$(ProjectDir)lib\x86\$(Configuration)\resources\models\rocks"
 
 </Command>
     </PostBuildEvent>

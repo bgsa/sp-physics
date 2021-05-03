@@ -321,9 +321,9 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_assert(isSymetric(), "InvalidOperationException");
 
-		sp_float alpha = -sign(m21) * sqrtf(m21 * m21 + m31 * m31 + m41 * m41);
+		sp_float alpha = -sign(m21) * sp_sqrt(m21 * m21 + m31 * m31 + m41 * m41);
 	
-		sp_float r = sqrtf((alpha * alpha) * HALF_FLOAT - m21 * alpha * HALF_FLOAT);
+		sp_float r = sp_sqrt((alpha * alpha) * HALF_FLOAT - m21 * alpha * HALF_FLOAT);
 		sp_float two_r = ONE_FLOAT / (r * TWO_FLOAT);
 
 		Vec4 w;
@@ -343,8 +343,8 @@ namespace NAMESPACE_PHYSICS
 		multiply(H, temp2);
 		H.multiply(temp2, A);
 
-		alpha = -sign(A.m32) * sqrtf(A.m32 * A.m32 + A.m42 * A.m42);
-		r = sqrtf((alpha * alpha) * HALF_FLOAT - A.m32 * alpha * HALF_FLOAT);
+		alpha = -sign(A.m32) * sp_sqrt(A.m32 * A.m32 + A.m42 * A.m42);
+		r = sp_sqrt((alpha * alpha) * HALF_FLOAT - A.m32 * alpha * HALF_FLOAT);
 		two_r = ONE_FLOAT / (r * TWO_FLOAT);
 
 		w.x = ZERO_FLOAT;

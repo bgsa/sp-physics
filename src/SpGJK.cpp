@@ -33,6 +33,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_uint num_faces = 4u;
 		sp_int closest_face;
+		Vec3 newSimplexPoint, search_dir;
 
 		for (sp_uint iterations = 0u; iterations < EPA_MAX_NUM_ITERATIONS; iterations++) 
 		{
@@ -51,18 +52,25 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			//search normal to face that's closest to origin
-			Vec3 search_dir = faces[closest_face][3];
-			Vec3 newSimplexPoint;
+			search_dir = faces[closest_face][3];
 			diff(
 				vertexesMesh2[mesh2->support(search_dir, vertexesMesh2)->index()], 
 				vertexesMesh1[mesh1->support(-search_dir, vertexesMesh1)->index()], 
 				newSimplexPoint
 			);
 
-			if (newSimplexPoint.dot(search_dir) - depth < EPA_TOLERANCE)
+			const sp_float temp = newSimplexPoint.dot(search_dir);
+			if (temp - depth < EPA_TOLERANCE)
 			{
 				//Convergence (new point is not significantly further from origin)
-				multiply(faces[closest_face][3], newSimplexPoint.dot(search_dir), normal); // dot vertex with normal to resolve collision along normal!
+				if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT, SP_EPSILON_THREE_DIGITS))
+					normal = faces[closest_face][3];
+				else 
+				{
+					// dot vertex with normal to resolve collision along normal!
+					multiply(faces[closest_face][3], temp, normal); 
+					normalize(normal);
+				}
 				return true;
 			}
 
@@ -139,8 +147,17 @@ namespace NAMESPACE_PHYSICS
 		}
 	
 		// Return most recent closest point
-		multiply(faces[closest_face][3], faces[closest_face][0].dot(faces[closest_face][3]), normal);
-		return false;
+		const sp_float temp = newSimplexPoint.dot(search_dir);
+		// dot vertex with normal to resolve collision along normal!
+		if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT, SP_EPSILON_THREE_DIGITS))
+			normal = faces[closest_face][3];
+		else
+		{
+			// multiply(faces[closest_face][3], faces[closest_face][0].dot(faces[closest_face][3]), normal);
+			multiply(faces[closest_face][3], temp, normal);
+			normalize(normal);
+		}
+			return true;
 #undef EPA_TOLERANCE
 #undef EPA_BIAS
 #undef EPA_MAX_NUM_ITERATIONS
@@ -326,6 +343,15 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		return false;
+	}
+
+	void minkowsky(const sp_uint vertexesMesh1Length, const Vec3* vertexesMesh1, const sp_uint vertexesMesh2Length, const Vec3* vertexesMesh2, Vec3* output)
+	{
+		sp_uint outputIndex = ZERO_UINT;
+
+		for (sp_uint i = 0; i < vertexesMesh1Length; i++)
+			for (sp_uint j = 0; j < vertexesMesh2Length; j++)
+				output[outputIndex++] = vertexesMesh1[i] - vertexesMesh2[j];
 	}
 
 }

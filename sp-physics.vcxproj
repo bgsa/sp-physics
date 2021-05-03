@@ -285,7 +285,9 @@
     <ClInclude Include="src\Mat2.h" />
     <ClInclude Include="src\Mat3.h" />
     <ClInclude Include="src\Mat4.h" />
+    <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\OBB.h" />
+    <ClInclude Include="src\ObjModel.h" />
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpAABBFactory.h" />
     <ClInclude Include="src\SpAlgorithms.h" />

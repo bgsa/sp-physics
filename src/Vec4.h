@@ -63,7 +63,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_float length() const
 		{
-			return std::sqrtf(squared());
+			return sp_sqrt(squared());
 		}
 
 		/// <summary>
@@ -176,7 +176,7 @@ namespace NAMESPACE_PHYSICS
 #define yDiff (y - vector.y)
 #define zDiff (z - vector.z)
 #define wDiff (w - vector.w)
-			return sqrtf(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff + wDiff * wDiff);
+			return sp_sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff + wDiff * wDiff);
 #undef wDiff
 #undef zDiff
 #undef yDiff

@@ -67,7 +67,7 @@ namespace NAMESPACE_PHYSICS
 #ifdef AVX_ENABLED
 			return sp_vec3_length_simd(sp_vec3_convert_simd((*this))).m128_f32[0];
 #else
-			return sqrtf(vector.squaredLength());
+			return sp_sqrt(vector.squaredLength());
 #endif
 		}
 
@@ -461,7 +461,7 @@ namespace NAMESPACE_PHYSICS
 #ifdef AVX_ENABLED
 		return sp_vec3_length_simd(sp_vec3_convert_simd(vector)).m128_f32[0];
 #else
-		return sqrtf(vector.squaredLength());
+		return sp_sqrt(vector.squaredLength());
 #endif
 	}
 
@@ -600,7 +600,7 @@ namespace NAMESPACE_PHYSICS
 		
 		return result.m128_f32[0];
 #else
-		return std::sqrtf(
+		return sp_sqrt(
 			((vector2.x - vector1.x) * (vector2.x - vector1.x)) +
 			((vector2.y - vector1.y) * (vector2.y - vector1.y)) +
 			((vector2.z - vector1.z) * (vector2.z - vector1.z))

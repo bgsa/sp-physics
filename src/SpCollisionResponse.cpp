@@ -33,7 +33,7 @@ namespace NAMESPACE_PHYSICS
 
 		jt /= details->contactPointsLength;
 
-		const sp_float friction = sqrtf(obj1Properties->coeficientOfFriction() * obj2Properties->coeficientOfFriction());
+		const sp_float friction = sp_sqrt(obj1Properties->coeficientOfFriction() * obj2Properties->coeficientOfFriction());
 
 		if (jt > j * friction) 
 			jt = j * friction;

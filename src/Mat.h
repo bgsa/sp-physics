@@ -137,6 +137,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>void</returns>
 		API_INTERFACE inline void set(const sp_uint row, const sp_uint column, const sp_float value)
 		{
+			sp_assert(row * _columns + column < length(), "InvalidArgumentException");
 			_values[row * _columns + column] = value;
 		}
 

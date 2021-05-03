@@ -17,7 +17,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(canonicalForm);
 	};
 
-
 	SP_TEST_METHOD(CLASS_NAME, canonicalForm)
 	{
 		sp_float matrix[15] = {

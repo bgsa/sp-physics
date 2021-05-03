@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			output->center = position;
-			output->ray = sqrtf(distance);
+			output->ray = sp_sqrt(distance);
 		}
 
 #ifdef OPENCL_ENABLED

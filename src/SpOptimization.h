@@ -8,7 +8,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	const sp_float SP_GOLDEN_RATIO = (sqrtf(5.0f) - ONE_FLOAT) / TWO_FLOAT;
+	const sp_float SP_GOLDEN_RATIO = (sp_sqrt(5.0f) - ONE_FLOAT) / TWO_FLOAT;
 
 	typedef sp_bool(*sp_optimization_type_function)(sp_float, sp_float);
 	typedef sp_float(*sp_objective_function1D)(sp_float);
