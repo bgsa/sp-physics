@@ -9,7 +9,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		//return powf(x, 3) + 4 * pow(x, 2) - 10;
 
-		return sqrtf(10.0f / (x + 4.0f));
+		return sp_sqrt(10.0f / (x + 4.0f));
 	}
 
 	SP_TEST_CLASS(CLASS_NAME)

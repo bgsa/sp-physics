@@ -613,8 +613,8 @@ namespace NAMESPACE_PHYSICS
 					= NAMESPACE_FOUNDATION::isCloseEnough(theta, ZERO_FLOAT, DefaultErrorMargin)
 					? ONE_FLOAT
 					: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
-				//: ONE_FLOAT / (theta + sqrtf(ONE_FLOAT + theta * theta));
-				//: sign(theta) / (fabsf(theta) + sqrtf(ONE_FLOAT + theta * theta));
+				//: ONE_FLOAT / (theta + sp_sqrt(ONE_FLOAT + theta * theta));
+				//: sign(theta) / (fabsf(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
 
 				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta = cosTheta * tangentTheta;
@@ -719,8 +719,8 @@ namespace NAMESPACE_PHYSICS
 					= NAMESPACE_FOUNDATION::isCloseEnough(theta, ZERO_FLOAT, DefaultErrorMargin)
 					? ONE_FLOAT
 					: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
-					//: ONE_FLOAT / (theta + sqrtf(ONE_FLOAT + theta * theta));
-					//: sign(theta) / (fabsf(theta) + sqrtf(ONE_FLOAT + theta * theta));
+					//: ONE_FLOAT / (theta + sp_sqrt(ONE_FLOAT + theta * theta));
+					//: sign(theta) / (fabsf(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
 
 				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta =  cosTheta * tangentTheta;
@@ -897,8 +897,8 @@ namespace NAMESPACE_PHYSICS
 				= NAMESPACE_FOUNDATION::isCloseEnough(theta, ZERO_FLOAT, DefaultErrorMargin)
 				? ONE_FLOAT
 				: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
-			//: ONE_FLOAT / (theta + sqrtf(ONE_FLOAT + theta * theta));
-			//: sign(theta) / (fabsf(theta) + sqrtf(ONE_FLOAT + theta * theta));
+			//: ONE_FLOAT / (theta + sp_sqrt(ONE_FLOAT + theta * theta));
+			//: sign(theta) / (fabsf(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
 
 			const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 			const sp_float sinTheta = cosTheta * tangentTheta;

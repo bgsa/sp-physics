@@ -29,9 +29,9 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Triangle2D::perimeter() const
 	{
-		const sp_float term1 = std::sqrtf((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
-		const sp_float term2 = std::sqrtf((point2.x - point3.x) * (point2.x - point3.x) + (point2.y - point3.y) * (point2.y - point3.y));
-		const sp_float term3 = std::sqrtf((point3.x - point1.x) * (point3.x - point1.x) + (point3.y - point1.y) * (point3.y - point1.y));
+		const sp_float term1 = sp_sqrt((point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y));
+		const sp_float term2 = sp_sqrt((point2.x - point3.x) * (point2.x - point3.x) + (point2.y - point3.y) * (point2.y - point3.y));
+		const sp_float term3 = sp_sqrt((point3.x - point1.x) * (point3.x - point1.x) + (point3.y - point1.y) * (point3.y - point1.y));
 
 		return term1 + term2 + term3;
 	}

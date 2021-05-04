@@ -90,7 +90,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>Length</returns>
 		API_INTERFACE inline sp_float norm() const
 		{
-			return sqrtf(squareLength());
+			return sp_sqrt(squareLength());
 		}
 
 		/// <summary>

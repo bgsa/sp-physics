@@ -239,7 +239,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float sqrtDisctiminant; 
 
 		if (discriminant > ZERO_FLOAT)
-			sqrtDisctiminant = sqrtf(discriminant);
+			sqrtDisctiminant = sp_sqrt(discriminant);
 		else
 		{
 			discriminant = ZERO_FLOAT;
@@ -399,7 +399,7 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Line3D::distance(const Vec3& target) const
 	{
-		return std::sqrtf(squaredDistance(target));
+		return sp_sqrt(squaredDistance(target));
 	}
 
 	void Line3D::closestPoint(const Line3D& other, Vec3* closestPointOnLine1, Vec3* closestPointOnLine2, sp_float* squaredDistance) const

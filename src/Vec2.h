@@ -72,7 +72,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline sp_float length() const
 		{
-			return sqrtf(squared());
+			return sp_sqrt(squared());
 		}
 
 		/// <summary>
@@ -138,7 +138,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		API_INTERFACE inline sp_float distance(const Vec2& vector) const
 		{
-			return sqrtf((x - vector.x) * (x - vector.x) + (y - vector.y) * (y - vector.y));
+			return sp_sqrt((x - vector.x) * (x - vector.x) + (y - vector.y) * (y - vector.y));
 		}
 
 		/// <summary>

@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float w = width();
 		sp_float h = height();
 
-		return std::sqrtf(w * w + h * h);
+		return sp_sqrt(w * w + h * h);
 	}
 
 	Line2D* Rectangle2D::getLines() const

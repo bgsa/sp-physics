@@ -91,7 +91,7 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE inline sp_float distance(const Vec3& target) const
 		{
-			return (sp_float)sqrtf(squaredDistance(target));
+			return sp_sqrt(squaredDistance(target));
 		}
 
 		/// <summary>

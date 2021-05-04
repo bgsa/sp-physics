@@ -10,7 +10,7 @@ namespace NAMESPACE_PHYSICS_TEST
 {
 	float funcAitken(float x)
 	{
-		return sqrtf(10.0f / (x + 4.0f));
+		return sp_sqrt(10.0f / (x + 4.0f));
 	}
 
 	SP_TEST_CLASS(CLASS_NAME)

@@ -131,7 +131,7 @@ namespace NAMESPACE_PHYSICS
 
 		/* It does not work when (distanceFromOrigin - plane.distanceFromOrigin) = 0
 		return std::fabsf(distanceFromOrigin - plane.distanceFromOrigin)
-		/ std::sqrtf(point.x * point.x + point.y * point.y + point.z * point.z);
+		/ sp_sqrt(point.x * point.x + point.y * point.y + point.z * point.z);
 		*/
 #endif
 	}

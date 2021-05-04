@@ -251,7 +251,7 @@ namespace NAMESPACE_PHYSICS
 		else
 		{
 			// Spheres partially overlapping or disjoint 
-			sp_float distance = sqrtf(squaredDistance);
+			sp_float distance = sp_sqrt(squaredDistance);
 
 			result.ray = (distance + ray + sphere.ray) * 0.5f;
 			result.center = center;

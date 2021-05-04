@@ -149,9 +149,9 @@ namespace NAMESPACE_PHYSICS_TEST
 			3.0f, 3.0f, 1.0f
 		);
 		Mat3 expected(
-			sqrtf(2.0f), sqrtf(3.0f), sqrtf(3.0f),
-			sqrtf(3.0f), sqrtf(2.0f), sqrtf(3.0f),
-			sqrtf(3.0f), sqrtf(3.0f), sqrtf(1.0f)
+			sp_sqrt(2.0f), sp_sqrt(3.0f), sp_sqrt(3.0f),
+			sp_sqrt(3.0f), sp_sqrt(2.0f), sp_sqrt(3.0f),
+			sp_sqrt(3.0f), sp_sqrt(3.0f), sp_sqrt(1.0f)
 		);
 
 		Mat3 result;

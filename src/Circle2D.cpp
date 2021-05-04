@@ -34,7 +34,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float denominator = 4 * a * a;
 
 		this->center = Vec2(-(b / 2 * a), -(c / 2 * a));
-		this->ray = std::sqrtf(numerator / denominator);
+		this->ray = sp_sqrt(numerator / denominator);
 	}
 
 	sp_float Circle2D::area() const
@@ -107,7 +107,7 @@ namespace NAMESPACE_PHYSICS
 			return nullptr;
 
 		sp_float a = (ray*ray - circle2.ray*circle2.ray + distance * distance) / (2.0f * distance);
-		sp_float h = sqrtf((ray * ray) - (a * a));
+		sp_float h = sp_sqrt((ray * ray) - (a * a));
 
 		Vec2 p3 = ((point2AsVector - point1AsVector) * (a / distance)) + center;
 
