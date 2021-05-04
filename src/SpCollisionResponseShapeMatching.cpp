@@ -24,12 +24,9 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
-	sp_bool SpCollisionResponseShapeMatching::shapeMatch(SpRigidBodyShapeMatch* shape)
+	sp_bool getShapeMatchingDetails(SpRigidBodyShapeMatch* shape, Vec3& newPosition, Mat3& rotation)
 	{
-		Vec3 centerOfMassAfterCollision;
-		shape->centerOfMass(centerOfMassAfterCollision);
-	
-		const sp_float mass = ONE_FLOAT / SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex)->massInverse();
+		shape->centerOfMass(newPosition);
 
 		Mat3 matrixApq;
 		std::memcpy(matrixApq.values(), Mat3Zeros, sizeof(Mat3));
@@ -39,11 +36,10 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint i = 0u; i < shape->particlesLength; i++)
 		{
 			Vec3 relativePosition;
-			diff(particles[i], centerOfMassAfterCollision, relativePosition);
+			diff(particles[i], newPosition, relativePosition);
 
 			Mat3 tempMatrix;
 			multiply(relativePosition, shape->initialParticles[i], tempMatrix);
-			multiply(tempMatrix, mass, tempMatrix);
 			matrixApq += tempMatrix;
 		}
 
@@ -59,15 +55,23 @@ namespace NAMESPACE_PHYSICS
 
 		Mat3 sqrtSymetricInv;
 		inverse(sqrtSymetric, sqrtSymetricInv);
-		//transpose(sqrtSymetric, sqrtSymetricInv);
 
-		Mat3 rotationMatrix;
-		multiply(matrixApq, sqrtSymetricInv, rotationMatrix);
+		multiply(matrixApq, sqrtSymetricInv, rotation);
+
+		return true;
+	}
+
+	sp_bool SpCollisionResponseShapeMatching::shapeMatch(SpRigidBodyShapeMatch* shape)
+	{
+		Mat3 rotation;
+		Vec3 centerOfMassAfterCollision;
+		if (!getShapeMatchingDetails(shape, centerOfMassAfterCollision, rotation))
+			return false;
 
 		for (sp_uint i = 0u; i < shape->particlesLength; i++)
 		{
 			Vec3 newPosition;
-			rotationMatrix.multiply(shape->initialParticles[i], newPosition);
+			rotation.multiply(shape->initialParticles[i], newPosition);
 
 			add(newPosition, centerOfMassAfterCollision, shape->particles[i]);
 		}
@@ -75,51 +79,17 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	sp_bool SpCollisionResponseShapeMatching::updateFromShape(const SpRigidBodyShapeMatch* shape)
+	sp_bool SpCollisionResponseShapeMatching::updateFromShape(SpRigidBodyShapeMatch* shape)
 	{
-		SpRigidBody3D* rigidBody = SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex);
-		const Vec3* particles = shape->particles;
-
-		// find new center of mass...
+		Mat3 rotation;
 		Vec3 centerOfMassAfterCollision;
-		shape->centerOfMass(centerOfMassAfterCollision);
-
-		const sp_float mass = ONE_FLOAT / rigidBody->massInverse();
-
-		Mat3 matrixApq;
-		std::memcpy(&matrixApq, &Mat3Zeros, sizeof(Mat3));
-
-		for (sp_uint i = 0u; i < shape->particlesLength; i++)
-		{
-			Vec3 relativePosition;
-			diff(particles[i], centerOfMassAfterCollision, relativePosition);
-
-			Mat3 tempMatrix;
-			multiply(relativePosition, shape->initialParticles[i], tempMatrix);
-			multiply(tempMatrix, mass, tempMatrix);
-			matrixApq += tempMatrix;
-		}
-
-		Mat3 temp;
-		matrixApq.transpose(temp);
-
-		Mat3 symetricMatrix;
-		multiply(temp, matrixApq, symetricMatrix);
-
-		if (!sqrtm(symetricMatrix, temp, 40))
+		if (!getShapeMatchingDetails(shape, centerOfMassAfterCollision, rotation))
 			return false;
-
-		if (temp.isSingular()) // matrix cannot be inverted
-			return false;
-
-		Mat3 sqrtSymetricInv;
-		inverse(temp, sqrtSymetricInv);
-
-		Mat3 rotationMatrix;
-		multiply(matrixApq, sqrtSymetricInv, rotationMatrix);
 
 		Quat newOrientation;
-		rotationMatrix.convert(newOrientation);
+		rotation.convert(newOrientation);
+
+		SpRigidBody3D* rigidBody = SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex);
 
 		SpTransform* transformation = SpWorldManagerInstance->current()->transforms(shape->objectIndex);
 		transformation->orientation *= newOrientation;
