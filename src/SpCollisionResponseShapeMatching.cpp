@@ -227,6 +227,12 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::updateParticles(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, const SpCollisionDetails& collisionManifold, sp_uint& mesh1PointsLength, SpVertexMesh** mesh1Points, sp_uint& mesh2PointsLength, SpVertexMesh** mesh2Points)
 	{
+		Vec3* backupParticlesShape1 = ALLOC_NEW_ARRAY(Vec3, shape1->particlesLength);
+		std::memcpy(backupParticlesShape1, shape1->particles, shape1->particlesLength * sizeof(Vec3));
+
+		Vec3* backupParticlesShape2 = ALLOC_NEW_ARRAY(Vec3, shape2->particlesLength);
+		std::memcpy(backupParticlesShape2, shape2->particles, shape2->particlesLength * sizeof(Vec3));
+
 		const sp_float depth = fabsf(collisionManifold.depth);
 		Vec3 normalToObj1;
 
@@ -243,8 +249,11 @@ namespace NAMESPACE_PHYSICS
 				normalToObj1 = -collisionManifold.collisionNormal;
 
 			updateParticlesShape(shape1, normalToObj1, depth, mesh1PointsLength, mesh1Points);
-			shapeMatch(shape1);
-			shape1->isDirty = true;
+
+			if (shapeMatch(shape1))
+				shape1->isDirty = true;
+			else
+				std::memcpy(shape1->particles, backupParticlesShape1, shape1->particlesLength * sizeof(Vec3)); // rollback particles
 		}
 		else
 		{
@@ -262,9 +271,14 @@ namespace NAMESPACE_PHYSICS
 		if (SpWorldManagerInstance->current()->rigidBody3D(shape2->objectIndex)->isDynamic())
 		{
 			updateParticlesShape(shape2, -normalToObj1, depth, mesh2PointsLength, mesh2Points);
-			shapeMatch(shape2);
-			shape2->isDirty = true;
+
+			if (shapeMatch(shape2))
+				shape2->isDirty = true;
+			else
+				std::memcpy(shape2->particles, backupParticlesShape2, shape2->particlesLength * sizeof(Vec3)); // rollback particles
 		}
+
+		ALLOC_RELEASE(backupParticlesShape1);
 	}
 	
 }
