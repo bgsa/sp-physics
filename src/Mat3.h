@@ -91,7 +91,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>True it the matrix is singular orelse False</returns>
 		API_INTERFACE inline sp_bool isSingular() const
 		{
-			return NAMESPACE_FOUNDATION::isCloseEnough(determinant(), ZERO_FLOAT);
+			return NAMESPACE_FOUNDATION::isCloseEnough(determinant(), ZERO_FLOAT, SP_EPSILON_FOUR_DIGITS);
 		}
 
 		/// <summary>
@@ -348,6 +348,20 @@ namespace NAMESPACE_PHYSICS
 					+ m12 * m21 * m33
 				);
 		}
+
+		/// <summary>
+		/// Get the determinant of the matrix using LU decomposition
+		/// </summary>
+		API_INTERFACE inline sp_float determinantByLU() const
+		{
+			Mat3 l, u;
+			decomposeLU(l, u);
+
+			const sp_float det = l.determinant(); // det shoud be +1 or -1
+			sp_assert((det == ONE_FLOAT || det == -ONE_FLOAT), "InvalidOperationException");
+
+			return det * u.m11 * u.m22 * u.m33;
+		}
 		
 		/// <summary>
 		/// Get the inverse matrix from current matrix => A^-1
@@ -587,6 +601,20 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void symmetric(Mat3& output) const;
 
 		/// <summary>
+		/// Get a symmetric matrix from this matrix using element-wise multiplication
+		/// </summary>
+		/// <param name="output">Symmetric matrix</param>
+		/// <returns></returns>
+		API_INTERFACE inline void symmetricByMultiplyElements(Mat3& output) const;
+
+		/// <summary>
+		/// Get a symmetric matrix from this matrix using average sum
+		/// </summary>
+		/// <param name="output">Symmetric matrix</param>
+		/// <returns></returns>
+		API_INTERFACE inline void symmetricByAverage(Mat3& output) const;		
+
+		/// <summary>
 		/// Get dominant (maximum) autovalue and auto vector of this matrix 
 		/// This method uses Method of Powers
 		/// </summary>
@@ -629,17 +657,17 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>output</returns>
 		API_INTERFACE inline void sqrt(Mat3& output) const
 		{
-			output.m11 = sqrtf(m11);
-			output.m12 = sqrtf(m12);
-			output.m13 = sqrtf(m13);
+			output.m11 = sp_sqrt(m11);
+			output.m12 = sp_sqrt(m12);
+			output.m13 = sp_sqrt(m13);
 
-			output.m21 = sqrtf(m21);
-			output.m22 = sqrtf(m22);
-			output.m23 = sqrtf(m23);
+			output.m21 = sp_sqrt(m21);
+			output.m22 = sp_sqrt(m22);
+			output.m23 = sp_sqrt(m23);
 			
-			output.m31 = sqrtf(m31);
-			output.m32 = sqrtf(m32);
-			output.m33 = sqrtf(m33);
+			output.m31 = sp_sqrt(m31);
+			output.m32 = sp_sqrt(m32);
+			output.m33 = sp_sqrt(m33);
 		}
 
 		/// <summary>
@@ -764,6 +792,8 @@ namespace NAMESPACE_PHYSICS
 		output.m21 = sinTheta;
 		output.m22 = cosTheta;
 	}
+
+	API_INTERFACE void add(const Mat3& A, const Mat3& B, Mat3& output);
 
 	API_INTERFACE void multiply(const Vec3& v1, const Vec3& v2, Mat3& output);
 

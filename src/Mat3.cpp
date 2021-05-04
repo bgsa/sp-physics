@@ -1,4 +1,5 @@
 #include "Mat3.h"
+#include "Mat.h"
 
 #define M11 (0)
 #define M12 (1)
@@ -121,11 +122,39 @@ namespace NAMESPACE_PHYSICS
 		output.z = m31 * vector.x + m32 * vector.y + m33 * vector.z;
 	}
 	
+	void Mat3::symmetricByAverage(Mat3& output) const
+	{
+		output.m12 = (m12 + m21) * HALF_FLOAT;
+		output.m13 = (m13 + m31) * HALF_FLOAT;
+
+		output.m21 = (m21 + m12) * HALF_FLOAT;
+		output.m23 = (m23 + m32) * HALF_FLOAT;
+
+		output.m31 = (m31 + m13) * HALF_FLOAT;
+		output.m32 = (m32 + m23) * HALF_FLOAT;
+	}
+
 	void Mat3::symmetric(Mat3& output) const
 	{
 		Mat3 matrixT;
 		transpose(matrixT);
+
 		NAMESPACE_PHYSICS::multiply(*this, matrixT, output);
+	}
+
+	void Mat3::symmetricByMultiplyElements(Mat3& output) const
+	{
+		output.m11 = m11 * m11;
+		output.m12 = m12 * m21;
+		output.m13 = m13 * m31;
+
+		output.m21 = m21 * m12;
+		output.m22 = m22 * m22;
+		output.m23 = m23 * m32;
+
+		output.m31 = m31 * m13;
+		output.m32 = m32 * m23;
+		output.m33 = m33 * m33;
 	}
 
 	Mat3 Mat3::createScale(const sp_float xScale, const sp_float yScale, const sp_float zScale)
@@ -149,7 +178,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float sine = sinf(angleRadians);
 		const sp_float cosine = cosf(angleRadians);
 
-		const sp_float mag = sqrtf(x*x + y * y + z * z);
+		const sp_float mag = sp_sqrt(x * x + y * y + z * z);
 
 		if (mag == 0.0f)
 			return Mat3Identity;
@@ -302,8 +331,7 @@ namespace NAMESPACE_PHYSICS
 		return values[index];
 	}
 #endif
-
-	
+		
 	Mat3::operator void*() const
 	{
 		return (void*)this;
@@ -422,36 +450,36 @@ namespace NAMESPACE_PHYSICS
 
 	void Mat3::decomposeLU(Mat3& lower, Mat3& upper) const
 	{
-		std::memcpy(lower, Mat3Zeros, sizeof(Mat3));
-		std::memcpy(upper, this, sizeof(Mat3));
+		std::memcpy(upper, Mat3Zeros, sizeof(Mat3));
+		std::memcpy(lower, this, sizeof(Mat3));
 
-		lower.m11 = m11;
-		lower.m21 = m21;
-		lower.m31 = m31;
+		upper.m11 = m11;
+		upper.m21 = m21;
+		upper.m31 = m31;
 
-		upper.m12 = NAMESPACE_FOUNDATION::div(m12, upper.m11);
-		upper.m13 = NAMESPACE_FOUNDATION::div(m13, upper.m11);
-		upper.m11 = ONE_FLOAT;
+		lower.m12 = NAMESPACE_FOUNDATION::div(m12, lower.m11);
+		lower.m13 = NAMESPACE_FOUNDATION::div(m13, lower.m11);
+		lower.m11 = ONE_FLOAT;
 
-		upper.m22 = -upper.m21 * upper.m12 + upper.m22;
-		upper.m23 = -upper.m21 * upper.m13 + upper.m23;
-		upper.m21 = ZERO_FLOAT;
+		lower.m22 = -lower.m21 * lower.m12 + lower.m22;
+		lower.m23 = -lower.m21 * lower.m13 + lower.m23;
+		lower.m21 = ZERO_FLOAT;
 
-		upper.m32 = -upper.m31 * upper.m12 + upper.m32;
-		upper.m33 = -upper.m31 * upper.m13 + upper.m33;
-		upper.m31 = ZERO_FLOAT;
+		lower.m32 = -lower.m31 * lower.m12 + lower.m32;
+		lower.m33 = -lower.m31 * lower.m13 + lower.m33;
+		lower.m31 = ZERO_FLOAT;
 
-		lower.m22 = upper.m22;
-		upper.m23 = NAMESPACE_FOUNDATION::div(upper.m23, upper.m22);
-		upper.m22 = ONE_FLOAT;
+		upper.m22 = lower.m22;
+		lower.m23 = NAMESPACE_FOUNDATION::div(lower.m23, lower.m22);
+		lower.m22 = ONE_FLOAT;
 
-		lower.m32 = upper.m32;
-		upper.m33 = (-upper.m32 * upper.m23) + upper.m33;
-		lower.m33 = upper.m33;
-		upper.m32 = ZERO_FLOAT;
-		upper.m33 = ONE_FLOAT;
+		upper.m32 = lower.m32;
+		lower.m33 = (-lower.m32 * lower.m23) + lower.m33;
+		upper.m33 = lower.m33;
+		lower.m32 = ZERO_FLOAT;
+		lower.m33 = ONE_FLOAT;
 
-		sp_assert(upper * lower == *this, "ApplicationException");
+		sp_assert(lower * upper == *this, "ApplicationException");
 
 #undef upperMatrix
 #undef lowerMatrix
@@ -463,33 +491,33 @@ namespace NAMESPACE_PHYSICS
 
 		std::memcpy(diagonal, Mat3Zeros, sizeof(Mat3));
 
-		diagonal.m11 = lower.m11;
-		diagonal.m22 = lower.m22;
-		diagonal.m33 = lower.m33;
+		diagonal.m11 = upper.m11;
+		diagonal.m22 = upper.m22;
+		diagonal.m33 = upper.m33;
 
-		lower.m21 = NAMESPACE_FOUNDATION::div(lower.m21, lower.m11);
-		lower.m31 = NAMESPACE_FOUNDATION::div(lower.m31, lower.m11);
+		upper.m21 = NAMESPACE_FOUNDATION::div(upper.m21, upper.m11);
+		upper.m31 = NAMESPACE_FOUNDATION::div(upper.m31, upper.m11);
 
-		lower.m32 = NAMESPACE_FOUNDATION::div(lower.m32, lower.m22);
+		upper.m32 = NAMESPACE_FOUNDATION::div(upper.m32, upper.m22);
 
-		lower.m11 = lower.m22 = lower.m33 = ONE_FLOAT;
+		upper.m11 = upper.m22 = upper.m33 = ONE_FLOAT;
 
-		sp_assert(upper * diagonal * lower == *this, "ApplicationException");
+		sp_assert(lower * diagonal * upper == *this, "ApplicationException");
 	}
 
 	void Mat3::decomposeLLt(Mat3& lower, Mat3& lowerTransposed) const
 	{
 		std::memcpy(&lower, Mat3Zeros, sizeof(Mat3));
 	
-		lower.m11 = sqrtf(m11);
+		lower.m11 = sp_sqrt(m11);
 		lower.m21 = NAMESPACE_FOUNDATION::div(m21, lower.m11);
 		lower.m31 = NAMESPACE_FOUNDATION::div(m31, lower.m11);
 
-		lower.m22 = sqrtf(m22 - lower.m21 * lower.m21);
+		lower.m22 = sp_sqrt(m22 - lower.m21 * lower.m21);
 
 		lower.m32 = (m32 - lower.m21 * lower.m31) / lower.m22;
 
-		lower.m33 = sqrtf(m33 - lower.m31 * lower.m31 - lower.m32 * lower.m32);
+		lower.m33 = sp_sqrt(m33 - lower.m31 * lower.m31 - lower.m32 * lower.m32);
 
 		NAMESPACE_PHYSICS::transpose(lower, lowerTransposed);
 
@@ -584,11 +612,11 @@ namespace NAMESPACE_PHYSICS
 				const sp_float tangentTheta
 					= NAMESPACE_FOUNDATION::isCloseEnough(theta, ZERO_FLOAT, DefaultErrorMargin)
 					? ONE_FLOAT
-					: ONE_FLOAT / (theta + sign(theta) * sqrtf(ONE_FLOAT + theta * theta));
+					: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
 				//: ONE_FLOAT / (theta + sqrtf(ONE_FLOAT + theta * theta));
 				//: sign(theta) / (fabsf(theta) + sqrtf(ONE_FLOAT + theta * theta));
 
-				const sp_float cosTheta = ONE_FLOAT / sqrtf(ONE_FLOAT + tangentTheta * tangentTheta);
+				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta = cosTheta * tangentTheta;
 
 				Mat3 jacobiRotationMatrix;
@@ -690,11 +718,11 @@ namespace NAMESPACE_PHYSICS
 				const sp_float tangentTheta
 					= NAMESPACE_FOUNDATION::isCloseEnough(theta, ZERO_FLOAT, DefaultErrorMargin)
 					? ONE_FLOAT
-					: ONE_FLOAT / (theta + sign(theta) * sqrtf(ONE_FLOAT + theta * theta));
+					: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
 					//: ONE_FLOAT / (theta + sqrtf(ONE_FLOAT + theta * theta));
 					//: sign(theta) / (fabsf(theta) + sqrtf(ONE_FLOAT + theta * theta));
 
-				const sp_float cosTheta = ONE_FLOAT / sqrtf(ONE_FLOAT + tangentTheta * tangentTheta);
+				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta =  cosTheta * tangentTheta;
 
 				Mat3 jacobiRotationMatrix;
@@ -763,7 +791,7 @@ namespace NAMESPACE_PHYSICS
 
 			if (!NAMESPACE_FOUNDATION::isCloseEnough(A.m21, ZERO_FLOAT, _epsilon))
 			{
-				r = ONE_FLOAT / sqrtf(A.m21 * A.m21 + A.m11 * A.m11);
+				r = ONE_FLOAT / sp_sqrt(A.m21 * A.m21 + A.m11 * A.m11);
 				cos0 = A.m11 * r;
 				sin0 = A.m21 * r;
 
@@ -776,7 +804,7 @@ namespace NAMESPACE_PHYSICS
 
 			if (!NAMESPACE_FOUNDATION::isCloseEnough(A.m32, ZERO_FLOAT, _epsilon))
 			{
-				r = ONE_FLOAT / sqrtf(A.m32 * A.m32 + A.m22 * A.m22);
+				r = ONE_FLOAT / sp_sqrt(A.m32 * A.m32 + A.m22 * A.m22);
 				cos0 = A.m22 * r;
 				sin0 = A.m32 * r;
 
@@ -868,11 +896,11 @@ namespace NAMESPACE_PHYSICS
 			const sp_float tangentTheta
 				= NAMESPACE_FOUNDATION::isCloseEnough(theta, ZERO_FLOAT, DefaultErrorMargin)
 				? ONE_FLOAT
-				: ONE_FLOAT / (theta + sign(theta) * sqrtf(ONE_FLOAT + theta * theta));
+				: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
 			//: ONE_FLOAT / (theta + sqrtf(ONE_FLOAT + theta * theta));
 			//: sign(theta) / (fabsf(theta) + sqrtf(ONE_FLOAT + theta * theta));
 
-			const sp_float cosTheta = ONE_FLOAT / sqrtf(ONE_FLOAT + tangentTheta * tangentTheta);
+			const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 			const sp_float sinTheta = cosTheta * tangentTheta;
 
 			Mat3 jacobiRotationMatrix;
@@ -898,6 +926,21 @@ namespace NAMESPACE_PHYSICS
 #undef apq
 #undef app
 #undef aqq
+	}
+
+	void add(const Mat3& A, const Mat3& B, Mat3& output)
+	{
+		output.m11 = A.m11 + B.m11;
+		output.m12 = A.m12 + B.m12;
+		output.m13 = A.m13 + B.m13;
+
+		output.m21 = A.m21 + B.m21;
+		output.m22 = A.m22 + B.m22;
+		output.m23 = A.m23 + B.m23;
+
+		output.m31 = A.m31 + B.m31;
+		output.m32 = A.m32 + B.m32;
+		output.m33 = A.m33 + B.m33;
 	}
 
 	void multiply(const Vec3& v1, const Vec3& v2, Mat3& output)
@@ -969,7 +1012,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		const sp_float det = input.determinant();
 
-		sp_assert(!NAMESPACE_FOUNDATION::isCloseEnough(det, ZERO_FLOAT, SP_EPSILON_FIVE_DIGITS), "InvalidOperationException"); // matrix is singular
+		sp_assert(!NAMESPACE_FOUNDATION::isCloseEnough(det, ZERO_FLOAT, SP_EPSILON_FOUR_DIGITS), "InvalidOperationException"); // matrix is singular
 
 		const sp_float detInverse = ONE_FLOAT / det;
 
@@ -977,7 +1020,7 @@ namespace NAMESPACE_PHYSICS
 			for (sp_int j = 0; j < MAT3_ROW_LENGTH; j++)
 			{
 				const sp_float detij = input.determinantIJ(j, i);
-
+				
 				output[i * MAT3_ROW_LENGTH + j] = detInverse *
 					((i + j) & 0x1 ? -detij : detij);
 			}
@@ -1030,7 +1073,7 @@ namespace NAMESPACE_PHYSICS
 
 	void Mat3::convert(Quat& output) const
 	{
-		output.w = sqrtf(ONE_FLOAT + m11 + m22 + m33) * HALF_FLOAT;
+		output.w = sp_sqrt(ONE_FLOAT + m11 + m22 + m33) * HALF_FLOAT;
 		const sp_float w4 = NAMESPACE_FOUNDATION::div(ONE_FLOAT, (4.0f * output.w));
 		
 		output.x = (m32 - m23) * w4;
@@ -1055,9 +1098,15 @@ namespace NAMESPACE_PHYSICS
 		
 		Mat3 diagonal;
 		std::memcpy(&diagonal, Mat3Zeros, sizeof(Mat3));
-		diagonal.m11 = sqrtf(temp.m11);
-		diagonal.m22 = sqrtf(temp.m22);
-		diagonal.m33 = sqrtf(temp.m33);
+
+		if (temp.m11 > ZERO_FLOAT)
+			diagonal.m11 = sp_sqrt(temp.m11);
+
+		if (temp.m22 > ZERO_FLOAT)
+			diagonal.m22 = sp_sqrt(temp.m22);
+
+		if (temp.m33 > ZERO_FLOAT)
+			diagonal.m33 = sp_sqrt(temp.m33);
 
 		multiply(eigenVectors, diagonal, eigenVectorsInverse, output);
 
