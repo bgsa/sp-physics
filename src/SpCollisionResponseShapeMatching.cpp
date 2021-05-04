@@ -58,6 +58,12 @@ namespace NAMESPACE_PHYSICS
 
 		multiply(matrixApq, sqrtSymetricInv, rotation);
 
+		// check sqrtSymetric is almost singular and bad conditioned.
+		if (!NAMESPACE_FOUNDATION::isCloseEnough(rotation.m11, ONE_FLOAT, SP_EPSILON_ONE_DIGITS)
+			|| !NAMESPACE_FOUNDATION::isCloseEnough(rotation.m22, ONE_FLOAT, SP_EPSILON_ONE_DIGITS)
+			|| !NAMESPACE_FOUNDATION::isCloseEnough(rotation.m33, ONE_FLOAT, SP_EPSILON_ONE_DIGITS))
+			return false; 
+
 		return true;
 	}
 
