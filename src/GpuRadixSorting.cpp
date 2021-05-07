@@ -144,6 +144,7 @@ namespace NAMESPACE_PHYSICS
 
 	cl_mem GpuRadixSorting::execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
 	{
+		timeOfExecution = ZERO_FLOAT;
 		sp_bool indexesChanged = false;
 		sp_bool offsetChanged = false;
 		cl_event lastEvent, pEvent;
@@ -160,6 +161,7 @@ namespace NAMESPACE_PHYSICS
 			if (indexesChanged)
 			{
 				commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, previousEvents, &lastEvent);
+				timeOfExecution += (sp_float)commandCountSwapped->getTimeOfExecution(lastEvent);
 
 				pEvent = lastEvent;
 				previousEventsLength = ONE_UINT;
@@ -167,6 +169,7 @@ namespace NAMESPACE_PHYSICS
 			else
 			{
 				commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, previousEvents, &lastEvent);
+				timeOfExecution += (sp_float)commandCount->getTimeOfExecution(lastEvent);
 
 				pEvent = lastEvent;
 				previousEventsLength = ONE_UINT;
@@ -179,12 +182,16 @@ namespace NAMESPACE_PHYSICS
 				if (offsetChanged)
 				{
 					commandPrefixScanSwaped->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, ONE_UINT, &pEvent, &lastEvent);
+					timeOfExecution += (sp_float)commandPrefixScanSwaped->getTimeOfExecution(lastEvent);
+
 					gpu->releaseEvent(pEvent);
 					pEvent = lastEvent;
 				}
 				else
 				{
 					commandPrefixScan->execute(ONE_UINT, globalWorkSize, localWorkSize, &offsetPrefixScanCpu, ONE_UINT, &pEvent, &lastEvent);
+					timeOfExecution += (sp_float)commandPrefixScan->getTimeOfExecution(lastEvent);
+
 					gpu->releaseEvent(pEvent);
 					pEvent = lastEvent;
 				}
@@ -200,12 +207,16 @@ namespace NAMESPACE_PHYSICS
 			if (indexesChanged)
 			{
 				commandReorderSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, ONE_UINT, &pEvent, &lastEvent);
+				timeOfExecution += (sp_float)commandReorderSwapped->getTimeOfExecution(lastEvent);
+
 				gpu->releaseEvent(pEvent);
 				pEvent = lastEvent;
 			}
 			else
 			{
 				commandReorder->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, ONE_UINT, &pEvent, &lastEvent);
+				timeOfExecution += (sp_float)commandReorder->getTimeOfExecution(lastEvent);
+
 				gpu->releaseEvent(pEvent);
 				pEvent = lastEvent;
 			}
@@ -241,6 +252,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		commandCountNegative->execute(ONE_UINT, totalWorkSize, localWorkSize, 0, ONE_UINT, &previousEvent, &lastEvent);
+		timeOfExecution += (sp_float)commandCountNegative->getTimeOfExecution(lastEvent);
 		gpu->releaseEvent(previousEvent);
 		previousEvent = lastEvent;
 
@@ -272,6 +284,7 @@ namespace NAMESPACE_PHYSICS
 			commandPrefixScanNegative
 				->swapInputParameter(ZERO_UINT, ONE_UINT)
 				->execute(1, totalWorkSize, localWorkSize, &offsetPrefixScanCpu, ONE_UINT, &previousEvent, &lastEvent);
+			timeOfExecution += (sp_float)commandPrefixScanNegative->getTimeOfExecution(lastEvent);
 
 			gpu->releaseEvent(previousEvent);
 			previousEvent = lastEvent;
@@ -300,6 +313,7 @@ namespace NAMESPACE_PHYSICS
 		*/
 	
 		commandReorderNegative->execute(1, totalWorkSize, localWorkSize, 0, ONE_UINT, &previousEvent, evt);
+		timeOfExecution += (sp_float)commandReorderNegative->getTimeOfExecution(*evt);
 		gpu->releaseEvent(previousEvent);
 
 		return commandReorderNegative->getInputParameter(3u);

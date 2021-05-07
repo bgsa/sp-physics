@@ -50,6 +50,8 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 
+		sp_float timeOfExecution;
+
 		API_INTERFACE GpuRadixSorting* init(GpuDevice* gpu, const sp_char* buildOptions) override;
 
 		API_INTERFACE GpuRadixSorting* setParameters(cl_mem inputGpu, sp_uint inputLengthCpu, cl_mem indexesGpu, cl_mem inputLengthGpu, sp_uint striderCpu = ONE_UINT);

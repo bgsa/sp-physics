@@ -140,6 +140,9 @@ namespace NAMESPACE_PHYSICS
 		const SpMesh* mesh1 = world->mesh(world->collisionFeatures(shape1->objectIndex)->meshIndex);
 		const SpMesh* mesh2 = world->mesh(world->collisionFeatures(shape2->objectIndex)->meshIndex);
 
+		Timer t;
+		t.start();
+
 		Vec3 tetrahedron[4];
 		if (!gjk(mesh1, shape1->particles, mesh2, shape2->particles, tetrahedron))
 			return false;
@@ -147,10 +150,7 @@ namespace NAMESPACE_PHYSICS
 		if (!epa(tetrahedron, mesh1, shape1->particles, mesh2, shape2->particles, collisionManifold->collisionNormal, collisionManifold->depth))
 			return false;
 
-		/*
-		if (collisionManifold->depth >= 2.0f)
-			collisionManifold->depth = 2.0f;
-		*/
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();
 
 		mesh1->supportAll(-collisionManifold->collisionNormal, shape1->particles, mesh1PointsLength, mesh1Points, SP_EPSILON_TWO_DIGITS);
 		mesh2->supportAll(collisionManifold->collisionNormal, shape2->particles, mesh2PointsLength, mesh2Points, SP_EPSILON_TWO_DIGITS);
@@ -250,8 +250,13 @@ namespace NAMESPACE_PHYSICS
 
 			updateParticlesShape(shape1, normalToObj1, depth, mesh1PointsLength, mesh1Points);
 
+			Timer t;
+			t.start();
 			if (shapeMatch(shape1))
+			{
+				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
 				shape1->isDirty = true;
+			}
 			else
 				std::memcpy(shape1->particles, backupParticlesShape1, shape1->particlesLength * sizeof(Vec3)); // rollback particles
 		}
@@ -272,8 +277,13 @@ namespace NAMESPACE_PHYSICS
 		{
 			updateParticlesShape(shape2, -normalToObj1, depth, mesh2PointsLength, mesh2Points);
 
+			Timer t;
+			t.start();
 			if (shapeMatch(shape2))
+			{
+				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
 				shape2->isDirty = true;
+			}
 			else
 				std::memcpy(shape2->particles, backupParticlesShape2, shape2->particlesLength * sizeof(Vec3)); // rollback particles
 		}

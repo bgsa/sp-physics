@@ -170,6 +170,11 @@ namespace NAMESPACE_PHYSICS
 		sp_uint iterations;
 		Mat u(matrix.rows(), matrix.rows()), s(matrix.columns(), matrix.columns()), v(matrix.columns(), matrix.columns());
 
+		// TODO: REMOVE
+		sp_log_debug1snl("PCA INPUT: ");
+		std::string ss = matrix.toString();
+		sp_log_debug1snl(ss.c_str());
+
 		if (!matrix.svd(u, s, v, iterations, maxIterations))
 			return false;
 
@@ -273,6 +278,8 @@ namespace NAMESPACE_PHYSICS
 		cl_event lastEvent;
 
 		commandBuildElements->execute(ONE_UINT, globalWorkSize, localWorkSize, &axis, previousEventsLength, previousEvents, &lastEvent);
+		const sp_float timeOfExecutionBuildElements = (sp_float) commandBuildElements->getTimeOfExecution(lastEvent);
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0] = timeOfExecutionBuildElements;
 
 		/* debugging
 		Sphere ss[512];
@@ -300,6 +307,8 @@ namespace NAMESPACE_PHYSICS
 
 		cl_mem sortedIndexes = radixSorting->execute(ONE_UINT, &lastEvent, evt);
 		gpu->releaseEvent(lastEvent);
+		const sp_float timeOfExecutionRadix = radixSorting->timeOfExecution;
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_radixSortingTime))[0] = timeOfExecutionRadix;
 
 		/* // check if sorting is OK		
 		sp_uint* sorted = ALLOC_ARRAY(sp_uint, 512);
@@ -325,6 +334,7 @@ namespace NAMESPACE_PHYSICS
 			->updateInputParameter(4, sortedIndexes)
 			->updateInputParameterValue(5, &zeroValue, ZERO_UINT, NULL, NULL)
 			->execute(1, globalWorkSize, localWorkSize, &axis, ONE_UINT, evt, &lastEvent);
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0] = (sp_float)commandSaPCollisions->getTimeOfExecution(lastEvent);
 		gpu->releaseEvent(evt[0]);
 
 		evt[0] = lastEvent;

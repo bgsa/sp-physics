@@ -4,7 +4,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	Timer tt;
 	sp_uint pcaFrameCounter = SP_UINT_MAX;
 
 	void SpPhysicSimulator::init()
@@ -281,16 +280,18 @@ namespace NAMESPACE_PHYSICS
 		world->_meshCacheUpdater.execute(ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
 		
-		// csvFile->addValue(SpPhysicSettings::instance()->frameId());
-		
 		if (pcaFrameCounter > SpPhysicSettings::instance()->pcaExecutionPerFrame())
 		{
 			Vec3 axis;
 
-			//tt.update();
+			Timer t;
+			t.start();
 			if (sapDOP18->pca(axis, 50u))
 			{
-				//sp_float timePCA = tt.elapsedTime();
+				((sp_float*)SpGlobalPropertiesInscance->get(ID_pcaTime))[0] = t.elapsedTime();
+				((sp_uint*)SpGlobalPropertiesInscance->get(ID_qtdAlteracoesPCA))[0]++;
+				((Vec3*)SpGlobalPropertiesInscance->get(ID_eixoPCA))[0] = axis;
+
 				sapDOP18->axis = sapDOP18->axisId(axis);
 				sapAABB->axis = sapDOP18->axis;
 				sapSphere->axis = sapDOP18->axis;
@@ -302,53 +303,39 @@ namespace NAMESPACE_PHYSICS
 		// build bounding volumes Sphere
 		world->sphereFactory.execute(ZERO_UINT, NULL, &previousEvent);
 		const sp_float timeBuildSpheres = (sp_float) world->sphereFactory.timeOfLastExecution(previousEvent);
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildSphereTime))[0] = timeBuildSpheres;
 
 		// find collisions pair on GPU using Bounding Volume
-		tt.update();
 		findCollisionsGpuSphere(sapResult, ONE_UINT, &previousEvent, &evt);
-		const sp_float timeBroadPhaseSphere = tt.elapsedTime();
-		const sp_uint paresBroadPhaseSphere = sapResult.length;
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsSphereTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapSphereTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresSphere))[0] = sapResult.length;
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
 
 		// build bounding volumes AABB
 		world->aabbFactory.execute(ZERO_UINT, NULL, &previousEvent);
 		const sp_float timeBuildAABBs = (sp_float)world->aabbFactory.timeOfLastExecution(previousEvent);
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildAABBTime))[0] = timeBuildAABBs;
 		
 		// find collisions pair on GPU using Bounding Volume
-		tt.update(); 
 		findCollisionsGpuAABB(sapResult, ONE_UINT, &previousEvent, &evt);
-		const sp_float timeBroadPhaseAABB = tt.elapsedTime();
-		const sp_uint paresBroadPhaseAABB = sapResult.length;
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsAABBTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapAABBTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresAABB))[0] = sapResult.length;
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
 
 		// build bounding volumes 18-DOP
 		world->dop18Factory.execute(ZERO_UINT, NULL, &previousEvent);
 		const sp_float timeBuildDOP18 = (sp_float)world->dop18Factory.timeOfLastExecution(previousEvent);
-		
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildDOP18Time))[0] = timeBuildDOP18;
 
 		// find collisions pair on GPU using Bounding Volume
-		tt.update();
 		findCollisionsGpuDOP18(sapResult, ONE_UINT, &previousEvent, &evt);
-		const sp_float timeBroadPhaseDOP18 = tt.elapsedTime();
-		const sp_uint paresBroadPhaseDOP18 = sapResult.length;
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresDOP18))[0] = sapResult.length;
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
-
-		/*
-		csvFile->addValue(timeBuildDOP18);
-		csvFile->addValue(paresBroadPhaseDOP18);
-		csvFile->addValue(timeBroadPhaseDOP18);
-
-		csvFile->addValue(timeBuildAABBs);
-		csvFile->addValue(paresBroadPhaseAABB);
-		csvFile->addValue(timeBroadPhaseAABB);
-
-		csvFile->addValue(timeBuildSpheres);
-		csvFile->addValue(paresBroadPhaseSphere);
-		csvFile->addValue(timeBroadPhaseSphere);
-		*/
 
 		// release GPU shared buffer OpenCL and OpenGL
 		gpu->commandManager->releaseGLObjects(world->_transformsGPU, ZERO_UINT, NULL, &evt);
@@ -363,8 +350,6 @@ namespace NAMESPACE_PHYSICS
 		evt = world->updateDataOnCPU();
 		gpu->waitEvents(ONE_UINT, &evt);
 		gpu->releaseEvent(evt);
-
-		tt.update();
 
 		SpCollisionResponseShapeMatching shapeMatching;
 
@@ -418,9 +403,6 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
-		// csvFile->addValue(tt.elapsedTime());
-		// csvFile->newRecord();
-
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;
 	}
@@ -462,14 +444,6 @@ namespace NAMESPACE_PHYSICS
 			sp_mem_delete(collisionResponseGPU, SpCollisionResponseGPU);
 			collisionResponseGPU = nullptr;
 		}
-
-/*
-		if (csvFile != nullptr)
-		{
-			sp_mem_delete(csvFile, SpCSVFileWriter);
-			csvFile = nullptr;
-		}
-		*/
 	}
 
 	SpPhysicSimulator::~SpPhysicSimulator()
