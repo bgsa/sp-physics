@@ -193,6 +193,24 @@ __kernel void sweepAndPruneSingleAxis(
         return;
 
     const sp_uint objIndex1 = indexes[index];
+    
+    // TODO: REMOVE
+    if (objIndex1 == ZERO_UINT) // special handler for plane
+    {
+        for(sp_uint j = 0u; j < *indexesLength; j++) // iterate over next elements
+        {
+            const sp_uint objIndex2 = indexes[j];
+            if (objIndex2 != ZERO_UINT && boundingVolumes[objIndex2 * DOP18_STRIDE + 1] < ZERO_FLOAT) // if minY(objIndex2) < 0, means it is under the plane
+            {
+                const sp_uint temp = atomic_add(outputLength, 2);
+                output[temp    ] = objIndex1;
+                output[temp + 1] = objIndex2;
+            }
+        }
+
+        return;
+    }
+
     const sp_uint boundingVolumeIndex1 = objIndex1 * DOP18_STRIDE;
 
     //const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex1 * SP_RIGID_BODY_3D_SIZE);
@@ -200,6 +218,11 @@ __kernel void sweepAndPruneSingleAxis(
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
         const sp_uint objIndex2 = indexes[j];
+
+        // TODO: REMOVE
+        if (objIndex2 == ZERO_UINT) // special handler for plane
+            continue;
+
         const sp_uint boundingVolumeIndex2 = objIndex2 * DOP18_STRIDE;
 
         if (DOP18_MAX_POINT < DOP18_MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
