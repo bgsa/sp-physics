@@ -307,8 +307,8 @@ namespace NAMESPACE_PHYSICS
 
 		// find collisions pair on GPU using Bounding Volume
 		findCollisionsGpuSphere(sapResult, ONE_UINT, &previousEvent, &evt);
-		((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsSphereTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
-		((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapSphereTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsSphereTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_sapSphereTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
 		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresSphere))[0] = sapResult.length;
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
@@ -320,8 +320,8 @@ namespace NAMESPACE_PHYSICS
 		
 		// find collisions pair on GPU using Bounding Volume
 		findCollisionsGpuAABB(sapResult, ONE_UINT, &previousEvent, &evt);
-		((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsAABBTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
-		((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapAABBTime))[0] = ((sp_uint*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsAABBTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_sapAABBTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
 		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresAABB))[0] = sapResult.length;
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
