@@ -183,6 +183,7 @@ namespace NAMESPACE_PHYSICS
 	sp_double GpuCommand::getTimeOfExecution(cl_event evt)
 	{
 		sp_assert(evt != NULL, "InvalidArgumentException");
+		sp_assert(SpPhysicSettings::instance()->isProfilingEnabled(), "InvalidOperationException");
 
 		cl_ulong timeStart, timeEnd;
 
