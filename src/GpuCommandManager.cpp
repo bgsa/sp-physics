@@ -11,9 +11,8 @@ namespace NAMESPACE_PHYSICS
 
 		cl_int errorCode;
 
-	#ifdef DEBUG
+		if (SpPhysicSettings::instance()->isProfilingEnabled())
 			queueProperties |= CL_QUEUE_PROFILING_ENABLE;
-	#endif
 
 	#if (CL_TARGET_OPENCL_VERSION > 120)
 			commandQueue = clCreateCommandQueueWithProperties(deviceContext, deviceId, &queueProperties, &errorCode);

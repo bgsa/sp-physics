@@ -15,6 +15,7 @@ namespace NAMESPACE_PHYSICS
 		sp_size _frameId;
 		Vec3 _gravityForce;
 		sp_bool _simulationEnabled;
+		sp_bool _profilingEnabled;
 		sp_uint _pcaExecutionPerFrame;
 
 		SpPhysicSettings()
@@ -24,6 +25,7 @@ namespace NAMESPACE_PHYSICS
 			_gravityForce = Vec3(0.0f, -9.8f, 0.0f);
 			_restingVelocityEpsilon = 0.09f;
 			_pcaExecutionPerFrame = 30u;
+			_profilingEnabled = false;
 			enableSimulation();
 		}
 		
@@ -88,6 +90,21 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void disableSimulation()
 		{
 			_simulationEnabled = false;
+		}
+
+		API_INTERFACE inline sp_bool isProfilingEnabled()
+		{
+			return _profilingEnabled;
+		}
+
+		API_INTERFACE inline void enableProfiling()
+		{
+			_profilingEnabled = true;
+		}
+
+		API_INTERFACE inline void disableProfiling()
+		{
+			_profilingEnabled = false;
 		}
 
 		API_INTERFACE inline void nextFrame()
