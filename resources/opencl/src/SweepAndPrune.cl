@@ -86,6 +86,7 @@ __kernel void buildInputElements(
         }
     case 3: // AABB
         {
+        /*
             sp_uint axisId = axis;
 
             switch(axis)
@@ -107,6 +108,9 @@ __kernel void buildInputElements(
             }
 
             output[elementIndex] = boundingVolume[elementIndex * AABB_STRIDE + axisId];
+        */
+            output[elementIndex] = boundingVolume[elementIndex * AABB_STRIDE + axis];
+
             break;
         }
     case 1: // SPHERE
