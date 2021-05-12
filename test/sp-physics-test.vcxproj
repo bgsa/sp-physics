@@ -37,6 +37,7 @@
     <ClCompile Include="src\SpCollisionResponseGPUTest.cpp" />
     <ClCompile Include="src\SpDOP18FactoryTest.cpp" />
     <ClCompile Include="src\SpGJKTest.cpp" />
+    <ClCompile Include="src\SpMeshCacheTest.cpp" />
     <ClCompile Include="src\SpOptimizationTest.cpp" />
     <ClCompile Include="src\AlgorithmSecantTest.cpp" />
     <ClCompile Include="src\AlgorithmSortingTest.cpp" />

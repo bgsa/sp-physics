@@ -1,5 +1,6 @@
 #include "SpectrumPhysicsTest.h"
 #include <SpPhysicSimulator.h>
+#include "ObjModel.h"
 
 #define CLASS_NAME SpDOP18FactoryTest
 
@@ -115,7 +116,116 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	public:
 		SP_TEST_METHOD_DEF(build);
+
+#ifdef OPENCL_ENABLED
+		SP_TEST_METHOD_DEF(buildDOP18GPU);
+#endif
 	};
+
+#ifdef OPENCL_ENABLED
+	SP_TEST_METHOD(CLASS_NAME, buildDOP18GPU)
+	{
+		TestPhysic::lock();
+
+		sp_float meshCache[24*3] = {
+			0.997765303f, -37.0503998f, -0.798262239f,
+			1.32016361f, -36.5010834f, -1.12797058f,
+			1.82751310f, -36.4946022f, -0.621070802f,
+			1.50511503f, -37.0439148f, -0.291362464f,
+			-0.128041685f, -37.2458153f, 1.34582543f,
+			-0.519256234f, -36.7847252f, 1.73149133f,
+			-1.02660596f, -36.7912064f, 1.22459149f,
+			-0.635391235f, -37.2522964f, 0.838925719f,
+			2.09329700f, -35.4245224f, 1.42163301f,
+			1.70208240f, -34.9634323f, 1.80729878f,
+			1.37968433f, -35.5127449f, 2.13700724f,
+			1.77089894f, -35.9738388f, 1.75134158f,
+			-0.861699462f, -33.9295044f, 1.02294576f,
+			-1.18409765f, -34.4788170f, 1.35265422f,
+			-0.676748037f, -34.4723358f, 1.85955393f,
+			-0.354349941f, -33.9230194f, 1.52984560f,
+			1.16267180f, -34.1886940f, -0.999907970f,
+			0.771457195f, -33.7276039f, -0.614242136f,
+			1.27880681f, -33.7211227f, -0.107342362f,
+			1.67002141f, -34.1822128f, -0.493008137f,
+			-1.12748349f, -34.9995804f, -1.01975811f,
+			-0.736268878f, -35.4606743f, -1.40542376f,
+			-1.44988167f, -35.5488968f, -0.690049767f,
+			-1.05866706f, -36.0099869f,	-1.07571542f
+		};
+
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		ObjModel model;
+		model.load("resources\\models\\rocks\\obj.obj");
+
+		SpMesh* mesh1 = sp_mem_new(SpMesh)();
+		model.buildMesh(mesh1);
+		SpWorldManagerInstance->current()->mesh(0, mesh1);
+		SpWorldManagerInstance->current()->collisionFeatures(0, 0);
+		SpWorldManagerInstance->current()->transforms(0)->position = Vec3(0.321708f, -35.486710f, 0.365792f);
+		SpWorldManagerInstance->current()->transforms(0)->orientation = Quat(0.836536825f, 0.158000097f, 0.348789155f, 0.391903371f);
+		SpWorldManagerInstance->current()->transforms(0)->scaleVector = Vec3(2.0f, 2.0f, 2.0f);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("BoundingVolumeFactory.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		cl_program program;
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, nullptr, &program);
+
+		ALLOC_RELEASE(source);
+
+		const sp_size globalWorkSize[3] = { 1, 0, 0 };
+		const sp_size localWorkSize[3] = { 1, 0, 0 };
+
+		sp_uint meshesLength = 1u;
+		sp_uint meshCacheIndex = 0u;
+		sp_uint meshCacheVertexesLength = mesh1->vertexLength();
+
+		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheGPU = gpu->createBuffer(meshCache, sizeof(Vec3) * mesh1->vertexLength(), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem transformsGPU = gpu->createBuffer(SpWorldManagerInstance->current()->transforms(0), sizeof(SpTransform), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem dop18GPU = gpu->createBuffer(sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* command = gpu->commandManager
+			->createCommand()
+			->setInputParameter(meshCacheLengthGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheIndexesGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheVertexesLengthGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheGPU, sizeof(Vec3) * mesh1->vertexLength())
+			->setInputParameter(transformsGPU, sizeof(SpTransform))
+			->setInputParameter(dop18GPU, sizeof(DOP18))
+			->buildFromProgram(program, "buildDOP18");
+
+		command->execute(1, globalWorkSize, localWorkSize, 0, 0, NULL, NULL);
+
+		sp_float bv[18];
+		command->fetchInOutParameter(bv, 5);
+
+		sp_float expected[18] = {
+			-1.44988167f, -37.2522964f, -1.40542376f, -2.41890478f, -2.40097809f, -2.36195230f, -2.37334776f, -2.51303363f, -2.17095995f,
+			2.09329700f, -33.7211227f, 2.13700724f, 3.06232023f, 3.04439354f, 3.09353590f, 3.10493112f, 3.15644836f, 2.81437588f
+		};
+
+		for (sp_uint i = 0; i < 18; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], bv[i]), L"Wrong value.", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
+#endif
 
 	SP_TEST_METHOD(CLASS_NAME, build)
 	{

@@ -8,7 +8,6 @@
 
 __kernel void update (
     __global   sp_uint * meshCacheLength,
-    __constant sp_uint * objectToMeshMapper,
     __constant sp_float* meshes,
     __constant sp_uint * meshesIndexes,
     __constant sp_uint * meshesIndexesLength,

@@ -28,7 +28,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _objectsLength;
 
 		GpuDevice* gpu;
-
+		
 	public:
 		sp_char name[256];
 		SpPhysicSimulator* physicSimulator;
@@ -137,7 +137,7 @@ namespace NAMESPACE_PHYSICS
 			gpu->releaseEvent(evt);
 
 			_meshCacheUpdater.init(gpu);
-			_meshCacheUpdater.setParameters(_inputLengthGPU, _objectMapperGPU, _meshesGPU, _meshesIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
+			_meshCacheUpdater.setParameters(_inputLengthGPU, _meshesGPU, _meshesIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
 
 			dop18Factory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
 			aabbFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);

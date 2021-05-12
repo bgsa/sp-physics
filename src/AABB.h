@@ -18,6 +18,22 @@ namespace NAMESPACE_PHYSICS
 #define AABB_AXIS_Y (1)
 #define AABB_AXIS_Z (2)
 
+#define AABB_PLANES_LEFT_INDEX  ( 0)
+#define AABB_PLANES_RIGHT_INDEX ( 1)
+#define AABB_PLANES_UP_INDEX    ( 2)
+#define AABB_PLANES_DOWN_INDEX  ( 3)
+#define AABB_PLANES_FRONT_INDEX ( 4)
+#define AABB_PLANES_DEPTH_INDEX ( 5)
+
+	const Vec3 AABB_NORMALS[6] = {
+		{ -1.0f,  0.0f,  0.0f },
+		{  1.0f,  0.0f,  0.0f },
+		{  0.0f,  1.0f,  0.0f },
+		{  0.0f, -1.0f,  0.0f },
+		{  0.0f,  0.0f,  1.0f },
+		{  0.0f,  0.0f, -1.0f }
+	};
+
 	class AABB
 	{
 	public:

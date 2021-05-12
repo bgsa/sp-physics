@@ -49,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 			ALLOC_RELEASE(source);
 		}
 
-		API_INTERFACE void setParameters(GpuBufferOpenCL* indexesLengthGPU, GpuBufferOpenCL* objectMapperGPU, GpuBufferOpenCL* meshesGPU, GpuBufferOpenCL* meshesIndexesGPU, GpuBufferOpenCL* meshesIndexesLengthGPU, cl_mem transformationsGPU, GpuBufferOpenCL* meshCacheIndexesGPU, GpuBufferOpenCL* meshCacheGPU, sp_uint inputLength)
+		API_INTERFACE void setParameters(GpuBufferOpenCL* indexesLengthGPU, GpuBufferOpenCL* meshesGPU, GpuBufferOpenCL* meshesIndexesGPU, GpuBufferOpenCL* meshesIndexesLengthGPU, cl_mem transformationsGPU, GpuBufferOpenCL* meshCacheIndexesGPU, GpuBufferOpenCL* meshCacheGPU, sp_uint inputLength)
 		{
 			globalWorkSize[0] = inputLength;
 			localWorkSize[0] = gpu->getGroupLength(inputLength, inputLength);
@@ -57,7 +57,6 @@ namespace NAMESPACE_PHYSICS
 			command = gpu->commandManager
 				->createCommand()
 				->setInputParameter(indexesLengthGPU)
-				->setInputParameter(objectMapperGPU)
 				->setInputParameter(meshesGPU)
 				->setInputParameter(meshesIndexesGPU)
 				->setInputParameter(meshesIndexesLengthGPU)

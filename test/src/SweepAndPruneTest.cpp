@@ -2295,6 +2295,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(findCollisions_WithKDOPs);
 
 #ifdef OPENCL_ENABLED
+		SP_TEST_METHOD_DEF(axisIdForAABB);
 		SP_TEST_METHOD_DEF(buildInputElements1);
 		SP_TEST_METHOD_DEF(buildInputElements2);
 		SP_TEST_METHOD_DEF(buildInputElements3);
@@ -2306,6 +2307,41 @@ namespace NAMESPACE_PHYSICS_TEST
 #endif
 
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, axisIdForAABB)
+	{
+		SweepAndPrune sap;
+
+		Vec3 axis = Vec3(0.1f, 0.8f, 0.1f);
+		normalize(axis);
+		sp_uint result = sap.axisIdForAABB(axis);
+		Assert::AreEqual(1u, result, L"wrong value", LINE_INFO());
+
+		axis = Vec3(0.1f, -0.8f, 0.1f);
+		normalize(axis);
+		result = sap.axisIdForAABB(axis);
+		Assert::AreEqual(1u, result, L"wrong value", LINE_INFO());
+
+		axis = Vec3(0.8f, 0.1f, 0.1f);
+		normalize(axis);
+		result = sap.axisIdForAABB(axis);
+		Assert::AreEqual(0u, result, L"wrong value", LINE_INFO());
+
+		axis = Vec3(-0.8f, 0.1f, 0.1f);
+		normalize(axis);
+		result = sap.axisIdForAABB(axis);
+		Assert::AreEqual(0u, result, L"wrong value", LINE_INFO());
+
+		axis = Vec3(0.1f, 0.1f, 0.9f);
+		normalize(axis);
+		result = sap.axisIdForAABB(axis);
+		Assert::AreEqual(2u, result, L"wrong value", LINE_INFO());
+
+		axis = Vec3(0.1f, 0.1f, -0.9f);
+		normalize(axis);
+		result = sap.axisIdForAABB(axis);
+		Assert::AreEqual(2u, result, L"wrong value", LINE_INFO());
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, findCollisions_WithAABB)
 	{

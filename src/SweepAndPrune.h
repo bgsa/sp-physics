@@ -118,7 +118,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Given an axis, get the axis ID based on k-DOP axis (9 axis availables)
 		/// </summary>
-		API_INTERFACE inline sp_uint axisId(const Vec3& axis) const
+		API_INTERFACE inline sp_uint axisIdForDOP18(const Vec3& axis) const
 		{
 			sp_float value = axis.dot(DOP18_NORMALS[DOP18_PLANES_LEFT_INDEX]);
 			sp_uint id = DOP18_PLANES_LEFT_INDEX;
@@ -137,6 +137,32 @@ namespace NAMESPACE_PHYSICS
 				}
 			}
 
+			return id;
+		}
+
+		/// <summary>
+		/// Given an axis, get the axis ID based on AABB axis (3 axis availables)
+		/// </summary>
+		API_INTERFACE inline sp_uint axisIdForAABB(const Vec3& axis) const
+		{
+			sp_float value = axis.dot(AABB_NORMALS[AABB_PLANES_LEFT_INDEX]);
+			sp_uint id = AABB_PLANES_LEFT_INDEX;
+
+			for (sp_uint i = AABB_PLANES_LEFT_INDEX + 1u; i <= AABB_PLANES_DEPTH_INDEX; i++)
+			{
+				Vec3 v;
+				NAMESPACE_PHYSICS::normalize(AABB_NORMALS[i], v);
+
+				const sp_float newValue = axis.dot(v);
+
+				if (newValue > value)
+				{
+					value = newValue;
+					id = divideBy2(i);
+				}
+			}
+
+			sp_assert(id == AABB_AXIS_X || id == AABB_AXIS_Y || id == AABB_AXIS_Z, "ApplicationException");
 			return id;
 		}
 

@@ -65,10 +65,10 @@ typedef double         sp_double;
 #define TWO_DOUBLE   2.0
 #define TEN_DOUBLE  10.0
 
-#define SP_FLOAT_MAX FLT_MAX
-#define SP_FLOAT_MIN FLT_MIN
-#define SP_DOUBLE_MAX DBL_MAX
-#define SP_DOUBLE_MIN DBL_MIN
+#define SP_FLOAT_MAX  ( FLT_MAX)
+#define SP_FLOAT_MIN  (-FLT_MAX)
+#define SP_DOUBLE_MAX ( DBL_MAX)
+#define SP_DOUBLE_MIN (-DBL_MAX)
 
 #define SET_ARRAY_10_ELEMENTS(_name, _value)\
             _name[0] = _value;  \
