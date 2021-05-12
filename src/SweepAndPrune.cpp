@@ -170,11 +170,6 @@ namespace NAMESPACE_PHYSICS
 		sp_uint iterations;
 		Mat u(matrix.rows(), matrix.rows()), s(matrix.columns(), matrix.columns()), v(matrix.columns(), matrix.columns());
 
-		// TODO: REMOVE
-		sp_log_debug1snl("PCA INPUT: ");
-		std::string ss = matrix.toString();
-		sp_log_debug1snl(ss.c_str());
-
 		if (!matrix.svd(u, s, v, iterations, maxIterations))
 			return false;
 

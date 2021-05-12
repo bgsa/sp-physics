@@ -292,8 +292,8 @@ namespace NAMESPACE_PHYSICS
 				((sp_uint*)SpGlobalPropertiesInscance->get(ID_qtdAlteracoesPCA))[0]++;
 				((Vec3*)SpGlobalPropertiesInscance->get(ID_eixoPCA))[0] = axis;
 
-				sapDOP18->axis = sapDOP18->axisId(axis);
-				sapAABB->axis = sapDOP18->axis;
+				sapDOP18->axis = sapDOP18->axisIdForDOP18(axis);
+				sapAABB->axis = sapAABB->axisIdForAABB(axis);
 				sapSphere->axis = sapDOP18->axis;
 			}
 			pcaFrameCounter = ZERO_UINT;

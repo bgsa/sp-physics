@@ -56,7 +56,8 @@ namespace NAMESPACE_PHYSICS
 		Mat3 sqrtSymetricInv;
 		inverse(sqrtSymetric, sqrtSymetricInv);
 
-		multiply(matrixApq, sqrtSymetricInv, rotation);
+		//multiply(matrixApq, sqrtSymetricInv, rotation);
+		multiply(sqrtSymetricInv, matrixApq, rotation);
 
 		// check sqrtSymetric is almost singular and bad conditioned.
 		if (!NAMESPACE_FOUNDATION::isCloseEnough(rotation.m11, ONE_FLOAT, SP_EPSILON_ONE_DIGITS)
