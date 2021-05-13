@@ -9,111 +9,101 @@ namespace NAMESPACE_PHYSICS
 {
 	namespace Matlab
 	{
-		inline void exportGraphic(const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint* index)
+		inline void exportGraphic(const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint& index)
 		{
 			const sp_uint nameLength = strlen(meshName);
 			const sp_uint colorLength = strlen(colorName);
 
-			std::memcpy(output, "patch('Faces', f", 16);
-			std::memcpy(&output[16], meshName, nameLength);
-			index[0] += 16 + nameLength;
+			std::memcpy(&output[index], "patch('Faces', f", 16);
+			std::memcpy(&output[index + 16], meshName, nameLength);
+			index += 16 + nameLength;
 
-			std::memcpy(&output[*index], ", 'Vertices', v", 15);
-			std::memcpy(&output[*index] + 15, meshName, nameLength);
-			index[0] += 15 + nameLength;
+			std::memcpy(&output[index], ", 'Vertices', v", 15);
+			std::memcpy(&output[index] + 15, meshName, nameLength);
+			index += 15 + nameLength;
 
-			std::memcpy(&output[*index], ", 'FaceColor', '", 16);
-			index[0] += 16;
+			std::memcpy(&output[index], ", 'FaceColor', '", 16);
+			index += 16;
 
-			std::memcpy(&output[*index], colorName, colorLength);
-			index[0] += colorLength;
+			std::memcpy(&output[index], colorName, colorLength);
+			index += colorLength;
 
-			std::memcpy(&output[*index], "', 'EdgeColor', 'black', 'LineWidth', 1, 'FaceAlpha', 0.5);", 59);
-			index[0] += 59;
+			std::memcpy(&output[index], "', 'EdgeColor', 'black', 'LineWidth', 1, 'FaceAlpha', 0.5);", 59);
+			index += 59;
 			
-			output[*index] = END_OF_LINE;
-			output[*index + 1] = END_OF_STRING;
-			index[0] += 2u;
+			output[index++] = END_OF_LINE;
 		}
 
-		API_INTERFACE inline void display(const sp_int xmin, const sp_int xmax, const sp_int ymin, const sp_int ymax, const sp_int zmin, const sp_int zmax, sp_char* output, sp_uint* index)
+		API_INTERFACE inline void display(const sp_int xmin, const sp_int xmax, const sp_int ymin, const sp_int ymax, const sp_int zmin, const sp_int zmax, sp_char* output, sp_uint& index)
 		{
-			sp_uint len, temp;
+			sp_uint temp;
 
-			std::memcpy(output, "surf = gca;", 11);
-			output[11] = END_OF_LINE;
-			std::memcpy(&output[12], "xlim(surf, [", 12);
-			len = 24;
+			std::memcpy(&output[index], "surf = gca;", 11);
+			output[index + 11] = END_OF_LINE;
+			std::memcpy(&output[index + 12], "xlim(surf, [", 12);
+			index += 24;
 		
-			NAMESPACE_FOUNDATION::convert(xmin, &output[len], &temp);
-			len += temp;
-			output[len] = ' ';
-			len++;
+			NAMESPACE_FOUNDATION::convert(xmin, &output[index], &temp);
+			index += temp;
+			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(xmax, &output[len], &temp);
-			len += temp;
+			NAMESPACE_FOUNDATION::convert(xmax, &output[index], &temp);
+			index += temp;
 
-			std::memcpy(&output[len], "]);", 3);
-			len += 3;
+			std::memcpy(&output[index], "]);", 3);
+			index += 3;
 
-			std::memcpy(&output[len], "ylim(surf, [", 12);
-			len += 12;
+			std::memcpy(&output[index], "ylim(surf, [", 12);
+			index += 12;
 
-			NAMESPACE_FOUNDATION::convert(ymin, &output[len], &temp);
-			len += temp;
-			output[len] = ' ';
-			len++;
+			NAMESPACE_FOUNDATION::convert(ymin, &output[index], &temp);
+			index += temp;
+			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(ymax, &output[len], &temp);
-			len += temp;
+			NAMESPACE_FOUNDATION::convert(ymax, &output[index], &temp);
+			index += temp;
 
-			std::memcpy(&output[len], "]);", 3);
-			len += 3;
+			std::memcpy(&output[index], "]);", 3);
+			index += 3;
 
-			std::memcpy(&output[len], "zlim(surf, [", 12);
-			len += 12;
+			std::memcpy(&output[index], "zlim(surf, [", 12);
+			index += 12;
 
-			NAMESPACE_FOUNDATION::convert(zmin, &output[len], &temp);
-			len += temp;
-			output[len] = ' ';
-			len++;
+			NAMESPACE_FOUNDATION::convert(zmin, &output[index], &temp);
+			index += temp;
+			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(zmax, &output[len], &temp);
-			len += temp;
+			NAMESPACE_FOUNDATION::convert(zmax, &output[index], &temp);
+			index += temp;
 
-			std::memcpy(&output[len], "]);", 3);
-			len += 3;
-			output[len] = END_OF_LINE;
-			len++;
+			std::memcpy(&output[index], "]);", 3);
+			index += 3;
+			output[index++] = END_OF_LINE;
 
-			std::memcpy(&output[len], "xlabel('x'); ylabel('y'); zlabel('z');", 38);
-			output[len + 38] = END_OF_LINE;
-			output[len + 39] = END_OF_STRING;
-			len += 39;
+			std::memcpy(&output[index], "xlabel('x'); ylabel('y'); zlabel('z');", 38);
+			index += 38;
 
-			index[0] = len;
+			output[index++] = END_OF_LINE;
 		}
 
-		API_INTERFACE inline void convert(const Vec3& vector, sp_char* output, sp_uint* length)
+		API_INTERFACE inline void convert(const Vec3& vector, sp_char* output, sp_uint& index)
 		{
 			sp_uint temp;
 			
-			NAMESPACE_FOUNDATION::convert(vector.x, &output[0], &temp);
-			length[0] = temp;
+			NAMESPACE_FOUNDATION::convert(vector.x, &output[index], &temp);
+			index += temp;
 
-			output[*length] = ' ';
-			length[0] ++;
+			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(vector.y, &output[*length], &temp);
-			length[0] += temp;
+			NAMESPACE_FOUNDATION::convert(vector.y, &output[index], &temp);
+			index += temp;
 
-			output[*length] = ' ';
-			length[0] ++;
+			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(vector.z, &output[*length], &temp);
-			length[0] += temp;
+			NAMESPACE_FOUNDATION::convert(vector.z, &output[index], &temp);
+			index += temp;
 
-			output[*length] = END_OF_STRING;
+			output[index] = END_OF_STRING;
 		}
 
 		API_INTERFACE inline void drawSphere(const Vec3& position, const sp_float radius, sp_char* output, sp_uint* outputLength)
@@ -184,75 +174,115 @@ namespace NAMESPACE_PHYSICS
 			outputLength[0] = len;
 		}
 
-		API_INTERFACE inline void convert(const SpMesh& mesh, const Vec3* vertexes, const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint* index)
+		API_INTERFACE inline void convert(const SpMesh& mesh, const Vec3* vertexes, const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint& index)
 		{
 			const sp_uint nameLength = strlen(meshName);
-			sp_uint len;
 
 			// vertexes
-			output[0] = 'v';
-			std::memcpy(&output[1], meshName, nameLength);
-			len = nameLength + 1u;
+			output[index] = 'v';
+			std::memcpy(&output[index + 1], meshName, nameLength);
+			index += nameLength + 1u;
 
-			std::memcpy(&output[len], " = [", 4);
-			len += 4u;
-
-			sp_uint tempLength = ZERO_UINT;
+			std::memcpy(&output[index], " = [", 4);
+			index += 4u;
 
 			for (sp_uint i = 0; i < mesh.vertexLength() - 1u; i++)
 			{
-				tempLength = ZERO_UINT;
-
-				convert(vertexes[i], &output[len], &tempLength);
-				len += tempLength;
+				convert(vertexes[i], output, index);
 				
-				std::memcpy(&output[len], "; ", 2);
-				len += 2u;
+				std::memcpy(&output[index], "; ", 2);
+				index += 2u;
 			}
 
-			tempLength = ZERO_UINT;
-			convert(vertexes[mesh.vertexLength() - 1u], &output[len], &tempLength);
-			len += tempLength;
+			convert(vertexes[mesh.vertexLength() - 1u], output, index);
 
-			std::memcpy(&output[len], "];", 2);
-			output[len + 2u] = END_OF_LINE;
-			len += 3u;
+			std::memcpy(&output[index], "];", 2);
+			output[index + 2u] = END_OF_LINE;
+			index += 3u;
 
 			// faces
-			output[len] = 'f';
-			std::memcpy(&output[len + 1], meshName, nameLength);
-			len += nameLength + 1u;
+			output[index] = 'f';
+			std::memcpy(&output[index + 1], meshName, nameLength);
+			index += nameLength + 1u;
 
-			std::memcpy(&output[len], " = [", 4);
-			len += 4u;
+			std::memcpy(&output[index], " = [", 4);
+			index += 4u;
 
 			const sp_uint shift = ONE_UINT;
 			for (sp_uint i = 0; i < mesh.faces->length(); i++)
 			{
 				SpFaceMesh* face = mesh.faces->get(i);
 
-				tempLength = ZERO_UINT;
-				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[0] + shift, &output[len], &tempLength);
-				output[len + tempLength] = ' ';
-				len += tempLength + 1u;
+				sp_uint len;
+				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[0] + shift, &output[index], &len);
+				index += len;
 
-				tempLength = ZERO_UINT;
-				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[1] + shift, &output[len], &tempLength);
-				output[len + tempLength] = ' ';
-				len += tempLength + 1u;
+				output[index++] = ' ';
 
-				tempLength = ZERO_UINT;
-				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[2] + shift, &output[len], &tempLength);
-				std::memcpy(&output[len + tempLength], "; ", 2);
-				len += tempLength + 2u;
+				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[1] + shift, &output[index], &len);
+				index += len;
+
+				output[index++] = ' ';
+
+				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[2] + shift, &output[index], &len);
+				index += len;
+
+				std::memcpy(&output[index], "; ", 2);
+				index += 2u;
 			}
-			std::memcpy(&output[len - 2u], "];", 2);
-			output[len++] = END_OF_LINE;
+			std::memcpy(&output[index - 2u], "];", 2);
+			output[index++] = END_OF_LINE;
 
-			tempLength = ZERO_UINT;
-			exportGraphic(meshName, colorName, &output[len], &tempLength);
+			exportGraphic(meshName, colorName, output, index);
+		}
 
-			index[0] = len + tempLength;
+		API_INTERFACE inline void convert(const Plane& plane, const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint& index)
+		{
+			const sp_uint nameLength = strlen(meshName);
+
+			// vertexes
+			output[index] = 'v';
+			std::memcpy(&output[index + 1], meshName, nameLength);
+			index += nameLength + 1u;
+
+			std::memcpy(&output[index], " = [", 4);
+			index += 4u;
+
+			const sp_uint vertexesLength = 4u;
+			Vec3 vertexes[vertexesLength];
+
+			Vec3 tangent;
+			plane.tangent(tangent);
+
+			Quat q = Quat::createRotate(degreesToRadians(-90), plane.normalVector);
+			vertexes[0] = plane.point + tangent * 2.0f;
+			vertexes[1] = q.rotate(vertexes[0]);
+			vertexes[2] = q.rotate(vertexes[1]);
+			vertexes[2] = plane.point + -tangent * 2.0f;
+			vertexes[3] = q.rotate(vertexes[2]);
+
+			for (sp_uint i = 0; i < vertexesLength -1u; i++)
+			{
+				convert(vertexes[i], output, index);
+
+				std::memcpy(&output[index], "; ", 2);
+				index += 2u;
+			}
+			convert(vertexes[3u], output, index);
+			std::memcpy(&output[index], "];", 2);
+			output[index + 2u] = END_OF_LINE;
+			index += 3u;
+
+			// faces
+			output[index] = 'f';
+			std::memcpy(&output[index + 1], meshName, nameLength);
+			index += nameLength + 1u;
+
+			std::memcpy(&output[index], " = [1, 2, 3; 3 4 1];", 20);
+			index += 20u;
+			output[index++] = END_OF_LINE;
+
+			exportGraphic(meshName, colorName, output, index);
 		}
 
 		API_INTERFACE inline void convert(const sp_uint vertexesLength, const Vec3* vertexes, const sp_char* listName, sp_char* output, sp_uint& index)
@@ -265,72 +295,56 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[index], " = [", 4);
 			index += 4u;
 
-			sp_uint tempLength = ZERO_UINT;
-
 			for (sp_uint i = 0; i < vertexesLength; i++)
 			{
-				tempLength = ZERO_UINT;
-
-				convert(vertexes[i], &output[index], &tempLength);
-				index += tempLength;
+				convert(vertexes[i], output, index);
 
 				std::memcpy(&output[index], "; ", 2);
 				index += 2u;
 			}
 
-			tempLength = ZERO_UINT;
-			convert(vertexes[vertexesLength - 1u], &output[index], &tempLength);
-			index += tempLength;
+			convert(vertexes[vertexesLength - 1u], output, index);
 
 			std::memcpy(&output[index], "];", 2);
 			output[index + 2u] = END_OF_STRING;
 			index += 2u;
 		}
 
-		API_INTERFACE inline void convertFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const sp_char* faceName, const sp_char* colorName, sp_char* output, sp_uint* index)
+		API_INTERFACE inline void convertFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const sp_char* faceName, const sp_char* colorName, sp_char* output, sp_uint& index)
 		{
 			const sp_uint nameLength = strlen(faceName);
 			
 			// vertexes
-			output[0] = 'v';
-			std::memcpy(&output[1], faceName, nameLength);
-			sp_uint len = nameLength + 1u;
+			output[index] = 'v';
+			std::memcpy(&output[index + 1], faceName, nameLength);
+			index += nameLength + 1u;
 
-			std::memcpy(&output[len], " = [", 4);
-			len += 4u;
+			std::memcpy(&output[index], " = [", 4);
+			index += 4u;
 
-			sp_uint tempLength = ZERO_UINT;
-			convert(point1, &output[len], &tempLength);
-			len += tempLength;
-			std::memcpy(&output[len], "; ", 2);
-			len += 2u;
+			convert(point1, output, index);
+			std::memcpy(&output[index], "; ", 2);
+			index += 2u;
 	
-			tempLength = ZERO_UINT;
-			convert(point2, &output[len], &tempLength);
-			len += tempLength;
-			std::memcpy(&output[len], "; ", 2);
-			len += 2u;
+			convert(point2, &output[index], index);
+			std::memcpy(&output[index], "; ", 2);
+			index += 2u;
 
-			tempLength = ZERO_UINT;
-			convert(point3, &output[len], &tempLength);
-			len += tempLength;
-			std::memcpy(&output[len], "];", 2);
-			output[len + 2u] = END_OF_LINE;
-			len += 3u;
+			convert(point3, &output[index], index);
+			std::memcpy(&output[index], "];", 2);
+			output[index + 2u] = END_OF_LINE;
+			index += 3u;
 
 			// faces
-			output[len] = 'f';
-			std::memcpy(&output[len + 1], faceName, nameLength);
-			len += nameLength + 1u;
+			output[index] = 'f';
+			std::memcpy(&output[index + 1], faceName, nameLength);
+			index += nameLength + 1u;
 
-			std::memcpy(&output[len], " = [1 2 3];", 11);
-			len += 11u;
-			output[len++] = END_OF_LINE;
+			std::memcpy(&output[index], " = [1 2 3];", 11);
+			index += 11u;
+			output[index++] = END_OF_LINE;
 
-			tempLength = ZERO_UINT;
-			exportGraphic(faceName, colorName, &output[len], &tempLength);
-
-			index[0] = len + tempLength;
+			exportGraphic(faceName, colorName, output, index);
 		}
 
 	}

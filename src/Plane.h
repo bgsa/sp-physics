@@ -60,6 +60,19 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get the tangent vector of the plane
+		/// </summary>
+		/// <param name="tangentVector">Output parameter</param>
+		/// <returns>tangentVector</returns>
+		API_INTERFACE inline void tangent(Vec3& tangentVector) const
+		{
+			cross(point, normalVector, &tangentVector);
+			normalize(tangentVector);
+
+			sp_assert(NAMESPACE_FOUNDATION::isCloseEnough(tangentVector.dot(normalVector - point), ZERO_FLOAT), "ApplicationException");
+		}
+		
+		/// <summary>
 		/// Get the equation of the plane
 		/// </summary>
 		API_INTERFACE inline void equation(Vec4* vector) const

@@ -323,6 +323,11 @@ namespace NAMESPACE_PHYSICS
 		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsAABBTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
 		((sp_float*)SpGlobalPropertiesInscance->get(ID_sapAABBTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
 		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresAABB))[0] = sapResult.length;
+		sp_uint paresAABBLen = sapResult.length;
+		sp_uint* paresAABB = ALLOC_ARRAY(sp_uint, paresAABBLen * 2);
+		std::memcpy(paresAABB, sapResult.indexes, sizeof(sp_uint) * paresAABBLen * 2);
+		AABB* aabbs = ALLOC_ARRAY(AABB, world->objectsLength());
+		gpu->commandManager->readBuffer(world->aabbFactory.boundingVolumeGPU(), sizeof(AABB) * world->objectsLength(), aabbs);
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
 
@@ -334,12 +339,53 @@ namespace NAMESPACE_PHYSICS
 		// find collisions pair on GPU using Bounding Volume
 		findCollisionsGpuDOP18(sapResult, ONE_UINT, &previousEvent, &evt);
 		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresDOP18))[0] = sapResult.length;
+		sp_uint paresKDOPLen = sapResult.length;
+		DOP18* kdops = ALLOC_ARRAY(DOP18, world->objectsLength());
+		gpu->commandManager->readBuffer(world->dop18Factory.boundingVolumeGPU(), sizeof(DOP18) * world->objectsLength(), kdops);
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
 
 		// release GPU shared buffer OpenCL and OpenGL
 		gpu->commandManager->releaseGLObjects(world->_transformsGPU, ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
+
+		if (paresKDOPLen != paresAABBLen)
+			if (paresKDOPLen > paresAABBLen)
+			{
+				// encontrar o par diferente
+				for (sp_uint i = 0; i < paresKDOPLen; i++)
+				{
+					const sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
+					const sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1u];
+					sp_uint obj1AABB, obj2AABB;
+					sp_bool found = false;
+
+					for (sp_uint j = 0; j < paresAABBLen; j++)
+					{
+						obj1AABB = paresAABB[multiplyBy2(j)];
+						obj2AABB = paresAABB[multiplyBy2(j) + 1u];
+				
+						if ((obj1 == obj1AABB && obj2 == obj2AABB) 
+							|| (obj1 == obj1AABB && obj2 == obj1AABB))
+						{
+							found = true;
+							break;
+						}
+					}
+
+					if (!found)
+					{
+						// pegar o bounding volumes desse par
+						DOP18 kdop1 = kdops[obj1];
+						DOP18 kdop2 = kdops[obj2];
+						AABB aabb1 = aabbs[obj1AABB];
+						AABB aabb2 = aabbs[obj2AABB];
+
+						// comparar
+						int a = 1;
+					}
+				}
+			}
 
 		// Run on CPU way
 		//updateMeshCache();

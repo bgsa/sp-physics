@@ -86,31 +86,7 @@ __kernel void buildInputElements(
         }
     case 3: // AABB
         {
-        /*
-            sp_uint axisId = axis;
-
-            switch(axis)
-            {
-            case DOP18_AXIS_UP_LEFT:
-            case DOP18_AXIS_UP_RIGHT:
-            case DOP18_AXIS_LEFT_DEPTH:
-            case DOP18_AXIS_RIGHT_DEPTH:
-                {
-                    axisId = DOP18_AXIS_X;
-                    break;
-                }
-            case DOP18_AXIS_UP_FRONT:
-            case DOP18_AXIS_UP_DEPTH:
-                {
-                    axisId = DOP18_AXIS_Z;
-                    break;
-                }
-            }
-
-            output[elementIndex] = boundingVolume[elementIndex * AABB_STRIDE + axisId];
-        */
             output[elementIndex] = boundingVolume[elementIndex * AABB_STRIDE + axis];
-
             break;
         }
     case 1: // SPHERE
@@ -217,8 +193,6 @@ __kernel void sweepAndPruneSingleAxis(
 
     const sp_uint boundingVolumeIndex1 = objIndex1 * DOP18_STRIDE;
 
-    //const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex1 * SP_RIGID_BODY_3D_SIZE);
-
     for(sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
         const sp_uint objIndex2 = indexes[j];
@@ -243,10 +217,6 @@ __kernel void sweepAndPruneSingleAxis(
             && (DOP18_maxPointZX >= DOP18_MIN_POINT_NEXT_ELEMENT_ZX && DOP18_minPointZX <= DOP18_MAX_POINT_NEXT_ELEMENT_ZX)  
         )
         {
-            //const sp_uint isStaticObj2 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex2 * SP_RIGID_BODY_3D_SIZE);
-            //if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
-            //    continue;
-
             const sp_uint temp = atomic_add(outputLength, 2);
             output[temp    ] = objIndex1;
             output[temp + 1] = objIndex2;
@@ -274,13 +244,34 @@ __kernel void sweepAndPruneSingleAxisAABB(
         return;
 
     const sp_uint objIndex1 = indexes[index];
-    const sp_uint boundingVolumeIndex1 = objIndex1 * AABB_STRIDE;
 
-    //const sp_bool isStaticObj1 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex1 * SP_RIGID_BODY_3D_SIZE);
+    // TODO: REMOVE
+    if (objIndex1 == ZERO_UINT) // special handler for plane
+    {
+        for(sp_uint j = 0u; j < *indexesLength; j++) // iterate over next elements
+        {
+            const sp_uint objIndex2 = indexes[j];
+            if (objIndex2 != ZERO_UINT && boundingVolumes[objIndex2 * AABB_STRIDE + AABB_AXIS_Y] < ZERO_FLOAT) // if minY(objIndex2) < 0, means it is under the plane
+            {
+                const sp_uint temp = atomic_add(outputLength, 2);
+                output[temp    ] = objIndex1;
+                output[temp + 1] = objIndex2;
+            }
+        }
+
+        return;
+    }
+
+    const sp_uint boundingVolumeIndex1 = objIndex1 * AABB_STRIDE;
 
     for (sp_uint j = index + 1u; j < *indexesLength; j++) // iterate over next elements
     {
         const sp_uint objIndex2 = indexes[j];
+
+        // TODO: REMOVE
+        if (objIndex2 == ZERO_UINT) // special handler for plane
+            continue;
+
         const sp_uint boundingVolumeIndex2 = objIndex2 * AABB_STRIDE;
 
         if (AABB_MAX_POINT < AABB_MIN_POINT_NEXT_ELEMENT)  // if max currernt element < than min of next element, means this element does not collide with nobody else beyond
@@ -291,12 +282,8 @@ __kernel void sweepAndPruneSingleAxisAABB(
             && (AABB_maxPointZ >= AABB_MIN_POINT_NEXT_ELEMENT_Z && AABB_minPointZ <= AABB_MAX_POINT_NEXT_ELEMENT_Z)
         )
         {
-            //const sp_uint isStaticObj2 = SpRigidBody3D_isStatic(rigidBodies3D, objIndex2 * SP_RIGID_BODY_3D_SIZE);
-            //if (isStaticObj1 && isStaticObj2) // if the objects are no static, inclulde on collision
-            //    continue;
-
             const sp_uint temp = atomic_add(outputLength, 2);
-            output[temp] = objIndex1;
+            output[temp    ] = objIndex1;
             output[temp + 1] = objIndex2;
         }
     }

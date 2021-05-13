@@ -111,4 +111,9 @@ inline sp_uint nextPowOf2(const sp_uint value)
     return rval;
 }
 
+inline sp_float sp_sqrt(const sp_float value)
+{
+    return sqrt(value);
+}
+
 #endif // OPNCL_BASE_HEADER

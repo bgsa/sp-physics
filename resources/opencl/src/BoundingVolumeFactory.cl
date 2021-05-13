@@ -25,33 +25,21 @@ __kernel void buildDOP18 (
 
     Vec3 orientationUpLeft;
     vec3_up_left(orientationUpLeft);
-    sp_float dotOrientationUpLeft = vec3_dot_vec3(orientationUpLeft, orientationUpLeft);
-    sp_float dfoUpLeft = vec3_dot_vec3(position, orientationUpLeft);
 
     Vec3 orientationUpRight;
     vec3_up_right(orientationUpRight);
-    sp_float dotOrientationUpRight = vec3_dot_vec3(orientationUpRight, orientationUpRight);
-    sp_float dfoUpRight = vec3_dot_vec3(position, orientationUpRight);
 
     Vec3 orientationUpFront;
     vec3_up_front(orientationUpFront);
-    sp_float dotOrientationUpFront = vec3_dot_vec3(orientationUpFront, orientationUpFront);
-    sp_float dfoUpFront = vec3_dot_vec3(position, orientationUpFront);
 
     Vec3 orientationUpDepth;
     vec3_up_depth(orientationUpDepth);
-    sp_float dotOrientationUpDepth = vec3_dot_vec3(orientationUpDepth, orientationUpDepth);
-    sp_float dfoUpDepth = vec3_dot_vec3(position, orientationUpDepth);
 
     Vec3 orientationLeftDepth;
     vec3_left_depth(orientationLeftDepth);
-    sp_float dotOrientationLeftDepth = vec3_dot_vec3(orientationLeftDepth, orientationLeftDepth);
-    sp_float dfoLeftDepth = vec3_dot_vec3(position, orientationLeftDepth);
 
     Vec3 orientationRightDepth;
     vec3_right_depth(orientationRightDepth);
-    sp_float dotOrientationRightDepth = vec3_dot_vec3(orientationRightDepth, orientationRightDepth);
-    sp_float dfoRightDepth = vec3_dot_vec3(position, orientationRightDepth);
 
     sp_float 
         right = SP_FLOAT_MIN,
@@ -59,9 +47,7 @@ __kernel void buildDOP18 (
         front = SP_FLOAT_MIN,
         left = SP_FLOAT_MAX,
         down = SP_FLOAT_MAX,
-        depth = SP_FLOAT_MAX,
-        upLeft, rightDown, upRight, downLeft, upFront, downDepth, upDepth, downFront,
-        leftDepth, rightFront, rightDepth, leftFront;
+        depth = SP_FLOAT_MAX;
 
     sp_float
         distanceUpLeft = SP_FLOAT_MIN,
@@ -95,83 +81,44 @@ __kernel void buildDOP18 (
         if (vertex.y < down) down = vertex.y;
         if (vertex.z < depth) depth = vertex.z;
     
-        sp_float newDistance = (vec3_dot_vec3(orientationUpLeft, vertex) - dfoUpLeft) / dotOrientationUpLeft;
-        
+        Vec3 arrowToVertex;
+        vec3_diff_vec3(vertex, position, arrowToVertex);
+
+        sp_float newDistance = vec3_dot_vec3(orientationUpLeft, arrowToVertex);
         if (newDistance > distanceUpLeft)
-        {
-            upLeft = vertex.x - (vertex.y - position.y);
             distanceUpLeft = newDistance;
-        }
         if (newDistance < distanceRightDown)
-        {
-            rightDown = vertex.x + (position.y - vertex.y);
             distanceRightDown = newDistance;
-        }
 
-        newDistance = (vec3_dot_vec3(orientationUpRight, vertex) - dfoUpRight) / dotOrientationUpRight;
-
+        newDistance = vec3_dot_vec3(orientationUpRight, arrowToVertex);
         if (newDistance > distanceUpRight)
-        {
-            upRight = vertex.x + (vertex.y - position.y);
             distanceUpRight = newDistance;
-        }
         if (newDistance < distanceDownLeft)
-        {
-            downLeft = vertex.x + (vertex.y - position.y);
             distanceDownLeft = newDistance;
-        }
 
-        newDistance = (vec3_dot_vec3(orientationUpFront, vertex) - dfoUpFront) / dotOrientationUpFront;
-
+        newDistance = vec3_dot_vec3(orientationUpFront, arrowToVertex);
         if (newDistance > distanceUpFront)
-        {
-            upFront = vertex.z + (vertex.y - position.y);
             distanceUpFront = newDistance;
-        }
         if (newDistance < distanceDownDepth)
-        {
-            downDepth = vertex.z + (vertex.y - position.y);
             distanceDownDepth = newDistance;
-        }
 
-        newDistance = (vec3_dot_vec3(orientationUpDepth, vertex) - dfoUpDepth) / dotOrientationUpDepth;
-
+        newDistance = vec3_dot_vec3(orientationUpDepth, arrowToVertex);
         if (newDistance > distanceUpDepth)
-        {
-            upDepth = vertex.z + (position.y - vertex.y);
             distanceUpDepth = newDistance;
-        }
         if (newDistance < distanceDownFront)
-        {
-            downFront = vertex.z + (position.y - vertex.y);
             distanceDownFront = newDistance;
-        }
 
-        newDistance = (vec3_dot_vec3(orientationLeftDepth, vertex) - dfoLeftDepth) / dotOrientationLeftDepth;
-
+        newDistance = vec3_dot_vec3(orientationLeftDepth, arrowToVertex);
         if (newDistance > distanceLeftDepth)
-        {
-            leftDepth = vertex.x + (vertex.z - position.z);
             distanceLeftDepth = newDistance;
-        }
         if (newDistance < distanceRightFront)
-        {
-            rightFront = vertex.x + (vertex.z - position.z);
             distanceRightFront = newDistance;
-        }
 
-        newDistance = (vec3_dot_vec3(orientationRightDepth, vertex) - dfoRightDepth) / dotOrientationRightDepth;
-
+        newDistance = vec3_dot_vec3(orientationRightDepth, arrowToVertex);
         if (newDistance < distanceRightDepth)
-        {
-            rightDepth = vertex.x + (position.z - vertex.z);
             distanceRightDepth = newDistance;
-        }
         if (newDistance > distanceLeftFront)
-        {
-            leftFront = vertex.x + (position.z - vertex.z);
             distanceLeftFront = newDistance;
-        }
 
         vertexIndex += 3;
     }
@@ -192,28 +139,43 @@ __kernel void buildDOP18 (
         right += 0.1f;
     }
 
+    // compute position
+    const sp_float upLeft = sp_sqrt((distanceUpLeft * distanceUpLeft) * 2.0f);
+    const sp_float downLeft = sp_sqrt((distanceDownLeft * distanceDownLeft) * 2.0f);
+    const sp_float downDepth = sp_sqrt((distanceDownDepth * distanceDownDepth) * 2.0f);
+    const sp_float upDepth = sp_sqrt((distanceUpDepth * distanceUpDepth) * 2.0f);
+    const sp_float leftDepth = sp_sqrt((distanceLeftDepth * distanceLeftDepth) * 2.0f);
+    const sp_float rightDepth = sp_sqrt((distanceRightDepth * distanceRightDepth) * 2.0f);
+
+    const sp_float rightDown = sp_sqrt((distanceRightDown * distanceRightDown) * 2.0f);
+    const sp_float upRight = sp_sqrt((distanceUpRight * distanceUpRight) * 2.0f);
+    const sp_float upFront = sp_sqrt((distanceUpFront * distanceUpFront) * 2.0f);
+    const sp_float downFront = sp_sqrt((distanceDownFront * distanceDownFront) * 2.0f);
+    const sp_float rightFront = sp_sqrt((distanceRightFront * distanceRightFront) * 2.0f);
+    const sp_float leftFront = sp_sqrt((distanceLeftFront * distanceLeftFront) * 2.0f);
+
     sp_uint outputIndex = THREAD_ID * DOP18_STRIDE;
 
     output[outputIndex + DOP18_AXIS_X] = left;
     output[outputIndex + DOP18_AXIS_Y] = down;
     output[outputIndex + DOP18_AXIS_Z] = depth;
-    output[outputIndex + DOP18_AXIS_UP_LEFT] = upLeft;
-    output[outputIndex + DOP18_AXIS_UP_RIGHT] = downLeft;
-    output[outputIndex + DOP18_AXIS_UP_FRONT] = downDepth;
-    output[outputIndex + DOP18_AXIS_UP_DEPTH] = upDepth;
-    output[outputIndex + DOP18_AXIS_LEFT_DEPTH] = leftDepth;
-    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = rightDepth;
+    output[outputIndex + DOP18_AXIS_UP_LEFT]     = position.x - upLeft;
+    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x + downLeft;
+    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z + downDepth;
+    output[outputIndex + DOP18_AXIS_UP_DEPTH]    = position.z - upDepth;
+    output[outputIndex + DOP18_AXIS_LEFT_DEPTH]  = position.x - leftDepth;
+    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x + rightDepth;
 
     outputIndex += DOP18_ORIENTATIONS;
     output[outputIndex + DOP18_AXIS_X] = right;
     output[outputIndex + DOP18_AXIS_Y] = up;
     output[outputIndex + DOP18_AXIS_Z] = front;
-    output[outputIndex + DOP18_AXIS_UP_LEFT] = rightDown;
-    output[outputIndex + DOP18_AXIS_UP_RIGHT] = upRight;
-    output[outputIndex + DOP18_AXIS_UP_FRONT] = upFront;
-    output[outputIndex + DOP18_AXIS_UP_DEPTH] = downFront;
-    output[outputIndex + DOP18_AXIS_LEFT_DEPTH] = rightFront;
-    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = leftFront;
+    output[outputIndex + DOP18_AXIS_UP_LEFT]     = position.x - rightDown;
+    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x + upRight;
+    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z + upFront;
+    output[outputIndex + DOP18_AXIS_UP_DEPTH]    = position.z - downFront;
+    output[outputIndex + DOP18_AXIS_LEFT_DEPTH]  = position.x + rightFront;
+    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x - leftFront;
 }
     
 

@@ -36,64 +36,64 @@ typedef float3 Vec3;
 	vec.z =  1.0f;
 
 #define vec3_up_left(vec) \
-	vec.x = -1.0f; \
-	vec.y = 1.0f;  \
-	vec.z = 0.0f;
+	vec.x = -0.707106f; \
+	vec.y =  0.707106f;  \
+	vec.z =  0.000000f;
 
 #define vec3_right_down(vec) \
-	vec.x = 1.0f;  \
-	vec.y = -1.0f; \
-	vec.z = 0.0f;
+	vec.x =  0.707106f;  \
+	vec.y = -0.707106f; \
+	vec.z =  0.000000f;
 
 #define vec3_up_right(vec) \
-	vec.x = 0.707f;  \
-	vec.y = 0.707f; \
-	vec.z = 0.0f;
+	vec.x = 0.707106f;  \
+	vec.y = 0.707106f; \
+	vec.z = 0.000000f;
 
 #define vec3_down_left(vec) \
-	vec.x = -0.707f;  \
-	vec.y = -0.707f; \
-	vec.z = 0.0f;
+	vec.x = -0.707106f;  \
+	vec.y = -0.707106f; \
+	vec.z =  0.000000f;
 
 #define vec3_up_front(vec) \
-	vec.x = 0.0f;   \
-	vec.y = 0.707f; \
-	vec.z = 0.707f;
+	vec.x = 0.000000f;   \
+	vec.y = 0.707106f; \
+	vec.z = 0.707106f;
 
 #define vec3_down_depth(vec) \
-	vec.x = 0.0f;    \
-	vec.y = -0.707f; \
-	vec.z = -0.707f;
+	vec.x =  0.000000f;    \
+	vec.y = -0.707106f; \
+	vec.z = -0.707106f;
 
 #define vec3_up_depth(vec) \
-	vec.x = 0.0f; \
-	vec.y = 1.0f; \
-	vec.z = -1.0f;
+	vec.x =  0.000000f; \
+	vec.y =  0.707106f; \
+	vec.z = -0.707106f;
 
 #define vec3_down_front(vec) \
-	vec.x = 0.0f;  \
-	vec.y = -1.0f; \
-	vec.z = 1.0f;
+	vec.x =  0.000000f;  \
+	vec.y = -0.707106f; \
+	vec.z =  0.707106f;
 
 #define vec3_left_depth(vec) \
-	vec.x = -0.707f;  \
-	vec.y = 0.0f; \
-	vec.z = -0.707f;
+	vec.x = -0.707106f;  \
+	vec.y =  0.000000f; \
+	vec.z = -0.707106f;
 
 #define vec3_right_front(vec) \
-	vec.x = 0.707f;  \
-	vec.y = 0.0f; \
-	vec.z = 0.707f;
+	vec.x = 0.707106f;  \
+	vec.y = 0.000000f; \
+	vec.z = 0.707106f;
 
 #define vec3_right_depth(vec) \
-	vec.x = 1.0f;  \
-	vec.y = 0.0f;  \
-	vec.z = -1.0f;
+	vec.x =  0.707106f;  \
+	vec.y =  0.000000f;  \
+	vec.z = -0.707106f;
 
 #define vec3_left_front(vec) \
-	vec.x = -1.0f;  \
-	vec.y = 0.0f;  \
-	vec.z = 1.0f;
+	vec.x = -0.707106f;  \
+	vec.y =  0.000000f;  \
+	vec.z =  0.707106f;
 
 
 inline void vec3_abs(const Vec3 vec, Vec3* result)
@@ -106,6 +106,15 @@ inline void vec3_abs(const Vec3 vec, Vec3* result)
 #define vec3_dot_vec3(vector1, vector2) \
 	(vector1.x * vector2.x + vector1.y * vector2.y + vector1.z * vector2.z)
 
+#define vec3_add_vec3(vector1, vector2, output) \
+	output.x = vector1.x + vector2.x; \
+	output.y = vector1.y + vector2.y; \
+	output.z = vector1.z + vector2.z;
+
+#define vec3_diff_vec3(vector1, vector2, output) \
+	output.x = vector1.x - vector2.x; \
+	output.y = vector1.y - vector2.y; \
+	output.z = vector1.z - vector2.z;
 
 #define squared_distance(vector1, vector2) \
 	(vector2.x - vector1.x) * (vector2.x - vector1.x) +   \
