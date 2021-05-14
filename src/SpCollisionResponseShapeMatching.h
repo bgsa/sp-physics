@@ -42,13 +42,13 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 
-		void updateParticlesShape(SpRigidBodyShapeMatch* shape, const Vec3& collisionNormal, const sp_float depth, sp_uint& pointsLength, SpVertexMesh** points);
+		void updateParticlesShape(SpRigidBodyShapeMatch* shape, const Plane& plane);
 
-		void updateParticles(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, const SpCollisionDetails& collisionManifold, sp_uint& mesh1PointsLength, SpVertexMesh** mesh1Points, sp_uint& mesh2PointsLength, SpVertexMesh** mesh2Points);
+		void updateParticles(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, const SpCollisionDetails& collisionManifold);
 
-		sp_bool hasCollision(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, SpCollisionDetails* collisionManifold, sp_uint& mesh1PointsLength, SpVertexMesh** mesh1Points, sp_uint& mesh2PointsLength, SpVertexMesh** mesh2Points);
+		sp_bool hasCollision(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, SpCollisionDetails* collisionManifold);
 
-		sp_bool hasPlaneCollision(SpRigidBodyShapeMatch* shape, SpCollisionDetails* collisionManifold, sp_uint& pointsLength, SpVertexMesh** points);
+		sp_bool hasPlaneCollision(SpRigidBodyShapeMatch* shape, SpCollisionDetails* collisionManifold);
 
 		sp_bool shapeMatch(SpRigidBodyShapeMatch* shape);
 
