@@ -9,44 +9,44 @@
 #endif
 
 #define DOP18_MIN_POINT_NEXT_ELEMENT    boundingVolumes[boundingVolumeIndex2 + axis]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_X  boundingVolumes[boundingVolumeIndex2     ]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_Y  boundingVolumes[boundingVolumeIndex2 +  1]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_Z  boundingVolumes[boundingVolumeIndex2 +  2]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_XY boundingVolumes[boundingVolumeIndex2 +  3]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_YX boundingVolumes[boundingVolumeIndex2 +  4]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_YZ boundingVolumes[boundingVolumeIndex2 +  5]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_ZY boundingVolumes[boundingVolumeIndex2 +  6]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_XZ boundingVolumes[boundingVolumeIndex2 +  7]
-#define DOP18_MIN_POINT_NEXT_ELEMENT_ZX boundingVolumes[boundingVolumeIndex2 +  8]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_X  boundingVolumes[boundingVolumeIndex2 +  9]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_Y  boundingVolumes[boundingVolumeIndex2 + 10]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_Z  boundingVolumes[boundingVolumeIndex2 + 11]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_XY boundingVolumes[boundingVolumeIndex2 + 12]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_YX boundingVolumes[boundingVolumeIndex2 + 13]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_YZ boundingVolumes[boundingVolumeIndex2 + 14]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_ZY boundingVolumes[boundingVolumeIndex2 + 15]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_XZ boundingVolumes[boundingVolumeIndex2 + 16]
-#define DOP18_MAX_POINT_NEXT_ELEMENT_ZX boundingVolumes[boundingVolumeIndex2 + 17]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_X  boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_X]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_Y  boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_Y]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_Z  boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_Z]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_XY boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_LEFT]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_YX boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_RIGHT]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_YZ boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_FRONT]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_ZY boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_DEPTH]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_XZ boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_LEFT_DEPTH]
+#define DOP18_MIN_POINT_NEXT_ELEMENT_ZX boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_RIGHT_DEPTH]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_X  boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_X + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_Y  boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_Y + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_Z  boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_Z + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_XY boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_LEFT     + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_YX boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_RIGHT    + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_YZ boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_FRONT    + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_ZY boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_UP_DEPTH    + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_XZ boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_LEFT_DEPTH  + DOP18_ORIENTATIONS]
+#define DOP18_MAX_POINT_NEXT_ELEMENT_ZX boundingVolumes[boundingVolumeIndex2 + DOP18_AXIS_RIGHT_DEPTH + DOP18_ORIENTATIONS]
 
 #define DOP18_MAX_POINT  boundingVolumes[boundingVolumeIndex1 + DOP18_ORIENTATIONS + axis]
-#define DOP18_minPointX  boundingVolumes[boundingVolumeIndex1     ]
-#define DOP18_minPointY  boundingVolumes[boundingVolumeIndex1 +  1]
-#define DOP18_minPointZ  boundingVolumes[boundingVolumeIndex1 +  2]
-#define DOP18_minPointXY boundingVolumes[boundingVolumeIndex1 +  3]
-#define DOP18_minPointYX boundingVolumes[boundingVolumeIndex1 +  4]
-#define DOP18_minPointYZ boundingVolumes[boundingVolumeIndex1 +  5]
-#define DOP18_minPointZY boundingVolumes[boundingVolumeIndex1 +  6]
-#define DOP18_minPointXZ boundingVolumes[boundingVolumeIndex1 +  7]
-#define DOP18_minPointZX boundingVolumes[boundingVolumeIndex1 +  8]
-#define DOP18_maxPointX  boundingVolumes[boundingVolumeIndex1 +  9]
-#define DOP18_maxPointY  boundingVolumes[boundingVolumeIndex1 + 10]
-#define DOP18_maxPointZ  boundingVolumes[boundingVolumeIndex1 + 11]
-#define DOP18_maxPointXY boundingVolumes[boundingVolumeIndex1 + 12]
-#define DOP18_maxPointYX boundingVolumes[boundingVolumeIndex1 + 13]
-#define DOP18_maxPointYZ boundingVolumes[boundingVolumeIndex1 + 14]
-#define DOP18_maxPointZY boundingVolumes[boundingVolumeIndex1 + 15]
-#define DOP18_maxPointXZ boundingVolumes[boundingVolumeIndex1 + 16]
-#define DOP18_maxPointZX boundingVolumes[boundingVolumeIndex1 + 17]
+#define DOP18_minPointX  boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_X]
+#define DOP18_minPointY  boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_Y]
+#define DOP18_minPointZ  boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_Z]
+#define DOP18_minPointXY boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_LEFT    ]
+#define DOP18_minPointYX boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_RIGHT   ]
+#define DOP18_minPointYZ boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_FRONT   ]
+#define DOP18_minPointZY boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_DEPTH   ]
+#define DOP18_minPointXZ boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_LEFT_DEPTH ]
+#define DOP18_minPointZX boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_RIGHT_DEPTH]
+#define DOP18_maxPointX  boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_X           + DOP18_ORIENTATIONS]
+#define DOP18_maxPointY  boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_Y           + DOP18_ORIENTATIONS]
+#define DOP18_maxPointZ  boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_Z           + DOP18_ORIENTATIONS]
+#define DOP18_maxPointXY boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_LEFT     + DOP18_ORIENTATIONS]
+#define DOP18_maxPointYX boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_RIGHT    + DOP18_ORIENTATIONS]
+#define DOP18_maxPointYZ boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_FRONT    + DOP18_ORIENTATIONS]
+#define DOP18_maxPointZY boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_UP_DEPTH    + DOP18_ORIENTATIONS]
+#define DOP18_maxPointXZ boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_LEFT_DEPTH  + DOP18_ORIENTATIONS]
+#define DOP18_maxPointZX boundingVolumes[boundingVolumeIndex1 + DOP18_AXIS_RIGHT_DEPTH + DOP18_ORIENTATIONS]
 
 #define AABB_MIN_POINT_NEXT_ELEMENT boundingVolumes[boundingVolumeIndex2                     + axis]
 #define AABB_MAX_POINT              boundingVolumes[boundingVolumeIndex1 + AABB_ORIENTATIONS + axis]
@@ -175,12 +175,13 @@ __kernel void sweepAndPruneSingleAxis(
     const sp_uint objIndex1 = indexes[index];
     
     // TODO: REMOVE
+#define minY boundingVolumes[objIndex2 * DOP18_STRIDE + DOP18_AXIS_Y]
     if (objIndex1 == ZERO_UINT) // special handler for plane
     {
         for(sp_uint j = 0u; j < *indexesLength; j++) // iterate over next elements
         {
             const sp_uint objIndex2 = indexes[j];
-            if (objIndex2 != ZERO_UINT && boundingVolumes[objIndex2 * DOP18_STRIDE + 1] < ZERO_FLOAT) // if minY(objIndex2) < 0, means it is under the plane
+            if (objIndex2 != ZERO_UINT && minY < ZERO_FLOAT) // if minY(objIndex2) < 0, means it is under the plane
             {
                 const sp_uint temp = atomic_add(outputLength, 2);
                 output[temp    ] = objIndex1;
@@ -190,6 +191,7 @@ __kernel void sweepAndPruneSingleAxis(
 
         return;
     }
+#undef minY
 
     const sp_uint boundingVolumeIndex1 = objIndex1 * DOP18_STRIDE;
 
