@@ -121,6 +121,7 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef OPENCL_ENABLED
 		SP_TEST_METHOD_DEF(buildDOP18GPU);
 		SP_TEST_METHOD_DEF(buildDOP18GPU_2);
+		SP_TEST_METHOD_DEF(buildDOP18GPU_3);
 #endif
 	};
 
@@ -248,7 +249,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		model.buildMesh(mesh1);
 		Vec3 position(-2.0f, -3.0f, -4.0f);
 		Quat orientation;
-		Mat3 rotation = Mat3::createRotate(degreesToRadians(45.0f), 0.0f, 0.0f, 1.0f);
+		Mat3 rotation = Mat3::createRotate(degreesToRadians(60.0f), 0.0f, 0.0f, 1.0f);
 		rotation.convert(orientation);
 
 		SpWorldManagerInstance->current()->mesh(0, mesh1);
@@ -309,21 +310,217 @@ namespace NAMESPACE_PHYSICS_TEST
 		command->fetchInOutParameter(bv, 5);
 
 		sp_float expected[18] = {
-			-1.44988167f, -37.2522964f, -1.40542376f, -2.41890478f, -2.40097809f, -2.36195230f, -2.37334776f, -2.51303363f, -2.17095995f,
-			2.09329700f, -33.7211227f, 2.13700724f, 3.06232023f, 3.04439354f, 3.09353590f, 3.10493112f, 3.15644836f, 2.81437588f
+			-3.91134977f, -4.91134977f, -6.00000000f, -4.86330795f,  0.86330795f, -1.51013708f, -6.48986292f, -4.48986292f,  0.48986291f,
+			-0.08865010f, -1.08865011f, -2.00000000f,  0.86330795f, -4.86330795f, -6.48986292f, -1.51013708f,  0.48986291f, -4.48986292f
 		};
 
+		/* MatLab Viewer
 		Vec3 n;
 		normalize(DOP18_NORMALS[DOP18_PLANES_UP_LEFT_INDEX], n);
 		Plane planeUpLeft(Vec3(bv[DOP18_AXIS_UP_LEFT], position.y, position.z), n);
 
-		sp_char text[2000];
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_RIGHT_INDEX], n);
+		Plane planeDownRight(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_LEFT], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_UP_RIGHT_INDEX], n);
+		Plane planeUpRight(Vec3(bv[DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_LEFT_INDEX], n);
+		Plane planeDownLeft(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_UP_FRONT_INDEX], n);
+		Plane planeUpFront(Vec3(position.x, position.y, bv[DOP18_AXIS_UP_FRONT]), n);
+		
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_DEPTH_INDEX], n);
+		Plane planeDownDepth(Vec3(position.x, position.y, bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_FRONT]), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_UP_DEPTH_INDEX], n);
+		Plane planeUpDepth(Vec3(position.x, position.y, bv[DOP18_AXIS_UP_DEPTH]), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_FRONT_INDEX], n);
+		Plane planeDownFront(Vec3(position.x, position.y, bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_DEPTH]), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_LEFT_DEPTH_INDEX], n);
+		Plane planeLeftDepth(Vec3(bv[DOP18_AXIS_LEFT_DEPTH], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_RIGHT_FRONT_INDEX], n);
+		Plane planeRightFront(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_LEFT_DEPTH], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_RIGHT_DEPTH_INDEX], n);
+		Plane planeRightDepth(Vec3(bv[DOP18_AXIS_RIGHT_DEPTH], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_LEFT_FRONT_INDEX], n);
+		Plane planeLeftFront(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_RIGHT_DEPTH], position.y, position.z), n);
+
+		sp_char text[5000];
 		sp_uint index = ZERO_UINT;
 		Matlab::convert(*mesh1, (Vec3*)meshCache, "mesh1", "red", text, index);
-		Matlab::convert(planeUpLeft, "planeUpLeft", "green", text, index);
+
+		//Matlab::convert(planeUpLeft, "planeUpLeft", "green", text, index);
+		//Matlab::convert(planeUpRight, "planeUpRight", "green", text, index);
+		//Matlab::convert(planeDownLeft, "planeDownLeft", "green", text, index);
+		//Matlab::convert(planeDownRight, "planeDownRight", "green", text, index);
+		// 
+		//Matlab::convert(planeUpFront, "planeUpFront", "green", text, index);
+		//Matlab::convert(planeDownDepth, "planeDownDepth", "green", text, index);
+		//Matlab::convert(planeUpDepth, "planeUpDepth", "green", text, index);
+		//Matlab::convert(planeDownFront, "planeDownFront", "green", text, index);
+
+		Matlab::convert(planeLeftDepth, "planeLeftDepth", "green", text, index);
+		Matlab::convert(planeRightFront, "planeRightFront", "green", text, index);
+		Matlab::convert(planeRightDepth, "planeRightDepth", "green", text, index);
+		Matlab::convert(planeLeftFront, "planeLeftFront", "green", text, index);
+
 		Matlab::display(position.x - 5.0f, position.x + 5.0f, position.y - 5.0f, position.y + 5.0f, position.z - 5.0f, position.z + 5.0f, text, index);
 		text[index] = END_OF_STRING;
+		*/
 
+		for (sp_uint i = 0; i < 18; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], bv[i]), L"Wrong value.", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, buildDOP18GPU_3)
+	{
+		TestPhysic::lock();
+
+		GpuContext* context = GpuContext::init();
+		GpuDevice* gpu = context->defaultDevice();
+
+		ObjModel model;
+		model.load("resources\\models\\rocks\\obj.obj");
+
+		SpMesh* mesh1 = sp_mem_new(SpMesh)();
+		model.buildMesh(mesh1);
+		Vec3 position(-2.0f, -3.0f, -4.0f);
+		Quat orientation;
+		Mat3 rotation = Mat3::createRotate(degreesToRadians(60.0f), 1.0f, 1.0f, 0.0f);
+		rotation.convert(orientation);
+
+		SpWorldManagerInstance->current()->mesh(0, mesh1);
+		SpWorldManagerInstance->current()->collisionFeatures(0, 0);
+		SpWorldManagerInstance->current()->transforms(0)->position = position;
+		SpWorldManagerInstance->current()->transforms(0)->orientation = orientation;
+		SpWorldManagerInstance->current()->transforms(0)->scaleVector = Vec3(2.0f, 2.0f, 2.0f);
+
+		sp_float meshCache[24 * 3];
+		SpTransform* transformation = SpWorldManagerInstance->current()->transforms(0);
+		mesh1->convert((Vec3*)meshCache, *transformation);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("BoundingVolumeFactory.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		cl_program program;
+		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, nullptr, &program);
+
+		ALLOC_RELEASE(source);
+
+		const sp_size globalWorkSize[3] = { 1, 0, 0 };
+		const sp_size localWorkSize[3] = { 1, 0, 0 };
+
+		sp_uint meshesLength = 1u;
+		sp_uint meshCacheIndex = 0u;
+		sp_uint meshCacheVertexesLength = mesh1->vertexLength();
+
+		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheGPU = gpu->createBuffer(meshCache, sizeof(Vec3) * mesh1->vertexLength(), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem transformsGPU = gpu->createBuffer(SpWorldManagerInstance->current()->transforms(0), sizeof(SpTransform), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem dop18GPU = gpu->createBuffer(sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* command = gpu->commandManager
+			->createCommand()
+			->setInputParameter(meshCacheLengthGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheIndexesGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheVertexesLengthGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheGPU, sizeof(Vec3) * mesh1->vertexLength())
+			->setInputParameter(transformsGPU, sizeof(SpTransform))
+			->setInputParameter(dop18GPU, sizeof(DOP18))
+			->buildFromProgram(program, "buildDOP18");
+
+		command->execute(1, globalWorkSize, localWorkSize, 0, 0, NULL, NULL);
+
+		sp_float bv[18];
+		command->fetchInOutParameter(bv, 5);
+
+		sp_float expected[18] = {
+			-3.80925512f, -4.80925512f, -5.62364531f, -4.80808830f,  0.35860323f, -1.41664624f, -6.89498663f, -4.89498663f,  0.58335375f,
+			-0.19074499f, -1.19074500f, -2.37635469f,  0.80808830f, -4.35860348f, -6.58335400f, -1.10501337f,  0.89498662f, -4.58335400f
+		};
+
+		/*
+		// MatLab Viewer
+		Vec3 n;
+		normalize(DOP18_NORMALS[DOP18_PLANES_UP_LEFT_INDEX], n);
+		Plane planeUpLeft(Vec3(bv[DOP18_AXIS_UP_LEFT], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_RIGHT_INDEX], n);
+		Plane planeDownRight(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_LEFT], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_UP_RIGHT_INDEX], n);
+		Plane planeUpRight(Vec3(bv[DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_LEFT_INDEX], n);
+		Plane planeDownLeft(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_UP_FRONT_INDEX], n);
+		Plane planeUpFront(Vec3(position.x, position.y, bv[DOP18_AXIS_UP_FRONT]), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_DEPTH_INDEX], n);
+		Plane planeDownDepth(Vec3(position.x, position.y, bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_FRONT]), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_UP_DEPTH_INDEX], n);
+		Plane planeUpDepth(Vec3(position.x, position.y, bv[DOP18_AXIS_UP_DEPTH]), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_FRONT_INDEX], n);
+		Plane planeDownFront(Vec3(position.x, position.y, bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_DEPTH]), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_LEFT_DEPTH_INDEX], n);
+		Plane planeLeftDepth(Vec3(bv[DOP18_AXIS_LEFT_DEPTH], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_RIGHT_FRONT_INDEX], n);
+		Plane planeRightFront(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_LEFT_DEPTH], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_RIGHT_DEPTH_INDEX], n);
+		Plane planeRightDepth(Vec3(bv[DOP18_AXIS_RIGHT_DEPTH], position.y, position.z), n);
+
+		normalize(DOP18_NORMALS[DOP18_PLANES_LEFT_FRONT_INDEX], n);
+		Plane planeLeftFront(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_RIGHT_DEPTH], position.y, position.z), n);
+
+		sp_char text[5000];
+		sp_uint index = ZERO_UINT;
+		Matlab::convert(*mesh1, (Vec3*)meshCache, "mesh1", "red", text, index);
+
+		//Matlab::convert(planeUpLeft, "planeUpLeft", "green", text, index);
+		//Matlab::convert(planeUpRight, "planeUpRight", "green", text, index);
+		//Matlab::convert(planeDownLeft, "planeDownLeft", "green", text, index);
+		//Matlab::convert(planeDownRight, "planeDownRight", "green", text, index);
+		
+		//Matlab::convert(planeUpFront, "planeUpFront", "green", text, index);
+		//Matlab::convert(planeDownDepth, "planeDownDepth", "green", text, index);
+		//Matlab::convert(planeUpDepth, "planeUpDepth", "green", text, index);
+		//Matlab::convert(planeDownFront, "planeDownFront", "green", text, index);
+
+		Matlab::convert(planeLeftDepth, "planeLeftDepth", "green", text, index);
+		Matlab::convert(planeRightFront, "planeRightFront", "green", text, index);
+		Matlab::convert(planeRightDepth, "planeRightDepth", "green", text, index);
+		Matlab::convert(planeLeftFront, "planeLeftFront", "green", text, index);
+
+		Matlab::display(position.x - 5.0f, position.x + 5.0f, position.y - 5.0f, position.y + 5.0f, position.z - 5.0f, position.z + 5.0f, text, index);
+		text[index] = END_OF_STRING;
+		*/
 
 		for (sp_uint i = 0; i < 18; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], bv[i]), L"Wrong value.", LINE_INFO());

@@ -66,20 +66,30 @@ __kernel void buildDOP18 (
     const sp_uint vertexLength = meshCacheVertexesLength[THREAD_ID];
     sp_uint vertexIndex = meshCacheIndexes[THREAD_ID];
 
-    for (sp_uint i = 0u; i < vertexLength; i++)
+    for (sp_uint i = ZERO_UINT; i < vertexLength; i++)
     {
         Vec3 vertex;
         vertex.x = meshCache[vertexIndex     ];
         vertex.y = meshCache[vertexIndex + 1u];
         vertex.z = meshCache[vertexIndex + 2u];
 
-        if (vertex.x > right) right = vertex.x;
-        if (vertex.y > up) up = vertex.y;
-        if (vertex.z > front) front = vertex.z;
+        if (vertex.x > right) 
+            right = vertex.x;
 
-        if (vertex.x < left) left = vertex.x;
-        if (vertex.y < down) down = vertex.y;
-        if (vertex.z < depth) depth = vertex.z;
+        if (vertex.x < left) 
+            left = vertex.x;
+
+        if (vertex.y > up) 
+            up = vertex.y;
+        
+        if (vertex.y < down) 
+            down = vertex.y;
+
+        if (vertex.z > front) 
+            front = vertex.z;
+            
+        if (vertex.z < depth) 
+            depth = vertex.z;
     
         Vec3 arrowToVertex;
         vec3_diff_vec3(vertex, position, arrowToVertex);
@@ -160,8 +170,8 @@ __kernel void buildDOP18 (
     output[outputIndex + DOP18_AXIS_Y] = down;
     output[outputIndex + DOP18_AXIS_Z] = depth;
     output[outputIndex + DOP18_AXIS_UP_LEFT]     = position.x - upLeft;
-    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x + downLeft;
-    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z + downDepth;
+    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x + upRight;
+    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z + upFront;
     output[outputIndex + DOP18_AXIS_UP_DEPTH]    = position.z - upDepth;
     output[outputIndex + DOP18_AXIS_LEFT_DEPTH]  = position.x - leftDepth;
     output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x + rightDepth;
@@ -170,14 +180,13 @@ __kernel void buildDOP18 (
     output[outputIndex + DOP18_AXIS_X] = right;
     output[outputIndex + DOP18_AXIS_Y] = up;
     output[outputIndex + DOP18_AXIS_Z] = front;
-    output[outputIndex + DOP18_AXIS_UP_LEFT]     = position.x - rightDown;
-    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x + upRight;
-    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z + upFront;
-    output[outputIndex + DOP18_AXIS_UP_DEPTH]    = position.z - downFront;
+    output[outputIndex + DOP18_AXIS_UP_LEFT]     = position.x + rightDown;
+    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x - downLeft;
+    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z - downDepth;
+    output[outputIndex + DOP18_AXIS_UP_DEPTH]    = position.z + downFront;
     output[outputIndex + DOP18_AXIS_LEFT_DEPTH]  = position.x + rightFront;
     output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x - leftFront;
 }
-    
 
 __kernel void buildAABB(
     __global   sp_uint* meshCacheLength,
