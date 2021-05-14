@@ -179,7 +179,8 @@ namespace NAMESPACE_PHYSICS
 
 		s.fill(ZERO_UINT);
 		for (sp_uint i = 0; i < s.columns(); i++)
-			s.set(i, i, sp_sqrt(eigenValues[i]));
+			if (!NAMESPACE_FOUNDATION::isCloseEnough(eigenValues[i], ZERO_FLOAT))
+				s.set(i, i, sp_sqrt(eigenValues[i]));
 
 		Mat temp(_rows, v.columns());
 		multiply(*this, v, temp);
