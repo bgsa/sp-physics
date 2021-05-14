@@ -170,22 +170,22 @@ __kernel void buildDOP18 (
     output[outputIndex + DOP18_AXIS_Y] = down;
     output[outputIndex + DOP18_AXIS_Z] = depth;
     output[outputIndex + DOP18_AXIS_UP_LEFT]     = position.x - upLeft;
-    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x + upRight;
-    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z + upFront;
+    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x - downLeft;
+    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z - downDepth;
     output[outputIndex + DOP18_AXIS_UP_DEPTH]    = position.z - upDepth;
     output[outputIndex + DOP18_AXIS_LEFT_DEPTH]  = position.x - leftDepth;
-    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x + rightDepth;
+    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x - leftFront;
 
     outputIndex += DOP18_ORIENTATIONS;
     output[outputIndex + DOP18_AXIS_X] = right;
     output[outputIndex + DOP18_AXIS_Y] = up;
     output[outputIndex + DOP18_AXIS_Z] = front;
     output[outputIndex + DOP18_AXIS_UP_LEFT]     = position.x + rightDown;
-    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x - downLeft;
-    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z - downDepth;
+    output[outputIndex + DOP18_AXIS_UP_RIGHT]    = position.x + upRight;
+    output[outputIndex + DOP18_AXIS_UP_FRONT]    = position.z + upFront;
     output[outputIndex + DOP18_AXIS_UP_DEPTH]    = position.z + downFront;
     output[outputIndex + DOP18_AXIS_LEFT_DEPTH]  = position.x + rightFront;
-    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x - leftFront;
+    output[outputIndex + DOP18_AXIS_RIGHT_DEPTH] = position.x + rightDepth;
 }
 
 __kernel void buildAABB(
