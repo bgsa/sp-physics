@@ -310,8 +310,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		command->fetchInOutParameter(bv, 5);
 
 		sp_float expected[18] = {
-			-3.91134977f, -4.91134977f, -6.00000000f, -4.86330795f,  0.86330795f, -1.51013708f, -6.48986292f, -4.48986292f,  0.48986291f,
-			-0.08865010f, -1.08865011f, -2.00000000f,  0.86330795f, -4.86330795f, -6.48986292f, -1.51013708f,  0.48986291f, -4.48986292f
+			-3.91134977f, -4.91134977f, -6.00000000f, -4.86330795f, -4.86330795f, -6.48986292f, -6.48986292f, -4.48986292f, -4.48986292f,
+			-0.08865010f, -1.08865011f, -2.00000000f,  0.86330795f,  0.86330795f, -1.51013708f, -1.51013708f,  0.48986291f,  0.48986291f
 		};
 
 		/* MatLab Viewer
@@ -323,10 +323,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		Plane planeDownRight(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_LEFT], position.y, position.z), n);
 
 		normalize(DOP18_NORMALS[DOP18_PLANES_UP_RIGHT_INDEX], n);
-		Plane planeUpRight(Vec3(bv[DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
+		Plane planeUpRight(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
 
 		normalize(DOP18_NORMALS[DOP18_PLANES_DOWN_LEFT_INDEX], n);
-		Plane planeDownLeft(Vec3(bv[DOP18_ORIENTATIONS + DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
+		Plane planeDownLeft(Vec3(bv[DOP18_AXIS_UP_RIGHT], position.y, position.z), n);
 
 		normalize(DOP18_NORMALS[DOP18_PLANES_UP_FRONT_INDEX], n);
 		Plane planeUpFront(Vec3(position.x, position.y, bv[DOP18_AXIS_UP_FRONT]), n);
@@ -456,8 +456,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		command->fetchInOutParameter(bv, 5);
 
 		sp_float expected[18] = {
-			-3.80925512f, -4.80925512f, -5.62364531f, -4.80808830f,  0.35860323f, -1.41664624f, -6.89498663f, -4.89498663f,  0.58335375f,
-			-0.19074499f, -1.19074500f, -2.37635469f,  0.80808830f, -4.35860348f, -6.58335400f, -1.10501337f,  0.89498662f, -4.58335400f
+			-3.80925512f, -4.80925512f, -5.62364531f, -4.80808830f, -4.35860348f, -6.58335400f, -6.89498663f, -4.89498663f, -4.58335400f,
+			-0.19074499f, -1.19074500f, -2.37635469f,  0.80808830f,  0.35860323f, -1.41664624f, -1.10501337f,  0.89498662f,  0.58335375f
 		};
 
 		/*
