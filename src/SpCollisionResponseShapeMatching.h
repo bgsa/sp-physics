@@ -58,7 +58,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void solve(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2);
 
-		API_INTERFACE sp_bool updateFromShape(SpRigidBodyShapeMatch* shape);
+		API_INTERFACE void updateFromShape(SpRigidBodyShapeMatch* shape);
 
 	};
 

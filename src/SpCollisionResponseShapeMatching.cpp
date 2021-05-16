@@ -86,26 +86,30 @@ namespace NAMESPACE_PHYSICS
 		return true;
 	}
 
-	sp_bool SpCollisionResponseShapeMatching::updateFromShape(SpRigidBodyShapeMatch* shape)
+	void SpCollisionResponseShapeMatching::updateFromShape(SpRigidBodyShapeMatch* shape)
 	{
+		SpRigidBody3D* rigidBody = SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex);
+		SpTransform* transformation = SpWorldManagerInstance->current()->transforms(shape->objectIndex);
+
 		Mat3 rotation;
 		Vec3 centerOfMassAfterCollision;
-		if (!getShapeMatchingDetails(shape, centerOfMassAfterCollision, rotation))
-			return false;
 
-		Quat newOrientation;
-		rotation.convert(newOrientation);
+		if (getShapeMatchingDetails(shape, centerOfMassAfterCollision, rotation))
+		{
+			Quat newOrientation;
+			rotation.convert(newOrientation);
 
-		SpRigidBody3D* rigidBody = SpWorldManagerInstance->current()->rigidBody3D(shape->objectIndex);
+			transformation->orientation *= newOrientation;
+			rigidBody->currentState.orientation(transformation->orientation);
 
-		SpTransform* transformation = SpWorldManagerInstance->current()->transforms(shape->objectIndex);
-		transformation->orientation *= newOrientation;
-		rigidBody->currentState.orientation(transformation->orientation);
-
-		transformation->position = centerOfMassAfterCollision;
-		rigidBody->currentState.position(centerOfMassAfterCollision);
-
-		return true;
+			transformation->position = centerOfMassAfterCollision;
+			rigidBody->currentState.position(centerOfMassAfterCollision);
+		}
+		else
+		{
+			transformation->position = centerOfMassAfterCollision;
+			rigidBody->currentState.position(centerOfMassAfterCollision);
+		}
 	}
 
 	sp_bool SpCollisionResponseShapeMatching::hasPlaneCollision(SpRigidBodyShapeMatch* shape, SpCollisionDetails* collisionManifold)
@@ -227,12 +231,10 @@ namespace NAMESPACE_PHYSICS
 			Timer t;
 			t.start();
 			if (shapeMatch(shape1))
-			{
 				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
-				shape1->isDirty = true;
-			}
-			else
-				std::memcpy(shape1->particles, backupParticlesShape1, shape1->particlesLength * sizeof(Vec3)); // rollback particles
+
+			shape1->isDirty = true;
+			//else std::memcpy(shape1->particles, backupParticlesShape1, shape1->particlesLength * sizeof(Vec3)); // rollback particles
 		}
 
 		if (SpWorldManagerInstance->current()->rigidBody3D(shape2->objectIndex)->isDynamic())
@@ -248,12 +250,10 @@ namespace NAMESPACE_PHYSICS
 			Timer t;
 			t.start();
 			if (shapeMatch(shape2))
-			{
 				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
-				shape2->isDirty = true;
-			}
-			else
-				std::memcpy(shape2->particles, backupParticlesShape2, shape2->particlesLength * sizeof(Vec3)); // rollback particles
+
+			shape2->isDirty = true;
+			//else std::memcpy(shape2->particles, backupParticlesShape2, shape2->particlesLength * sizeof(Vec3)); // rollback particles
 		}
 
 		ALLOC_RELEASE(backupParticlesShape1);
