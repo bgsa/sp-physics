@@ -183,12 +183,6 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::updateParticles(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, const SpCollisionDetails& collisionManifold)
 	{
-		Vec3* backupParticlesShape1 = ALLOC_NEW_ARRAY(Vec3, shape1->particlesLength);
-		std::memcpy(backupParticlesShape1, shape1->particles, shape1->particlesLength * sizeof(Vec3));
-
-		Vec3* backupParticlesShape2 = ALLOC_NEW_ARRAY(Vec3, shape2->particlesLength);
-		std::memcpy(backupParticlesShape2, shape2->particles, shape2->particlesLength * sizeof(Vec3));
-
 		const sp_float depth = fabsf(collisionManifold.depth);
 		const SpWorld* world = SpWorldManagerInstance->current();
 
@@ -224,7 +218,6 @@ namespace NAMESPACE_PHYSICS
 			SpVertexMesh* supportPointMesh = mesh2->support(-normalToObj2, shape2->particles);
 			const Vec3 supportPoint = shape2->particles[supportPointMesh->index()];
 
-			//Plane plane(supportPoint + ((-normalToObj2) * depth), -normalToObj2);
 			Plane plane(supportPoint, -normalToObj2);
 			updateParticlesShape(shape1, plane);
 
@@ -234,7 +227,6 @@ namespace NAMESPACE_PHYSICS
 				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
 
 			shape1->isDirty = true;
-			//else std::memcpy(shape1->particles, backupParticlesShape1, shape1->particlesLength * sizeof(Vec3)); // rollback particles
 		}
 
 		if (SpWorldManagerInstance->current()->rigidBody3D(shape2->objectIndex)->isDynamic())
@@ -243,7 +235,6 @@ namespace NAMESPACE_PHYSICS
 			SpVertexMesh* supportPointMesh = mesh1->support(normalToObj2, shape1->particles);
 			const Vec3 supportPoint = shape1->particles[supportPointMesh->index()];
 
-			//Plane plane(supportPoint + (normalToObj2 * depth), normalToObj2);
 			Plane plane(supportPoint, normalToObj2);
 			updateParticlesShape(shape2, plane);
 
@@ -253,10 +244,7 @@ namespace NAMESPACE_PHYSICS
 				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
 
 			shape2->isDirty = true;
-			//else std::memcpy(shape2->particles, backupParticlesShape2, shape2->particlesLength * sizeof(Vec3)); // rollback particles
 		}
-
-		ALLOC_RELEASE(backupParticlesShape1);
 	}
 	
 }
