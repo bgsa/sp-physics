@@ -323,11 +323,11 @@ namespace NAMESPACE_PHYSICS
 		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsAABBTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0];
 		((sp_float*)SpGlobalPropertiesInscance->get(ID_sapAABBTime))[0] = ((sp_float*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0];
 		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresAABB))[0] = sapResult.length;
-		sp_uint paresAABBLen = sapResult.length;
-		sp_uint* paresAABB = ALLOC_ARRAY(sp_uint, paresAABBLen * 2);
-		std::memcpy(paresAABB, sapResult.indexes, sizeof(sp_uint) * paresAABBLen * 2);
-		AABB* aabbs = ALLOC_ARRAY(AABB, world->objectsLength());
-		gpu->commandManager->readBuffer(world->aabbFactory.boundingVolumeGPU(), sizeof(AABB) * world->objectsLength(), aabbs);
+		//sp_uint paresAABBLen = sapResult.length;
+		//sp_uint* paresAABB = ALLOC_ARRAY(sp_uint, paresAABBLen * 2);
+		//std::memcpy(paresAABB, sapResult.indexes, sizeof(sp_uint) * paresAABBLen * 2);
+		//AABB* aabbs = ALLOC_ARRAY(AABB, world->objectsLength());
+		//gpu->commandManager->readBuffer(world->aabbFactory.boundingVolumeGPU(), sizeof(AABB) * world->objectsLength(), aabbs);
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
 
@@ -339,9 +339,9 @@ namespace NAMESPACE_PHYSICS
 		// find collisions pair on GPU using Bounding Volume
 		findCollisionsGpuDOP18(sapResult, ONE_UINT, &previousEvent, &evt);
 		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresDOP18))[0] = sapResult.length;
-		sp_uint paresKDOPLen = sapResult.length;
-		DOP18* kdops = ALLOC_ARRAY(DOP18, world->objectsLength());
-		gpu->commandManager->readBuffer(world->dop18Factory.boundingVolumeGPU(), sizeof(DOP18) * world->objectsLength(), kdops);
+		//sp_uint paresKDOPLen = sapResult.length;
+		//DOP18* kdops = ALLOC_ARRAY(DOP18, world->objectsLength());
+		//gpu->commandManager->readBuffer(world->dop18Factory.boundingVolumeGPU(), sizeof(DOP18) * world->objectsLength(), kdops);
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
 
@@ -349,9 +349,11 @@ namespace NAMESPACE_PHYSICS
 		gpu->commandManager->releaseGLObjects(world->_transformsGPU, ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
 
+		/* Test kdop x aabb
 		if (paresKDOPLen != paresAABBLen)
 			if (paresKDOPLen > paresAABBLen)
 			{
+
 				// encontrar o par diferente
 				for (sp_uint i = 0; i < paresKDOPLen; i++)
 				{
@@ -386,6 +388,7 @@ namespace NAMESPACE_PHYSICS
 					}
 				}
 			}
+		*/
 
 		// Run on CPU way
 		//updateMeshCache();
