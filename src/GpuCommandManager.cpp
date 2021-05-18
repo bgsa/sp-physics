@@ -4,7 +4,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	GpuCommandManager::GpuCommandManager(cl_context deviceContext, cl_device_id deviceId, cl_queue_properties queueProperties)
+	GpuCommandManager::GpuCommandManager(cl_context deviceContext, cl_device_id deviceId, cl_bitfield queueProperties)
 	{
 		this->deviceContext = deviceContext;
 		this->deviceId = deviceId;

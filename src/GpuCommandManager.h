@@ -19,7 +19,7 @@ namespace NAMESPACE_PHYSICS
 		cl_context deviceContext;
 		cl_command_queue commandQueue;
 
-		GpuCommandManager(cl_context deviceContext, cl_device_id deviceId, cl_queue_properties queueProperties = ZERO_SIZE);
+		GpuCommandManager(cl_context deviceContext, cl_device_id deviceId, cl_bitfield queueProperties = ZERO_SIZE);
 
 	public:
 
