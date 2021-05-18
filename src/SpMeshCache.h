@@ -16,9 +16,9 @@ namespace NAMESPACE_PHYSICS
 			vertexes = sp_mem_new_array(Vec3, vertexesLength);
 		}
 
-		API_INTERFACE inline SpMeshCache(const SpMesh* mesh, SpTransform* transformation);
+		API_INTERFACE SpMeshCache(const SpMesh* mesh, SpTransform* transformation);
 
-		API_INTERFACE inline void update(const SpMesh* mesh, SpTransform* transformation);
+		API_INTERFACE void update(const SpMesh* mesh, SpTransform* transformation);
 
 		inline ~SpMeshCache()
 		{

@@ -71,9 +71,9 @@ namespace NAMESPACE_PHYSICS
 		Vec3 ac = point3 - point1;
 		Vec3 ab = point2 - point1;
 		Vec3 abXac, temp1, temp2;
-		cross(ab, ac, &abXac);
-		cross(abXac, ab, &temp1);
-		cross(ac, abXac, &temp2);
+		cross(ab, ac, abXac);
+		cross(abXac, ab, temp1);
+		cross(ac, abXac, temp2);
 
 		// this is the vector from a TO the circumsphere center
 		const Vec3 toCircumsphereCenter = (temp1 * ac.squaredLength() + temp2 *ab.squaredLength()) / (TWO_FLOAT * abXac.squaredLength());

@@ -67,7 +67,7 @@ namespace NAMESPACE_PHYSICS
 #ifdef AVX_ENABLED
 			return sp_vec3_length_simd(sp_vec3_convert_simd((*this))).m128_f32[0];
 #else
-			return sp_sqrt(vector.squaredLength());
+			return sp_sqrt(squaredLength());
 #endif
 		}
 
@@ -511,26 +511,6 @@ namespace NAMESPACE_PHYSICS
 	}
 
 	/// <summary>
-	/// Get the normalized direction
-	/// output = noramlize(input2 - input1)
-	/// </summary>
-	/// <param name="input1">Vector 1</param>
-	/// <param name="input2">Vector 2</param>
-	/// <param name="output">Normalized vector direction</param>
-	/// <returns></returns>
-	API_INTERFACE inline void direction(const Vec3& input1, const Vec3& input2, Vec3* output)
-	{
-#ifdef AVX_ENABLED
-		__m128 temp = sp_vec3_sub_simd(sp_vec3_convert_simd(input2), sp_vec3_convert_simd(input1));
-		__m128 output_simd = sp_vec3_normalize_simd(temp);
-		std::memcpy(output, output_simd.m128_f32, SIZEOF_FLOAT * 3u);
-#else
-		diff(input2, input1, output);
-		normalize(output);
-#endif
-	}
-
-	/// <summary>
 	/// Normalize the vector
 	/// </summary>
 	/// <param name="vector">Vector to be normalized</param>
@@ -547,7 +527,7 @@ namespace NAMESPACE_PHYSICS
 		vector.y = result[1];
 		vector.z = result[2];
 #else
-		const sp_float len = length(*vector);
+		const sp_float len = length(vector);
 
 		sp_assert(len != ZERO_FLOAT, "InvalidArgumentException");   // avoid division by zero
 
@@ -556,6 +536,26 @@ namespace NAMESPACE_PHYSICS
 		vector.x *= vectorLengthInverted;
 		vector.y *= vectorLengthInverted;
 		vector.z *= vectorLengthInverted;
+#endif
+	}
+
+	/// <summary>
+	/// Get the normalized direction
+	/// output = noramlize(input2 - input1)
+	/// </summary>
+	/// <param name="input1">Vector 1</param>
+	/// <param name="input2">Vector 2</param>
+	/// <param name="output">Normalized vector direction</param>
+	/// <returns></returns>
+	API_INTERFACE inline void direction(const Vec3& input1, const Vec3& input2, Vec3& output)
+	{
+#ifdef AVX_ENABLED
+		__m128 temp = sp_vec3_sub_simd(sp_vec3_convert_simd(input2), sp_vec3_convert_simd(input1));
+		__m128 output_simd = sp_vec3_normalize_simd(temp);
+		std::memcpy(output, output_simd.m128_f32, SIZEOF_FLOAT * 3u);
+#else
+		diff(input2, input1, output);
+		normalize(output);
 #endif
 	}
 
@@ -615,11 +615,11 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="vector2">Second vector</param>
 	/// <param name="output">Crossed vector (not normalized)</param>
 	/// <returns>void</returns>
-	API_INTERFACE inline void cross(const Vec3& vector1, const Vec3& vector2, Vec3* output)
+	API_INTERFACE inline void cross(const Vec3& vector1, const Vec3& vector2, Vec3& output)
 	{
-		output->x = vector2.y * vector1.z - vector1.y * vector2.z;
-		output->y = -vector2.x * vector1.z + vector1.x * vector2.z;
-		output->z = vector2.x * vector1.y - vector1.x * vector2.y;
+		output.x = vector2.y * vector1.z - vector1.y * vector2.z;
+		output.y = -vector2.x * vector1.z + vector1.x * vector2.z;
+		output.z = vector2.x * vector1.y - vector1.x * vector2.y;
 	}
 
 	/// <summary>
@@ -636,7 +636,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float sinAngle = sinf(angle);
 
 		Vec3 temp;
-		cross(axis, point, &temp);
+		cross(axis, point, temp);
 
 		output[0] = (point * cosAngle) + (temp * sinAngle) + (axis * point.dot(axis)) * (ONE_FLOAT - cosAngle);
 	}
@@ -651,7 +651,7 @@ namespace NAMESPACE_PHYSICS
 	API_INTERFACE inline sp_float scalarTriple(const Vec3& a, const Vec3& b, const Vec3& c)
 	{
 		Vec3 temp;
-		cross(a, b, &temp);
+		cross(a, b, temp);
 		return temp.dot(c);
 	}
 
@@ -675,7 +675,7 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="p3">Point 3</param>
 	/// <param name="output">Result</param>
 	/// <returns>void</returns>
-	API_INTERFACE inline void normal(const Vec3& p1, const Vec3& p2, const Vec3& p3, Vec3* output)
+	API_INTERFACE inline void normal(const Vec3& p1, const Vec3& p2, const Vec3& p3, Vec3& output)
 	{
 #ifdef AVX_ENABLED
 		const __m128 v1_simd = sp_vec3_convert_simd(p1);

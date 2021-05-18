@@ -6,14 +6,14 @@ namespace NAMESPACE_PHYSICS
 	Plane::Plane(const Vec3& point1, const Vec3& point2, const Vec3& point3)
 	{
 		point = point1;
-		normal(point1, point2, point3, &normalVector);
+		normal(point1, point2, point3, normalVector);
 		distanceFromOrigin = normalVector.dot(point);
 	}
 
 	Plane::Plane(const Triangle3D& triangle)
 	{
 		point = triangle.point1;
-		triangle.normalFace(&normalVector);
+		triangle.normalFace(normalVector);
 		distanceFromOrigin = normalVector.dot(point);
 	}
 
@@ -45,7 +45,7 @@ namespace NAMESPACE_PHYSICS
 		const Vec3 lineAsVector = line.point2 - line.point1;
 		const sp_float angle = normalVector.dot(lineAsVector);
 
-		if (isCloseEnough(angle, ZERO_FLOAT))
+		if (NAMESPACE_FOUNDATION::isCloseEnough(angle, ZERO_FLOAT))
 			return false;
 
 		const sp_float t = (distanceFromOrigin - normalVector.dot(line.point1)) / angle;
@@ -75,7 +75,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		// Compute direction of intersection line  
 		Vec3 lineDirection;
-		cross(plane.normalVector, normalVector, &lineDirection);
+		cross(plane.normalVector, normalVector, lineDirection);
 
 		// If d is (near) zero, the planes are parallel (and separated)  
 		// or coincident, so they�re not considered intersecting  
@@ -85,7 +85,7 @@ namespace NAMESPACE_PHYSICS
 			return false;
 
 		// Compute point on intersection line  
-		cross(plane.normalVector * distanceFromOrigin - distanceFromOrigin * plane.distanceFromOrigin, lineDirection, &line->point1);
+		cross(plane.normalVector * distanceFromOrigin - distanceFromOrigin * plane.distanceFromOrigin, lineDirection, line->point1);
 		line->point1 /= denom;
 		line->point2 = line->point1 + lineDirection;
 
@@ -95,7 +95,7 @@ namespace NAMESPACE_PHYSICS
 	sp_bool Plane::intersection(const Plane& plane, Ray* ray) const
 	{
 		// Compute direction of intersection line  
-		cross(normalVector, plane.normalVector, &ray->direction);
+		cross(normalVector, plane.normalVector, ray->direction);
 
 		// If d is (near) zero, the planes are parallel (and separated)  
 		// or coincident, so they�re not considered intersecting  
@@ -105,7 +105,7 @@ namespace NAMESPACE_PHYSICS
 			return false;
 
 		// Compute point on intersection line  
-		cross(plane.normalVector * distanceFromOrigin - distanceFromOrigin * plane.distanceFromOrigin, ray->direction, &ray->point);
+		cross(plane.normalVector * distanceFromOrigin - distanceFromOrigin * plane.distanceFromOrigin, ray->direction, ray->point);
 		ray->point /= denom;
 		
 		return true;

@@ -29,11 +29,11 @@ namespace NAMESPACE_PHYSICS
 #else
 		Vec3 ab, ca;
 
-		diff(b, a, &ab);
-		diff(c, a, &ca);
+		diff(b, a, ab);
+		diff(c, a, ca);
 
 		Vec3 temp;
-		cross(ab, ca, &temp);
+		cross(ab, ca, temp);
 
 		return length(temp) * HALF_FLOAT;
 #endif
@@ -62,7 +62,7 @@ namespace NAMESPACE_PHYSICS
 			this->point3 = Vec3(point3[0], point3[1], point3[2]);
 		}
 
-		API_INTERFACE inline void normalFace(Vec3* output) const
+		API_INTERFACE inline void normalFace(Vec3& output) const
 		{
 			normal(point1, point2, point3, output);
 		}

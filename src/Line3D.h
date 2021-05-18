@@ -90,7 +90,7 @@ namespace NAMESPACE_PHYSICS
 			line.direction(direction2);
 
 			Vec3 crossedVector;
-			NAMESPACE_PHYSICS::cross(direction2, direction1, &crossedVector);
+			NAMESPACE_PHYSICS::cross(direction2, direction1, crossedVector);
 
 			return isCloseEnough(crossedVector, Vec3Zeros, _epsilon);
 		}
@@ -107,7 +107,7 @@ namespace NAMESPACE_PHYSICS
 			return sp_line3D_isPerpendicular_simd(point1, point2, line.point1, line.point2);
 #else
 			Vec3 _direction;
-			line.direction(&_direction);
+			line.direction(_direction);
 
 			return isPerpendicular(_direction, _epsilon);
 #endif
@@ -185,7 +185,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Find the cross-product with two lines
 		///</summary>
-		API_INTERFACE void cross(const Line3D& otherLine, Vec3* output) const
+		API_INTERFACE void cross(const Line3D& otherLine, Vec3& output) const
 		{
 			NAMESPACE_PHYSICS::cross(point2 - point1, otherLine.point2 - otherLine.point1, output);
 		}

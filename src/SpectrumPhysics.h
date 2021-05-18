@@ -8,16 +8,18 @@
 #include <sstream>
 #include <limits.h>
 
-#ifdef SSE4_ENABLED
-	#include <nmmintrin.h>
-#else	
-	#ifdef SSE_ENABLED
-		#include <xmmintrin.h>
+#ifdef SIMD_ENABLED
+	#ifdef SSE4_ENABLED
+		#include <nmmintrin.h>
+	#else	
+		#ifdef SSE_ENABLED
+			#include <xmmintrin.h>
+		#endif
 	#endif
-#endif
 
-#ifdef AVX_ENABLED
-	#include <immintrin.h>
+	#ifdef AVX_ENABLED
+		#include <immintrin.h>
+	#endif
 #endif
 
 #ifndef NAMESPACE_PHYSICS

@@ -27,7 +27,7 @@ namespace NAMESPACE_PHYSICS
 			vertexes[vertexesIndexes[0]]->value(),
 			vertexes[vertexesIndexes[1]]->value(),
 			vertexes[vertexesIndexes[2]]->value(),
-			&faceNormal);
+			faceNormal);
 	}
 
 	SpEdgeMesh* SpFaceMesh::edges(const sp_uint index) const

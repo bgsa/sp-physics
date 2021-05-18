@@ -105,14 +105,11 @@ namespace NAMESPACE_PHYSICS
 			output.m12 = m12 * matrixB.m11 + m22 * matrixB.m12;
 			output.m22 = m12 * matrixB.m21 + m22 * matrixB.m22;
 #else
-			for (sp_int column = 0; column < MAT2_ROW_LENGTH; column++)
-			{
-				sp_float ai0 = values[(column * MAT2_ROW_LENGTH) + 0];
-				sp_float ai1 = values[(column * MAT2_ROW_LENGTH) + 1];
+			output.m11 = m11 * matrixB.m11 + m12 * matrixB.m21;
+			output.m21 = m11 * matrixB.m12 + m12 * matrixB.m22;
 
-				result[(column * MAT2_ROW_LENGTH) + 0] = ai0 * matrixB[(0 * MAT2_ROW_LENGTH) + 0] + ai1 * matrixB[(1 * MAT2_ROW_LENGTH) + 0];
-				result[(column * MAT2_ROW_LENGTH) + 1] = ai0 * matrixB[(0 * MAT2_ROW_LENGTH) + 1] + ai1 * matrixB[(1 * MAT2_ROW_LENGTH) + 1];
-			}
+			output.m12 = m21 * matrixB.m11 + m22 * matrixB.m21;
+			output.m22 = m21 * matrixB.m12 + m22 * matrixB.m22;
 #endif
 		}
 

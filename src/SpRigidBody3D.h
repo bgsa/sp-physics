@@ -77,7 +77,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void addImpulseAngular(const Vec3& point, const Vec3& force)
 		{
 			Vec3 torqueTemp;
-			cross((point - currentState._position), force, &torqueTemp);
+			cross((point - currentState._position), force, torqueTemp);
 
 			Vec3 temp;
 			_inertialTensorInverse.multiply(torqueTemp, temp);

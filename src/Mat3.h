@@ -598,21 +598,21 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="output">Symmetric matrix</param>
 		/// <returns></returns>
-		API_INTERFACE inline void symmetric(Mat3& output) const;
+		API_INTERFACE void symmetric(Mat3& output) const;
 
 		/// <summary>
 		/// Get a symmetric matrix from this matrix using element-wise multiplication
 		/// </summary>
 		/// <param name="output">Symmetric matrix</param>
 		/// <returns></returns>
-		API_INTERFACE inline void symmetricByMultiplyElements(Mat3& output) const;
+		API_INTERFACE void symmetricByMultiplyElements(Mat3& output) const;
 
 		/// <summary>
 		/// Get a symmetric matrix from this matrix using average sum
 		/// </summary>
 		/// <param name="output">Symmetric matrix</param>
 		/// <returns></returns>
-		API_INTERFACE inline void symmetricByAverage(Mat3& output) const;		
+		API_INTERFACE void symmetricByAverage(Mat3& output) const;		
 
 		/// <summary>
 		/// Get dominant (maximum) autovalue and auto vector of this matrix 

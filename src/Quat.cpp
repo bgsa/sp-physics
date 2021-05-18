@@ -74,7 +74,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
-		if (cosTheta > ONE_FLOAT - epsilon<sp_float>())
+		if (NAMESPACE_FOUNDATION::isCloseEnough(cosTheta, ONE_FLOAT))
 		{
 			return Quat(
 				NAMESPACE_FOUNDATION::lerp(w, copyQuatB.w, t),
@@ -86,8 +86,8 @@ namespace NAMESPACE_PHYSICS
 		else
 		{
 			sp_float angle = std::acos(cosTheta);
-			return (scale(std::sinf((ONE_FLOAT - t) * angle)) + (copyQuatB * std::sinf(t * angle))) 
-						/ std::sinf(angle);
+			return (scale(sp_sin((ONE_FLOAT - t) * angle)) + (copyQuatB * sp_sin(t * angle))) 
+						/ sp_sin(angle);
 		}
 	}
 
@@ -105,7 +105,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
-		if (cosTheta > ONE_FLOAT - epsilon<sp_float>())
+		if (NAMESPACE_FOUNDATION::isCloseEnough(cosTheta, ONE_FLOAT))
 		{
 			return Quat(
 				NAMESPACE_FOUNDATION::lerp(w, copyQuatB.w, t),
@@ -119,8 +119,8 @@ namespace NAMESPACE_PHYSICS
 			sp_float angle = std::acos(cosTheta);
 			sp_float phi = angle + spinCount * PI;
 
-			return (scale(std::sinf(angle - t * phi)) + (copyQuatB * std::sinf(t * phi)))
-						/ std::sinf(angle);
+			return (scale(sp_sin(angle - t * phi)) + (copyQuatB * sp_sin(t * phi)))
+						/ sp_sin(angle);
 		}
 	}
 
@@ -263,9 +263,9 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		Vec3 angles;
-		angles.x = std::atan2f(TWO_FLOAT * (x*w - y*z), sqw - sqx - sqy + sqz);
-		angles.y = std::asinf(TWO_FLOAT * (x*z + w * y));
-		angles.z = std::atan2f(-TWO_FLOAT * (x * y - w * z), sqw + sqx - sqy - sqz);
+		angles.x = sp_arctan2(TWO_FLOAT * (x*w - y*z), sqw - sqx - sqy + sqz);
+		angles.y = sp_arcsin(TWO_FLOAT * (x*z + w * y));
+		angles.z = sp_arctan2(-TWO_FLOAT * (x * y - w * z), sqw + sqx - sqy - sqz);
 		
 		/*
 		sp_float test = x*y + z*w;
@@ -321,7 +321,7 @@ namespace NAMESPACE_PHYSICS
 #ifdef ENV_64BITS
 	sp_float Quat::operator[](sp_size index) const
 	{
-		sp_assert(index >= ZERO_SIZE && index < QUAT_LENGTH);
+		sp_assert(index >= ZERO_SIZE && index < QUAT_LENGTH, "InvalidArgumentException");
 		return ((sp_float*)this)[index];
 	}
 #endif

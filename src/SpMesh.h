@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void vertex(const sp_uint index, const SpTransform& transform, Vec3* output) const;
 
-		API_INTERFACE inline sp_uint vertexLength() const;
+		API_INTERFACE sp_uint vertexLength() const;
 	
 		API_INTERFACE SpVertexMesh* support(const Vec3& direction, const SpTransform& transform, SpVertexMesh* from) const;
 		API_INTERFACE SpVertexMesh* support(const Vec3& direction, const Vec3* vertexes, SpVertexMesh* startingFrom) const;

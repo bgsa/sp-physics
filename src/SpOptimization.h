@@ -53,7 +53,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="_epsilon">Error Margin</param>
 		/// <returns>X optimized for max fx value (returned in output_fx)</returns>
 		API_INTERFACE
-			sp_float SpOptimization::interpolation(sp_objective_function1D function, sp_optimization_type_function optimizationType,
+			sp_float interpolation(sp_objective_function1D function, sp_optimization_type_function optimizationType,
 			sp_float x0, sp_float x1, sp_float x2, sp_float* output_fx, const sp_float _epsilon = DefaultErrorMargin) const;
 
 		/// <summary>
@@ -96,7 +96,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="outputX">Optimized x function parameter</param>
 		/// <param name="outputY">Optimized y function parameter</param>
 		/// <returns>Maximum function value</returns>
-		API_INTERFACE sp_float SpOptimization::arbitrarySearch(sp_objective_function2D function,
+		API_INTERFACE sp_float arbitrarySearch(sp_objective_function2D function,
 			const sp_float xmin, const sp_float xmax, const sp_float ymin, const sp_float ymax, sp_uint iterations,
 			sp_float* outputX, sp_float* outputY) const;
 

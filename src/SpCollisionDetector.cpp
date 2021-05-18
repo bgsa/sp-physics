@@ -1,5 +1,4 @@
 #include "SpCollisionDetector.h"
-#include "SpWavefrontExporter.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -120,7 +119,7 @@ namespace NAMESPACE_PHYSICS
 		const Vec3 position2 = world->transforms(objIndex2)->position;
 
 		Vec3 _direction;
-		direction(position1, position2, &_direction);
+		direction(position1, position2, _direction);
 		
 		SpVertexMesh* extremeVertex1 = mesh1->support(_direction, details->cacheObj1->vertexes, mesh1->vertexesMesh->get(0));
 		SpVertexMesh* extremeVertex2 = mesh2->support(-_direction, details->cacheObj2->vertexes, mesh2->vertexesMesh->get(0));
@@ -168,7 +167,7 @@ namespace NAMESPACE_PHYSICS
 					cache->edgeIndex = edgeMesh1->index();
 					cache->faceIndex = faceMesh2->index();
 
-					face.normalFace(&details->collisionNormal);
+					face.normalFace(details->collisionNormal);
 
 					Plane plane(face.point1, details->collisionNormal);
 					details->depth = plane.distance(line.point1);
@@ -209,7 +208,7 @@ namespace NAMESPACE_PHYSICS
 					cache->edgeIndex = edgeMesh2->index();
 					cache->faceIndex = faceMesh1->index();
 
-					face.normalFace(&details->collisionNormal);
+					face.normalFace(details->collisionNormal);
 
 					Plane plane(face.point1, details->collisionNormal);
 					details->depth = plane.distance(line.point1);
@@ -702,7 +701,7 @@ namespace NAMESPACE_PHYSICS
 			// check if face-face contact
 			if (facesIndexesMesh2Length != ZERO_UINT)
 			{
-				details->type = SpCollisionType::FaceFace;
+				details->type = SP_COLLISION_TYPE_FACE_FACE;
 	
 				// get the contact vertex and contact center
 				for (sp_uint i = 0; i < facesIndexesMesh2Length; i++)
@@ -740,7 +739,7 @@ namespace NAMESPACE_PHYSICS
 				
 				if (NAMESPACE_FOUNDATION::isCloseEnough(surface.distance(vertex2), ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 				{
-					details->type = SpCollisionType::EdgeFace;
+					details->type = SP_COLLISION_TYPE_EDGE_FACE;
 					details->contactPointsLength = 2u;
 					details->contactPoints[0] = vertex;
 					details->contactPoints[1] = vertex2;
@@ -750,7 +749,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			// no face-face, no edge-face, so vertex-face
-			details->type = SpCollisionType::VertexFace;
+			details->type = SP_COLLISION_TYPE_VERTEX_FACE;
 			details->contactPointsLength = 1u;
 			details->contactPoints[0] = vertex;
 			details->centerContactPoint = vertex;
@@ -784,11 +783,13 @@ namespace NAMESPACE_PHYSICS
 		details->ignoreCollision = true;
 		return;
 		
+		/*
 		SpWorld* world = SpWorldManagerInstance->current();
 		Wavefront::SpWavefrontExporter exporter;
 		exporter.write(*world->mesh(world->collisionFeatures(details->objIndex1)->meshIndex), *world->transforms(details->objIndex1), "mesh1", "red");
 		exporter.write(*world->mesh(world->collisionFeatures(details->objIndex2)->meshIndex), *world->transforms(details->objIndex2), "mesh2", "blue");
 		exporter.save("temp.obj");
+		*/
 
 		sp_assert(details->ignoreCollision == false, "ApplicationException");
 		sp_assert(details->type != SpCollisionType::None, "ApplicationException");
@@ -1042,7 +1043,7 @@ namespace NAMESPACE_PHYSICS
 
 		if (intersectionPointsLength == 2u)
 		{
-			details->type = SpCollisionType::EdgeFace;
+			details->type = SP_COLLISION_TYPE_EDGE_FACE;
 			details->contactPointsLength = 2u;
 			details->contactPoints[0u] = intersectionPoints[0u];
 			details->contactPoints[1u] = intersectionPoints[1u];
@@ -1052,7 +1053,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_assert(intersectionPointsLength > MIN_INTERSECTION_POINTS, "InvalidOperationException");
 
-		details->type = SpCollisionType::FaceFace;		
+		details->type = SP_COLLISION_TYPE_FACE_FACE;
 		for (sp_uint i = 0; i < intersectionPointsLength; i++)
 		{
 			details->centerContactPoint += intersectionPoints[i];
@@ -1172,7 +1173,7 @@ namespace NAMESPACE_PHYSICS
 					if (isCloseEnough(line2.point1, p2, ERROR_MARGIN_PHYSIC) 
 						|| isCloseEnough(line2.point2, p2, ERROR_MARGIN_PHYSIC))
 					{
-						details->type = SpCollisionType::VertexEdge;
+						details->type = SP_COLLISION_TYPE_VERTEX_EDGE;
 						details->contactPointsLength = 1u;
 						details->contactPoints[0] = p2;
 						details->centerContactPoint = p2;
@@ -1188,7 +1189,7 @@ namespace NAMESPACE_PHYSICS
 					if (isCloseEnough(line1.point1, p1, ERROR_MARGIN_PHYSIC) 
 						|| isCloseEnough(line1.point2, p1, ERROR_MARGIN_PHYSIC))
 					{
-						details->type = SpCollisionType::VertexEdge;
+						details->type = SP_COLLISION_TYPE_VERTEX_EDGE;
 						details->contactPointsLength = 1u;
 						details->contactPoints[0] = p1;
 						details->centerContactPoint = p1;
@@ -1204,13 +1205,13 @@ namespace NAMESPACE_PHYSICS
 
 				smallestDistance = sqDistance;
 				contact = p1;
-				line1.cross(line2, &details->collisionNormal);
+				line1.cross(line2, details->collisionNormal);
 			}
 		}
 
 		if (NAMESPACE_FOUNDATION::isCloseEnough(smallestDistance, ZERO_FLOAT, 0.009f))
 		{
-			details->type = SpCollisionType::EdgeEdge;
+			details->type = SP_COLLISION_TYPE_EDGE_EDGE;
 			details->contactPointsLength = 1u;
 			details->contactPoints[0] = contact;
 			details->centerContactPoint = contact;
@@ -1267,7 +1268,7 @@ namespace NAMESPACE_PHYSICS
 					else
 						details->contactPoints[0] = line.point2;
 
-					details->type = SpCollisionType::VertexFace;
+					details->type = SP_COLLISION_TYPE_VERTEX_FACE;
 					details->collisionNormal = faceContact.normalVector;
 
 					return true;
@@ -1294,7 +1295,7 @@ namespace NAMESPACE_PHYSICS
 				{
 					Plane faceContact(triangle);
 
-					details->type = SpCollisionType::VertexFace;
+					details->type = SP_COLLISION_TYPE_VERTEX_FACE;
 					details->collisionNormal = faceContact.normalVector;
 					details->contactPointsLength = ONE_UINT;
 
@@ -1400,7 +1401,7 @@ namespace NAMESPACE_PHYSICS
 
 			sp_assert(contactsLength == MAX_CONTACTS, "IndexOutOfRangeException");
 			
-			details->type = SpCollisionType::EdgeFace;
+			details->type = SP_COLLISION_TYPE_EDGE_FACE;
 			details->contactPointsLength = 2u;
 			details->contactPoints[0] = contacts[0];
 			details->contactPoints[1] = contacts[1];
@@ -1500,7 +1501,7 @@ namespace NAMESPACE_PHYSICS
 		break_loops2:
 			sp_assert(contactsLength <= MAX_CONTACTS, "IndexOutOfRangeException");
 
-			details->type = SpCollisionType::EdgeFace;
+			details->type = SP_COLLISION_TYPE_EDGE_FACE;
 			details->contactPointsLength = 2u;
 			details->contactPoints[0] = contacts[0];
 			details->contactPoints[1] = contacts[1];

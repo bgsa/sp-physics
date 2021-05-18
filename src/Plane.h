@@ -66,7 +66,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>tangentVector</returns>
 		API_INTERFACE inline void tangent(Vec3& tangentVector) const
 		{
-			cross(point, normalVector, &tangentVector);
+			cross(point, normalVector, tangentVector);
 			normalize(tangentVector);
 
 			sp_assert(NAMESPACE_FOUNDATION::isCloseEnough(tangentVector.dot(normalVector - point), ZERO_FLOAT), "ApplicationException");
@@ -120,7 +120,7 @@ namespace NAMESPACE_PHYSICS
 #else
 			const sp_float angle = normalVector.dot(ray.direction);
 
-			if (isCloseEnough(angle, ZERO_FLOAT))
+			if (NAMESPACE_FOUNDATION::isCloseEnough(angle, ZERO_FLOAT))
 				return false;
 
 			const sp_float numerator = distanceFromOrigin - normalVector.dot(ray.point);
@@ -195,7 +195,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_bool isParallel(const Plane& plane, const sp_float _epsilon = DefaultErrorMargin) const
 		{
 			Vec3 temp;
-			cross(normalVector, plane.normalVector, &temp);
+			cross(normalVector, plane.normalVector, temp);
 			return isCloseEnough(temp, Vec3Zeros, _epsilon);
 		}
 

@@ -7,15 +7,12 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	enum class SpCollisionType
-	{
-		None = 0,
-		VertexFace = 1,
-		EdgeFace  = 2,
-		FaceFace  = 3,
-		EdgeEdge  = 4,
-		VertexEdge = 5
-	};
+#define SP_COLLISION_TYPE_NONE        0
+#define SP_COLLISION_TYPE_VERTEX_FACE 1
+#define SP_COLLISION_TYPE_EDGE_FACE   2
+#define SP_COLLISION_TYPE_FACE_FACE   3
+#define SP_COLLISION_TYPE_EDGE_EDGE   4
+#define SP_COLLISION_TYPE_VERTEX_EDGE 5
 
 	class SpCollisionDetails
 	{
@@ -23,7 +20,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint objIndex1;
 		sp_uint objIndex2;
 		sp_bool ignoreCollision;
-		SpCollisionType type;
+		sp_int  type;
 		sp_float timeStep;
 		sp_float timeOfCollision;
 
@@ -52,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 			cacheObj2 = nullptr;
 
 			ignoreCollision = false;
-			type = SpCollisionType::None;
+			type = SP_COLLISION_TYPE_NONE;
 			contactPointsLength = ZERO_UINT;
 			
 			vertexIndexObj1 = SP_UINT_MAX;

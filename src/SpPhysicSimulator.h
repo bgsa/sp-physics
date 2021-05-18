@@ -83,7 +83,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Back the object to the state before timestep
 		/// </summary>
-		API_INTERFACE inline void backToTime(const sp_uint index);
+		API_INTERFACE void backToTime(const sp_uint index);
 
 		API_INTERFACE void run(const sp_float elapsedTime);
 

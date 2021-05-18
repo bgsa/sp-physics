@@ -28,7 +28,7 @@ namespace NAMESPACE_PHYSICS
 		const sp_float area2 = NAMESPACE_PHYSICS::area(point2, point3, target);
 		const sp_float area3 = NAMESPACE_PHYSICS::area(point3, point1, target);
 
-		return isCloseEnough(total, area1 + area2 + area3, total * _epsilon);
+		return NAMESPACE_FOUNDATION::isCloseEnough(total, area1 + area2 + area3, total * _epsilon);
 #endif
 	}
 

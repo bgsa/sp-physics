@@ -15,14 +15,14 @@ namespace NAMESPACE_PHYSICS
 		normalize(tangent);
 
 		Vec3 temp1, temp2, d2, d3, temp;
-		cross(rayToContactObj1, tangent, &temp1);
-		cross(rayToContactObj2, tangent, &temp2);
+		cross(rayToContactObj1, tangent, temp1);
+		cross(rayToContactObj2, tangent, temp2);
 
 		obj1Properties->inertialTensorInverse().multiply(temp1, temp);
-		cross(temp, rayToContactObj1, &d2);
+		cross(temp, rayToContactObj1, d2);
 
 		obj2Properties->inertialTensorInverse().multiply(temp2, temp);
-		cross(temp, rayToContactObj2, &d3);
+		cross(temp, rayToContactObj2, d3);
 
 		const sp_float denominator = invMassSum + tangent.dot(d2 + d3);
 
@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 			if (obj2IsPositiveNormal)
 			{
 				obj1Properties->currentState._velocity -= tangentImpuse * obj1Properties->massInverse() * obj1Properties->damping();
-				cross(rayToContactObj1, tangentImpuse, &temp1);
+				cross(rayToContactObj1, tangentImpuse, temp1);
 
 				obj1Properties->inertialTensorInverse().multiply(temp1, temp);
 				obj1Properties->currentState._angularVelocity -= temp * obj1Properties->angularDamping();
@@ -55,7 +55,7 @@ namespace NAMESPACE_PHYSICS
 			else
 			{
 				obj1Properties->currentState._velocity += tangentImpuse * obj1Properties->massInverse() * obj1Properties->damping();
-				cross(rayToContactObj1, tangentImpuse, &temp1);
+				cross(rayToContactObj1, tangentImpuse, temp1);
 
 				obj1Properties->inertialTensorInverse().multiply(temp1, temp);
 				obj1Properties->currentState._angularVelocity += temp * obj1Properties->angularDamping();
@@ -67,7 +67,7 @@ namespace NAMESPACE_PHYSICS
 			if (obj2IsPositiveNormal)
 			{
 				obj2Properties->currentState._velocity += tangentImpuse * obj2Properties->massInverse() * obj2Properties->damping();
-				cross(rayToContactObj2, tangentImpuse, &temp1);
+				cross(rayToContactObj2, tangentImpuse, temp1);
 
 				obj2Properties->inertialTensorInverse().multiply(temp1, temp);
 				obj2Properties->currentState._angularVelocity += temp * obj2Properties->angularDamping();
@@ -75,7 +75,7 @@ namespace NAMESPACE_PHYSICS
 			else
 			{
 				obj2Properties->currentState._velocity -= tangentImpuse * obj2Properties->massInverse() * obj2Properties->damping();
-				cross(rayToContactObj2, tangentImpuse, &temp1);
+				cross(rayToContactObj2, tangentImpuse, temp1);
 
 				obj2Properties->inertialTensorInverse().multiply(temp1, temp);
 				obj2Properties->currentState._angularVelocity -= temp * obj2Properties->angularDamping();
@@ -105,8 +105,8 @@ namespace NAMESPACE_PHYSICS
 		diff(details->centerContactPoint, centerObj2, rayToContactObj2);
 
 		// get relative velocity
-		cross(rayToContactObj1, obj1Properties->currentState.angularVelocity(), &angularCrossContactRayObj1);
-		cross(rayToContactObj2, obj2Properties->currentState.angularVelocity(), &angularCrossContactRayObj2);
+		cross(rayToContactObj1, obj1Properties->currentState.angularVelocity(), angularCrossContactRayObj1);
+		cross(rayToContactObj2, obj2Properties->currentState.angularVelocity(), angularCrossContactRayObj2);
 
 		Vec3 pointVelocityObj1, pointVelocityObj2;
 		add(obj1Properties->currentState.velocity(), angularCrossContactRayObj1, pointVelocityObj1);
@@ -132,16 +132,16 @@ namespace NAMESPACE_PHYSICS
 
 		const sp_float numerator = -(ONE_FLOAT + cor) * relativeVelocityAtNormal;
 
-		cross(rayToContactObj1, collisionNormal, &angularCrossContactRayObj1);
-		cross(rayToContactObj2, collisionNormal, &angularCrossContactRayObj2);
+		cross(rayToContactObj1, collisionNormal, angularCrossContactRayObj1);
+		cross(rayToContactObj2, collisionNormal, angularCrossContactRayObj2);
 
 		Vec3 d2, temp;
 		obj1Properties->inertialTensorInverse().multiply(angularCrossContactRayObj1, temp);
-		cross(temp, rayToContactObj1, &d2);
+		cross(temp, rayToContactObj1, d2);
 
 		Vec3 d3;
 		obj2Properties->inertialTensorInverse().multiply(angularCrossContactRayObj2, temp);
-		cross(temp, rayToContactObj2, &d3);
+		cross(temp, rayToContactObj2, d3);
 
 		const sp_float denominator = invMassSum + collisionNormal.dot(d2 + d3);
 		sp_float j;
@@ -162,7 +162,7 @@ namespace NAMESPACE_PHYSICS
 		else
 		{
 			Vec3 angularImpulse1;
-			cross(rayToContactObj1, collisionNormal, &angularImpulse1);
+			cross(rayToContactObj1, collisionNormal, angularImpulse1);
 
 			if (obj2IsPositiveNormal)
 			{
@@ -193,7 +193,7 @@ namespace NAMESPACE_PHYSICS
 		else
 		{
 			Vec3 angularImpulse2;
-			cross(rayToContactObj2, collisionNormal, &angularImpulse2);
+			cross(rayToContactObj2, collisionNormal, angularImpulse2);
 			
 			if (obj2IsPositiveNormal)
 			{

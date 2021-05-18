@@ -33,13 +33,13 @@ namespace NAMESPACE_PHYSICS
 			return _buffer;
 		}
 
-		API_INTERFACE inline GpuBufferOpenCL* init(const sp_size size, cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		API_INTERFACE GpuBufferOpenCL* init(const sp_size size, cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
-		API_INTERFACE inline GpuBufferOpenCL* init(const sp_size size, void* value, cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		API_INTERFACE GpuBufferOpenCL* init(const sp_size size, void* value, cl_mem_flags flags = CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 		
-		API_INTERFACE inline GpuBufferOpenCL* update(void* value, const sp_uint eventLength, cl_event* events, cl_event* evt);
+		API_INTERFACE GpuBufferOpenCL* update(void* value, const sp_uint eventLength, cl_event* events, cl_event* evt);
 
-		API_INTERFACE inline void dispose();
+		API_INTERFACE void dispose();
 
 		~GpuBufferOpenCL()
 		{

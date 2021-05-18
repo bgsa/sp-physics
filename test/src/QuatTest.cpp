@@ -269,7 +269,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong value", LINE_INFO());
 
 		sp_float proof = sp_abs(result.dot(quat)); // sp_abs ???
-		Assert::AreEqual(1.0f, std::ceilf(proof), L"Wrong value", LINE_INFO());
+		Assert::AreEqual(1.0f, sp_ceil(proof), L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, Quat_toVec3_Test)

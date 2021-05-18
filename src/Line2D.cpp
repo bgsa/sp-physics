@@ -153,8 +153,8 @@ namespace NAMESPACE_PHYSICS
 
 	CollisionStatus Line2D::hasIntersections(const Circle2D& circle) const
 	{
-		sp_float distanceCenterToLine = std::ceilf(getDistance(circle.center));
-		sp_float ray = std::ceilf(circle.ray);
+		sp_float distanceCenterToLine = sp_ceil(getDistance(circle.center));
+		sp_float ray = sp_ceil(circle.ray);
 
 		if (distanceCenterToLine > ray)
 			return CollisionStatus::OUTSIDE;

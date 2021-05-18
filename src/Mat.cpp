@@ -229,6 +229,9 @@ namespace NAMESPACE_PHYSICS
 
 	void Mat::hessenberg(sp_float* matrix, const sp_uint columnLength, sp_float* output)
 	{
+		sp_assert(false, "NotImplementedException");
+		
+		/*
 		Eigen::MatrixXf m = Eigen::Map<Eigen::MatrixXf>(matrix, columnLength, columnLength);
 
 		Eigen::HessenbergDecomposition<Eigen::MatrixXcf> hd(columnLength);
@@ -237,6 +240,7 @@ namespace NAMESPACE_PHYSICS
 		Eigen::MatrixXf e = hd.packedMatrix().real();
 
 		std::memcpy(output, e.data(), columnLength * columnLength * SIZEOF_FLOAT);
+		*/
 
 		/*
 #define n columnLength

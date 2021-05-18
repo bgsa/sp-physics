@@ -283,10 +283,10 @@ namespace NAMESPACE_PHYSICS
 #else 
 			for (sp_int column = 0; column < MAT4_ROW_LENGTH; column++)
 			{
-				sp_float ai0 = values[(column * MAT4_ROW_LENGTH) + 0];
-				sp_float ai1 = values[(column * MAT4_ROW_LENGTH) + 1];
-				sp_float ai2 = values[(column * MAT4_ROW_LENGTH) + 2];
-				sp_float ai3 = values[(column * MAT4_ROW_LENGTH) + 3];
+				sp_float ai0 = matrixAsArray[(column * MAT4_ROW_LENGTH) + 0];
+				sp_float ai1 = matrixAsArray[(column * MAT4_ROW_LENGTH) + 1];
+				sp_float ai2 = matrixAsArray[(column * MAT4_ROW_LENGTH) + 2];
+				sp_float ai3 = matrixAsArray[(column * MAT4_ROW_LENGTH) + 3];
 
 				output[(column * MAT4_ROW_LENGTH) + 0] = ai0 * matrixB.m11 + ai1 * matrixB.m21 + ai2 * matrixB.m31 + ai3 * matrixB.m14;
 				output[(column * MAT4_ROW_LENGTH) + 1] = ai0 * matrixB.m12 + ai1 * matrixB.m22 + ai2 * matrixB.m32 + ai3 * matrixB.m24;

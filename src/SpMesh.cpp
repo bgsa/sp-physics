@@ -311,7 +311,7 @@ namespace NAMESPACE_PHYSICS
 		SpVertexMesh* startingFrom) const
 	{
 		Vec3 _direction;
-		direction(center, target, &_direction);
+		direction(center, target, _direction);
 
 		SpVertexMesh* vm = support(startingFrom, _direction, cache->vertexes);
 		closestPoint[0] = cache->vertexes[vm->index()];

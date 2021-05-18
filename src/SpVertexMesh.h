@@ -43,7 +43,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="localEdgeIndex">Local Edge Index</param>
 		/// <returns>Edge Object</returns>
-		API_INTERFACE inline SpEdgeMesh* edges(const sp_uint localEdgeIndex) const;
+		API_INTERFACE SpEdgeMesh* edges(const sp_uint localEdgeIndex) const;
 
 		/// <summary>
 		/// Get the global edge index, given a vertex index
@@ -61,7 +61,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="vertexIndex">Local Vertex Index</param>
 		/// <returns>Edge Object</returns>
-		API_INTERFACE inline SpEdgeMesh* findEdges(const sp_uint vertexIndex) const;
+		API_INTERFACE SpEdgeMesh* findEdges(const sp_uint vertexIndex) const;
 
 		API_INTERFACE inline sp_uint faceIndexLength() const
 		{
@@ -71,7 +71,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			return facesIndexes->get(index);
 		}
-		API_INTERFACE inline SpFaceMesh* face(const sp_uint index) const;
+		API_INTERFACE SpFaceMesh* face(const sp_uint index) const;
 
 		API_INTERFACE inline sp_bool operator==(const Vec3& _value) const
 		{

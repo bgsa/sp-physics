@@ -7,7 +7,7 @@ namespace NAMESPACE_PHYSICS_TEST
 {
 	sp_float funcSecant(sp_float x)
 	{
-		return std::cosf(x) - x;
+		return sp_cos(x) - x;
 	}
 
 	SP_TEST_CLASS(CLASS_NAME)

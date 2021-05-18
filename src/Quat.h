@@ -82,12 +82,12 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE static Quat fromEulerAngles(const sp_float roll, const sp_float pitch, const sp_float yaw)
 		{
-			const sp_float cosRoll = std::cosf(roll * HALF_FLOAT);
-			const sp_float sinRoll = std::sinf(roll * HALF_FLOAT);
-			const sp_float cosPitch = std::cosf(pitch * HALF_FLOAT);
-			const sp_float sinPitch = std::sinf(pitch * HALF_FLOAT);
-			const sp_float cosYaw = std::cosf(yaw * HALF_FLOAT);
-			const sp_float sinYaw = std::sinf(yaw * HALF_FLOAT);
+			const sp_float cosRoll = sp_cos(roll * HALF_FLOAT);
+			const sp_float sinRoll = sp_sin(roll * HALF_FLOAT);
+			const sp_float cosPitch = sp_cos(pitch * HALF_FLOAT);
+			const sp_float sinPitch = sp_sin(pitch * HALF_FLOAT);
+			const sp_float cosYaw = sp_cos(yaw * HALF_FLOAT);
+			const sp_float sinYaw = sp_sin(yaw * HALF_FLOAT);
 
 			return Quat(
 				cosYaw * cosPitch * cosRoll - sinYaw * sinPitch * sinRoll,
@@ -164,8 +164,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float angle() const
 		{
 			// TODO: TESTS !!!!
-			if (sp_abs(w) > std::cosf(0.5f))
-				return std::asinf(sp_sqrt(x * x + y * y + z * z)) * TWO_FLOAT;
+			if (sp_abs(w) > sp_cos(0.5f))
+				return sp_arcsin(sp_sqrt(x * x + y * y + z * z)) * TWO_FLOAT;
 
 			return acos(w) * TWO_FLOAT;
 		}
@@ -202,7 +202,7 @@ namespace NAMESPACE_PHYSICS
 		/// This quaternion is the rotation axis
 		/// Returns the point rotated
 		/// </summary>
-		API_INTERFACE inline Vec3 rotate(const Vec3& point) const;
+		API_INTERFACE Vec3 rotate(const Vec3& point) const;
 
 		/// <summary>
 		/// Create a rotation unit quaternion bases on angle (in radians) and directional vector provided
@@ -215,8 +215,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static Quat createRotationAxisX(sp_float angle)
 		{
 			return Quat(
-				std::cosf(angle * HALF_FLOAT),
-				std::sinf(angle * HALF_FLOAT),
+				sp_cos(angle * HALF_FLOAT),
+				sp_sin(angle * HALF_FLOAT),
 				ZERO_FLOAT,
 				ZERO_FLOAT
 			);
@@ -228,9 +228,9 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static Quat createRotationAxisY(sp_float angle)
 		{
 			return Quat(
-				std::cosf(angle * HALF_FLOAT),
+				sp_cos(angle * HALF_FLOAT),
 				ZERO_FLOAT,
-				std::sinf(angle * HALF_FLOAT),
+				sp_sin(angle * HALF_FLOAT),
 				ZERO_FLOAT
 			);
 		}
@@ -241,10 +241,10 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE static Quat createRotationAxisZ(sp_float angle)
 		{
 			return Quat(
-				std::cosf(angle * HALF_FLOAT),
+				sp_cos(angle * HALF_FLOAT),
 				ZERO_FLOAT,
 				ZERO_FLOAT,
-				std::sinf(angle * HALF_FLOAT)
+				sp_sin(angle * HALF_FLOAT)
 			);
 		}
 		
@@ -274,22 +274,22 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Convertion to Vec3
 		/// </summary>
-		API_INTERFACE inline Vec3 toVec3() const;
+		API_INTERFACE Vec3 toVec3() const;
 
 		/// <summary>
 		/// Convertion to rotational matrix 3x3
 		/// </summary>
-		API_INTERFACE inline Mat3 toMat3() const;
+		API_INTERFACE Mat3 toMat3() const;
 
 		/// <summary>
 		/// Convertion to rotational and translation matrix 4x4
 		/// </summary>
-		API_INTERFACE inline Mat4 toMat4(const Vec3& position) const;
+		API_INTERFACE Mat4 toMat4(const Vec3& position) const;
 
 		/// <summary>
 		/// Convertion to rotational matrix 4x4
 		/// </summary>
-		API_INTERFACE inline Mat4 toMat4() const;
+		API_INTERFACE Mat4 toMat4() const;
 
 		/// <summary>
 		/// Get a index from the quaternion

@@ -22,11 +22,11 @@ namespace NAMESPACE_PHYSICS
 	{
 		normalize(position - target, _forward);   //zAxis
 		
-		cross(_forward, _up, &_right);
+		cross(_forward, _up, _right);
 		normalize(_right);     //xAxis
 
 		Vec3 cameraUp;
-		cross(_right, _forward, &cameraUp);      //yAxis
+		cross(_right, _forward, cameraUp);      //yAxis
 
 		viewMatrix = {
 			_right[0], cameraUp[0], _forward[0], ZERO_FLOAT,

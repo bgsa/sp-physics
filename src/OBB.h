@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Returns the type og bounding volume
 		/// </summary>
-		API_INTERFACE BoundingVolumeType OBB::type() const;
+		API_INTERFACE BoundingVolumeType type() const;
 
 		///<summary>
 		/// Releases all allocated resources

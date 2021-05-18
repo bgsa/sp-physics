@@ -12,6 +12,10 @@
 #include "SpGpuBuffer.h"
 #include "SpGpuTextureBuffer.h"
 
+#ifdef LINUX
+	#include <GL/glx.h>
+#endif
+
 namespace NAMESPACE_PHYSICS
 {
 	class GpuDevice

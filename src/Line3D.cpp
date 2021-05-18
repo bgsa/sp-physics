@@ -1,5 +1,4 @@
 #include "Line3D.h"
-#include "Vec3.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -40,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 		diff(point2, point1, dif);
 
 		Vec3 temp;
-		NAMESPACE_PHYSICS::cross(dif, point, &temp);
+		NAMESPACE_PHYSICS::cross(dif, point, temp);
 
 		return isCloseEnough(temp, Vec3Zeros, _epsilon);
 	}
@@ -50,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 lineDirection = point2 - point1;
 
 		Vec3 crossedVector;
-		NAMESPACE_PHYSICS::cross(lineDirection, point, &crossedVector);
+		NAMESPACE_PHYSICS::cross(lineDirection, point, crossedVector);
 
 		if (crossedVector != ZERO_FLOAT)
 			return false;
@@ -113,7 +112,7 @@ namespace NAMESPACE_PHYSICS
 		return isIn;
 #else
 		Vec3 triangleNormal;
-		triangle.normalFace(&triangleNormal);
+		triangle.normalFace(triangleNormal);
 		
 		// if the normal plane is perpendicular. there is no way to cross the plane
 		// but it can be a 2D intersection ...

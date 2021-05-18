@@ -19,16 +19,16 @@ namespace NAMESPACE_PHYSICS
 		faces[0][2] = faces[1][1] = faces[3][2] = tetrahedron[2];
 		faces[1][2] = faces[2][1] = faces[3][1] = tetrahedron[3];
 
-		cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0], &faces[0][3]);
+		cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0], faces[0][3]);
 		normalize(faces[0][3]); //ABC
 
-		cross(tetrahedron[2] - tetrahedron[0], tetrahedron[3] - tetrahedron[0], &faces[1][3]);
+		cross(tetrahedron[2] - tetrahedron[0], tetrahedron[3] - tetrahedron[0], faces[1][3]);
 		normalize(faces[1][3]); //ACD
 
-		cross(tetrahedron[3] - tetrahedron[0], tetrahedron[1] - tetrahedron[0], &faces[2][3]);
+		cross(tetrahedron[3] - tetrahedron[0], tetrahedron[1] - tetrahedron[0], faces[2][3]);
 		normalize(faces[2][3]); //ADB
 
-		cross(tetrahedron[3] - tetrahedron[1], tetrahedron[2] - tetrahedron[1], &faces[3][3]);
+		cross(tetrahedron[3] - tetrahedron[1], tetrahedron[2] - tetrahedron[1], faces[3][3]);
 		normalize(faces[3][3]); //BDC
 
 		sp_uint num_faces = 4u;
@@ -132,7 +132,7 @@ namespace NAMESPACE_PHYSICS
 				faces[num_faces][0] = loose_edges[i][0];
 				faces[num_faces][1] = loose_edges[i][1];
 				faces[num_faces][2] = newSimplexPoint;
-				cross(loose_edges[i][0] - loose_edges[i][1], loose_edges[i][0] - newSimplexPoint, &faces[num_faces][3]);
+				cross(loose_edges[i][0] - loose_edges[i][1], loose_edges[i][0] - newSimplexPoint, faces[num_faces][3]);
 				normalize(faces[num_faces][3]);
 
 				//Check for wrong normal to maintain CCW winding
@@ -184,7 +184,7 @@ namespace NAMESPACE_PHYSICS
 		diff(c, a, ac);
 
 		Vec3 n;
-		NAMESPACE_PHYSICS::cross(ab, ac, &n); //triangle's normal
+		NAMESPACE_PHYSICS::cross(ab, ac, n); //triangle's normal
 
 		Vec3 AO = -a; //direction to origin
 
@@ -192,7 +192,7 @@ namespace NAMESPACE_PHYSICS
 		simp_dim = 2;
 
 		Vec3 temp;
-		NAMESPACE_PHYSICS::cross(ab, n, &temp);
+		NAMESPACE_PHYSICS::cross(ab, n, temp);
 
 		if (temp.dot(AO) > ZERO_FLOAT)  //Closest to edge ABs
 		{
@@ -202,7 +202,7 @@ namespace NAMESPACE_PHYSICS
 			return;
 		}
 
-		NAMESPACE_PHYSICS::cross(n, ac, &temp);
+		NAMESPACE_PHYSICS::cross(n, ac, temp);
 
 		if (temp.dot(AO) > ZERO_FLOAT) //Closest to edge AC
 		{
@@ -243,7 +243,7 @@ namespace NAMESPACE_PHYSICS
 
 		//Get normals of three new faces ABC, ACD, ADB
 		Vec3 ABC;
-		cross(ab, ac, &ABC);
+		cross(ab, ac, ABC);
 
 		Vec3 AO = -a; //dir to origin
 		simp_dim = 3; //hoisting this just cause
@@ -262,7 +262,7 @@ namespace NAMESPACE_PHYSICS
 		diff(d, a, ad);
 
 		Vec3 ACD;
-		cross(ac, ad, &ACD);
+		cross(ac, ad, ACD);
 
 		if (ACD.dot(AO) > ZERO_FLOAT) //In front of ACD
 		{
@@ -272,7 +272,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		Vec3 ADB;
-		cross(ad, ab, &ADB);
+		cross(ad, ab, ADB);
 
 		if (ADB.dot(AO) > ZERO_FLOAT) //In front of ADB
 		{
@@ -307,16 +307,16 @@ namespace NAMESPACE_PHYSICS
 			return false; //we didn't reach the origin, won't enclose it
 
 		Vec3 temp;
-		NAMESPACE_PHYSICS::cross(c - b, -b, &temp);
-		NAMESPACE_PHYSICS::cross(temp, c - b, &search_dir); //search perpendicular to line segment towards origin
+		NAMESPACE_PHYSICS::cross(c - b, -b, temp);
+		NAMESPACE_PHYSICS::cross(temp, c - b, search_dir); //search perpendicular to line segment towards origin
 
 		if (isCloseEnough(search_dir, Vec3Zeros)) // origin is on this line segment 
 		{
 			//Apparently any normal search vector will do?
-			NAMESPACE_PHYSICS::cross(c - b, Vec3(1.0f, 0.0f, 0.0f), &search_dir); //normal with x-axis
+			NAMESPACE_PHYSICS::cross(c - b, Vec3(1.0f, 0.0f, 0.0f), search_dir); //normal with x-axis
 
 			if (isCloseEnough(search_dir, Vec3Zeros))
-				NAMESPACE_PHYSICS::cross(c - b, Vec3(0, 0, -1), &search_dir); //normal with z-axis
+				NAMESPACE_PHYSICS::cross(c - b, Vec3(0, 0, -1), search_dir); //normal with z-axis
 		}
 		sp_int simp_dim = 2; //simplex dimension
 

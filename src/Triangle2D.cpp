@@ -42,7 +42,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_float angle = point1.angle(point2);
 
-		sp_float heigh = lengthVec2 * std::sinf(angle);
+		sp_float heigh = lengthVec2 * sp_sin(angle);
 
 		return heigh;
 	}

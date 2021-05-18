@@ -57,8 +57,8 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_float angle = 0.0f; angle < TWO_PI; angle += 0.1f)
 		{
-			points[index + 0] = ray * std::cosf(angle) + center.x;
-			points[index + 1] = ray * std::sinf(angle) + center.y;
+			points[index + 0] = ray * sp_cos(angle) + center.x;
+			points[index + 1] = ray * sp_sin(angle) + center.y;
 
 			index += 2;
 		}
@@ -73,8 +73,8 @@ namespace NAMESPACE_PHYSICS
 
 	CollisionStatus Circle2D::collisionStatus(const Vec2& point) const
 	{
-		sp_float distance = std::ceilf(point.distance(center));
-		sp_float rayDistance = std::ceilf(ray);
+		sp_float distance = sp_ceil(point.distance(center));
+		sp_float rayDistance = sp_ceil(ray);
 
 		if (distance > rayDistance)
 			return CollisionStatus::OUTSIDE;

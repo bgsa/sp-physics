@@ -22,20 +22,19 @@ namespace NAMESPACE_PHYSICS
 
 			deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
 		}
-		else
-			deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
 	#else
+		GLXContext glCtx = glXGetCurrentContext();
 		if (glCtx != nullptr)
-		{
-			GLXContext glCtx = glXGetCurrentContext();
-			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platform,
+		{			
+			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platformId,
 												CL_GLX_DISPLAY_KHR,(intptr_t)glXGetCurrentDisplay(),
 												CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
-			deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
-		}
-		else
 			deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
+		}
 	#endif
+		else
+			deviceContext = clCreateContext(NULL, 1, &id, NULL, NULL, &errorCode);
+
 		HANDLE_OPENCL_ERROR(errorCode);
 		
 		this->commandManager = sp_mem_new(GpuCommandManager)(deviceContext, id);
