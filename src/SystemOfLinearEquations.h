@@ -69,7 +69,7 @@ namespace NAMESPACE_PHYSICS
 			maxValueIndex[0] = startingFromRowIndex;
 
 			for (register sp_uint line = startingFromRowIndex; line < rowLength; line++)
-				if (std::fabsf(matrix[line * columnLength + columnIndex]) > std::fabsf(maxValue))
+				if (sp_abs(matrix[line * columnLength + columnIndex]) > sp_abs(maxValue))
 				{
 					maxValue = matrix[line * columnLength + columnIndex];
 					maxValueIndex[0] = line;

@@ -101,9 +101,9 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_bool isDiagonallyDominant() const
 		{
 			return
-				   fabsf(m11) > fabsf(m12) + fabsf(m13)
-				&& fabsf(m22) > fabsf(m21) + fabsf(m23)
-				&& fabsf(m33) > fabsf(m31) + fabsf(m32);
+				   sp_abs(m11) > sp_abs(m12) + sp_abs(m13)
+				&& sp_abs(m22) > sp_abs(m21) + sp_abs(m23)
+				&& sp_abs(m33) > sp_abs(m31) + sp_abs(m32);
 		}
 
 		/// <summary>

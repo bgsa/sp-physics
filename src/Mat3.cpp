@@ -578,8 +578,8 @@ namespace NAMESPACE_PHYSICS
 				sp_uint columnIndex;
 				sp_uint rowIndex;
 
-				if (fabsf(matrix.m12) > fabsf(matrix.m13))
-					if (fabsf(matrix.m23) > fabsf(matrix.m12))
+				if (sp_abs(matrix.m12) > sp_abs(matrix.m13))
+					if (sp_abs(matrix.m23) > sp_abs(matrix.m12))
 					{
 						rowIndex = TWO_UINT;
 						columnIndex = THREE_UINT;
@@ -590,7 +590,7 @@ namespace NAMESPACE_PHYSICS
 						columnIndex = TWO_UINT;
 					}
 				else
-					if (fabsf(matrix.m23) > fabsf(matrix.m13))
+					if (sp_abs(matrix.m23) > sp_abs(matrix.m13))
 					{
 						rowIndex = TWO_UINT;
 						columnIndex = THREE_UINT;
@@ -614,7 +614,7 @@ namespace NAMESPACE_PHYSICS
 					? ONE_FLOAT
 					: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
 				//: ONE_FLOAT / (theta + sp_sqrt(ONE_FLOAT + theta * theta));
-				//: sign(theta) / (fabsf(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
+				//: sign(theta) / (sp_abs(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
 
 				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta = cosTheta * tangentTheta;
@@ -684,8 +684,8 @@ namespace NAMESPACE_PHYSICS
 				sp_uint columnIndex;
 				sp_uint rowIndex;
 
-				if (fabsf(matrix.m12) > fabsf(matrix.m13))
-					if (fabsf(matrix.m23) > fabsf(matrix.m12))
+				if (sp_abs(matrix.m12) > sp_abs(matrix.m13))
+					if (sp_abs(matrix.m23) > sp_abs(matrix.m12))
 					{
 						rowIndex = TWO_UINT;
 						columnIndex = THREE_UINT;
@@ -696,7 +696,7 @@ namespace NAMESPACE_PHYSICS
 						columnIndex = TWO_UINT;
 					}
 				else
-					if (fabsf(matrix.m23) > fabsf(matrix.m13))
+					if (sp_abs(matrix.m23) > sp_abs(matrix.m13))
 					{
 						rowIndex = TWO_UINT;
 						columnIndex = THREE_UINT;
@@ -720,7 +720,7 @@ namespace NAMESPACE_PHYSICS
 					? ONE_FLOAT
 					: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
 					//: ONE_FLOAT / (theta + sp_sqrt(ONE_FLOAT + theta * theta));
-					//: sign(theta) / (fabsf(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
+					//: sign(theta) / (sp_abs(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
 
 				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta =  cosTheta * tangentTheta;
@@ -862,8 +862,8 @@ namespace NAMESPACE_PHYSICS
 			sp_uint columnIndex;
 			sp_uint rowIndex;
 
-			if (fabsf(matrix.m12) > fabsf(matrix.m13))
-				if (fabsf(matrix.m23) > fabsf(matrix.m12))
+			if (sp_abs(matrix.m12) > sp_abs(matrix.m13))
+				if (sp_abs(matrix.m23) > sp_abs(matrix.m12))
 				{
 					rowIndex = TWO_UINT;
 					columnIndex = THREE_UINT;
@@ -874,7 +874,7 @@ namespace NAMESPACE_PHYSICS
 					columnIndex = TWO_UINT;
 				}
 			else
-				if (fabsf(matrix.m23) > fabsf(matrix.m13))
+				if (sp_abs(matrix.m23) > sp_abs(matrix.m13))
 				{
 					rowIndex = TWO_UINT;
 					columnIndex = THREE_UINT;
@@ -898,7 +898,7 @@ namespace NAMESPACE_PHYSICS
 				? ONE_FLOAT
 				: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
 			//: ONE_FLOAT / (theta + sp_sqrt(ONE_FLOAT + theta * theta));
-			//: sign(theta) / (fabsf(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
+			//: sign(theta) / (sp_abs(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
 
 			const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 			const sp_float sinTheta = cosTheta * tangentTheta;

@@ -268,7 +268,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (sp_int i = 0; i < QUAT_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong value", LINE_INFO());
 
-		sp_float proof = std::fabsf(result.dot(quat)); // fabsf ???
+		sp_float proof = sp_abs(result.dot(quat)); // sp_abs ???
 		Assert::AreEqual(1.0f, std::ceilf(proof), L"Wrong value", LINE_INFO());
 	}
 

@@ -3,7 +3,6 @@
 
 #include "SpectrumPhysics.h"
 #include <iomanip>
-#include <eigen/Dense>
 
 namespace NAMESPACE_PHYSICS
 {

@@ -78,7 +78,7 @@ namespace NAMESPACE_PHYSICS
 		cross(plane.normalVector, normalVector, &lineDirection);
 
 		// If d is (near) zero, the planes are parallel (and separated)  
-		// or coincident, so they’re not considered intersecting  
+		// or coincident, so theyï¿½re not considered intersecting  
 		const sp_float denom = lineDirection.dot(lineDirection);
 
 		if (denom < DefaultErrorMargin)
@@ -98,7 +98,7 @@ namespace NAMESPACE_PHYSICS
 		cross(normalVector, plane.normalVector, &ray->direction);
 
 		// If d is (near) zero, the planes are parallel (and separated)  
-		// or coincident, so they’re not considered intersecting  
+		// or coincident, so theyï¿½re not considered intersecting  
 		const sp_float denom = ray->direction.dot(ray->direction);
 
 		if (denom < DefaultErrorMargin)
@@ -130,7 +130,7 @@ namespace NAMESPACE_PHYSICS
 		return NAMESPACE_PHYSICS::distance(plane.point, projectedPoint);
 
 		/* It does not work when (distanceFromOrigin - plane.distanceFromOrigin) = 0
-		return std::fabsf(distanceFromOrigin - plane.distanceFromOrigin)
+		return sp_abs(distanceFromOrigin - plane.distanceFromOrigin)
 		/ sp_sqrt(point.x * point.x + point.y * point.y + point.z * point.z);
 		*/
 #endif

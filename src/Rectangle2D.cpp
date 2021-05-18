@@ -38,7 +38,7 @@ namespace NAMESPACE_PHYSICS
 		if (width == 0.0f)
 			width = point1.x - point3.x;
 
-		return std::fabsf(width);
+		return sp_abs(width);
 	}
 
 	sp_float Rectangle2D::height() const
@@ -48,7 +48,7 @@ namespace NAMESPACE_PHYSICS
 		if (height == 0.0f)
 			height = point1.y - point3.y;
 
-		return std::fabsf(height);
+		return sp_abs(height);
 	}
 
 	sp_float Rectangle2D::area() const

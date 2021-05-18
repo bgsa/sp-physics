@@ -167,12 +167,12 @@ namespace NAMESPACE_PHYSICS
 
 	sp_float Line2D::deltaX() const
 	{
-		return std::fabsf(point1.x - point2.x);
+		return sp_abs(point1.x - point2.x);
 	}
 
 	sp_float Line2D::deltaY() const
 	{
-		return std::fabsf(point1.y - point2.y);
+		return sp_abs(point1.y - point2.y);
 	}
 
 }

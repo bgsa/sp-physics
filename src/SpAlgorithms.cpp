@@ -20,7 +20,7 @@ namespace NAMESPACE_PHYSICS
 						xi -= row[j] * approximation[j];
 				
 				output[i] = xi / row[i];
-				doNewIteration = doNewIteration || fabsf(approximation[i] - output[i]) > _epsilon;
+				doNewIteration = doNewIteration || sp_abs(approximation[i] - output[i]) > _epsilon;
 			}
 
 			if (doNewIteration)
@@ -47,7 +47,7 @@ namespace NAMESPACE_PHYSICS
 					xi -= row[j] * approximation[j];
 
 				output[i] = xi / row[i];
-				doNewIteration = doNewIteration || fabsf(approximation[i] - output[i]) > _epsilon;
+				doNewIteration = doNewIteration || sp_abs(approximation[i] - output[i]) > _epsilon;
 			}
 
 			if (doNewIteration)
@@ -74,7 +74,7 @@ namespace NAMESPACE_PHYSICS
 					xi -= row[j] * approximation[j];
 
 				output[i] = (ONE_FLOAT - relaxation) * approximation[i] + xi * (relaxation / row[i]);
-				doNewIteration = doNewIteration || fabsf(approximation[i] - output[i]) > _epsilon;
+				doNewIteration = doNewIteration || sp_abs(approximation[i] - output[i]) > _epsilon;
 			}
 
 			if (doNewIteration)

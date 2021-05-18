@@ -52,7 +52,7 @@ namespace NAMESPACE_PHYSICS
 					? ONE_FLOAT
 					: ONE_FLOAT / (theta + sign(theta) * sp_sqrt(ONE_FLOAT + theta * theta));
 				//: ONE_FLOAT / (theta + sp_sqrt(ONE_FLOAT + theta * theta));
-				//: sign(theta) / (fabsf(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
+				//: sign(theta) / (sp_abs(theta) + sp_sqrt(ONE_FLOAT + theta * theta));
 
 				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta = cosTheta * tangentTheta;
@@ -261,7 +261,7 @@ namespace NAMESPACE_PHYSICS
 			if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT))
 				alpha = -sp_sqrt(q);
 			else
-				alpha = -((sp_sqrt(q) * temp) / fabsf(temp));
+				alpha = -((sp_sqrt(q) * temp) / sp_abs(temp));
 
 			sp_float rqs = (alpha * alpha) - (alpha * temp);
 
@@ -361,7 +361,7 @@ namespace NAMESPACE_PHYSICS
 			if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT))
 				alpha = -sp_sqrt(q);
 			else
-				alpha = -((sp_sqrt(q) * temp) / fabsf(temp));
+				alpha = -((sp_sqrt(q) * temp) / sp_abs(temp));
 
 			sp_float rqs = (alpha * alpha) - (alpha * temp);
 
@@ -436,7 +436,7 @@ namespace NAMESPACE_PHYSICS
 			sp_int maxi = i;
 			
 			for (sp_int k = i + 1; k < m; ++k)
-				if (fabsf(matrix[k * rowSize + j]) > fabsf(matrix[maxi * rowSize + j]))
+				if (sp_abs(matrix[k * rowSize + j]) > sp_abs(matrix[maxi * rowSize + j]))
 					maxi = k;
 
 			if (matrix[maxi * rowSize + j] != ZERO_FLOAT)

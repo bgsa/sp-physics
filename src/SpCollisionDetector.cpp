@@ -503,7 +503,7 @@ namespace NAMESPACE_PHYSICS
 
 			hasIntersection = hasCollision(details->objIndex1, details->objIndex2, details, &cache);
 
-			_diff = std::fabsf(previousElapsedTime - elapsedTime);
+			_diff = sp_abs(previousElapsedTime - elapsedTime);
 			previousElapsedTime = elapsedTime;
 
 			if (!hasIntersection)
@@ -667,7 +667,7 @@ namespace NAMESPACE_PHYSICS
 
 			if (distance < smallerDistance)
 			{
-				// se essa edge cortar alguma face do outro, ok... é valida
+				// se essa edge cortar alguma face do outro, ok... ï¿½ valida
 
 				smallerDistance = distance;
 				edgeIndexOutput[0] = i;
@@ -1092,12 +1092,12 @@ namespace NAMESPACE_PHYSICS
 				if (!edge2.isPerpendicular(face1AsPlane.normalVector, 0.1f))
 					continue;
 
-				const sp_float distancePoint1 = fabsf(face1AsPlane.distance(edge2.point1));
+				const sp_float distancePoint1 = sp_abs(face1AsPlane.distance(edge2.point1));
 				
 				if (!NAMESPACE_FOUNDATION::isCloseEnough(distancePoint1, ZERO_FLOAT, ERROR_MARGIN_PHYSIC))
 					continue;
 
-				const sp_float distancePoint2 = fabsf(face1AsPlane.distance(edge2.point2));
+				const sp_float distancePoint2 = sp_abs(face1AsPlane.distance(edge2.point2));
 
 				if (!NAMESPACE_FOUNDATION::isCloseEnough(distancePoint1, distancePoint2, ERROR_MARGIN_PHYSIC))
 					continue;
@@ -1163,7 +1163,7 @@ namespace NAMESPACE_PHYSICS
 
 				// if the distance is greater or the contact is far away, discard
 				if (sqDistance >= smallestDistance ||
-					!NAMESPACE_FOUNDATION::isCloseEnough(std::fabsf(sqDistance), ZERO_FLOAT, 0.4f))
+					!NAMESPACE_FOUNDATION::isCloseEnough(sp_abs(sqDistance), ZERO_FLOAT, 0.4f))
 					continue;
 
 				// if the contact is at extreme of edge, it is vertex-edge collison...

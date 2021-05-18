@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS
 	sp_float Triangle2D::area() const
 	{
 		// determinant
-		const sp_float numerator = std::fabsf(point1.x * point2.y + point2.x * point3.y + point3.x * point1.y - point1.y * point2.x - point2.y * point3.x - point3.y * point1.x);
+		const sp_float numerator = sp_abs(point1.x * point2.y + point2.x * point3.y + point3.x * point1.y - point1.y * point2.x - point2.y * point3.x - point3.y * point1.x);
 		
 		return numerator * HALF_FLOAT;
 	}

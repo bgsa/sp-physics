@@ -183,7 +183,7 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCollisionResponseShapeMatching::updateParticles(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2, const SpCollisionDetails& collisionManifold)
 	{
-		const sp_float depth = fabsf(collisionManifold.depth);
+		const sp_float depth = sp_abs(collisionManifold.depth);
 		const SpWorld* world = SpWorldManagerInstance->current();
 
 		Vec3 positionObj1, positionObj2, direction, normalToObj2;

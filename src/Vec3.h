@@ -105,9 +105,9 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void abs()
 		{
-			x = std::fabsf(x);
-			y = std::fabsf(y);
-			z = std::fabsf(z);
+			x = sp_abs(x);
+			y = sp_abs(y);
+			z = sp_abs(z);
 		}
 
 		/// <summary>
@@ -439,16 +439,16 @@ namespace NAMESPACE_PHYSICS
 
 	API_INTERFACE inline void abs(Vec3& output)
 	{
-		output.x = std::fabsf(output.x);
-		output.y = std::fabsf(output.y);
-		output.z = std::fabsf(output.z);
+		output.x = sp_abs(output.x);
+		output.y = sp_abs(output.y);
+		output.z = sp_abs(output.z);
 	}
 
 	API_INTERFACE inline void abs(const Vec3& input, Vec3& output)
 	{
-		output.x = std::fabsf(input.x);
-		output.y = std::fabsf(input.y);
-		output.z = std::fabsf(input.z);
+		output.x = sp_abs(input.x);
+		output.y = sp_abs(input.y);
+		output.z = sp_abs(input.z);
 	}
 
 	/// <summary>

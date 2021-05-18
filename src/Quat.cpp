@@ -304,7 +304,7 @@ namespace NAMESPACE_PHYSICS
 		// pitch (y-axis rotation)
 		//sp_float sinp = (TWO_FLOAT * w * y + TWO_FLOAT * z * x);
 		sp_float sinp = (TWO_FLOAT * w * y - TWO_FLOAT * z * x);
-		if (std::fabsf(sinp) >= ONE_FLOAT)
+		if (sp_abs(sinp) >= ONE_FLOAT)
 			angles.y = std::copysign(HALF_PI, sinp); // use 90 degrees if out of range
 		else
 			angles.y = std::asin(sinp);

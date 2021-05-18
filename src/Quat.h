@@ -164,7 +164,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_float angle() const
 		{
 			// TODO: TESTS !!!!
-			if (std::fabsf(w) > std::cosf(0.5f))
+			if (sp_abs(w) > std::cosf(0.5f))
 				return std::asinf(sp_sqrt(x * x + y * y + z * z)) * TWO_FLOAT;
 
 			return acos(w) * TWO_FLOAT;
@@ -432,10 +432,10 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline sp_bool isCloseEnough(const Quat& compare, const sp_float _epsilon = DefaultErrorMargin) const
 		{
-			return std::fabsf(w - compare.w) <= _epsilon
-				&& std::fabsf(x - compare.x) <= _epsilon
-				&& std::fabsf(y - compare.y) <= _epsilon
-				&& std::fabsf(z - compare.z) <= _epsilon;
+			return sp_abs(w - compare.w) <= _epsilon
+				&& sp_abs(x - compare.x) <= _epsilon
+				&& sp_abs(y - compare.y) <= _epsilon
+				&& sp_abs(z - compare.z) <= _epsilon;
 		}
 	};
 
