@@ -31,7 +31,6 @@ endif()
 set (PROJECT_DIR  ${CMAKE_CURRENT_SOURCE_DIR})
 set (SOLUTION_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_DIR}/lib)
 set (SP_FOUNDATION_DIR ${SOLUTION_DIR}/sp-foundation)
 set (VENDOR_DIR ${SOLUTION_DIR}/vendor)
 
@@ -44,15 +43,16 @@ if ( ${ARCH_BITS} STREQUAL "64" )
 	set (ARCH "x86_64")
 	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -m64 -fPIC -std=c11" )
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64 -fPIC -std=c++11" )
-	set (LIB_DIR         ${VENDOR_DIR}/lib/x86_64/${CMAKE_BUILD_TYPE})
 	set (OS_LIB_DIR      /usr/lib/x86_64-linux-gnu)
 else()
 	set (ARCH "x86")	
 	set (CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -m32 -fPIC -std=c11" )
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -fPIC -std=c++11" )
-	set (LIB_DIR         ${VENDOR_DIR}/lib/x86/${CMAKE_BUILD_TYPE})
 	set (OS_LIB_DIR      /usr/local/lib)
 endif()
+
+set (LIB_DIR ${VENDOR_DIR}/lib/${ARCH}/${CMAKE_BUILD_TYPE})
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_DIR}/lib/${ARCH}/${CMAKE_BUILD_TYPE})
 
 if ( ${OPERATING_SYSTEM} STREQUAL "WINDOWS" )
 
