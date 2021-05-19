@@ -792,7 +792,7 @@ namespace NAMESPACE_PHYSICS
 		*/
 
 		sp_assert(details->ignoreCollision == false, "ApplicationException");
-		sp_assert(details->type != SpCollisionType::None, "ApplicationException");
+		sp_assert(details->type != SP_COLLISION_TYPE_NONE, "ApplicationException");
 	}
 
 	sp_bool SpCollisionDetector::areMovingAway(sp_uint objIndex1, sp_uint objIndex2) const

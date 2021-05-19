@@ -114,7 +114,7 @@ namespace NAMESPACE_PHYSICS
 		if (details->ignoreCollision)
 			return;
 
-		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
+		sp_assert(details->type != SP_COLLISION_TYPE_NONE, "InvalidOperationException");
 		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
 
 		collisionResponse.handleCollisionResponse(details);
@@ -136,7 +136,7 @@ namespace NAMESPACE_PHYSICS
 		if (details->ignoreCollision)
 			return;
 
-		sp_assert(details->type != SpCollisionType::None, "InvalidOperationException");
+		sp_assert(details->type != SP_COLLISION_TYPE_NONE, "InvalidOperationException");
 		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
 
 		//timeDebug.update();
