@@ -1,30 +1,27 @@
 #!/bin/bash
 
-set echo off
+source ../build-base-linux.sh
 
-export BUILD_DIR=build
-export BUILD_TYPE=Release
-export SHARED_LIB=OFF
+build()
+{
+	make_build_dir
+	
+	cd $BUILD_DIR
 
-if [ -d $BUILD_DIR ]; then
-        rm -rf $BUILD_DIR
-fi
+	cmake .. -G "Unix Makefiles"               \
+		-DOPERATING_SYSTEM:STRING=LINUX        \
+		-DARCH_BITS:STRING=$1                  \
+		-DBUILD_SHARED_LIBS:BOOL=$4   \
+		-DCMAKE_BUILD_TYPE:STRING=$2  \
+		-DCMAKE_ENABLE_EXPORTS:BOOL=ON         \
+		-DOPENCL_ENABLED:BOOL=ON
 
-mkdir $BUILD_DIR
-cd $BUILD_DIR
+	cmake --build . --config $2
 
-cmake .. -G "Unix Makefiles"               \
-	-DOPERATING_SYSTEM:STRING=LINUX        \
-	-DARCH_BITS:STRING=32                  \
-	-DBUILD_SHARED_LIBS:BOOL=$SHARED_LIB   \
-	-DCMAKE_BUILD_TYPE:STRING=$BUILD_TYPE  \
-	-DCMAKE_ENABLE_EXPORTS:BOOL=ON         \
-	-DOPENCL_ENABLED:BOOL=ON
+	cd ../
 
-cmake --build . --config $BUILD_TYPE
+	clear_build_dir
+}
 
-cd ../
-
-if [ -d $BUILD_DIR ]; then
-	rm -rf $BUILD_DIR
-fi
+build 64 Debug    x86_64 OFF
+build 64 Release x86_64 OFF

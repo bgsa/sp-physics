@@ -37,8 +37,8 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 		
-		API_INTERFACE inline void init(const Vec3& position, const Vec3& target, const Vec3& up = Vec3(ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT), const sp_bool invertY = false);
-		API_INTERFACE inline void initProjectionPerspective(const Vec3& position, const Vec3& target, sp_float aspectRatio);
+		API_INTERFACE void init(const Vec3& position, const Vec3& target, const Vec3& up = Vec3(ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT), const sp_bool invertY = false);
+		API_INTERFACE void initProjectionPerspective(const Vec3& position, const Vec3& target, sp_float aspectRatio);
 
 		API_INTERFACE inline sp_float fieldOfView() const
 		{
@@ -80,12 +80,12 @@ namespace NAMESPACE_PHYSICS
 			return viewMatrix;
 		}
 
-		API_INTERFACE inline void getHUDProjectionMatrix(sp_float width, sp_float height, Mat4& output) const;
+		API_INTERFACE void getHUDProjectionMatrix(sp_float width, sp_float height, Mat4& output) const;
 
 		API_INTERFACE void setProjectionPerspective(sp_float fieldOfView, sp_float aspect, sp_float near, sp_float far);
 		API_INTERFACE void setProjectionOrthographic(sp_float xMin, sp_float xMax, sp_float yMin, sp_float yMax, sp_float zMin, sp_float zMax);
 
-		API_INTERFACE inline void updateProjectionPerspectiveAspect(sp_float aspectRatio);
+		API_INTERFACE void updateProjectionPerspectiveAspect(sp_float aspectRatio);
 
 		API_INTERFACE Vec3 getFromWorldToScreen(const Vec3& vertex, const Mat4& modelViewMatrix, const SpViewportData* viewport);
 	};
