@@ -276,16 +276,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		API_INTERFACE sp_float operator[](const sp_uint index) const;
 
-#ifdef ENV_64BTIS
-		/// <summary>
-		/// Get a index from the vector
-		/// <summary>
-		API_INTERFACE sp_float& operator[](const sp_size index)
-		{
-			sp_assert(index >= ZERO_SIZE && index < VEC2_LENGTH, "IndexOutOfrangeException");
-			return ((sp_float*)this)[index];
-		}
-
+#ifdef ENV_64BITS
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>

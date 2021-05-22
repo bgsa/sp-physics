@@ -57,15 +57,15 @@ namespace NAMESPACE_PHYSICS
 			SpText text = SpText(content);
 			ALLOC_RELEASE(content);
 
-			sp_uint vertexesLength = text.countLinesStartWith(SP_VERTEX_PREFIX);
-			sp_uint texturesCoordLength = text.countLinesStartWith(SP_TEXTURE_PREFIX);
-			sp_uint facesLength = countFaces(text);
+			sp_size vertexesLength = text.countLinesStartWith(SP_VERTEX_PREFIX);
+			sp_size texturesCoordLength = text.countLinesStartWith(SP_TEXTURE_PREFIX);
+			sp_size facesLength = countFaces(text);
 
 			vertexes = sp_mem_new(SpArray<Vec3>)(vertexesLength);
 			textureCoordinates = sp_mem_new(SpArray<Vec2>)(texturesCoordLength);
 			faces = sp_mem_new(SpArray<SpPoint3<sp_uint>>)(facesLength);
 
-			for (sp_uint i = ZERO_UINT; i < text.length(); i++)
+			for (sp_size i = ZERO_UINT; i < text.length(); i++)
 			{
 				if (text[i]->startWith(SP_OBJECT_PREFIX))
 				{

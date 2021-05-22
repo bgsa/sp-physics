@@ -39,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 			line_point1_simd, line_point2_simd,
 			contact_simd, hasIntersection);
 
-		std::memcpy(contactPoint, contact_simd.m128_f32, SIZEOF_FLOAT * 3u);
+		std::memcpy(contactPoint, contact_simd.m128_f32, sizeof(sp_float) * 3u);
 		return hasIntersection;
 #else
 		const Vec3 lineAsVector = line.point2 - line.point1;
@@ -162,7 +162,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, contact, sp_bool hasIntersection);
 
-		std::memcpy(output, contact.m128_f32, SIZEOF_FLOAT * 3u);
+		std::memcpy(output, contact.m128_f32, sizeof(sp_float) * 3u);
 #else
 		Ray ray(target, -normalVector);
 		intersection(ray, output);

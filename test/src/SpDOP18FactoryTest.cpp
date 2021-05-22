@@ -185,7 +185,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
-		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, nullptr, &program);
+		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
 
 		ALLOC_RELEASE(source);
 
@@ -196,18 +196,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint meshCacheIndex = 0u;
 		sp_uint meshCacheVertexesLength = mesh1->vertexLength();
 
-		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
-		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
-		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem meshCacheGPU = gpu->createBuffer(meshCache, sizeof(Vec3) * mesh1->vertexLength(), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem transformsGPU = gpu->createBuffer(SpWorldManagerInstance->current()->transforms(0), sizeof(SpTransform), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem dop18GPU = gpu->createBuffer(sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(meshCacheLengthGPU, SIZEOF_UINT)
-			->setInputParameter(meshCacheIndexesGPU, SIZEOF_UINT)
-			->setInputParameter(meshCacheVertexesLengthGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheLengthGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheIndexesGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheVertexesLengthGPU, sizeof(sp_uint))
 			->setInputParameter(meshCacheGPU, sizeof(Vec3) * mesh1->vertexLength())
 			->setInputParameter(transformsGPU, sizeof(SpTransform))
 			->setInputParameter(dop18GPU, sizeof(DOP18))
@@ -276,7 +276,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
-		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, nullptr, &program);
+		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
 
 		ALLOC_RELEASE(source);
 
@@ -287,18 +287,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint meshCacheIndex = 0u;
 		sp_uint meshCacheVertexesLength = mesh1->vertexLength();
 
-		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
-		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
-		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem meshCacheGPU = gpu->createBuffer(meshCache, sizeof(Vec3) * mesh1->vertexLength(), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem transformsGPU = gpu->createBuffer(SpWorldManagerInstance->current()->transforms(0), sizeof(SpTransform), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem dop18GPU = gpu->createBuffer(sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(meshCacheLengthGPU, SIZEOF_UINT)
-			->setInputParameter(meshCacheIndexesGPU, SIZEOF_UINT)
-			->setInputParameter(meshCacheVertexesLengthGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheLengthGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheIndexesGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheVertexesLengthGPU, sizeof(sp_uint))
 			->setInputParameter(meshCacheGPU, sizeof(Vec3) * mesh1->vertexLength())
 			->setInputParameter(transformsGPU, sizeof(SpTransform))
 			->setInputParameter(dop18GPU, sizeof(DOP18))
@@ -422,7 +422,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
-		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, nullptr, &program);
+		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
 
 		ALLOC_RELEASE(source);
 
@@ -433,18 +433,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_uint meshCacheIndex = 0u;
 		sp_uint meshCacheVertexesLength = mesh1->vertexLength();
 
-		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
-		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
-		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem meshCacheGPU = gpu->createBuffer(meshCache, sizeof(Vec3) * mesh1->vertexLength(), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem transformsGPU = gpu->createBuffer(SpWorldManagerInstance->current()->transforms(0), sizeof(SpTransform), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem dop18GPU = gpu->createBuffer(sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		GpuCommand* command = gpu->commandManager
 			->createCommand()
-			->setInputParameter(meshCacheLengthGPU, SIZEOF_UINT)
-			->setInputParameter(meshCacheIndexesGPU, SIZEOF_UINT)
-			->setInputParameter(meshCacheVertexesLengthGPU, SIZEOF_UINT)
+			->setInputParameter(meshCacheLengthGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheIndexesGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheVertexesLengthGPU, sizeof(sp_uint))
 			->setInputParameter(meshCacheGPU, sizeof(Vec3) * mesh1->vertexLength())
 			->setInputParameter(transformsGPU, sizeof(SpTransform))
 			->setInputParameter(dop18GPU, sizeof(DOP18))

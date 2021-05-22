@@ -25,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		file.read(source, fileSize);
 		file.close();
 
-		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);
+		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, buildOptions, &program);
 
 		ALLOC_RELEASE(source);
 		return this;
@@ -63,30 +63,30 @@ namespace NAMESPACE_PHYSICS
 
 		totalWorkSize[0] = inputLength;
 		inputIndexesGpu = indexesGpu;
-		const sp_uint inputSize = inputLength * strider * SIZEOF_FLOAT;
+		const sp_uint inputSize = inputLength * strider * sizeof(sp_float);
 
-		outputIndexesGpu = gpu->createBuffer(inputLength * SIZEOF_UINT, CL_MEM_READ_WRITE);
+		outputIndexesGpu = gpu->createBuffer(inputLength * sizeof(sp_uint), CL_MEM_READ_WRITE);
 
 		threadsLength = gpu->getThreadLength(inputLength);
 		defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
 
 		maxIteration = (sp_uint)std::ceil(std::log(multiplyBy10(threadsLength))) + ONE_UINT;
 
-		const sp_uint offsetTableSize = SIZEOF_UINT * TEN_UINT * threadsLength;
+		const sp_size offsetTableSize = sizeof(sp_uint) * TEN_UINT * threadsLength;
 		offsetTable1 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 		offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE);
 
 		commandCount = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(inputLengthGPU, SIZEOF_UINT)
+			->setInputParameter(inputIndexesGpu, sizeof(sp_uint) * inputLength)
+			->setInputParameter(inputLengthGPU, sizeof(sp_uint))
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
 
 		commandCountSwapped = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(inputLengthGPU, SIZEOF_UINT)
+			->setInputParameter(outputIndexesGpu, sizeof(sp_uint) * inputLength)
+			->setInputParameter(inputLengthGPU, sizeof(sp_uint))
 			->setInputParameter(offsetTable1, offsetTableSize)
 			->buildFromProgram(program, "count");
 
@@ -102,28 +102,28 @@ namespace NAMESPACE_PHYSICS
 
 		commandReorder = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(inputLengthGPU, SIZEOF_UINT)
+			->setInputParameter(inputLengthGPU, sizeof(sp_uint))
 			->setInputParameter(offsetTable1, offsetTableSize)
-			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, sizeof(sp_uint) * inputLength)
+			->setInputParameter(outputIndexesGpu, sizeof(sp_uint) * inputLength)
 			->buildFromProgram(program, "reorder");
 
 		commandReorderSwapped = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(inputLengthGPU, SIZEOF_UINT)
+			->setInputParameter(inputLengthGPU, sizeof(sp_uint))
 			->setInputParameter(offsetTable1, offsetTableSize)
-			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(outputIndexesGpu, sizeof(sp_uint) * inputLength)
+			->setInputParameter(inputIndexesGpu, sizeof(sp_uint) * inputLength)
 			->buildFromProgram(program, "reorder");
 
-		const sp_uint offsetTableSizeNegatives =  inputLength * TWO_UINT * SIZEOF_UINT;
+		const sp_uint offsetTableSizeNegatives =  inputLength * TWO_UINT * sizeof(sp_uint);
 		offsetTable1Negatives = gpu->createBuffer(offsetTableSizeNegatives, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		offsetTable2Negatives = gpu->createBuffer(offsetTableSizeNegatives, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		commandCountNegative = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(inputLengthGPU, SIZEOF_UINT)
+			->setInputParameter(inputIndexesGpu, sizeof(sp_uint) * inputLength)
+			->setInputParameter(inputLengthGPU, sizeof(sp_uint))
 			->setInputParameter(offsetTable1Negatives, offsetTableSizeNegatives)
 			->buildFromProgram(program, "countNegatives");
 
@@ -133,10 +133,10 @@ namespace NAMESPACE_PHYSICS
 			->buildFromProgram(program, "prefixScanNegatives");
 
 		commandReorderNegative = gpu->commandManager->createCommand()
-			->setInputParameter(inputLengthGPU, SIZEOF_UINT)
+			->setInputParameter(inputLengthGPU, sizeof(sp_uint))
 			->setInputParameter(offsetTable1Negatives, offsetTableSizeNegatives)
-			->setInputParameter(inputIndexesGpu, SIZEOF_UINT * inputLength)
-			->setInputParameter(outputIndexesGpu, SIZEOF_UINT * inputLength)
+			->setInputParameter(inputIndexesGpu, sizeof(sp_uint) * inputLength)
+			->setInputParameter(outputIndexesGpu, sizeof(sp_uint) * inputLength)
 			->buildFromProgram(program, "reorderNegatives");
 	
 		return this;
@@ -152,7 +152,7 @@ namespace NAMESPACE_PHYSICS
 		globalWorkSize[0] = threadsLength;
 		localWorkSize[0] = defaultLocalWorkSize;
 
-		for (sp_uint digitIndex = ZERO_UINT; digitIndex < 9u; digitIndex++)  // for each digit in the number ...
+		for (sp_size digitIndex = ZERO_SIZE; digitIndex < 9u; digitIndex++)  // for each digit in the number ...
 		{
 			// COUNT *************
 			if (offsetChanged)
@@ -160,7 +160,11 @@ namespace NAMESPACE_PHYSICS
 
 			if (indexesChanged)
 			{
-				commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, previousEvents, &lastEvent);
+				if (digitIndex > ZERO_SIZE)
+					commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, &pEvent, &lastEvent);
+				else
+					commandCountSwapped->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, previousEvents, &lastEvent);
+
 				timeOfExecution += (sp_float)commandCountSwapped->getTimeOfExecution(lastEvent);
 
 				pEvent = lastEvent;
@@ -168,7 +172,11 @@ namespace NAMESPACE_PHYSICS
 			}
 			else
 			{
-				commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, previousEvents, &lastEvent);
+				if (digitIndex > ZERO_SIZE)
+					commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, &pEvent, &lastEvent);
+				else
+					commandCount->execute(ONE_UINT, globalWorkSize, localWorkSize, &digitIndex, previousEventsLength, previousEvents, &lastEvent);
+
 				timeOfExecution += (sp_float)commandCount->getTimeOfExecution(lastEvent);
 
 				pEvent = lastEvent;
@@ -176,7 +184,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			// PREFIX SCAN *********
-			sp_uint offsetPrefixScanCpu = BUCKET_LENGTH;
+			sp_size offsetPrefixScanCpu = BUCKET_LENGTH;
 			for (sp_uint i = ZERO_UINT; i < maxIteration; i++)
 			{
 				if (offsetChanged)
@@ -230,7 +238,7 @@ namespace NAMESPACE_PHYSICS
 	cl_mem GpuRadixSorting::executeNegatives(sp_bool indexChanged, cl_event previousEvent, cl_event* evt)
 	{
 		sp_bool offsetChanged = false;
-		sp_uint offsetPrefixScanCpu = TWO_UINT;
+		sp_size offsetPrefixScanCpu = TWO_SIZE;
 		cl_event lastEvent;
 
 		commandCountNegative
@@ -277,8 +285,8 @@ namespace NAMESPACE_PHYSICS
 		}
 		*/
 
-		const sp_uint offsetPrefixScanLimit = nextPowOf2(totalWorkSize[0]) + ONE_UINT;
-		offsetPrefixScanCpu = TWO_UINT; // prepare prefix scan
+		const sp_size offsetPrefixScanLimit = nextPowOf2(totalWorkSize[0]) + ONE_SIZE;
+		offsetPrefixScanCpu = TWO_SIZE; // prepare prefix scan
 		while(offsetPrefixScanCpu < offsetPrefixScanLimit)
 		{
 			commandPrefixScanNegative

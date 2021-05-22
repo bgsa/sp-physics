@@ -1,4 +1,4 @@
-#if OPENCL_ENABLED
+#ifdef OPENCL_ENABLED
 
 #ifndef GPU_COMMAND_HEADER
 #define GPU_COMMAND_HEADER
@@ -6,7 +6,6 @@
 #include "SpectrumPhysics.h"
 #include "GpuLog.hpp"
 #include "GpuBufferOpenCL.h"
-#include "CL/cl.h"
 
 namespace NAMESPACE_PHYSICS
 {

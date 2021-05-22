@@ -239,7 +239,7 @@ namespace NAMESPACE_PHYSICS
 
 		Eigen::MatrixXf e = hd.packedMatrix().real();
 
-		std::memcpy(output, e.data(), columnLength * columnLength * SIZEOF_FLOAT);
+		std::memcpy(output, e.data(), columnLength * columnLength * sizeof(sp_float));
 		*/
 
 		/*
@@ -250,7 +250,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float* z = ALLOC_ARRAY(sp_float, n);
 
 		sp_float* m = ALLOC_ARRAY(sp_float, n * n);
-		std::memcpy(m, matrix, SIZEOF_FLOAT * n * n);
+		std::memcpy(m, matrix, sizeof(sp_float) * n * n);
 
 		for (register sp_uint k = ZERO_FLOAT; k < n - 2u; k++)
 		{
@@ -269,15 +269,15 @@ namespace NAMESPACE_PHYSICS
 
 			sp_float rqs = (alpha * alpha) - (alpha * temp);
 
-			std::memset(v, ZERO_INT, SIZEOF_FLOAT * n);
+			std::memset(v, ZERO_INT, sizeof(sp_float) * n);
 			v[k + 1u] = temp - alpha;
 
 			for (sp_uint j = k + 2u; j < n; j++)
 				v[j] = m[j * columnLength + k];
 
 			// step 6:
-			std::memset(u, ZERO_INT, SIZEOF_FLOAT * n);
-			std::memset(y, ZERO_INT, SIZEOF_FLOAT * n);
+			std::memset(u, ZERO_INT, sizeof(sp_float) * n);
+			std::memset(y, ZERO_INT, sizeof(sp_float) * n);
 			for (sp_uint j = ZERO_UINT; j < n; j++)
 			{
 				temp = ZERO_FLOAT;
@@ -299,11 +299,11 @@ namespace NAMESPACE_PHYSICS
 				prod += v[i] * u[i];
 
 			// step 8:
-			std::memset(z, ZERO_INT, SIZEOF_FLOAT * n);
+			std::memset(z, ZERO_INT, sizeof(sp_float) * n);
 			for (sp_uint j = ZERO_UINT; j < n; j++)
 				z[j] = u[j] - div(prod, rqs) * v[j];
 
-			std::memcpy(output, m, SIZEOF_FLOAT * n * n);
+			std::memcpy(output, m, sizeof(sp_float) * n * n);
 
 			// step 9 (10, 11):
 			for (register sp_uint l = k + 1u; l < n; l++)
@@ -330,7 +330,7 @@ namespace NAMESPACE_PHYSICS
 			output[(k + 1) * columnLength + k] = m[(k + 1) * columnLength + k] - v[k + 1u] * z[k];
 			output[k * columnLength + k + 1u] = output[(k + 1) * columnLength + k];
 
-			std::memcpy(m, output, sizeof(SIZEOF_FLOAT) * n * n);
+			std::memcpy(m, output, sizeof(sizeof(sp_float)) * n * n);
 		}
 
 		ALLOC_RELEASE(v);
@@ -350,7 +350,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float* z = ALLOC_ARRAY(sp_float, n);
 
 		sp_float* m = ALLOC_ARRAY(sp_float, n * n);
-		std::memcpy(m, matrix, SIZEOF_FLOAT * n * n);
+		std::memcpy(m, matrix, sizeof(sp_float) * n * n);
 
 		for (register sp_uint k = ZERO_UINT; k < n - 2u; k++)
 		{
@@ -369,14 +369,14 @@ namespace NAMESPACE_PHYSICS
 
 			sp_float rqs = (alpha * alpha) - (alpha * temp);
 
-			std::memset(v, ZERO_INT, SIZEOF_FLOAT * n);
+			std::memset(v, ZERO_INT, sizeof(sp_float) * n);
 			v[k + 1u] = temp - alpha;
 
 			for (sp_uint j = k + 2u; j < n; j++)
 				v[j] = m[j * columnLength + k];
 
 			// step 6:
-			std::memset(u, ZERO_INT, SIZEOF_FLOAT * n);
+			std::memset(u, ZERO_INT, sizeof(sp_float) * n);
 			for (sp_uint j = k; j < n; j++)
 			{
 				temp = ZERO_FLOAT;
@@ -393,11 +393,11 @@ namespace NAMESPACE_PHYSICS
 				prod += v[i] * u[i];
 
 			// step 8:
-			std::memset(z, ZERO_INT, SIZEOF_FLOAT * n);
+			std::memset(z, ZERO_INT, sizeof(sp_float) * n);
 			for (sp_uint j = k; j < n; j++)
 				z[j] = u[j] - NAMESPACE_FOUNDATION::div(prod, (2.0f * rqs)) * v[j];
 
-			std::memcpy(output, m, SIZEOF_FLOAT * n * n);
+			std::memcpy(output, m, sizeof(sp_float) * n * n);
 
 			// step 9 (10, 11):
 			for (register sp_uint l = k + 1u; l < n - 1u; l++)
@@ -422,7 +422,7 @@ namespace NAMESPACE_PHYSICS
 			output[(k + 1) * columnLength + k] = m[(k + 1) * columnLength + k] - v[k + 1u] * z[k];
 			output[k * columnLength + k + 1u] = output[(k + 1) * columnLength + k];
 
-			std::memcpy(m, output, sizeof(SIZEOF_FLOAT) * n * n);
+			std::memcpy(m, output, sizeof(sp_float) * n * n);
 		}
 
 		ALLOC_RELEASE(v);

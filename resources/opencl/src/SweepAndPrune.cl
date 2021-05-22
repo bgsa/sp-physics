@@ -91,6 +91,12 @@ __kernel void buildInputElements(
         }
     case 1: // SPHERE
         {
+            Vec3 center;
+            center.x = boundingVolume[elementIndex * SPHERE_STRIDE    ];
+            center.y = boundingVolume[elementIndex * SPHERE_STRIDE + 1];
+            center.z = boundingVolume[elementIndex * SPHERE_STRIDE + 2];
+            const sp_float ray = boundingVolume[elementIndex * SPHERE_STRIDE + 3];
+
             Vec3 axisVector;
 
             switch (axis)
@@ -142,14 +148,15 @@ __kernel void buildInputElements(
             }
             }
 
-            Vec3 center;
-            center.x = boundingVolume[elementIndex * SPHERE_STRIDE    ];
-            center.y = boundingVolume[elementIndex * SPHERE_STRIDE + 1];
-            center.z = boundingVolume[elementIndex * SPHERE_STRIDE + 2];
-
-#define ray boundingVolume[elementIndex * SPHERE_STRIDE + 3]
             output[elementIndex] = (vec3_dot_vec3(axisVector, center) / vec3_dot_vec3(axisVector, axisVector)) - ray;
-#undef ray
+
+            /*
+            Vec3 r;
+            vec3_multiply_float(axisVector, ray, &r);
+            vec3_add_vec3(center, r, r);
+            vec3_diff_vec3(center, r, r);
+            */
+
             break;
         }
     }

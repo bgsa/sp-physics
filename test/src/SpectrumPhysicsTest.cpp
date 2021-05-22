@@ -29,6 +29,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpLogger::init();
 		SpLogger::instance()->addProvider(logProvider);
 
+		SpPhysicSettings::instance()->enableProfiling();
+
 		NAMESPACE_RENDERING::SpOpenGL::initOffScreenRendering();
 		NAMESPACE_RENDERING::SpGpuRenderingFactoryOpenGL::init();
 		GpuContext::init();

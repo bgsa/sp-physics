@@ -312,26 +312,9 @@ namespace NAMESPACE_PHYSICS
 
 	sp_size Mat3::sizeInBytes() const
 	{
-		return MAT3_LENGTH * SIZEOF_FLOAT;
+		return MAT3_LENGTH * sizeof(sp_float);
 	}
 
-#if defined(WINDOWS) && defined(ENV_64BITS)
-	
-	T& Mat3::operator[](sp_size index)
-	{
-		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
-
-		return values[index];
-	}
-	
-	T Mat3::operator[](sp_size index) const
-	{
-		sp_assert(index >= 0 && index < MAT3_LENGTH, "IndexOutOfrangeException");
-
-		return values[index];
-	}
-#endif
-		
 	Mat3::operator void*() const
 	{
 		return (void*)this;

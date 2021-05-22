@@ -442,13 +442,13 @@ namespace NAMESPACE_PHYSICS_TEST
 			3.0f,  7.0f,  5.0f
 		};
 
-		Mat3 upperExpected = {
+		Mat3 lowerExpected = {
 			1.0f,  -0.3333f,  0.0f,
 			0.0f,  1.0f,  0.5f,
 			0.0f, 0.0f,  1.0f
 		};
 		
-		Mat3 lowerExpected = {
+		Mat3 upperExpected = {
 			6.0f, 0.0f, 0.0f,
 			9.0f, 2.0f, 0.0f,
 			3.0f, 8.0f, 1.0f
@@ -457,13 +457,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		Mat3 L, U;
 		matrix.decomposeLU(L, U);
 
+		Mat3 result = L * U;
+
 		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Asserts::isCloseEnough(lowerExpected[i], L[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
 		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Asserts::isCloseEnough(upperExpected[i], U[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
-		Mat3 result = U * L;
 		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Asserts::isCloseEnough(matrix[i], result[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 	}
@@ -476,7 +477,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			3.0f,  7.0f,  5.0f
 		};
 
-		Mat3 upperExpected = {
+		Mat3 lowerExpected = {
 			1.0f,  -0.3333f,  0.0f,
 			0.0f,  1.0f,  0.5f,
 			0.0f, 0.0f,  1.0f
@@ -488,7 +489,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.0f, 0.0f, 1.0f
 		};
 
-		Mat3 lowerExpected = {
+		Mat3 upperExpected = {
 			1.0f, 0.0f, 0.0f,
 			1.5f, 1.0f, 0.0f,
 			0.5f, 4.0f, 1.0f
@@ -496,6 +497,11 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Mat3 L, D, U;
 		matrix.decomposeLDU(L, D, U);
+
+		Mat3 result = L * D * U;
+
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Asserts::isCloseEnough(matrix[i], result[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 
 		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Asserts::isCloseEnough(lowerExpected[i], L[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
@@ -505,10 +511,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Asserts::isCloseEnough(diagonalExpected[i], D[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
+		
 
-		Mat3 result = U * D * L;
-		for (sp_int i = 0; i < MAT3_LENGTH; i++)
-			Asserts::isCloseEnough(matrix[i], result[i], SP_EPSILON_THREE_DIGITS, L"Wrong number", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, decomposeLLt)

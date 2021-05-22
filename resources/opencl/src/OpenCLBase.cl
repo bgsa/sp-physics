@@ -26,7 +26,6 @@
 #define divideBy8(value) (value >> 3)
 #define divideBy16(value) (value >> 4)
 
-//#define ENV_64BITS
 #ifdef ENV_64BITS
     #pragma OPENCL EXTENSION cl_khr_int64_base_atomics: enable
 #endif
@@ -39,8 +38,13 @@ typedef long           sp_long;
 typedef unsigned int   sp_uint;
 typedef unsigned short sp_ushort;
 typedef unsigned long  sp_ulong;
-typedef unsigned int   sp_size;
-
+#ifdef ENV_32BITS
+    typedef unsigned int  sp_size;
+#else
+    #ifdef ENV_64BITS
+        typedef unsigned long sp_size;
+    #endif
+#endif
 typedef float          sp_float;
 typedef double         sp_double;
 

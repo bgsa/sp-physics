@@ -82,7 +82,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpString* source = file.readTextFile(filename->name()->data());
 
 		cl_program program;
-		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr, &program);
+		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), nullptr, &program);
 		
 		sp_mem_delete(source, SpString);
 
@@ -163,7 +163,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpString* source = file.readTextFile(filename->name()->data());
 
 		cl_program program; 
-		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr, &program);
+		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), nullptr, &program);
 
 		sp_mem_delete(source, SpString);
 
@@ -214,7 +214,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpString* source = file.readTextFile(filename->name()->data());
 
 		cl_program program;
-		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), nullptr, &program);
+		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), nullptr, &program);
 		
 		sp_mem_delete(source, SpString);
 
@@ -227,7 +227,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		const sp_size globalWorkSize[3] = { 1, 0, 0 };
 		const sp_size localWorkSize[3] = { 1, 0, 0 };
 
-		sp_uint index = 0u;
+		sp_size index = 0;
 		sp_bool result;
 		cl_event evt, evt2;
 		command
@@ -238,7 +238,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		Assert::IsTrue(result, L"wrong value", LINE_INFO());
 
-		index = 1u;
+		index = 1;
 		command
 			->execute(1, globalWorkSize, localWorkSize, &index, ZERO_UINT, NULL, &evt)
 			->fetchInOutParameter<sp_bool>(1u, &result, ONE_UINT, &evt, &evt2);

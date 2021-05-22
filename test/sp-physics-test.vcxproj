@@ -200,21 +200,21 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)sp-foundation\lib\x86_64\$(Configuration);$(SolutionDir)sp-foundation\test\lib\x86_64\$(Configuration);$(SolutionDir)sp-physics\lib\x86_64\$(Configuration);$(SolutionDir)vendor\lib\x86_64\$(Configuration);$(VCInstallDir)UnitTest\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>OpenGL32.lib;glew64sd.lib;glfw3.lib;OpenCL.lib;SpFoundation.lib;SpPhysics.lib;SpFoundationTest.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>glfw3.lib;msvcrt.lib;msvcmrt.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Users\Bruno\Projects\VisualStudio\spectrum-engine\vendor\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\x86\$(Configuration)\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-foundation\test\lib\x86\$(Configuration)\*" "$(TargetDir)"
-xcopy /Y /S "$(SolutionDir)sp-physics\lib\x86\$(Configuration)\*" "$(TargetDir)"
-mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
-xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
-xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\x86\$(Configuration)\resources\gpgpu\opencl\source"
-mkdir "$(ProjectDir)lib\x86\$(Configuration)\resources\models\rocks"
-xcopy /Y /S "$(SolutionDir)sp-frontend\resources\models\rocks\*"  "$(ProjectDir)lib\x86\$(Configuration)\resources\models\rocks"</Command>
+      <Command>xcopy /Y /S "$(SolutionDir)sp-foundation\lib\$(LlvmPlatformName)\$(Configuration)\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-foundation\test\lib\$(LlvmPlatformName)\$(Configuration)\*" "$(TargetDir)"
+xcopy /Y /S "$(SolutionDir)sp-physics\lib$(LlvmPlatformName)\$(Configuration)\*" "$(TargetDir)"
+mkdir "$(ProjectDir)lib\$(LlvmPlatformName)\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(SolutionDir)sp-physics\resources\opencl\src\*" "$(ProjectDir)lib\$(LlvmPlatformName)\$(Configuration)\resources\gpgpu\opencl\source"
+xcopy /Y /S "$(ProjectDir)resources\opencl-src\*" "$(ProjectDir)lib\$(LlvmPlatformName)\$(Configuration)\resources\gpgpu\opencl\source"
+mkdir "$(ProjectDir)lib\$(LlvmPlatformName)\$(Configuration)\resources\models\rocks"
+xcopy /Y /S "$(SolutionDir)sp-frontend\resources\models\rocks\*"  "$(ProjectDir)lib\$(LlvmPlatformName)\$(Configuration)\resources\models\rocks"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

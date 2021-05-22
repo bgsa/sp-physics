@@ -212,7 +212,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			details.objIndex1 = ZERO_UINT;
 			details.objIndex2 = ONE_UINT;
 			details.timeStep = 30.0f;
-			details.type = SpCollisionType::None;
+			details.type = SP_COLLISION_TYPE_NONE;
 			details.vertexIndexObj1 = SP_UINT_MAX;
 			details.vertexIndexObj2 = SP_UINT_MAX;
 			details.ignoreCollision = false;
@@ -361,7 +361,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -379,7 +379,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -397,7 +397,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -415,7 +415,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -487,7 +487,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -505,7 +505,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -523,7 +523,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -541,7 +541,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						collisionDetector.collisionDetails(&details);
 
-						if (details.type == SpCollisionType::None)
+						if (details.type == SP_COLLISION_TYPE_NONE)
 							Assert::IsTrue(false, L"ERRO", LINE_INFO());
 					}
 
@@ -595,7 +595,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		collisionDetector.collisionDetails(&details);
 
-		Assert::IsTrue(details.type == SpCollisionType::EdgeFace, L"ERRO", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_EDGE_FACE, L"ERRO", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -641,7 +641,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		collisionDetector.collisionDetails(&details);
 
-		Assert::IsTrue(details.type == SpCollisionType::EdgeFace, L"ERRO", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_EDGE_FACE, L"ERRO", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -687,7 +687,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		collisionDetector.collisionDetails(&details);
 
-		Assert::IsTrue(details.type == SpCollisionType::EdgeFace, L"ERRO", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_EDGE_FACE, L"ERRO", LINE_INFO());
 
 		TestPhysic::unlock();
 	}
@@ -889,7 +889,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		counter.logElapsedTime("SpCollisionDetector::colisionDetails: ");
 
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_FACE_FACE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
 		Asserts::isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC);
@@ -933,7 +933,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		collisionDetector.collisionDetails(&details);
 		
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_FACE_FACE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
@@ -1035,7 +1035,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		collisionDetector.collisionDetails(&details);
 
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_FACE_FACE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 4u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(0.0f, 1.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
@@ -1118,7 +1118,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		collisionDetector.collisionDetails(&details);
 
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_FACE_FACE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 6u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
@@ -1185,7 +1185,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		collisionDetector.collisionDetails(&details);
 
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::FaceFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_FACE_FACE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 3u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(0.0f, 0.0f, 1.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
@@ -1232,7 +1232,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		collisionDetector.collisionDetails(&details);
 
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::EdgeFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_EDGE_FACE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 
 		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
@@ -1283,7 +1283,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		collisionDetector.collisionDetails(&details);
 		
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::EdgeEdge, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_EDGE_EDGE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 
 		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(-1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());
@@ -1334,7 +1334,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Maple::display("mesh1", "mesh2", text, &index);
 
 		Assert::IsFalse(details.ignoreCollision, L"Wrong value.", LINE_INFO());
-		Assert::IsTrue(details.type == SpCollisionType::VertexFace, L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(details.type == SP_COLLISION_TYPE_VERTEX_FACE, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.timeOfCollision >= ZERO_FLOAT && details.timeOfCollision <= details.timeStep, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(details.contactPointsLength == 1u, L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(details.collisionNormal, Vec3(1.0f, 0.0f, 0.0f), ERROR_MARGIN_PHYSIC), L"Wrong value.", LINE_INFO());

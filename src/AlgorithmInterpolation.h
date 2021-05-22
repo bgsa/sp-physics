@@ -25,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		///This method is not continous in the extreme points. For this, uses Fixed Spline Cubic Method
 		///This algorithm uses Natural Spline Cubic Method.
 		///</summary>
-		API_INTERFACE sp_float** naturalSpline(Vec2* points, size_t pointsCount);
+		API_INTERFACE sp_float** naturalSpline(Vec2* points, sp_uint pointsCount);
 
 		///<summary>
 		///Given a function by ordered points ("points" parameter), 

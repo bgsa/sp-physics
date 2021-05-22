@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 		cl_program program;
-		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str(), &program);
+		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions.str().c_str(), &program);
 
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
@@ -46,24 +46,24 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float input[] = { 1.0f, -4.0f, 2.0f, 3.0f, -5.0f, -6.0f };
 		sp_uint indexes[] = { 0, 2, 3, 1, 4, 5 };
 		sp_uint defaultOutput = SP_UINT_MAX;
-		cl_mem outputGpu = gpu->createBuffer(&defaultOutput, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem outputGpu = gpu->createBuffer(&defaultOutput, sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		GpuCommand* command = gpu->commandManager->createCommand()
-			->setInputParameter(input, length * SIZEOF_FLOAT)
-			->setInputParameter(indexes, length * SIZEOF_UINT)
-			->setInputParameter(&length, SIZEOF_UINT)
-			->setInputParameter(outputGpu, SIZEOF_UINT)
+			->setInputParameter(input, length * sizeof(sp_float))
+			->setInputParameter(indexes, length * sizeof(sp_uint))
+			->setInputParameter(&length, sizeof(sp_uint))
+			->setInputParameter(outputGpu, sizeof(sp_uint))
 			->buildFromProgram(program, "findFirstNegative");
 		
-		sp_uint globalWorkSize[3] = { length, 0u, 0u };
-		sp_uint localWorkSize[3] = { 1u, 0u, 0u };
+		sp_size globalWorkSize[3] = { length, 0u, 0u };
+		sp_size localWorkSize[3] = { 1u, 0u, 0u };
 
 		cl_event evt;
 		command->execute(1u, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
 
 		sp_uint result;
-		gpu->commandManager->readBuffer(outputGpu, SIZEOF_UINT, &result);
+		gpu->commandManager->readBuffer(outputGpu, sizeof(sp_uint), &result);
 		Assert::AreEqual(3u, result, L"Wrong value.", LINE_INFO());
 	}
 
@@ -82,7 +82,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 		cl_program program;
-		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str(), &program);
+		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions.str().c_str(), &program);
 		
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
@@ -91,24 +91,24 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float input[] = { -1.0f, -2.0f, -3.0f, -4.0f, -5.0f, -6.0f };
 		sp_uint indexes[] = { 0, 1, 2, 3, 4, 5 };
 		sp_uint defaultOutput = SP_UINT_MAX;
-		cl_mem outputGpu = gpu->createBuffer(&defaultOutput, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem outputGpu = gpu->createBuffer(&defaultOutput, sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		GpuCommand* command = gpu->commandManager->createCommand()
-			->setInputParameter(input, length * SIZEOF_FLOAT)
-			->setInputParameter(indexes, length * SIZEOF_UINT)
-			->setInputParameter(&length, SIZEOF_UINT)
-			->setInputParameter(outputGpu, SIZEOF_UINT)
+			->setInputParameter(input, length * sizeof(sp_float))
+			->setInputParameter(indexes, length * sizeof(sp_uint))
+			->setInputParameter(&length, sizeof(sp_uint))
+			->setInputParameter(outputGpu, sizeof(sp_uint))
 			->buildFromProgram(program, "findFirstNegative");
 
-		sp_uint globalWorkSize[3] = { length - 1u, 0u, 0u };
-		sp_uint localWorkSize[3] = { 1u, 0u, 0u };
+		sp_size globalWorkSize[3] = { length - 1u, 0u, 0u };
+		sp_size localWorkSize[3] = { 1u, 0u, 0u };
 
 		cl_event evt;
 		command->execute(1u, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
 
 		sp_uint result;
-		gpu->commandManager->readBuffer(outputGpu, SIZEOF_UINT, &result);
+		gpu->commandManager->readBuffer(outputGpu, sizeof(sp_uint), &result);
 		Assert::AreEqual(0u, result, L"Wrong value.", LINE_INFO());
 	}
 
@@ -127,7 +127,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 		cl_program program;
-		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions.str().c_str(), &program);
+		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions.str().c_str(), &program);
 		
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
@@ -136,24 +136,24 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float input[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f };
 		sp_uint indexes[] = { 0, 1, 2, 3, 4, 5 };
 		sp_uint defaultOutput = SP_UINT_MAX;
-		cl_mem outputGpu = gpu->createBuffer(&defaultOutput, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		cl_mem outputGpu = gpu->createBuffer(&defaultOutput, sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		GpuCommand* command = gpu->commandManager->createCommand()
-			->setInputParameter(input, length * SIZEOF_FLOAT)
-			->setInputParameter(indexes, length * SIZEOF_UINT)
-			->setInputParameter(&length, SIZEOF_UINT)
-			->setInputParameter(outputGpu, SIZEOF_UINT)
+			->setInputParameter(input, length * sizeof(sp_float))
+			->setInputParameter(indexes, length * sizeof(sp_uint))
+			->setInputParameter(&length, sizeof(sp_uint))
+			->setInputParameter(outputGpu, sizeof(sp_uint))
 			->buildFromProgram(program, "findFirstNegative");
 
-		sp_uint globalWorkSize[3] = { length - 1u, 0u, 0u };
-		sp_uint localWorkSize[3] = { 1u, 0u, 0u };
+		sp_size globalWorkSize[3] = { length - 1u, 0u, 0u };
+		sp_size localWorkSize[3] = { 1u, 0u, 0u };
 
 		cl_event evt;
 		command->execute(1u, globalWorkSize, localWorkSize, ZERO_UINT, ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
 
 		sp_uint result;
-		gpu->commandManager->readBuffer(outputGpu, SIZEOF_UINT, &result);
+		gpu->commandManager->readBuffer(outputGpu, sizeof(sp_uint), &result);
 		Assert::AreEqual(defaultOutput, result, L"Wrong value.", LINE_INFO());
 	}
 

@@ -7,7 +7,7 @@
 namespace NAMESPACE_PHYSICS
 {
 #define VEC3_LENGTH (3)
-#define VEC3_SIZE   (VEC3_LENGTH * SIZEOF_FLOAT)
+#define VEC3_SIZE   (VEC3_LENGTH * sizeof(sp_float))
 
 	class Vec3
 	{
@@ -365,30 +365,30 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE sp_float& operator[](sp_int index);
+		API_INTERFACE sp_float& operator[](const sp_int index);
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE sp_float operator[](sp_int index) const;
+		API_INTERFACE sp_float operator[](const sp_int index) const;
 
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE sp_float& operator[](sp_uint index);
+		API_INTERFACE sp_float& operator[](const sp_uint index);
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE sp_float operator[](sp_uint index) const;
+		API_INTERFACE sp_float operator[](const sp_uint index) const;
 
 #ifdef ENV_64BITS
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE sp_float& operator[](sp_size index);
+		API_INTERFACE sp_float& operator[](const sp_size index);
 		/// <summary>
 		/// Get a index from the vector
 		/// </summary>
-		API_INTERFACE sp_float operator[](sp_size index) const;
+		API_INTERFACE sp_float operator[](const sp_size index) const;
 #endif
 
 		/// <summary>
@@ -552,7 +552,7 @@ namespace NAMESPACE_PHYSICS
 #ifdef AVX_ENABLED
 		__m128 temp = sp_vec3_sub_simd(sp_vec3_convert_simd(input2), sp_vec3_convert_simd(input1));
 		__m128 output_simd = sp_vec3_normalize_simd(temp);
-		std::memcpy(output, output_simd.m128_f32, SIZEOF_FLOAT * 3u);
+		std::memcpy(output, output_simd.m128_f32, sizeof(sp_float) * 3u);
 #else
 		diff(input2, input1, output);
 		normalize(output);
@@ -684,7 +684,7 @@ namespace NAMESPACE_PHYSICS
 
 		const __m128 result = sp_vec3_normal_simd(v1_simd, v2_simd, v3_simd);
 
-		std::memcpy(output, result.m128_f32, SIZEOF_FLOAT * 3u);
+		std::memcpy(output, result.m128_f32, sizeof(sp_float) * 3u);
 #else
 		// right-hand rule (B-A)x(C-A)
 		cross(p3 - p2, p2 - p1, output);

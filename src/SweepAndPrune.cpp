@@ -116,7 +116,7 @@ namespace NAMESPACE_PHYSICS
 
 		globalKDOPs = kdops;
 		
-		AlgorithmSorting::quickSortNative(indexes, length, SIZEOF_UINT, comparatorXAxisForQuickSortKDOP);
+		AlgorithmSorting::quickSortNative(indexes, length, sizeof(sp_uint), comparatorXAxisForQuickSortKDOP);
 
 		for (sp_uint i = 0; i < length; ++i)
 		{
@@ -219,7 +219,7 @@ namespace NAMESPACE_PHYSICS
 		file.read(source, fileSize);
 		file.close();
 
-		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &sapProgram);
+		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, buildOptions, &sapProgram);
 		
 		ALLOC_RELEASE(source);
 		return this;
@@ -227,7 +227,7 @@ namespace NAMESPACE_PHYSICS
 
 	void SweepAndPrune::initIndexes(sp_uint inputLength)
 	{
-		indexesLengthGPU = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		indexesLengthGPU = gpu->createBuffer(&inputLength, sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		GpuIndexes* createIndexes = sp_mem_new(GpuIndexes)();
 		createIndexes->init(gpu, nullptr);
@@ -241,29 +241,29 @@ namespace NAMESPACE_PHYSICS
 		globalWorkSize[0] = boundingVolumesLength;
 		localWorkSize[0] = 1u;
 
-		const sp_uint collisionsSize = boundingVolumesLength * 2u * SP_SAP_MAX_COLLISION_PER_OBJECT * SIZEOF_UINT;
+		const sp_uint collisionsSize = boundingVolumesLength * 2u * SP_SAP_MAX_COLLISION_PER_OBJECT * sizeof(sp_uint);
 
 		initIndexes(boundingVolumesLength);
 
 		elementsGPU = gpu->createBuffer(sizeof(sp_float) * boundingVolumesLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		commandBuildElements = gpu->commandManager->createCommand()
-			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * SIZEOF_FLOAT)
+			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * sizeof(sp_float))
 			->setInputParameter(&boundingVolumeType, sizeof(sp_int), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
-			->setInputParameter(indexesGPU, boundingVolumesLength * SIZEOF_UINT)
-			->setInputParameter(indexesLengthGPU, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
+			->setInputParameter(indexesGPU, boundingVolumesLength * sizeof(sp_uint))
+			->setInputParameter(indexesLengthGPU, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR)
 			->setInputParameter(elementsGPU, sizeof(sp_float) * boundingVolumesLength)
 			->buildFromProgram(sapProgram, "buildInputElements");
 
 		radixSorting->setParameters(elementsGPU, boundingVolumesLength, indexesGPU, indexesLengthGPU, ONE_UINT);
 
 		commandSaPCollisions = gpu->commandManager->createCommand()
-			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * SIZEOF_FLOAT)
+			->setInputParameter(boundingVolumesGpu, boundingVolumesLength * strider * sizeof(sp_float))
 			->setInputParameter(elementsGPU, sizeof(sp_float) * boundingVolumesLength)
 			->setInputParameter(rigidBodies, boundingVolumesLength * rigidBodySize)
-			->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
-			->setInputParameter(indexesGPU, boundingVolumesLength * SIZEOF_UINT)
-			->setInputParameter(outputIndexLength, SIZEOF_UINT)
+			->setInputParameter(indexesLengthGPU, sizeof(sp_uint))
+			->setInputParameter(indexesGPU, boundingVolumesLength * sizeof(sp_uint))
+			->setInputParameter(outputIndexLength, sizeof(sp_uint))
 			->setInputParameter(outputIndex, collisionsSize)
 			->buildFromProgram(sapProgram, commandName);
 	}

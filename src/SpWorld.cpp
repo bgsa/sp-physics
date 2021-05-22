@@ -25,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		_transformsGPU = gpu->createBufferFromOpenGL(_transformsGPUBuffer);
 
 		_inputLengthGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-		_inputLengthGPU->init(SIZEOF_UINT, &_objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		_inputLengthGPU->init(sizeof(sp_uint), &_objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		_objectMapperGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 		_objectMapperGPU->init(sizeof(SpCollisionFeatures) * _objectsLengthAllocated, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
@@ -79,6 +79,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_mem_delete(_objectMapperGPU, GpuBufferOpenCL);
 			_objectMapperGPU = nullptr;
+		}
+
+		if (_meshesStridesGPU != nullptr)
+		{
+			sp_mem_delete(_meshesStridesGPU, GpuBufferOpenCL);
+			_meshesStridesGPU = nullptr;
 		}
 
 		if (renderer != nullptr)

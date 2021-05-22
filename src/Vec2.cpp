@@ -57,15 +57,12 @@ namespace NAMESPACE_PHYSICS
 	}
 
 #ifdef ENV_64BITS
-
 	sp_float Vec2::operator[](const sp_size index) const
 	{
 		sp_assert(index >= ZERO_SIZE && index < VEC2_LENGTH, "IndexOutOfrangeException");
-
 		return reinterpret_cast<const sp_float*>(this)[index];
 	}
 #endif
-
 
 	std::ostream& operator<<(std::ostream& outputStream, const Vec2& vector)
 	{

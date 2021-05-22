@@ -7,7 +7,7 @@
 namespace NAMESPACE_PHYSICS
 {
 #define QUAT_LENGTH 4
-#define QUAT_SIZE (QUAT_LENGTH * SIZEOF_FLOAT)
+#define QUAT_SIZE (QUAT_LENGTH * sizeof(sp_float))
 
 	class Quat
 	{

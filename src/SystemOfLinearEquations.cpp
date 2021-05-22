@@ -6,11 +6,11 @@ namespace NAMESPACE_PHYSICS
 	sp_bool SystemOfLinearEquations::solve(sp_float* matrix, const sp_uint rowLength, const sp_uint columnLength, sp_float* output)
 	{
 		sp_assert(rowLength + 1u == columnLength, "MatrixFormatException"); // matrix must be NxN
-		std::memset(output, ZERO_INT, SIZEOF_FLOAT * (columnLength - ONE_UINT));
+		std::memset(output, ZERO_INT, sizeof(sp_float) * (columnLength - ONE_UINT));
 
 #define pivotColumnIndex row
 		sp_float* upperMatrix = ALLOC_ARRAY(sp_float, rowLength * columnLength);
-		std::memcpy(upperMatrix, matrix, rowLength * columnLength * SIZEOF_FLOAT);
+		std::memcpy(upperMatrix, matrix, rowLength * columnLength * sizeof(sp_float));
 
 		for (register sp_uint row = 0u; row < rowLength - 1u; row++)
 		{

@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			if (doNewIteration)
-				std::memcpy(approximation, output, columnLength * SIZEOF_FLOAT);
+				std::memcpy(approximation, output, columnLength * sizeof(sp_float));
 		}
 	}
 
@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			if (doNewIteration)
-				std::memcpy(approximation, output, columnLength * SIZEOF_FLOAT);
+				std::memcpy(approximation, output, columnLength * sizeof(sp_float));
 		}
 	}
 
@@ -78,7 +78,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			if (doNewIteration)
-				std::memcpy(approximation, output, columnLength * SIZEOF_FLOAT);
+				std::memcpy(approximation, output, columnLength * sizeof(sp_float));
 		}
 	}
 

@@ -45,11 +45,11 @@ namespace NAMESPACE_PHYSICS
 			file.read(source, fileSize);
 			file.close();
 
-			gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);			
+			gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, buildOptions, &program);
 			ALLOC_RELEASE(source);
 		}
 
-		API_INTERFACE void setParameters(GpuBufferOpenCL* indexesLengthGPU, GpuBufferOpenCL* meshesGPU, GpuBufferOpenCL* meshesIndexesGPU, GpuBufferOpenCL* meshesIndexesLengthGPU, cl_mem transformationsGPU, GpuBufferOpenCL* meshCacheIndexesGPU, GpuBufferOpenCL* meshCacheGPU, sp_uint inputLength)
+		API_INTERFACE void setParameters(GpuBufferOpenCL* indexesLengthGPU, GpuBufferOpenCL* meshesGPU, GpuBufferOpenCL* meshesIndexesGPU, GpuBufferOpenCL* meshesStridesGPU, GpuBufferOpenCL* meshesIndexesLengthGPU, cl_mem transformationsGPU, GpuBufferOpenCL* meshCacheIndexesGPU, GpuBufferOpenCL* meshCacheGPU, sp_uint inputLength)
 		{
 			globalWorkSize[0] = inputLength;
 			localWorkSize[0] = gpu->getGroupLength(inputLength, inputLength);
@@ -59,6 +59,7 @@ namespace NAMESPACE_PHYSICS
 				->setInputParameter(indexesLengthGPU)
 				->setInputParameter(meshesGPU)
 				->setInputParameter(meshesIndexesGPU)
+				->setInputParameter(meshesStridesGPU)
 				->setInputParameter(meshesIndexesLengthGPU)
 				->setInputParameter(transformationsGPU, sizeof(SpTransform) * inputLength)
 				->setInputParameter(meshCacheIndexesGPU)

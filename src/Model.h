@@ -60,9 +60,9 @@ namespace NAMESPACE_PHYSICS
 			const sp_size normalsLength = normals->length() * VEC3_LENGTH;
 			const sp_size texturesLength = textureCoordinates->length() * VEC2_LENGTH;
 
-			std::memcpy(allocatedBuffer, (sp_float*) vertexes->data(), vertexesLength * SIZEOF_FLOAT);
-			std::memcpy(&allocatedBuffer[vertexesLength], (sp_float*)normals->data(), normalsLength * SIZEOF_FLOAT);
-			std::memcpy(&allocatedBuffer[vertexesLength + normalsLength], (sp_float*)textureCoordinates->data(), texturesLength * SIZEOF_FLOAT);
+			std::memcpy(allocatedBuffer, (sp_float*) vertexes->data(), vertexesLength * sizeof(sp_float));
+			std::memcpy(&allocatedBuffer[vertexesLength], (sp_float*)normals->data(), normalsLength * sizeof(sp_float));
+			std::memcpy(&allocatedBuffer[vertexesLength + normalsLength], (sp_float*)textureCoordinates->data(), texturesLength * sizeof(sp_float));
 		}
 
 		API_INTERFACE virtual void generateNormals()

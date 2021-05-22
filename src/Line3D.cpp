@@ -107,7 +107,7 @@ namespace NAMESPACE_PHYSICS
 
 		sp_triangle3D_isInside_simd(triangle_point1, triangle_point2, triangle_point3, contact_simd, const sp_bool isIn);
 
-		std::memcpy(point, contact_simd.m128_f32, SIZEOF_FLOAT * 3u);
+		std::memcpy(point, contact_simd.m128_f32, sizeof(sp_float) * 3u);
 
 		return isIn;
 #else

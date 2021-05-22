@@ -236,7 +236,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float vec[count] = { 3.4f, 2.0f, 7.0f, 3.1f, -2.0f, 3.12f, 3.01f };
 		sp_float expected[count] = { -2.0f, 2.0f, 3.01f, 3.1f, 3.12f, 3.4f, 7.0f };
 
-		AlgorithmSorting::quickSortNative(vec, count, SIZEOF_FLOAT, comparatorFloatTest);
+		AlgorithmSorting::quickSortNative(vec, count, sizeof(sp_float), comparatorFloatTest);
 
 		for (sp_uint i = 0; i < count; i++)
 			Assert::AreEqual(expected[i], vec[i], L"Wrong value.", LINE_INFO());

@@ -424,6 +424,26 @@ namespace NAMESPACE_PHYSICS
 			return values()[index];
 		}
 
+#ifdef ENV_64BITS
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline sp_float& operator[](const sp_size index)
+		{
+			sp_assert(index >= ZERO_SIZE && index < MAT4_LENGTH, "IndexOutOfrangeException");
+			return ((sp_float*)this)[index];
+		}
+
+		/// <summary>
+		/// Get a index from the vector
+		/// </summary>
+		API_INTERFACE inline sp_float operator[](const sp_size index) const
+		{
+			sp_assert(index >= ZERO_SIZE && index < MAT4_LENGTH, "IndexOutOfrangeException");
+			return ((sp_float*)this)[index];
+		}
+#endif
+
 		/// <summary>
 		/// Auto convertion to void *
 		/// </summary>

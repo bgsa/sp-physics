@@ -71,7 +71,7 @@ namespace NAMESPACE_PHYSICS
 #endif // OPENCL_ENABLED
 
 	public:
-		sp_uint axis;
+		sp_size axis;
 
 		/// <summary>
 		/// Default constructor

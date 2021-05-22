@@ -6,7 +6,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_float* q = ALLOC_ARRAY(sp_float, pointsCount * pointsCount);
 
-		std::memset(q, 0, pointsCount * pointsCount * SIZEOF_FLOAT); //initialize array with Zeros
+		std::memset(q, 0, pointsCount * pointsCount * sizeof(sp_float)); //initialize array with Zeros
 		
 		for (sp_uint row = 0; row < pointsCount; row++)
 			q[row * pointsCount] = points[row][1];
@@ -249,7 +249,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float* Q = ALLOC_ARRAY(sp_float, twoN1 * twoN1);
 		sp_float* z = ALLOC_ARRAY(sp_float, twoN1);
 
-		std::memset(Q, 0, SIZEOF_FLOAT * twoN1 * twoN1);
+		std::memset(Q, 0, sizeof(sp_float) * twoN1 * twoN1);
 		
 		for (sp_uint i = 0; i < pointsCount; i++)
 		{

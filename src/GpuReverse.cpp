@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 		file.read(source, fileSize);
 		file.close();
 
-		gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);
+		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, buildOptions, &program);
 
 		ALLOC_RELEASE(source);
 		return this;
@@ -32,10 +32,10 @@ namespace NAMESPACE_PHYSICS
 
 	GpuReverse* GpuReverse::setParameters(sp_uint* input, sp_uint inputLength)
 	{
-		const sp_uint inputSize = inputLength * SIZEOF_UINT;
-		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		const sp_uint inputSize = inputLength * sizeof(sp_uint);
+		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 		outputGpu = gpu->createBuffer(inputSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-		inputLengthGpu = gpu->createBuffer(&inputLength, SIZEOF_UINT, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
+		inputLengthGpu = gpu->createBuffer(&inputLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
 		updateInputLength(inputLength);
 
@@ -80,12 +80,12 @@ namespace NAMESPACE_PHYSICS
 		this->outputGpu = outputGpu;
 		this->inputLengthGpu = inputLengthGpu;
 
-		const sp_uint inputSize = inputLength * SIZEOF_UINT;
+		const sp_uint inputSize = inputLength * sizeof(sp_uint);
 
 		commandReverse = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
 			->setInputParameter(outputGpu, inputSize)
-			->setInputParameter(inputLengthGpu, SIZEOF_UINT)
+			->setInputParameter(inputLengthGpu, sizeof(sp_uint))
 			->buildFromProgram(program, "reverseOrCopy");
 
 		return this;

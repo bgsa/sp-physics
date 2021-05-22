@@ -11,6 +11,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	public:
 		SP_TEST_METHOD_DEF(_transpose);
 		SP_TEST_METHOD_DEF(_multiply);
+		SP_TEST_METHOD_DEF(_multiply2);
 		SP_TEST_METHOD_DEF(isSymmetric);
 		SP_TEST_METHOD_DEF(maxOffDiagonal);
 		SP_TEST_METHOD_DEF(maxOffDiagonalSymmetric);
@@ -165,8 +166,11 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(isCloseEnough(s, sExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(v, vExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 
-		Mat expected(5, 3, a);
-		multiply(u, s, v, expected);
+		Mat vt(3, 3);
+		vExpected.transpose(vt);
+
+		Mat expected(3, 3, a);
+		multiply(u, s, vt, expected);
 		Assert::IsTrue(isCloseEnough(A, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 
 		/*  test for PCA  (can be removed)
@@ -375,32 +379,39 @@ namespace NAMESPACE_PHYSICS_TEST
 		multiply(A, B, result);
 
 		Assert::IsTrue(isCloseEnough(result, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+	}
 
-
-
-
-		sp_float c[15] = {
+	SP_TEST_METHOD(CLASS_NAME, _multiply2)
+	{
+		sp_float a[15] = {
 			1.0f, 0.0f, 1.0f,
 			0.0f, 1.0f, 0.0f,
 			0.0f, 1.0f, 1.0f,
 			0.0f, 1.0f, 0.0f,
 			1.0f, 1.0f, 0.0f
 		};
-		Mat C(5, 3, c);
+		Mat A(5, 3, a);
 
-		sp_float d[9] = {
+		sp_float b[9] = {
 			0.4082f, 0.8164f, 0.4082f,
 			0.5773f, -0.5773f, 0.5773f,
 			-0.7071f, 0.0f, 0.7071f
 		};
-		Mat D(3, 3, d);
-		Mat DT(3, 3, d);
-		D.transpose(DT);
+		Mat B(3, 3, b);
 
-		result = Mat(5, 3);
-		multiply(C, DT, result);
+		sp_float e[15] = {
+				   -0.2989f, 0.8164f, 1.1153f,
+					0.5773f, -0.5773f, 0.5773f,
+				   -0.1298f, -0.5773f, 1.2844f,
+					0.5773f, -0.5773f, 0.5773f,
+					0.9855f, 0.2391f, 0.9855f
+		};
+		Mat expected = Mat(5, 3, e);
 
-		Assert::IsTrue(isCloseEnough(result, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
+		Mat result = Mat(5, 3);
+		multiply(A, B, result);
+
+		Assert::IsTrue(isCloseEnough(expected, result, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 	}
 }
 

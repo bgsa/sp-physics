@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 		file.read(sourceBasic, fileSize);
 		file.close();
 
-		gpu->commandManager->buildProgram(sourceBasic, SIZEOF_CHAR * fileSize, buildOptions, &program);
+		gpu->commandManager->buildProgram(sourceBasic, sizeof(sp_char) * fileSize, buildOptions, &program);
 
 		ALLOC_RELEASE(sourceBasic);
 		return this;
@@ -32,14 +32,14 @@ namespace NAMESPACE_PHYSICS
 
 	void GpuIndexes::setParametersCreateIndexes(sp_uint length)
 	{
-		output = gpu->createBuffer(length * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-		//output = gpu->createBuffer(length * SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
+		output = gpu->createBuffer(length * sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		//output = gpu->createBuffer(length * sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
 
 		createIndexesGlobalWorkSize[0] = length;
 		createIndexesLocalWorkSize[0] = gpu->getGroupLength(length, length);
 
 		commandInitIndexes = gpu->commandManager->createCommand()
-			->setInputParameter(output, length * SIZEOF_UINT)
+			->setInputParameter(output, length * sizeof(sp_uint))
 			->buildFromProgram(program, "create");
 	}
 

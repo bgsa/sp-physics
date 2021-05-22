@@ -17,13 +17,13 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[*index], "display( [ ", 11);
 			index[0] += 11;
 
-			const sp_uint mesh1Length = strlen(meshName1);
+			const sp_uint mesh1Length = (sp_uint)std::strlen(meshName1);
 			std::memcpy(&output[*index], meshName1, mesh1Length);
 			index[0] += mesh1Length;
 			std::memcpy(&output[*index], "_graf, ", 7);
 			index[0] += 7;
 
-			const sp_uint mesh2Length = strlen(meshName2);
+			const sp_uint mesh2Length = (sp_uint)std::strlen(meshName2);
 			std::memcpy(&output[*index], meshName2, mesh2Length);
 			index[0] += mesh2Length;
 			std::memcpy(&output[*index], "_graf ]);", 9);
@@ -36,7 +36,7 @@ namespace NAMESPACE_PHYSICS
 
 		inline void exportGraphic(const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint* index)
 		{
-			const sp_uint nameLength = strlen(meshName);
+			const sp_uint nameLength = (sp_uint)std::strlen(meshName);
 
 			std::memcpy(&output[*index], "with(plots): with(plottools):", 29);
 			output[*index + 29] = END_OF_LINE;
@@ -50,11 +50,11 @@ namespace NAMESPACE_PHYSICS
 			index[0] += nameLength;
 			std::memcpy(&output[*index], "_list_poly, color = ", 20);
 			index[0] += 20;
-			const sp_uint colorLength = strlen(colorName);
+			const sp_uint colorLength = (sp_uint)std::strlen(colorName);
 			std::memcpy(&output[*index], colorName, colorLength);
 			index[0] += colorLength;
 			sp_char* text = ", thickness = 2, scaling = constrained, axes = boxed, labels = [axisX, axisY, axisZ], orientation = [90, 195, -190]):";
-			sp_uint textLength = strlen(text);
+			sp_uint textLength = (sp_uint)std::strlen(text);
 			std::memcpy(&output[*index], text, textLength);
 			index[0] += textLength;
 
@@ -120,7 +120,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void convert(const Triangle3D& triangle, const sp_char* triangleName, sp_char* output, sp_uint* len)
 		{
-			const sp_uint nameLength = strlen(triangleName);
+			const sp_uint nameLength = (sp_uint)std::strlen(triangleName);
 			sp_uint temp;
 
 			std::memcpy(&output[*len], triangleName, nameLength);
@@ -165,7 +165,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void convert(const Line3D& line, const sp_char* lineName, sp_char* output, sp_uint* len)
 		{
-			const sp_uint nameLength = strlen(lineName);
+			const sp_uint nameLength = (sp_uint)std::strlen(lineName);
 			sp_uint temp;
 			
 			std::memcpy(&output[*len], lineName, nameLength);
@@ -204,7 +204,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void convert(const SpMesh& mesh, const SpTransform& transform, const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint* index)
 		{
-			const sp_uint nameLength = strlen(meshName);
+			const sp_uint nameLength = (sp_uint)std::strlen(meshName);
 			sp_uint len;
 			sp_uint temp;
 

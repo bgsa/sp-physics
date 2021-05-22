@@ -175,7 +175,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		PerformanceCounter counter;
 		counter.start();
 		for (sp_uint i = 0; i < 100000; i++)
-			NAMESPACE_PHYSICS::cross(vector, vector2, &result);
+			NAMESPACE_PHYSICS::cross(vector, vector2, result);
 		sp_longlong t = counter.diff();
 
 		for (sp_int i = 0; i < VEC3_LENGTH; i++)
@@ -194,7 +194,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		counter.start();
 
 		for (sp_uint i = 0; i < 100000; i++)
-			NAMESPACE_PHYSICS::normal(vec1, vec2, vec3, &result);
+			NAMESPACE_PHYSICS::normal(vec1, vec2, vec3, result);
 		
 		sp_longlong elapsedTime = counter.diff();
 

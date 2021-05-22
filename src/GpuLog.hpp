@@ -4,7 +4,7 @@
 #define GPU_LOG_HEADER
 
 #include "SpectrumPhysics.h"
-#include <CL/cl.h>
+#include "SpOpenCL.h"
 #include "SpLogger.h"
 
 #if DEBUG

@@ -41,7 +41,7 @@ namespace NAMESPACE_PHYSICS
 
 			const sp_char* buildOptions = nullptr;
 
-			gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);
+			gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, buildOptions, &program);
 			ALLOC_RELEASE(source);
 		}
 

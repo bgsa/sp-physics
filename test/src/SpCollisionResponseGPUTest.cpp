@@ -38,19 +38,19 @@ namespace NAMESPACE_PHYSICS_TEST
 		propertiesObj2->previousState.orientation(QUAT_UNIT);
 
 		sp_uint indexes[4] = { 0u, 0u, 0u, 1u };
-		cl_mem indexesGPU = gpu->createBuffer(indexes, 4 * SIZEOF_UINT, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
+		cl_mem indexesGPU = gpu->createBuffer(indexes, 4 * sizeof(sp_uint), CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
 
 		sp_uint indexesLength = 4u;
-		cl_mem indexesLengthGPU = gpu->createBuffer(&indexesLength, SIZEOF_UINT, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
+		cl_mem indexesLengthGPU = gpu->createBuffer(&indexesLength, sizeof(sp_uint), CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
 
 		cl_mem rigidBodies3DGPU = gpu->createBuffer(propertiesObj1, sizeof(SpRigidBody3D) * 2u, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
 
-		cl_mem outputIndexesGPU = gpu->createBuffer(4 * SIZEOF_UINT, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE);
+		cl_mem outputIndexesGPU = gpu->createBuffer(4 * sizeof(sp_uint), CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE);
 		
 		sp_uint outputIndexesLength = ZERO_UINT;
-		cl_mem outputIndexesLengthGPU = gpu->createBuffer(&outputIndexesLength, SIZEOF_UINT, CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
+		cl_mem outputIndexesLengthGPU = gpu->createBuffer(&outputIndexesLength, sizeof(sp_uint), CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);
 
-		response.setParameters(indexesGPU, indexesLengthGPU, indexesLength, rigidBodies3DGPU, outputIndexesGPU, outputIndexesLengthGPU, 4 * SIZEOF_UINT);
+		response.setParameters(indexesGPU, indexesLengthGPU, indexesLength, rigidBodies3DGPU, outputIndexesGPU, outputIndexesLengthGPU, 4 * sizeof(sp_uint));
 
 		cl_event evt;
 		response.execute(ZERO_UINT, NULL, &evt);

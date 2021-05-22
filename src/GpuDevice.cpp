@@ -96,22 +96,22 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(profileAsArray);
 	}
 
-	sp_uint GpuDevice::getThreadLength(sp_uint inputLength)
+	sp_size GpuDevice::getThreadLength(sp_size inputLength)
 	{
 		if (isOdd(inputLength))
 			inputLength--;
 
-		sp_uint defaultGroupLength = getDefaultGroupLength();
+		sp_size defaultGroupLength = getDefaultGroupLength();
 
 		if (inputLength < defaultGroupLength)
 			return inputLength;
 
 		inputLength = divideBy2(inputLength);
 
-		sp_uint maxLength = 2u;
+		sp_size maxLength = 2;
 		for (; maxLength < inputLength; maxLength *= 2)
 		{
-			sp_uint divisor = nextDivisorOf(maxLength - 1, defaultGroupLength);
+			sp_size divisor = nextDivisorOf(maxLength - 1, defaultGroupLength);
 			if (divisor > maxWorkGroupSize)
 				break;
 		}
@@ -121,21 +121,21 @@ namespace NAMESPACE_PHYSICS
 		return inputLength;
 	}
 
-	sp_uint GpuDevice::getGroupLength(sp_uint threadLength, sp_uint inputLength)
+	sp_size GpuDevice::getGroupLength(sp_size threadLength, sp_size inputLength)
 	{
-		sp_uint groupLength = getDefaultGroupLength();
+		sp_size groupLength = getDefaultGroupLength();
 
 		//while (groupLength > threadLength)
 		//	groupLength = divideBy2(groupLength);
 		if (groupLength > threadLength)
-			return ONE_UINT;
+			return ONE_SIZE;
 
 		groupLength = nextDivisorOf(threadLength, groupLength);
 
-		if (threadLength == ONE_UINT)
+		if (threadLength == ONE_SIZE)
 		{
-			threadLength = (sp_uint)std::ceil(nextPowOf2(inputLength) / TWO_DOUBLE);
-			groupLength = (sp_uint)std::ceil(threadLength / TWO_DOUBLE);
+			threadLength = (sp_size)std::ceil(nextPowOf2(inputLength) / TWO_DOUBLE);
+			groupLength = (sp_size)std::ceil(threadLength / TWO_DOUBLE);
 		}
 
 		return groupLength;

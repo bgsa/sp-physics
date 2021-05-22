@@ -54,7 +54,7 @@ namespace NAMESPACE_PHYSICS
 			file.read(source, fileSize);
 			file.close();
 
-			gpu->commandManager->buildProgram(source, SIZEOF_CHAR * fileSize, buildOptions, &program);
+			gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, buildOptions, &program);
 			
 			ALLOC_RELEASE(source);
 		}
@@ -66,13 +66,13 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_size threadLength = indexesLength * SP_MAX_COLLISION_PER_OBJECT;
 			globalWorkSize[0] = threadLength;
-			localWorkSize[0] = gpu->getGroupLength(threadLength, indexesLength);
+			localWorkSize[0] = (sp_size) gpu->getGroupLength(threadLength, indexesLength);
 
 			command = gpu->commandManager->createCommand()
 				->setInputParameter(indexesGPU, outputIndexSize)
-				->setInputParameter(indexesLengthGPU, SIZEOF_UINT)
+				->setInputParameter(indexesLengthGPU, sizeof(sp_uint))
 				->setInputParameter(rigidBody3DGPU, indexesLength * sizeof(SpRigidBody3D))
-				->setInputParameter(outputIndexLengthGPU, SIZEOF_UINT)
+				->setInputParameter(outputIndexLengthGPU, sizeof(sp_uint))
 				->setInputParameter(outputIndexesGPU, outputIndexSize)
 				->buildFromProgram(program, "handleCollision");
 		}

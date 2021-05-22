@@ -143,7 +143,7 @@ namespace NAMESPACE_PHYSICS
 		sp_int maxElement = 0;
 		sp_size exp;
 		
-		for (sp_uint i = 0; i < n; i++)
+		for (sp_size i = 0; i < n; i++)
 		{
 			tempExp = (sp_int)vector[i];
 
@@ -164,18 +164,18 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_size digitIndex = 0; digitIndex < maxDigitMantissa; digitIndex++)
 		{
-			std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
+			std::memset(bucket, 0, sizeof(sp_uint) * bucketCount);
 
-			for (sp_uint j = 0; j < n; j++)    //make histogram
+			for (sp_size j = 0; j < n; j++)    //make histogram
 			{
-				bucketIndex = digitsCache[j] = digit(floatParts(vector[j], &exp), digitIndex);
+				bucketIndex = digitsCache[j] = digit(floatParts(vector[j], &exp), (sp_int)digitIndex);
 				bucket[bucketIndex]++;
 			}
 
 			for (sp_uint j = 1; j < bucketCount; j++)
 				bucket[j] += bucket[j - 1];
 
-			for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
+			for (sp_size j = n - 1; j != SP_SIZE_MAX; j--)
 			{
 				bucketIndex = digitsCache[j];
 
@@ -183,12 +183,12 @@ namespace NAMESPACE_PHYSICS
 				bucket[bucketIndex]--;
 			}
 
-			std::memcpy(vector, output, SIZEOF_FLOAT * n);
+			std::memcpy(vector, output, sizeof(sp_float) * n);
 		}
 
 		for (sp_uint digitIndex = 0; digitIndex < maxDigitExpoent; digitIndex++)
 		{
-			std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
+			std::memset(bucket, 0, sizeof(sp_uint) * bucketCount);
 
 			for (sp_uint j = 0; j < n; j++)    //make histogram
 			{
@@ -196,10 +196,10 @@ namespace NAMESPACE_PHYSICS
 				bucket[bucketIndex]++;
 			}
 
-			for (sp_uint j = 1; j < bucketCount; j++)
+			for (sp_size j = 1; j < bucketCount; j++)
 				bucket[j] += bucket[j - 1];
 
-			for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
+			for (sp_size j = n - 1; j != SP_SIZE_MAX; j--)
 			{
 				bucketIndex = digitsCache[j];
 
@@ -207,7 +207,7 @@ namespace NAMESPACE_PHYSICS
 				bucket[bucketIndex]--;
 			}
 
-			std::memcpy(vector, output, SIZEOF_FLOAT * n);
+			std::memcpy(vector, output, sizeof(sp_float) * n);
 		}
 
 		ALLOC_RELEASE(output);
@@ -217,7 +217,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_size maxElement = 0;
 
-		for (sp_uint i = 0; i < n; i++)
+		for (sp_size i = 0; i < n; i++)
 			if (vector[i] > maxElement)
 				maxElement = vector[i];
 
@@ -231,7 +231,7 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint digitIndex = 0; digitIndex < maxDigit; digitIndex++)
 		{
-			std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
+			std::memset(bucket, 0, sizeof(sp_uint) * bucketCount);
 
 			for (sp_size j = 0; j < n; j++)    //make histogram
 			{
@@ -242,7 +242,7 @@ namespace NAMESPACE_PHYSICS
 			for (sp_uint j = 1; j < bucketCount; j++)
 				bucket[j] += bucket[j - 1];
 
-			for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
+			for (sp_size j = n - 1; j != SP_SIZE_MAX; j--)
 			{
 				bucketIndex = digitsCache[j];
 
@@ -250,7 +250,7 @@ namespace NAMESPACE_PHYSICS
 				bucket[bucketIndex]--;
 			}
 
-			std::memcpy(vector, output, SIZEOF_UINT * n);
+			std::memcpy(vector, output, sizeof(sp_size) * n);
 		}
 
 		ALLOC_RELEASE(output);
@@ -286,7 +286,7 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint digitIndex = 0; digitIndex < maxDigit; digitIndex++)
 		{
-			std::memset(bucket, 0, SIZEOF_UINT * bucketCount);
+			std::memset(bucket, 0, sizeof(sp_uint) * bucketCount);
 
 			for (sp_uint j = 0; j < n; j++)    //make histogram
 			{
@@ -297,7 +297,7 @@ namespace NAMESPACE_PHYSICS
 			for (sp_uint j = 1; j < bucketCount; j++)
 				bucket[j] += bucket[j - 1];
 
-			for (sp_uint j = n - 1; j != SP_UINT_MAX; j--)
+			for (sp_size j = n - 1; j != SP_SIZE_MAX; j--)
 			{
 				bucketIndex = digitsCache[j];
 
@@ -305,7 +305,7 @@ namespace NAMESPACE_PHYSICS
 				bucket[bucketIndex]--;
 			}
 
-			std::memcpy(vector, output, SIZEOF_INT * n);
+			std::memcpy(vector, output, sizeof(sp_int) * n);
 		}
 
 		ALLOC_RELEASE(output);

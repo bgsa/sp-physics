@@ -378,18 +378,18 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T& operator[](const sp_size index)
+		API_INTERFACE sp_float& operator[](const sp_size index)
 		{
-			sp_assert(index >= 0 && index < VEC4_LENGTH);
+			sp_assert(index >= ZERO_SIZE && index < VEC4_LENGTH, "IndexOutOfrangeException");
 			return ((sp_float*)this)[index];
 		}
 
 		/// <summary>
 		/// Get a index from the vector
 		/// <summary>
-		API_INTERFACE T operator[](const sp_size index) const
+		API_INTERFACE sp_float operator[](const sp_size index) const
 		{
-			sp_assert(index >= 0 && index < VEC4_LENGTH);
+			sp_assert(index >= ZERO_SIZE && index < VEC4_LENGTH, "IndexOutOfrangeException");
 			return reinterpret_cast<const sp_float*>(this)[index];
 		}
 #endif

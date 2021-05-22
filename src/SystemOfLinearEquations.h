@@ -87,7 +87,7 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="line2Index">Line 2 Index</param>
 		API_INTERFACE inline void swapLines(sp_float* matrix, const sp_uint rowLength, const sp_uint colLength, const sp_uint line1Index, const sp_uint line2Index) const
 		{
-			const sp_size rowSize = SIZEOF_FLOAT * colLength;
+			const sp_size rowSize = sizeof(sp_float) * colLength;
 
 			sp_float* tempStorage = ALLOC_NEW_ARRAY(sp_float, colLength);
 

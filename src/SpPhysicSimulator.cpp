@@ -21,13 +21,13 @@ namespace NAMESPACE_PHYSICS
 		timerToPhysic.start();
 		integrator = sp_mem_new(SpPhysicIntegratorVelocityVerlet)();
 
-		const sp_uint outputIndexSize = multiplyBy2(world->objectsLengthAllocated()) * SP_SAP_MAX_COLLISION_PER_OBJECT * SIZEOF_UINT;
+		const sp_uint outputIndexSize = multiplyBy2(world->objectsLengthAllocated()) * SP_SAP_MAX_COLLISION_PER_OBJECT * sizeof(sp_uint);
 
 		_collisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-		_collisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		_collisionIndexesLengthGPU = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		
 		_sapCollisionIndexesGPU = gpu->createBuffer(outputIndexSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-		_sapCollisionIndexesLengthGPU = gpu->createBuffer(SIZEOF_UINT, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+		_sapCollisionIndexesLengthGPU = gpu->createBuffer(sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 
 		sapDOP18 = sp_mem_new(SweepAndPrune)();
 		sapDOP18->init(gpu, nullptr);
@@ -403,7 +403,7 @@ namespace NAMESPACE_PHYSICS
 		SpCollisionResponseShapeMatching shapeMatching;
 
 		SpRigidBodyShapeMatch** shapes = ALLOC_NEW_ARRAY(SpRigidBodyShapeMatch*, world->objectsLength());
-		std::memset(shapes, ZERO_INT, SIZEOF_INT * world->objectsLength());
+		std::memset(shapes, ZERO_INT, sizeof(sp_uint)* world->objectsLength());
 
 		// init shapes
 		for (sp_uint i = 0; i < sapResult.length; i++)

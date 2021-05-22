@@ -39,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 			groupLength = ZERO_UINT;
 
 			mapper = ALLOC_ARRAY(sp_uint, maxObjects);
-			std::memset(mapper, SP_UINT_MAX, maxObjects * SIZEOF_UINT);
+			std::memset(mapper, SP_UINT_MAX, maxObjects * sizeof(sp_uint));
 
 			groups = ALLOC_NEW_ARRAY(SpCollisionGroup, maxGroups);
 		}

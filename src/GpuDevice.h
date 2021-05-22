@@ -1,12 +1,11 @@
-#if OPENCL_ENABLED
+#ifdef OPENCL_ENABLED
 
 #ifndef GPU_DEVICE_HEADER
 #define GPU_DEVICE_HEADER
 
 #include "SpectrumPhysics.h"
 #include <algorithm>
-#define CL_TARGET_OPENCL_VERSION 120
-#include <CL/opencl.h>
+#include "SpOpenCL.h"
 
 #include "GpuCommandManager.h"
 #include "SpGpuBuffer.h"
@@ -136,14 +135,14 @@ namespace NAMESPACE_PHYSICS
 			va_end(parameters);
 		}
 		
-		API_INTERFACE sp_uint getThreadLength(sp_uint inputLength);
-		API_INTERFACE sp_uint getGroupLength(sp_uint threadLength, sp_uint inputLength);
-		API_INTERFACE inline sp_uint getDefaultGroupLength()
+		API_INTERFACE sp_size getThreadLength(sp_size inputLength);
+		API_INTERFACE sp_size getGroupLength(sp_size threadLength, sp_size inputLength);
+		API_INTERFACE inline sp_size getDefaultGroupLength()
 		{
 			return nextPowOf2(multiplyBy2(computeUnits));
 		}
 
-		API_INTERFACE inline void waitEvents(sp_size eventsLength, cl_event* events)
+		API_INTERFACE inline void waitEvents(sp_uint eventsLength, cl_event* events)
 		{
 			clWaitForEvents(eventsLength, events);
 		}

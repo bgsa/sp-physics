@@ -18,14 +18,14 @@
 namespace NAMESPACE_PHYSICS_TEST
 {
 
-	AABB* getRandomAABBs(sp_uint count, sp_uint spaceSize = 1000)
+	AABB* getRandomAABBs(sp_size count, sp_uint spaceSize = 1000)
 	{
 		Randomizer randomizerSize(0, 30);
 		Randomizer randomizerLocation(0, spaceSize);
 
 		AABB* aabbs = ALLOC_NEW_ARRAY(AABB, count);
 
-		for (sp_uint i = 0; i < count; i++)
+		for (sp_size i = 0; i < count; i++)
 		{
 			sp_int xMin = randomizerSize.randInt();
 			sp_int yMin = randomizerSize.randInt();
@@ -57,8 +57,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			if (zMin > zMax)
 				std::swap(zMin, zMax);
 
-			aabbs[i] = AABB({ float(xMin + locationX), float(yMin + locationY), float(zMin + locationZ) }
-			, { float(xMax + locationX), float(yMax + locationY), float(zMax + locationZ) });
+			aabbs[i] = AABB({ sp_float(xMin + locationX), sp_float(yMin + locationY), sp_float(zMin + locationZ) }
+			, { sp_float(xMax + locationX), sp_float(yMax + locationY), sp_float(zMax + locationZ) });
 		}
 
 		return aabbs;
@@ -93,6 +93,9 @@ namespace NAMESPACE_PHYSICS_TEST
 			<< " -DINPUT_LENGTH=" << count
 			<< " -DINPUT_STRIDE=" << AABB_STRIDER
 			<< " -DINPUT_OFFSET=" << AABB_OFFSET;
+#ifdef ENV_64BITS
+		buildOptions << " -DENV_64BITS";
+#endif
 
 		const sp_uint maxIterations = 20;
 		std::chrono::nanoseconds times[maxIterations];
@@ -121,7 +124,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			GpuFindMinMax* findMinMax = ALLOC_NEW(GpuFindMinMax)();
 			findMinMax->init(gpu, buildOptions.str().c_str());
-			findMinMax->setParameters((sp_float*)aabbs, count, AABB_STRIDER, AABB_OFFSET);
+			findMinMax->setParameters((sp_float*)aabbs, (sp_size) count, AABB_STRIDER, AABB_OFFSET);
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 
@@ -132,9 +135,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			minTime = std::min(times[i], minTime);
 
 			sp_float* result = ALLOC_ARRAY(sp_float, 2);
-			cl_event evt;
-			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &evt);
-			gpu->releaseEvent(evt);
+			gpu->commandManager->readBuffer(findMinMax->output, 2 * sizeof(sp_float), result, ZERO_UINT, NULL);
 
 			Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 			Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
@@ -190,9 +191,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			findMinMax->execute();
 
 			sp_float* result = ALLOC_ARRAY(sp_float, 2);
-			cl_event evt;
-			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &evt);
-			gpu->releaseEvent(evt);
+			gpu->commandManager->readBuffer(findMinMax->output, 2 * sizeof(sp_float), result, ZERO_UINT, NULL);
 
 			Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 			Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
@@ -247,9 +246,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		findMinMax->execute();
 
 		sp_float* result = ALLOC_ARRAY(sp_float, 2);
-		cl_event evt;
-		gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &evt);
-		gpu->releaseEvent(evt);
+		gpu->commandManager->readBuffer(findMinMax->output, 2 * sizeof(sp_float), result, ZERO_UINT, NULL);
 
 		Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 		Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());
@@ -303,9 +300,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			findMinMax->execute();
 
 			sp_float* result = ALLOC_ARRAY(sp_float, 2);
-			cl_event evt;
-			gpu->commandManager->readBuffer(findMinMax->output, 2 * SIZEOF_FLOAT, result, ONE_UINT, &evt);
-			gpu->releaseEvent(evt);
+			gpu->commandManager->readBuffer(findMinMax->output, 2 * sizeof(sp_float), result, ZERO_UINT, NULL);
 
 			Assert::AreEqual(min, result[0], L"Wrong value.", LINE_INFO());
 			Assert::AreEqual(max, result[1], L"Wrong value.", LINE_INFO());

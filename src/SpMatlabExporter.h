@@ -11,8 +11,8 @@ namespace NAMESPACE_PHYSICS
 	{
 		inline void exportGraphic(const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint& index)
 		{
-			const sp_uint nameLength = strlen(meshName);
-			const sp_uint colorLength = strlen(colorName);
+			const sp_uint nameLength = (sp_uint)std::strlen(meshName);
+			const sp_uint colorLength = (sp_uint)std::strlen(colorName);
 
 			std::memcpy(&output[index], "patch('Faces', f", 16);
 			std::memcpy(&output[index + 16], meshName, nameLength);

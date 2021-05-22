@@ -161,9 +161,9 @@ namespace NAMESPACE_PHYSICS
 		if (outputParameter != NULL)
 			HANDLE_OPENCL_RUNTIME_ERROR(clSetKernelArg(kernel, (cl_uint) inputParameters.size(), sizeof(cl_mem), &outputParameter));
 
-		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_WORK_GROUP_SIZE, SIZEOF_SIZE, &workGroupSize, NULL));
-		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3 * SIZEOF_SIZE, &compileWorkGroupSize, NULL));
-		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_LOCAL_MEM_SIZE, SIZEOF_LONG, &localMemorySizeRequired, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_WORK_GROUP_SIZE, sizeof(sp_size), &workGroupSize, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3 * sizeof(sp_size), &compileWorkGroupSize, NULL));
+		HANDLE_OPENCL_RUNTIME_ERROR(clGetKernelWorkGroupInfo(kernel, deviceId, CL_KERNEL_LOCAL_MEM_SIZE, sizeof(sp_ulong), &localMemorySizeRequired, NULL));
 
 		return this;
 	}

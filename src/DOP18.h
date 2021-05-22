@@ -9,7 +9,7 @@
 
 #define DOP18_ORIENTATIONS (9)
 #define DOP18_STRIDER (18)
-#define DOP18_SIZE (72) /* DOP18_ORIENTATIONS * 2 (min,max) * SIZEOF_FLOAT */
+#define DOP18_SIZE (72) /* DOP18_ORIENTATIONS * 2 (min,max) * sizeof(sp_float) */
 
 #define DOP18_AXIS_X (0)
 #define DOP18_AXIS_Y (1)

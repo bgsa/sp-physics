@@ -21,7 +21,7 @@ namespace NAMESPACE_PHYSICS
 		SP_FILE file;
 		SpString* source = file.readTextFile(filename->name()->data());
 		
-		gpu->commandManager->buildProgram(source->data(), SIZEOF_CHAR * source->length(), buildOptions, &findMinMaxProgram);
+		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions, &findMinMaxProgram);
 		
 		sp_mem_delete(source, SpString);
 		sp_mem_delete(filename, SpDirectory);
@@ -49,17 +49,17 @@ namespace NAMESPACE_PHYSICS
 		globalWorkSize[0] = threadLength;
 		localWorkSize[0] = gpu->getGroupLength(threadLength, realIndexLength);
 
-		const sp_uint inputSize = realIndexLength * stride * SIZEOF_FLOAT;
-		const sp_uint outputSize = multiplyBy2(threadLength) * SIZEOF_FLOAT;
+		const sp_uint inputSize = realIndexLength * stride * sizeof(sp_float);
+		const sp_uint outputSize = multiplyBy2(threadLength) * sizeof(sp_float);
 
 		inputGpu = gpu->createBuffer(input, inputSize, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY);
-		inputLengthGpu = gpu->createBuffer(&indexLength, SIZEOF_UINT, CL_MEM_COPY_HOST_PTR | CL_MEM_READ_ONLY);
+		inputLengthGpu = gpu->createBuffer(&indexLength, sizeof(sp_uint), CL_MEM_COPY_HOST_PTR | CL_MEM_READ_ONLY);
 		output = gpu->createBuffer(outputSize, CL_MEM_ALLOC_HOST_PTR | CL_MEM_READ_WRITE);
 
 		commandFindMinMaxByThread = gpu->commandManager->createCommand()
 			->setInputParameter(inputGpu, inputSize)
-			->setInputParameter(indexesGpu, SIZEOF_UINT * realIndexLength)
-			->setInputParameter(inputLengthGpu, SIZEOF_UINT)
+			->setInputParameter(indexesGpu, sizeof(sp_uint) * realIndexLength)
+			->setInputParameter(inputLengthGpu, sizeof(sp_uint))
 			->setInputParameter(output, outputSize)
 			->buildFromProgram(findMinMaxProgram, "findMinMaxByThread");
 
@@ -75,9 +75,9 @@ namespace NAMESPACE_PHYSICS
 		{
 			commandFindMinMaxParallelReduce_Odd = gpu->commandManager->createCommand()
 				->setInputParameter(inputGpu, inputSize)
-				->setInputParameter(indexesGpu, SIZEOF_UINT * realIndexLength)
+				->setInputParameter(indexesGpu, sizeof(sp_uint) * realIndexLength)
 				->setInputParameter(output, outputSize)
-				->setInputParameter(inputLengthGpu, SIZEOF_UINT)
+				->setInputParameter(inputLengthGpu, sizeof(sp_uint))
 				->buildFromProgram(findMinMaxProgram, "findMinMaxParallelReduce_Odd");
 		}
 
@@ -110,8 +110,8 @@ namespace NAMESPACE_PHYSICS
 			gpu->releaseEvent(previousEvent);
 			std::swap(currentEvent, previousEvent);
 
-			globalWorkSize[0] = std::max((sp_uint)std::ceil(globalWorkSize[0] / TWO_DOUBLE), ONE_UINT);
-			localWorkSize[0]  = std::max((sp_uint)std::ceil(localWorkSize[0] / TWO_DOUBLE), ONE_UINT);
+			globalWorkSize[0] = std::max((sp_size)std::ceil(globalWorkSize[0] / TWO_DOUBLE), ONE_SIZE);
+			localWorkSize[0]  = std::max((sp_size)std::ceil(localWorkSize[0] / TWO_DOUBLE), ONE_SIZE);
 
 			while (globalWorkSize[0] != localWorkSize[0])
 			{

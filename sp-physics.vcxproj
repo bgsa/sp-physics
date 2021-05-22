@@ -276,6 +276,7 @@
     <ClInclude Include="src\GpuDevice.h" />
     <ClInclude Include="src\GpuFindMinMax.h" />
     <ClInclude Include="src\GpuIndexes.h" />
+    <ClInclude Include="src\GpuLog.hpp" />
     <ClInclude Include="src\GpuRadixSorting.h" />
     <ClInclude Include="src\GpuReverse.h" />
     <ClInclude Include="src\HashGrid.h" />

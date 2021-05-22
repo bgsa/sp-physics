@@ -20,8 +20,8 @@ namespace NAMESPACE_PHYSICS
 		sp_size totalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 		const sp_uint maxDigits = MAX_DIGITS_MANTISSA - 1;
-		sp_uint threadsLength;
-		sp_uint defaultLocalWorkSize;
+		sp_size threadsLength;
+		sp_size defaultLocalWorkSize;
 		sp_uint maxIteration;
 
 		cl_program program;

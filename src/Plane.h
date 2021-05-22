@@ -96,7 +96,7 @@ namespace NAMESPACE_PHYSICS
 
 			sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, output, sp_bool hasIntersection)
 			
-			std::memcpy(contactPoint, output.m128_f32, SIZEOF_FLOAT * 3u);
+			std::memcpy(contactPoint, output.m128_f32, sizeof(sp_float) * 3u);
 
 			/*
 			const __m128 _angle = sp_vec3_dot_simd(normal_simd, ray_direction_simd);
@@ -114,7 +114,7 @@ namespace NAMESPACE_PHYSICS
 			temp1 = sp_vec3_mult_simd(ray_direction_simd, temp1);
 			temp1 = sp_vec3_add_simd(ray_point_simd, temp1);
 
-			std::memcpy(contactPoint, temp1.m128_f32, SIZEOF_FLOAT * 3u);
+			std::memcpy(contactPoint, temp1.m128_f32, sizeof(sp_float) * 3u);
 			*/
 
 #else

@@ -50,6 +50,13 @@ namespace NAMESPACE_PHYSICS
 			<< " -cl-mad-enable "
 			<< " -cl-finite-math-only "
 			<< " -DCOMPUTE_UNITS=" << computeUnits;
+#ifdef ENV_64BITS
+		options << " -DENV_64BITS";
+#else
+	#ifdef ENV_32BITS
+			options << " -DENV_32BITS";
+	#endif
+#endif
 		// -cl-no-signed-zero   -cl-fast-relaxed-math    not working
 
 		sp_mem_delete(sourceDirectory, SpDirectory);
