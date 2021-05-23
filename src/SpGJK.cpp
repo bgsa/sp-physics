@@ -333,6 +333,43 @@ namespace NAMESPACE_PHYSICS
 			}
 			else if (update_simplex4(a, b, c, d, simp_dim, search_dir))
 			{
+				if (a == b) // check the origin is on the face
+				{
+					Vec3 ac;
+					diff(c, a, ac);
+
+					Vec3 ad;
+					diff(d, a, ad);
+
+					cross(ac, ad, search_dir);
+
+					a = vertexesMesh2[mesh2->support(-search_dir, vertexesMesh2)->index()] - vertexesMesh1[mesh1->support(search_dir, vertexesMesh1)->index()];
+				}
+				else if (a == c) // check the origin is on the face
+				{
+					Vec3 ab;
+					diff(b, a, ab);
+
+					Vec3 ad;
+					diff(d, a, ad);
+
+					cross(ad, ab, search_dir);
+
+					a = vertexesMesh2[mesh2->support(-search_dir, vertexesMesh2)->index()] - vertexesMesh1[mesh1->support(search_dir, vertexesMesh1)->index()];
+				}
+				else if (a == d) // check the origin is on the face
+				{
+					Vec3 ab;
+					diff(b, a, ab);
+
+					Vec3 ac;
+					diff(c, a, ac);
+
+					cross(ab, ac, search_dir);
+
+					a = vertexesMesh2[mesh2->support(-search_dir, vertexesMesh2)->index()] - vertexesMesh1[mesh1->support(search_dir, vertexesMesh1)->index()];
+				}
+				
 				output[0] = a;
 				output[1] = b;
 				output[2] = c;
