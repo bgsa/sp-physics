@@ -78,7 +78,12 @@ namespace NAMESPACE_PHYSICS
 
 	cl_platform_id GpuContext::defaultPlatforms()
 	{
-		return platforms()->get(1);
+		SpArray<cl_platform_id>* __platforms = platforms();
+
+		if (__platforms->length() > 1)
+			return __platforms->get(1);
+
+		return __platforms->get(0);
 	}
 
 	GpuContext::~GpuContext()
