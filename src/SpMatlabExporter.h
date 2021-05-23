@@ -34,6 +34,21 @@ namespace NAMESPACE_PHYSICS
 			output[index++] = END_OF_LINE;
 		}
 
+		API_INTERFACE inline void convexHull(const sp_char* vertexesName, sp_char* output, sp_uint& index)
+		{
+			std::memcpy(&output[index], "[indexes, av1] = convhull(mink, 'Simplify', true);", 50);
+			index += 50;
+			output[index++] = END_OF_LINE;
+
+			std::memcpy(&output[index], "TR = triangulation(indexes, mink);", 34);
+			index += 34;
+			output[index++] = END_OF_LINE;
+
+			std::memcpy(&output[index], "trisurf(TR);", 12);
+			index += 12;
+			output[index++] = END_OF_LINE;
+		}
+
 		API_INTERFACE inline void display(const sp_int xmin, const sp_int xmax, const sp_int ymin, const sp_int ymax, const sp_int zmin, const sp_int zmax, sp_char* output, sp_uint& index)
 		{
 			sp_uint temp;
