@@ -125,24 +125,26 @@ namespace NAMESPACE_PHYSICS
 			//Reconstruct polytope with newSimplexPoint added
 			for (sp_int i = 0; i < num_loose_edges; i++)
 			{
-				//sp_assert(num_faces < EPA_MAX_NUM_FACES, "ApplicationException");
-				if (num_faces >= EPA_MAX_NUM_FACES) 
+				if (num_faces >= EPA_MAX_NUM_FACES) // if exceded max faces
 					break;
 
 				faces[num_faces][0] = loose_edges[i][0];
 				faces[num_faces][1] = loose_edges[i][1];
 				faces[num_faces][2] = newSimplexPoint;
 				cross(loose_edges[i][0] - loose_edges[i][1], loose_edges[i][0] - newSimplexPoint, faces[num_faces][3]);
-				normalize(faces[num_faces][3]);
 
-				//Check for wrong normal to maintain CCW winding
-				if (faces[num_faces][0].dot(faces[num_faces][3]) + EPA_BIAS < ZERO_FLOAT)
+				if (faces[num_faces][3] != Vec3Zeros) // check the face is degenerated to a line (two vertexes are equal)
 				{
-					NAMESPACE_PHYSICS::swap(faces[num_faces][0], faces[num_faces][1]);
+					normalize(faces[num_faces][3]);
 
-					faces[num_faces][3] = -faces[num_faces][3];
+					//Check for wrong normal to maintain CCW winding
+					if (faces[num_faces][0].dot(faces[num_faces][3]) + EPA_BIAS < ZERO_FLOAT)
+					{
+						NAMESPACE_PHYSICS::swap(faces[num_faces][0], faces[num_faces][1]);
+						faces[num_faces][3] = -faces[num_faces][3];
+					}
+					num_faces++;
 				}
-				num_faces++;
 			}
 		}
 	
