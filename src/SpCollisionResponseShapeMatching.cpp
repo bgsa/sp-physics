@@ -147,11 +147,21 @@ namespace NAMESPACE_PHYSICS
 
 		Vec3 tetrahedron[4];
 		if (!gjk(mesh1, shape1->particles, mesh2, shape2->particles, tetrahedron))
+		{
+			((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();
+			((sp_uint*)SpGlobalPropertiesInscance->get(ID_gjkEpaCount))[0] ++;
 			return false;
+		}
 
 		if (!epa(tetrahedron, mesh1, shape1->particles, mesh2, shape2->particles, collisionManifold->collisionNormal, collisionManifold->depth))
+		{
+			((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();
+			((sp_uint*)SpGlobalPropertiesInscance->get(ID_gjkEpaCount))[0] ++;
 			return false;
+		}
 
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_gjkEpaCount))[0] ++;
 		return true;
 	}
 
@@ -223,8 +233,10 @@ namespace NAMESPACE_PHYSICS
 
 			Timer t;
 			t.start();
-			if (shapeMatch(shape1))
-				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
+			//if (shapeMatch(shape1))
+			shapeMatch(shape1);
+			((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
+			((sp_uint*)SpGlobalPropertiesInscance->get(ID_shapeMatchingCount))[0] ++;
 
 			shape1->isDirty = true;
 		}
@@ -240,8 +252,10 @@ namespace NAMESPACE_PHYSICS
 
 			Timer t;
 			t.start();
-			if (shapeMatch(shape2))
-				((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
+			//if (shapeMatch(shape2))
+			shapeMatch(shape2);
+			((sp_float*)SpGlobalPropertiesInscance->get(ID_shapeMatchingTime))[0] += t.elapsedTime();
+			((sp_uint*)SpGlobalPropertiesInscance->get(ID_shapeMatchingCount))[0] ++;
 
 			shape2->isDirty = true;
 		}

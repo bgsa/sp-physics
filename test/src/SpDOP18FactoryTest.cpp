@@ -548,7 +548,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		DOP18* result = world->boundingVolumes(0u);
 
-		SpDOP18Factory::build(mesh, cache, transform->position, result);
+		SpDOP18Factory dop18Factory;
+		dop18Factory.build(mesh, cache, *transform, result);
 		
 		Assert::IsTrue(isCloseEnough(result->max[0], 4.0f), L"Wrong value.", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(result->max[1], 2.0f), L"Wrong value.", LINE_INFO());

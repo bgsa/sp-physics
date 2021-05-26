@@ -4,6 +4,7 @@
 #define GLEW_STATIC
 
 #include "SpectrumPhysics.h"
+#include "BoundingVolume.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -17,6 +18,7 @@ namespace NAMESPACE_PHYSICS
 		sp_bool _simulationEnabled;
 		sp_bool _profilingEnabled;
 		sp_uint _pcaExecutionPerFrame;
+		BoundingVolumeType _boundingVolumeType;
 
 		SpPhysicSettings()
 		{
@@ -26,6 +28,7 @@ namespace NAMESPACE_PHYSICS
 			_restingVelocityEpsilon = 0.09f;
 			_pcaExecutionPerFrame = 30u;
 			_profilingEnabled = false;
+			_boundingVolumeType = BoundingVolumeType::DOP18;
 			enableSimulation();
 		}
 		
@@ -50,6 +53,15 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_size frameId() const
 		{
 			return _frameId;
+		}
+
+		API_INTERFACE inline BoundingVolumeType boundingVolumeType() const
+		{
+			return _boundingVolumeType;
+		}
+		API_INTERFACE inline void boundingVolumeType(BoundingVolumeType type)
+		{
+			_boundingVolumeType = type;
 		}
 
 		API_INTERFACE inline sp_float physicVelocity() const

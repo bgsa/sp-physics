@@ -49,9 +49,9 @@ namespace NAMESPACE_PHYSICS
 		: public GpuComposedCommand
 	{
 	private:
-		sp_uint* result;
-
+		
 #ifdef OPENCL_ENABLED
+
 		GpuDevice* gpu;
 		cl_program sapProgram;
 
@@ -67,11 +67,64 @@ namespace NAMESPACE_PHYSICS
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 
+		sp_size axis;
+
 		void initIndexes(sp_uint inputLength);
+
+		/// <summary>
+		/// Given an axis, get the axis ID based on k-DOP axis (9 axis availables)
+		/// </summary>
+		API_INTERFACE inline sp_uint axisIdForDOP18(const Vec3& axisVector) const
+		{
+			sp_float value = axisVector.dot(DOP18_NORMALS[DOP18_PLANES_LEFT_INDEX]);
+			sp_uint id = DOP18_PLANES_LEFT_INDEX;
+
+			for (sp_uint i = DOP18_PLANES_LEFT_INDEX + 1u; i <= DOP18_PLANES_LEFT_FRONT_INDEX; i++)
+			{
+				Vec3 v;
+				NAMESPACE_PHYSICS::normalize(DOP18_NORMALS[i], v);
+
+				const sp_float newValue = axisVector.dot(v);
+
+				if (newValue > value)
+				{
+					value = newValue;
+					id = divideBy2(i);
+				}
+			}
+
+			return id;
+		}
+
+		/// <summary>
+		/// Given an axis, get the axis ID based on AABB axis (3 axis availables)
+		/// </summary>
+		API_INTERFACE inline sp_uint axisIdForAABB(const Vec3& axisVector) const
+		{
+			sp_float value = axisVector.dot(AABB_NORMALS[AABB_PLANES_LEFT_INDEX]);
+			sp_uint id = AABB_PLANES_LEFT_INDEX;
+
+			for (sp_uint i = AABB_PLANES_LEFT_INDEX + 1u; i <= AABB_PLANES_DEPTH_INDEX; i++)
+			{
+				Vec3 v;
+				NAMESPACE_PHYSICS::normalize(AABB_NORMALS[i], v);
+
+				const sp_float newValue = axisVector.dot(v);
+
+				if (newValue > value)
+				{
+					value = newValue;
+					id = divideBy2(i);
+				}
+			}
+
+			sp_assert(id == AABB_AXIS_X || id == AABB_AXIS_Y || id == AABB_AXIS_Z, "ApplicationException");
+			return id;
+		}
+
 #endif // OPENCL_ENABLED
 
 	public:
-		sp_size axis;
 
 		/// <summary>
 		/// Default constructor
@@ -79,7 +132,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline SweepAndPrune()
 		{
-			axis = DOP18_AXIS_X;
+			axis = ZERO_SIZE;
 
 #ifdef OPENCL_ENABLED
 			gpu = nullptr;
@@ -115,55 +168,24 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>output axis parameter; True if the method converged orelse False</returns>
 		API_INTERFACE sp_bool pca(Vec3& output, const sp_uint maxIterations = SP_UINT_MAX) const;
 
-		/// <summary>
-		/// Given an axis, get the axis ID based on k-DOP axis (9 axis availables)
-		/// </summary>
-		API_INTERFACE inline sp_uint axisIdForDOP18(const Vec3& axis) const
+		API_INTERFACE sp_uint updateAxis(const Vec3& axisVector)
 		{
-			sp_float value = axis.dot(DOP18_NORMALS[DOP18_PLANES_LEFT_INDEX]);
-			sp_uint id = DOP18_PLANES_LEFT_INDEX;
-
-			for (sp_uint i = DOP18_PLANES_LEFT_INDEX + 1u; i <= DOP18_PLANES_LEFT_FRONT_INDEX; i++)
+			switch (SpPhysicSettings::instance()->boundingVolumeType())
 			{
-				Vec3 v;
-				NAMESPACE_PHYSICS::normalize(DOP18_NORMALS[i], v);
+			case BoundingVolumeType::DOP18:
+			case BoundingVolumeType::Sphere:
+				axis = axisIdForDOP18(axisVector);
+				break;
+			case BoundingVolumeType::AABB:
+				axis = axisIdForAABB(axisVector);
+				break;
 
-				const sp_float newValue = axis.dot(v);
-
-				if (newValue > value)
-				{
-					value = newValue;
-					id = divideBy2(i);
-				}
+			default:
+				sp_assert(false, "InvalidArgumentException");
+				break;
 			}
 
-			return id;
-		}
-
-		/// <summary>
-		/// Given an axis, get the axis ID based on AABB axis (3 axis availables)
-		/// </summary>
-		API_INTERFACE inline sp_uint axisIdForAABB(const Vec3& axis) const
-		{
-			sp_float value = axis.dot(AABB_NORMALS[AABB_PLANES_LEFT_INDEX]);
-			sp_uint id = AABB_PLANES_LEFT_INDEX;
-
-			for (sp_uint i = AABB_PLANES_LEFT_INDEX + 1u; i <= AABB_PLANES_DEPTH_INDEX; i++)
-			{
-				Vec3 v;
-				NAMESPACE_PHYSICS::normalize(AABB_NORMALS[i], v);
-
-				const sp_float newValue = axis.dot(v);
-
-				if (newValue > value)
-				{
-					value = newValue;
-					id = divideBy2(i);
-				}
-			}
-
-			sp_assert(id == AABB_AXIS_X || id == AABB_AXIS_Y || id == AABB_AXIS_Z, "ApplicationException");
-			return id;
+			return axis;
 		}
 
 #ifdef OPENCL_ENABLED
@@ -176,7 +198,7 @@ namespace NAMESPACE_PHYSICS
 		///<summary>
 		/// Set the parameters for running SweepAndPrune Command
 		///</summary>
-		API_INTERFACE void setParameters(cl_mem boundingVolumesGpu, sp_uint boundingVolumesLength, BoundingVolumeType boundingVolumeType, sp_uint strider, cl_mem rigidBodies, const sp_uint rigidBodySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName);
+		API_INTERFACE void setParameters(cl_mem boundingVolumesGpu, sp_uint boundingVolumesLength, BoundingVolumeType boundingVolumeType, sp_uint strider, cl_mem rigidBodies, const sp_uint rigidBodySize, cl_mem outputIndexLength, cl_mem outputIndex);
 
 		///<summary>
 		/// Find the collisions using Sweep and Prune method in GPU

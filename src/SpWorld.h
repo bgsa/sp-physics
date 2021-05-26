@@ -40,9 +40,7 @@ namespace NAMESPACE_PHYSICS
 		SpArray<SpMesh*>* _meshes;
 		SpArray<SpMeshCache*>* _meshesCache;
 
-		SpSphereBoundingVolumeFactory sphereFactory;
-		SpAABBFactory aabbFactory;
-		SpDOP18Factory dop18Factory;
+		SpBoundingVolumeFactory* boundingVolumeFactory;
 
 		// GPU data
 		GpuBufferOpenCL* _inputLengthGPU;
@@ -159,9 +157,7 @@ namespace NAMESPACE_PHYSICS
 			_meshCacheUpdater.init(gpu);
 			_meshCacheUpdater.setParameters(_inputLengthGPU, _meshesGPU, _meshesIndexesGPU, _meshesStridesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
 
-			dop18Factory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
-			aabbFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
-			sphereFactory.init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
+			boundingVolumeFactory->init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
 #endif
 			ALLOC_RELEASE(meshCacheIndexes);
 		}
@@ -247,7 +243,7 @@ namespace NAMESPACE_PHYSICS
 				SpMesh* _mesh = mesh(collisionFeatures(i)->meshIndex);
 				SpMeshCache* cache = _meshesCache->get(i);
 
-				dop18Factory.build(_mesh, cache, transforms(i)->position, &_boundingVolumes[i]);
+				boundingVolumeFactory->build(_mesh, cache, *transforms(i), &_boundingVolumes[i]);
 			}
 		}
 
@@ -258,7 +254,7 @@ namespace NAMESPACE_PHYSICS
 				SpMesh* _mesh = mesh(collisionFeatures(i)->meshIndex);
 				SpMeshCache* cache = _meshesCache->get(i);
 
-				aabbFactory.build(_mesh, cache, transforms(i)->position, &_boundingVolumes[i]);
+				boundingVolumeFactory->build(_mesh, cache, *transforms(i), &_boundingVolumes[i]);
 			}
 		}
 

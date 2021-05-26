@@ -29,8 +29,10 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="position">Center of object</param>
 		/// <param name="output">AABB created</param>
 		/// <returns>void</returns>
-		API_INTERFACE static void build(SpMesh* mesh, SpMeshCache* cache, const Vec3& position, DOP18* output)
+		API_INTERFACE inline void build(SpMesh* mesh, SpMeshCache* cache, const SpTransform& transform, void* boundingVolume) override
 		{
+			AABB* aabb = (AABB*)boundingVolume;
+
 			SpVertexMesh* vertex1 = mesh->vertexesMesh->get(0);
 
 			const sp_uint indexUp = mesh->support(Vec3Up, cache->vertexes, vertex1)->index();
@@ -40,34 +42,39 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint indexFront = mesh->support(Vec3Front, cache->vertexes, vertex1)->index();
 			const sp_uint indexDepth = mesh->support(Vec3Depth, cache->vertexes, vertex1)->index();
 
-			output->max[AABB_AXIS_Y] = cache->vertexes[indexUp].y;
-			output->min[AABB_AXIS_Y] = cache->vertexes[indexDown].y;
-			if (output->min[AABB_AXIS_Y] == output->max[AABB_AXIS_Y])
+			aabb->maxPoint[AABB_AXIS_Y] = cache->vertexes[indexUp].y;
+			aabb->minPoint[AABB_AXIS_Y] = cache->vertexes[indexDown].y;
+			if (aabb->minPoint[AABB_AXIS_Y] == aabb->maxPoint[AABB_AXIS_Y])
 			{
-				output->max[AABB_AXIS_Y] += 0.01f;
-				output->min[AABB_AXIS_Y] -= 0.01f;
+				aabb->maxPoint[AABB_AXIS_Y] += 0.01f;
+				aabb->minPoint[AABB_AXIS_Y] -= 0.01f;
 			}
 
-			output->max[AABB_AXIS_X] = cache->vertexes[indexRight].x;
-			output->min[AABB_AXIS_X] = cache->vertexes[indexLeft].x;
-			if (output->min[AABB_AXIS_X] == output->max[AABB_AXIS_X])
+			aabb->maxPoint[AABB_AXIS_X] = cache->vertexes[indexRight].x;
+			aabb->minPoint[AABB_AXIS_X] = cache->vertexes[indexLeft].x;
+			if (aabb->minPoint[AABB_AXIS_X] == aabb->maxPoint[AABB_AXIS_X])
 			{
-				output->max[AABB_AXIS_X] += 0.01f;
-				output->min[AABB_AXIS_X] -= 0.01f;
+				aabb->maxPoint[AABB_AXIS_X] += 0.01f;
+				aabb->minPoint[AABB_AXIS_X] -= 0.01f;
 			}
 
-			output->max[AABB_AXIS_Z] = cache->vertexes[indexFront].z;
-			output->min[AABB_AXIS_Z] = cache->vertexes[indexDepth].z;
-			if (output->min[AABB_AXIS_Z] == output->max[AABB_AXIS_Z])
+			aabb->maxPoint[AABB_AXIS_Z] = cache->vertexes[indexFront].z;
+			aabb->minPoint[AABB_AXIS_Z] = cache->vertexes[indexDepth].z;
+			if (aabb->minPoint[AABB_AXIS_Z] == aabb->maxPoint[AABB_AXIS_Z])
 			{
-				output->max[AABB_AXIS_Z] += 0.01f;
-				output->min[AABB_AXIS_Z] -= 0.01f;
+				aabb->maxPoint[AABB_AXIS_Z] += 0.01f;
+				aabb->minPoint[AABB_AXIS_Z] -= 0.01f;
 			}
+		}
+
+		API_INTERFACE inline BoundingVolumeType boundingVolumeType() const override
+		{
+			return BoundingVolumeType::AABB;
 		}
 
 #ifdef OPENCL_ENABLED
 
-		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU)
+		API_INTERFACE inline void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU) override
 		{
 			initProgram(gpu);
 
@@ -82,6 +89,13 @@ namespace NAMESPACE_PHYSICS
 				->setInputParameter(transformationsGPU, inputLength * sizeof(SpTransform))
 				->setInputParameter(_boundingVolumesGPU, inputLength * sizeof(AABB))
 				->buildFromProgram(program, "buildAABB");
+		}
+
+		API_INTERFACE inline void initOutput(GpuDevice* gpu, const sp_uint objectsLength) override
+		{
+			this->gpu = gpu;
+			_boundingVolumesGPU = gpu->createBuffer(sizeof(AABB) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+			_releaseBoundingVolumeGPU = true;
 		}
 
 #endif

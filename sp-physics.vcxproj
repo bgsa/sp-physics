@@ -218,6 +218,7 @@
     <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\SpAlgorithms.cpp" />
+    <ClCompile Include="src\SpBoundingVolumeFactory.cpp" />
     <ClCompile Include="src\SpCamera.cpp" />
     <ClCompile Include="src\SpCollisionDetector.cpp" />
     <ClCompile Include="src\SpCollisionResponse.cpp" />

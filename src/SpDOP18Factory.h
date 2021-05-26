@@ -30,8 +30,9 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="position">Center of object</param>
 		/// <param name="output">18-DOP created</param>
 		/// <returns>void</returns>
-		API_INTERFACE static void build(SpMesh* mesh, SpMeshCache* cache, const Vec3& position, DOP18* output)
+		API_INTERFACE inline void build(SpMesh* mesh, SpMeshCache* cache, const SpTransform& transform, void* boundingVolume) override
 		{
+			DOP18* dop18 = (DOP18*)boundingVolume;
 			SpVertexMesh* vertex1 = mesh->vertexesMesh->get(0);
 
 			const sp_uint indexUp = mesh->support(Vec3Up, cache->vertexes, vertex1)->index();
@@ -41,28 +42,28 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint indexFront = mesh->support(Vec3Front, cache->vertexes, vertex1)->index();
 			const sp_uint indexDepth = mesh->support(Vec3Depth, cache->vertexes, vertex1)->index();
 
-			output->max[DOP18_AXIS_Y] = cache->vertexes[indexUp].y;
-			output->min[DOP18_AXIS_Y] = cache->vertexes[indexDown].y;
-			if (output->min[DOP18_AXIS_Y] == output->max[DOP18_AXIS_Y])
+			dop18->max[DOP18_AXIS_Y] = cache->vertexes[indexUp].y;
+			dop18->min[DOP18_AXIS_Y] = cache->vertexes[indexDown].y;
+			if (dop18->min[DOP18_AXIS_Y] == dop18->max[DOP18_AXIS_Y])
 			{
-				output->max[DOP18_AXIS_Y] += 0.01f;
-				output->min[DOP18_AXIS_Y] -= 0.01f;
+				dop18->max[DOP18_AXIS_Y] += 0.01f;
+				dop18->min[DOP18_AXIS_Y] -= 0.01f;
 			}
 
-			output->max[DOP18_AXIS_X] = cache->vertexes[indexRight].x;
-			output->min[DOP18_AXIS_X] = cache->vertexes[indexLeft].x;
-			if (output->min[DOP18_AXIS_X] == output->max[DOP18_AXIS_X])
+			dop18->max[DOP18_AXIS_X] = cache->vertexes[indexRight].x;
+			dop18->min[DOP18_AXIS_X] = cache->vertexes[indexLeft].x;
+			if (dop18->min[DOP18_AXIS_X] == dop18->max[DOP18_AXIS_X])
 			{
-				output->max[DOP18_AXIS_X] += 0.01f;
-				output->min[DOP18_AXIS_X] -= 0.01f;
+				dop18->max[DOP18_AXIS_X] += 0.01f;
+				dop18->min[DOP18_AXIS_X] -= 0.01f;
 			}
 
-			output->max[DOP18_AXIS_Z] = cache->vertexes[indexFront].z;
-			output->min[DOP18_AXIS_Z] = cache->vertexes[indexDepth].z;
-			if (output->min[DOP18_AXIS_Z] == output->max[DOP18_AXIS_Z])
+			dop18->max[DOP18_AXIS_Z] = cache->vertexes[indexFront].z;
+			dop18->min[DOP18_AXIS_Z] = cache->vertexes[indexDepth].z;
+			if (dop18->min[DOP18_AXIS_Z] == dop18->max[DOP18_AXIS_Z])
 			{
-				output->max[DOP18_AXIS_Z] += 0.01f;
-				output->min[DOP18_AXIS_Z] -= 0.01f;
+				dop18->max[DOP18_AXIS_Z] += 0.01f;
+				dop18->min[DOP18_AXIS_Z] -= 0.01f;
 			}
 
 			const sp_uint indexUpLeft = mesh->support(DOP18_NORMALS[DOP18_PLANES_UP_LEFT_INDEX], cache->vertexes, vertex1)->index();
@@ -79,45 +80,50 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint indexLeftFront = mesh->support(DOP18_NORMALS[DOP18_PLANES_LEFT_FRONT_INDEX], cache->vertexes, vertex1)->index();
 
 			Vec3 vertex = cache->vertexes[indexUpLeft];
-			output->min[DOP18_AXIS_UP_LEFT] = vertex.x - (vertex.y - position.y);
+			dop18->min[DOP18_AXIS_UP_LEFT] = vertex.x - (vertex.y - transform.position.y);
 
 			vertex = cache->vertexes[indexDownRight];
-			output->max[DOP18_AXIS_UP_LEFT] = vertex.x + (position.y - vertex.y);
+			dop18->max[DOP18_AXIS_UP_LEFT] = vertex.x + (transform.position.y - vertex.y);
 
 			vertex = cache->vertexes[indexUpRight];
-			output->max[DOP18_AXIS_UP_RIGHT] = vertex.x + (vertex.y - position.y);
+			dop18->max[DOP18_AXIS_UP_RIGHT] = vertex.x + (vertex.y - transform.position.y);
 
 			vertex = cache->vertexes[indexDownLeft];
-			output->min[DOP18_AXIS_UP_RIGHT] = vertex.x + (vertex.y - position.y);
+			dop18->min[DOP18_AXIS_UP_RIGHT] = vertex.x + (vertex.y - transform.position.y);
 
 			vertex = cache->vertexes[indexUpFront];
-			output->max[DOP18_AXIS_UP_FRONT] = vertex.z + (vertex.y - position.y);
+			dop18->max[DOP18_AXIS_UP_FRONT] = vertex.z + (vertex.y - transform.position.y);
 
 			vertex = cache->vertexes[indexDownDepth];
-			output->min[DOP18_AXIS_UP_FRONT] = vertex.z + (vertex.y - position.y);
+			dop18->min[DOP18_AXIS_UP_FRONT] = vertex.z + (vertex.y - transform.position.y);
 
 			vertex = cache->vertexes[indexUpDepth];
-			output->min[DOP18_AXIS_UP_DEPTH] = vertex.z + (position.y - vertex.y);
+			dop18->min[DOP18_AXIS_UP_DEPTH] = vertex.z + (transform.position.y - vertex.y);
 
 			vertex = cache->vertexes[indexDownFront];
-			output->max[DOP18_AXIS_UP_DEPTH] = vertex.z + (position.y - vertex.y);
+			dop18->max[DOP18_AXIS_UP_DEPTH] = vertex.z + (transform.position.y - vertex.y);
 
 			vertex = cache->vertexes[indexLeftDepth];
-			output->min[DOP18_AXIS_LEFT_DEPTH] = vertex.x + (vertex.z - position.z);
+			dop18->min[DOP18_AXIS_LEFT_DEPTH] = vertex.x + (vertex.z - transform.position.z);
 
 			vertex = cache->vertexes[indexRightFront];
-			output->max[DOP18_AXIS_LEFT_DEPTH] = vertex.x + (vertex.z - position.z);
+			dop18->max[DOP18_AXIS_LEFT_DEPTH] = vertex.x + (vertex.z - transform.position.z);
 		
 			vertex = cache->vertexes[indexRightDepth];
-			output->max[DOP18_AXIS_RIGHT_DEPTH] = vertex.x + (position.z - vertex.z);
+			dop18->max[DOP18_AXIS_RIGHT_DEPTH] = vertex.x + (transform.position.z - vertex.z);
 
 			vertex = cache->vertexes[indexLeftFront];
-			output->min[DOP18_AXIS_RIGHT_DEPTH] = vertex.x + (position.z - vertex.z);
+			dop18->min[DOP18_AXIS_RIGHT_DEPTH] = vertex.x + (transform.position.z - vertex.z);
+		}
+
+		API_INTERFACE inline BoundingVolumeType boundingVolumeType() const override
+		{
+			return BoundingVolumeType::DOP18;
 		}
 
 #ifdef OPENCL_ENABLED
 
-		API_INTERFACE void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU)
+		API_INTERFACE inline void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU) override
 		{
 			initProgram(gpu);
 
@@ -132,6 +138,13 @@ namespace NAMESPACE_PHYSICS
 				->setInputParameter(transformationsGPU, inputLength * sizeof(SpTransform))
 				->setInputParameter(_boundingVolumesGPU, inputLength * sizeof(DOP18))
 				->buildFromProgram(program, "buildDOP18");
+		}
+
+		API_INTERFACE inline void initOutput(GpuDevice* gpu, const sp_uint objectsLength) override
+		{
+			this->gpu = gpu;
+			_boundingVolumesGPU = gpu->createBuffer(sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+			_releaseBoundingVolumeGPU = true;
 		}
 
 #endif

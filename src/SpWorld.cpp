@@ -32,9 +32,8 @@ namespace NAMESPACE_PHYSICS
 
 		_rigidBodies3DGPU = gpu->createBuffer(_rigidBodies3D, sizeof(SpRigidBody3D) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, false);
 
-		dop18Factory.initOutput(gpu, objectsLength);
-		aabbFactory.initOutput(gpu, dop18Factory.boundingVolumeGPU());
-		sphereFactory.initOutput(gpu, dop18Factory.boundingVolumeGPU());
+		boundingVolumeFactory = SpBoundingVolumeFactory::create(SpPhysicSettings::instance()->boundingVolumeType());
+		boundingVolumeFactory->initOutput(gpu, objectsLength);
 
 		physicSimulator = sp_mem_new(SpPhysicSimulator)();
 		physicSimulator->init();
@@ -71,9 +70,11 @@ namespace NAMESPACE_PHYSICS
 			_rigidBodies3DGPU = nullptr;
 		}
 
-		dop18Factory.dispose();
-		aabbFactory.dispose();
-		sphereFactory.dispose();
+		if (boundingVolumeFactory != nullptr)
+		{
+			boundingVolumeFactory->dispose();
+			boundingVolumeFactory = nullptr;
+		}
 
 		if (_objectMapperGPU != nullptr)
 		{

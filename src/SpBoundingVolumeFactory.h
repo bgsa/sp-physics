@@ -3,6 +3,7 @@
 
 #include "SpectrumPhysics.h"
 #include "FileSystem.h"
+#include "BoundingVolume.h"
 
 #ifdef OPENCL_ENABLED
 	#include "GpuCommand.h"
@@ -47,6 +48,8 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 
+		API_INTERFACE static SpBoundingVolumeFactory* create(const BoundingVolumeType type);
+
 		API_INTERFACE inline SpBoundingVolumeFactory()
 		{
 			gpu = nullptr;
@@ -60,6 +63,8 @@ namespace NAMESPACE_PHYSICS
 			return _boundingVolumesGPU;
 		}
 
+		API_INTERFACE virtual BoundingVolumeType boundingVolumeType() const = 0;
+
 		API_INTERFACE inline void initOutput(GpuDevice* gpu, cl_mem boundingVolumeGPU)
 		{
 			this->gpu = gpu;
@@ -67,13 +72,10 @@ namespace NAMESPACE_PHYSICS
 			_releaseBoundingVolumeGPU = false;
 		}
 
-		API_INTERFACE inline void initOutput(GpuDevice* gpu, const sp_uint objectsLength)
-		{
-			this->gpu = gpu;
-			_boundingVolumesGPU = gpu->createBuffer(sizeof(DOP18) * objectsLength, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
-			_releaseBoundingVolumeGPU = true;
-		}
+		API_INTERFACE virtual void initOutput(GpuDevice* gpu, const sp_uint objectsLength) = 0;
 	
+		API_INTERFACE virtual void build(SpMesh* mesh, SpMeshCache* cache, const SpTransform& transform, void* boundingVolumes) = 0;
+
 		API_INTERFACE virtual void execute(const sp_uint eventsLength, cl_event* eventsToWait, cl_event* evt) const
 		{
 			command->execute(1u, globalWorkSize, localWorkSize, NULL, eventsLength, eventsToWait, evt);
@@ -105,6 +107,12 @@ namespace NAMESPACE_PHYSICS
 			}
 
 		}
+
+#ifdef OPENCL_ENABLED
+
+		API_INTERFACE virtual void init(GpuDevice* gpu, GpuBufferOpenCL* inputLengthGPU, sp_uint inputLength, GpuBufferOpenCL* meshCacheGPU, GpuBufferOpenCL* meshCacheIndexes, GpuBufferOpenCL* meshCacheVertexesLength, cl_mem transformationsGPU) = 0;
+
+#endif
 
 	};
 

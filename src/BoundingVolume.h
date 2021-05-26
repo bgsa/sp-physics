@@ -1,10 +1,7 @@
-#ifndef BOUNDING_VOLUME_HEADER
-#define BOUNDING_VOLUME_HEADER
+#ifndef SP_BOUNDING_VOLUME_HEADER
+#define SP_BOUNDING_VOLUME_HEADER
 
 #include "SpectrumPhysics.h"
-#include "Vec3.h"
-#include "ParticleSystem.h"
-#include "SpTransform.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -37,4 +34,4 @@ namespace NAMESPACE_PHYSICS
 
 }
 
-#endif // BOUNDING_VOLUME_HEADER
+#endif // SP_BOUNDING_VOLUME_HEADER

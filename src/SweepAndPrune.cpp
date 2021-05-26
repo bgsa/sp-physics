@@ -236,7 +236,7 @@ namespace NAMESPACE_PHYSICS
 		sp_mem_delete(createIndexes, GpuIndexes);
 	}
 
-	void SweepAndPrune::setParameters(cl_mem boundingVolumesGpu, sp_uint boundingVolumesLength, BoundingVolumeType boundingVolumeType, sp_uint strider, cl_mem rigidBodies, const sp_uint rigidBodySize, cl_mem outputIndexLength, cl_mem outputIndex, const sp_char* commandName)
+	void SweepAndPrune::setParameters(cl_mem boundingVolumesGpu, sp_uint boundingVolumesLength, BoundingVolumeType boundingVolumeType, sp_uint strider, cl_mem rigidBodies, const sp_uint rigidBodySize, cl_mem outputIndexLength, cl_mem outputIndex)
 	{
 		globalWorkSize[0] = boundingVolumesLength;
 		localWorkSize[0] = 1u;
@@ -264,8 +264,27 @@ namespace NAMESPACE_PHYSICS
 			->setInputParameter(indexesLengthGPU, sizeof(sp_uint))
 			->setInputParameter(indexesGPU, boundingVolumesLength * sizeof(sp_uint))
 			->setInputParameter(outputIndexLength, sizeof(sp_uint))
-			->setInputParameter(outputIndex, collisionsSize)
-			->buildFromProgram(sapProgram, commandName);
+			->setInputParameter(outputIndex, collisionsSize);
+
+		switch (boundingVolumeType)
+		{
+		case BoundingVolumeType::DOP18:
+			commandSaPCollisions->buildFromProgram(sapProgram, "sweepAndPruneSingleAxis");
+			break;
+
+		case BoundingVolumeType::AABB:
+			commandSaPCollisions->buildFromProgram(sapProgram, "sweepAndPruneSingleAxisAABB");
+			break;
+
+		case BoundingVolumeType::Sphere:
+			commandSaPCollisions->buildFromProgram(sapProgram, "sweepAndPruneSingleAxisSphere");
+			break;
+
+		default:
+			sp_assert(false, "InvalidBoundingVolumeType");
+			break;
+		}
+		
 	}
 
 	cl_mem SweepAndPrune::execute(sp_uint previousEventsLength, cl_event* previousEvents, cl_event* evt)
@@ -274,7 +293,7 @@ namespace NAMESPACE_PHYSICS
 
 		commandBuildElements->execute(ONE_UINT, globalWorkSize, localWorkSize, &axis, previousEventsLength, previousEvents, &lastEvent);
 		const sp_float timeOfExecutionBuildElements = (sp_float) commandBuildElements->getTimeOfExecution(lastEvent);
-		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsDOP18Time))[0] = timeOfExecutionBuildElements;
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildElementsTime))[0] = timeOfExecutionBuildElements;
 
 		/* debugging
 		Sphere ss[512];
@@ -329,7 +348,7 @@ namespace NAMESPACE_PHYSICS
 			->updateInputParameter(4, sortedIndexes)
 			->updateInputParameterValue(5, &zeroValue, ZERO_UINT, NULL, NULL)
 			->execute(1, globalWorkSize, localWorkSize, &axis, ONE_UINT, evt, &lastEvent);
-		((sp_float*)SpGlobalPropertiesInscance->get(ID_sapDOP18Time))[0] = (sp_float)commandSaPCollisions->getTimeOfExecution(lastEvent);
+		((sp_float*)SpGlobalPropertiesInscance->get(ID_pruneTime))[0] = (sp_float)commandSaPCollisions->getTimeOfExecution(lastEvent);
 		gpu->releaseEvent(evt[0]);
 
 		evt[0] = lastEvent;
