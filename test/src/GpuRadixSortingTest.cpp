@@ -215,8 +215,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem offsetTable2 = gpu->createBuffer(offsetTableSize, CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
 		cl_mem offsetTableResult = offsetTable2;
 
-		const sp_uint threadsLength = gpu->getThreadLength(count) / 2;
-		const sp_uint groupLength = gpu->getGroupLength(threadsLength, count);
+		const sp_size threadsLength = gpu->getThreadLength(count) / 2;
+		const sp_size groupLength = gpu->getGroupLength(threadsLength, count);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
 
@@ -306,8 +306,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		ALLOC_RELEASE(source);
 
-		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
-		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size groupLength = gpu->getGroupLength(threadsLength, inputLength);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
 		const sp_uint elementsPerThread = inputLength / threadsLength;
@@ -429,8 +429,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		ALLOC_RELEASE(source);
 
-		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
-		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size groupLength = gpu->getGroupLength(threadsLength, inputLength);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
 		const sp_uint elementsPerThread = inputLength / threadsLength;
@@ -545,8 +545,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		ALLOC_RELEASE(source);
 
-		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
-		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size groupLength = gpu->getGroupLength(threadsLength, inputLength);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
 		const sp_uint elementsPerThread = inputLength / threadsLength;
@@ -662,8 +662,8 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		ALLOC_RELEASE(source);
 
-		const sp_uint threadsLength = gpu->getThreadLength(inputLength);
-		const sp_uint groupLength = gpu->getGroupLength(threadsLength, inputLength);
+		const sp_size threadsLength = gpu->getThreadLength(inputLength);
+		const sp_size groupLength = gpu->getGroupLength(threadsLength, inputLength);
 		const sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		const sp_size localWorkSize[3] = { groupLength, 0, 0 };
 		const sp_uint elementsPerThread = inputLength / threadsLength;
@@ -777,7 +777,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			->setInputParameter(offsetTable1GPU, offsetTableSize)
 			->buildFromProgram(program, "prefixScan");
 
-		sp_size eventLength = ZERO_UINT;
+		sp_uint eventLength = ZERO_UINT;
 		cl_event* previousEvents = nullptr;
 		cl_event evt;
 		sp_bool offsetChanged = false;
@@ -1473,7 +1473,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		};
 
 		sp_size digitIndex = 4;
-		sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		sp_size threadsLength = gpu->getThreadLength(inputLength);
 		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
 		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
@@ -1580,7 +1580,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		};
 
 		sp_size digitIndex = 5;
-		sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		sp_size threadsLength = gpu->getThreadLength(inputLength);
 		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
 		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
@@ -1686,7 +1686,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			14, 16, 0, 10, 9, 6, 15, 11, 18, 7, 13, 4, 12, 8, 1, 3, 19, 2, 17, 5
 		};
 
-		sp_uint threadsLength = gpu->getThreadLength(inputLength);
+		sp_size threadsLength = gpu->getThreadLength(inputLength);
 		const sp_size defaultLocalWorkSize = gpu->getGroupLength(threadsLength, inputLength);
 		sp_size globalWorkSize[3] = { threadsLength, 0, 0 };
 		sp_size localWorkSize[3] = { defaultLocalWorkSize, 0, 0 };
@@ -1801,12 +1801,12 @@ namespace NAMESPACE_PHYSICS_TEST
 		for (sp_size i = 0; i < iterations; i++)
 		{
 			sp_size length = (sp_size)std::pow(2.0, 17.0);
-			AABB* input1 = getRandomAABBs(length);
+			AABB* input1 = getRandomAABBs((sp_uint)length);
 			AABB* input2 = ALLOC_COPY(input1, AABB, length);
 			cl_mem inputGpu = gpu->createBuffer(input2, sizeof(AABB) * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 
 			cl_mem newIndexesLength = gpu->createBuffer(&length, sizeof(sp_uint), CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR);
-			createIndexes->setParametersCreateIndexes(length);
+			createIndexes->setParametersCreateIndexes((sp_uint)length);
 			cl_mem newIndexes = createIndexes->execute(ZERO_UINT, NULL, NULL);
 
 			std::ostringstream buildOptions;
@@ -1816,7 +1816,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			GpuRadixSorting* radixSorting = ALLOC_NEW(GpuRadixSorting)();
 			radixSorting->init(gpu, buildOptions.str().c_str())
-				->setParameters(inputGpu, length, newIndexes, newIndexesLength, AABB_STRIDER);
+				->setParameters(inputGpu, (sp_uint)length, newIndexes, newIndexesLength, AABB_STRIDER);
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 

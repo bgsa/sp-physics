@@ -124,7 +124,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			GpuFindMinMax* findMinMax = ALLOC_NEW(GpuFindMinMax)();
 			findMinMax->init(gpu, buildOptions.str().c_str());
-			findMinMax->setParameters((sp_float*)aabbs, (sp_size) count, AABB_STRIDER, AABB_OFFSET);
+			findMinMax->setParameters((sp_float*)aabbs, (sp_uint) count, AABB_STRIDER, AABB_OFFSET);
 
 			std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
 

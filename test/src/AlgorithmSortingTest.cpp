@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			return result;
 		}
 
-		AABB* getRandomAABBs(size_t count, size_t spaceSize = 1000)
+		AABB* getRandomAABBs(sp_size count, sp_int spaceSize = 1000)
 		{
 			Randomizer randomizerSize(0, 30);
 			Randomizer randomizerLocation(0, spaceSize);

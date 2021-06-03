@@ -68,7 +68,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_size vertexMemoryIndex = (sp_size)mesh1->vertexesMesh->data()[0];
 		vertexMeshIndex = divideBy4(vertexMemoryIndex - initialMemoryIndex) + 1;
 		sp_size vertexMemoryIndex2 = (sp_size)mesh1->vertexesMesh->data()[1];
-		sp_size meshVertexStride = divideBy4(vertexMemoryIndex2 - vertexMemoryIndex);
+		sp_uint meshVertexStride = (sp_uint)divideBy4(vertexMemoryIndex2 - vertexMemoryIndex);
 
 		sp_uint meshesStride[3] = { meshVertexStride, 0u, 0u };
 

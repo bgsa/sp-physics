@@ -90,6 +90,49 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void surfaceSquareSubdivision();
 
+		/// <summary>
+		/// Get the size in bytes of the mesh
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_size size() const;
+
+		/// <summary>
+		/// Get the index memory of the Vertexes, Faces and Edges
+		/// </summary>
+		/// <param name="indexes">Mesh's Indexes</param>
+		/// <returns>indexes parameter</returns>
+		API_INTERFACE inline void indexes(sp_size indexes[3], const sp_size shift = ZERO_SIZE) const
+		{
+			const sp_size initialMemoryIndex = (sp_size)this;
+			sp_size vertexMemoryIndex1 = (sp_size)vertexesMesh->data()[0];
+			sp_size faceMemoryIndex1 = (sp_size)faces->data()[0];
+			sp_size edgeMemoryIndex1 = (sp_size)edges->data()[0];
+
+			indexes[0] = divideBy4(vertexMemoryIndex1 - initialMemoryIndex) + 1 + shift;
+			indexes[1] = divideBy4(faceMemoryIndex1 - initialMemoryIndex) + shift;
+			indexes[2] = divideBy4(edgeMemoryIndex1 - initialMemoryIndex) + shift;
+		}
+
+		/// <summary>
+		/// Get the strides of Vertexes, Faces and Edges
+		/// </summary>
+		/// <param name="strides">Mesh's Strides</param>
+		/// <returns>strides parameter</returns>
+		API_INTERFACE inline void strides(sp_uint strides[3]) const
+		{
+			const sp_size initialMemoryIndex = (sp_size)this;
+			sp_size vertexMemoryIndex1 = (sp_size)vertexesMesh->data()[0];
+			sp_size vertexMemoryIndex2 = (sp_size)vertexesMesh->data()[1];
+			sp_size faceMemoryIndex1 = (sp_size)faces->data()[0];
+			sp_size faceMemoryIndex2 = (sp_size)faces->data()[1];
+			sp_size edgeMemoryIndex1 = (sp_size)edges->data()[0];
+			sp_size edgeMemoryIndex2 = (sp_size)edges->data()[1];
+
+			strides[0] = (sp_uint)divideBy4(vertexMemoryIndex2 - vertexMemoryIndex1); // vertex stride for mesh 1
+			strides[1] = (sp_uint)divideBy4(faceMemoryIndex2 - faceMemoryIndex1); // faces stride for mesh 1
+			strides[2] = (sp_uint)divideBy4(edgeMemoryIndex2 - edgeMemoryIndex1); // edge stride for mesh 1
+		}
+
 	};
 
 }

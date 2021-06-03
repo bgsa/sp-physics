@@ -227,7 +227,7 @@ namespace NAMESPACE_PHYSICS
 		updateDataOnGPU();
 
 		// update mesh cache vertexes
-		world->_meshCacheUpdater.execute(ZERO_UINT, NULL, &evt);
+		world->_meshVertexCacheUpdater.execute(ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
 		
 		if (pcaFrameCounter > SpPhysicSettings::instance()->pcaExecutionPerFrame())

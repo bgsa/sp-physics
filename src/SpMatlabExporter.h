@@ -123,7 +123,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void drawSphere(const Vec3& position, const sp_float radius, sp_char* output, sp_uint* outputLength)
 		{
-			sp_uint len = ZERO_UINT;
+			sp_size len = ZERO_UINT;
 			sp_uint temp;
 
 			std::memcpy(output, "[x, y, z] = sphere;", 19);
@@ -181,17 +181,17 @@ namespace NAMESPACE_PHYSICS
 			len += 3u;
 
 			const sp_char* str = "patch('Faces', mesh.faces, 'Vertices', mesh.vertices, 'FaceColor', [1, 0, 1]);";
-			const sp_uint strLength = strlen(str);
+			const sp_size strLength = std::strlen(str);
 			std::memcpy(&output[len], str, strLength);
-			len += strLength + 2u;
+			len += strLength + 2;
 			output[len - 2u] = END_OF_LINE;
 			output[len - 1u] = END_OF_STRING;
-			outputLength[0] = len;
+			outputLength[0] = (sp_uint)len;
 		}
 
 		API_INTERFACE inline void convert(const SpMesh& mesh, const Vec3* vertexes, const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint& index)
 		{
-			const sp_uint nameLength = strlen(meshName);
+			const sp_uint nameLength = (sp_uint) std::strlen(meshName);
 
 			// vertexes
 			output[index] = 'v';
@@ -253,7 +253,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void convert(const Plane& plane, const sp_char* meshName, const sp_char* colorName, sp_char* output, sp_uint& index)
 		{
-			const sp_uint nameLength = strlen(meshName);
+			const sp_uint nameLength = (sp_uint)std::strlen(meshName);
 
 			// vertexes
 			output[index] = 'v';
@@ -302,7 +302,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void convert(const sp_uint vertexesLength, const Vec3* vertexes, const sp_char* listName, sp_char* output, sp_uint& index)
 		{
-			const sp_uint nameLength = strlen(listName);
+			const sp_uint nameLength = (sp_uint)std::strlen(listName);
 
 			std::memcpy(&output[index], listName, nameLength);
 			index += nameLength;
@@ -327,7 +327,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void convertFace(const Vec3& point1, const Vec3& point2, const Vec3& point3, const sp_char* faceName, const sp_char* colorName, sp_char* output, sp_uint& index)
 		{
-			const sp_uint nameLength = strlen(faceName);
+			const sp_uint nameLength = (sp_uint)std::strlen(faceName);
 			
 			// vertexes
 			output[index] = 'v';

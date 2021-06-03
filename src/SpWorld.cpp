@@ -82,6 +82,12 @@ namespace NAMESPACE_PHYSICS
 			_objectMapperGPU = nullptr;
 		}
 
+		if (_meshVertexCacheGPU != nullptr)
+		{
+			sp_mem_delete(_meshVertexCacheGPU, GpuBufferOpenCL);
+			_meshVertexCacheGPU = nullptr;
+		}
+
 		if (_meshesStridesGPU != nullptr)
 		{
 			sp_mem_delete(_meshesStridesGPU, GpuBufferOpenCL);

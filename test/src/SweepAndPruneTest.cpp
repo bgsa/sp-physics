@@ -2310,37 +2310,38 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, axisIdForAABB)
 	{
+		SpPhysicSettings::instance()->boundingVolumeType(BoundingVolumeType::AABB);
 		SweepAndPrune sap;
 
 		Vec3 axis = Vec3(0.1f, 0.8f, 0.1f);
 		normalize(axis);
-		sp_uint result = sap.updateAxis(axis, BoundingVolumeType::AABB);
-		Assert::AreEqual(1u, result, L"wrong value", LINE_INFO());
+		sap.updateAxis(axis);
+		Assert::AreEqual(1, (sp_int)sap.axis, L"wrong value", LINE_INFO());
 
 		axis = Vec3(0.1f, -0.8f, 0.1f);
 		normalize(axis);
-		result = sap.updateAxis(axis, BoundingVolumeType::AABB);
-		Assert::AreEqual(1u, result, L"wrong value", LINE_INFO());
+		sap.updateAxis(axis);
+		Assert::AreEqual(1, (sp_int)sap.axis, L"wrong value", LINE_INFO());
 
 		axis = Vec3(0.8f, 0.1f, 0.1f);
 		normalize(axis);
-		result = sap.updateAxis(axis, BoundingVolumeType::AABB);
-		Assert::AreEqual(0u, result, L"wrong value", LINE_INFO());
+		sap.updateAxis(axis);
+		Assert::AreEqual(0, (sp_int)sap.axis, L"wrong value", LINE_INFO());
 
 		axis = Vec3(-0.8f, 0.1f, 0.1f);
 		normalize(axis);
-		result = sap.updateAxis(axis, BoundingVolumeType::AABB);
-		Assert::AreEqual(0u, result, L"wrong value", LINE_INFO());
+		sap.updateAxis(axis);
+		Assert::AreEqual(0, (sp_int)sap.axis, L"wrong value", LINE_INFO());
 
 		axis = Vec3(0.1f, 0.1f, 0.9f);
 		normalize(axis);
-		result = sap.updateAxis(axis, BoundingVolumeType::AABB);
-		Assert::AreEqual(2u, result, L"wrong value", LINE_INFO());
+		sap.updateAxis(axis);
+		Assert::AreEqual(2, (sp_int)sap.axis, L"wrong value", LINE_INFO());
 
 		axis = Vec3(0.1f, 0.1f, -0.9f);
 		normalize(axis);
-		result = sap.updateAxis(axis, BoundingVolumeType::AABB);
-		Assert::AreEqual(2u, result, L"wrong value", LINE_INFO());
+		sap.updateAxis(axis);
+		Assert::AreEqual(2, (sp_int)sap.axis, L"wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, findCollisions_WithAABB)
@@ -2624,6 +2625,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, buildInputElements4)
 	{
+		SpPhysicSettings::instance()->boundingVolumeType(BoundingVolumeType::AABB);
 		GpuContext* context = GpuContext::init();
 		GpuDevice* gpu = context->defaultDevice();
 
@@ -2676,7 +2678,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		gpu->commandManager->readBuffer(indexesGpu, inputLength * sizeof(sp_float), indexesCPU);
 
 		SweepAndPrune sap;
-		sp_size axis = sap.updateAxis(DOP18_NORMALS[DOP18_PLANES_UP_DEPTH_INDEX], BoundingVolumeType::AABB);
+		sap.updateAxis(DOP18_NORMALS[DOP18_PLANES_UP_DEPTH_INDEX]);
+		sp_size axis = sap.axis; 
 
 		cl_event evt;
 		GpuCommand* commandBuildElements = gpu->commandManager->createCommand()

@@ -67,8 +67,6 @@ namespace NAMESPACE_PHYSICS
 		sp_size globalWorkSize[3] = { 0, 0, 0 };
 		sp_size localWorkSize[3] = { 0, 0, 0 };
 
-		sp_size axis;
-
 		void initIndexes(sp_uint inputLength);
 
 		/// <summary>
@@ -126,6 +124,8 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 
+		sp_size axis;
+
 		/// <summary>
 		/// Default constructor
 		/// </summary>
@@ -168,7 +168,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>output axis parameter; True if the method converged orelse False</returns>
 		API_INTERFACE sp_bool pca(Vec3& output, const sp_uint maxIterations = SP_UINT_MAX) const;
 
-		API_INTERFACE sp_uint updateAxis(const Vec3& axisVector)
+		API_INTERFACE void updateAxis(const Vec3& axisVector)
 		{
 			switch (SpPhysicSettings::instance()->boundingVolumeType())
 			{
@@ -184,8 +184,6 @@ namespace NAMESPACE_PHYSICS
 				sp_assert(false, "InvalidArgumentException");
 				break;
 			}
-
-			return axis;
 		}
 
 #ifdef OPENCL_ENABLED

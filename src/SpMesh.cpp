@@ -4,6 +4,14 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	sp_size SpMesh::size() const
+	{
+		SpEdgeMesh* lastEdge = edges->data()[edges->length() - 1u];
+		const sp_size lastMemoryAddress = (sp_size)&lastEdge->faces.data()[lastEdge->faces.length() - 1u];
+
+		return lastMemoryAddress - (sp_size)this;
+	}
+
 	void SpMesh::surfaceSquareSubdivision()
 	{
 		SpArray<SpEdgeMesh*> edgesToDivide(edges->length());

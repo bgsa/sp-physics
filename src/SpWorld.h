@@ -51,10 +51,10 @@ namespace NAMESPACE_PHYSICS
 		GpuBufferOpenCL* _meshesGPU;
 		GpuBufferOpenCL* _meshesIndexesGPU;
 		GpuBufferOpenCL* _meshesStridesGPU;
-		GpuBufferOpenCL* _meshCacheGPU;
+		GpuBufferOpenCL* _meshVertexCacheGPU;
 		GpuBufferOpenCL* _meshCacheIndexesGPU;
 		GpuBufferOpenCL* _meshCacheVertexesLengthGPU;
-		SpMeshCacheUpdaterGPU _meshCacheUpdater;
+		SpMeshCacheUpdaterGPU _meshVertexCacheUpdater;
 
 		SpIRendererManager* renderer;
 
@@ -73,20 +73,8 @@ namespace NAMESPACE_PHYSICS
 
 			const SpMesh* mesh1 = _meshes->data()[0];
 			const sp_size initialMemoryIndex = (sp_size)mesh1;
-			sp_size vertexMemoryIndex1 = (sp_size)mesh1->vertexesMesh->data()[0];
-			sp_size vertexMemoryIndex2 = (sp_size)mesh1->vertexesMesh->data()[1];
-			sp_size faceMemoryIndex1 = (sp_size)mesh1->faces->data()[0];
-			sp_size faceMemoryIndex2 = (sp_size)mesh1->faces->data()[1];
-			sp_size edgeMemoryIndex1 = (sp_size)mesh1->edges->data()[0];
-			sp_size edgeMemoryIndex2 = (sp_size)mesh1->edges->data()[1];
-
-			meshesIndexes[0] = divideBy4(vertexMemoryIndex1 - initialMemoryIndex) + 1;
-			meshesIndexes[1] = divideBy4(faceMemoryIndex1 - initialMemoryIndex);
-			meshesIndexes[2] = divideBy4(edgeMemoryIndex1 - initialMemoryIndex);
-
-			meshesStrides[0] = divideBy4(vertexMemoryIndex2 - vertexMemoryIndex1); // vertex stride for mesh 1
-			meshesStrides[1] = divideBy4(faceMemoryIndex2 - faceMemoryIndex1); // faces stride for mesh 1
-			meshesStrides[2] = divideBy4(edgeMemoryIndex2 - edgeMemoryIndex1); // edge stride for mesh 1
+			mesh1->indexes(meshesIndexes);
+			mesh1->strides(meshesStrides);
 
 			SpPoolMemoryAllocator::main()->enableMemoryAlignment();
 
@@ -105,21 +93,9 @@ namespace NAMESPACE_PHYSICS
 				meshCacheVertexesLength[i] = vertexLength;
 				vertexCounter += vertexLength;
 
-				vertexMemoryIndex1 = (sp_size)m->vertexesMesh->data()[0];
-				vertexMemoryIndex2 = (sp_size)m->vertexesMesh->data()[1];
-				faceMemoryIndex1 = (sp_size)m->faces->data()[0];
-				faceMemoryIndex2 = (sp_size)m->faces->data()[1];
-				edgeMemoryIndex1 = (sp_size)m->edges->data()[0];
-				edgeMemoryIndex2 = (sp_size)m->edges->data()[1];
-
-				const sp_uint idx = i * 3u;
-				meshesIndexes[idx] = divideBy4(vertexMemoryIndex1 - initialMemoryIndex) + 1;
-				meshesIndexes[idx + 1u] = divideBy4(faceMemoryIndex1 - initialMemoryIndex);
-				meshesIndexes[idx + 2u] = divideBy4(edgeMemoryIndex1 - initialMemoryIndex);
-
-				meshesStrides[idx     ] = divideBy4(vertexMemoryIndex2 - vertexMemoryIndex1); // vertex stride for mesh[i]
-				meshesStrides[1] = divideBy4(faceMemoryIndex2 - faceMemoryIndex1); // faces stride for mesh[i]
-				meshesStrides[2] = divideBy4(edgeMemoryIndex2 - edgeMemoryIndex1); // edge stride for mesh[i]
+				const sp_size shift = divideBy4((sp_size)m - initialMemoryIndex);
+				m->indexes(&meshesIndexes[i * 3u], shift);
+				m->strides(&meshesStrides[i * 3u]);
 			}
 
 			SpPoolMemoryAllocator::main()->disableMemoryAlignment();
@@ -133,6 +109,9 @@ namespace NAMESPACE_PHYSICS
 			SpEdgeMesh* lastEdge = lastMesh->edges->data()[lastMesh->edges->length() - 1u];
 			sp_size lastMemoryAddress = (sp_size)&lastEdge->faces.data()[lastEdge->faces.length() - 1u];
 
+			_inputLengthGPU->update(&_objectsLength, ZERO_UINT, NULL, &evt);
+			gpu->releaseEvent(evt);
+
 			_meshesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 			_meshesGPU->init(lastMemoryAddress - initialMemoryIndex, _meshes->data()[0], CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
@@ -142,8 +121,8 @@ namespace NAMESPACE_PHYSICS
 			_meshesStridesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 			_meshesStridesGPU->init(_objectsLength * sizeof(sp_uint) * 3, meshesStrides, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
 
-			_meshCacheGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
-			_meshCacheGPU->init(vertexCounter * VEC3_SIZE);
+			_meshVertexCacheGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
+			_meshVertexCacheGPU->init(vertexCounter * VEC3_SIZE);
 
 			_meshCacheIndexesGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 			_meshCacheIndexesGPU->init(_objectsLength * sizeof(sp_uint), meshCacheIndexes, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR);
@@ -151,13 +130,10 @@ namespace NAMESPACE_PHYSICS
 			_meshCacheVertexesLengthGPU = sp_mem_new(GpuBufferOpenCL)(gpu);
 			_meshCacheVertexesLengthGPU->init(_objectsLength * sizeof(sp_uint), meshCacheVertexesLength, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR);
 
-			_inputLengthGPU->update(&_objectsLength, ZERO_UINT, NULL, &evt);
-			gpu->releaseEvent(evt);
+			_meshVertexCacheUpdater.init(gpu);
+			_meshVertexCacheUpdater.setParameters(_inputLengthGPU, _meshesGPU, _meshesIndexesGPU, _meshesStridesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshVertexCacheGPU, _objectsLength);
 
-			_meshCacheUpdater.init(gpu);
-			_meshCacheUpdater.setParameters(_inputLengthGPU, _meshesGPU, _meshesIndexesGPU, _meshesStridesGPU, _meshCacheVertexesLengthGPU, _transformsGPU, _meshCacheIndexesGPU, _meshCacheGPU, _objectsLength);
-
-			boundingVolumeFactory->init(gpu, _inputLengthGPU, _objectsLength, _meshCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
+			boundingVolumeFactory->init(gpu, _inputLengthGPU, _objectsLength, _meshVertexCacheGPU, _meshCacheIndexesGPU, _meshCacheVertexesLengthGPU, _transformsGPU);
 #endif
 			ALLOC_RELEASE(meshCacheIndexes);
 		}
