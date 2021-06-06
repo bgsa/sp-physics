@@ -17,7 +17,9 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 
-		API_INTERFACE GpuBufferOpenCL(GpuDevice* gpu)
+		API_INTERFACE GpuBufferOpenCL();
+
+		API_INTERFACE inline GpuBufferOpenCL(GpuDevice* gpu)
 		{
 			_gpu = gpu;
 			_buffer = nullptr;

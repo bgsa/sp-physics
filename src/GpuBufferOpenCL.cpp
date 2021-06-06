@@ -1,7 +1,14 @@
 #include "GpuBufferOpenCL.h"
+#include "GpuContext.h"
 
 namespace NAMESPACE_PHYSICS
 {
+
+	GpuBufferOpenCL::GpuBufferOpenCL()
+	{
+		_gpu = GpuContext::instance()->defaultDevice();
+		_buffer = nullptr;
+	}
 
 	GpuBufferOpenCL* GpuBufferOpenCL::init(const sp_size size, cl_mem_flags flags)
 	{

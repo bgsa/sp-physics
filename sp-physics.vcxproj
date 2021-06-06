@@ -308,6 +308,8 @@
     <ClInclude Include="src\SpGame.h" />
     <ClInclude Include="src\SpGame2D.h" />
     <ClInclude Include="src\SpGame3D.h" />
+    <ClInclude Include="src\SpGameObject.h" />
+    <ClInclude Include="src\SpGameObjectManager.h" />
     <ClInclude Include="src\SpGJK.h" />
     <ClInclude Include="src\SpIGraphicObject.h" />
     <ClInclude Include="src\SpIGraphicObject2D.h" />
