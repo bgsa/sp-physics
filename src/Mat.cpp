@@ -18,8 +18,8 @@ namespace NAMESPACE_PHYSICS
 
 		if (isSymmetric())
 		{
-			Mat matrix(this);
-			Mat temp(_columns, _columns);
+			Mat matrix(this, SpStackMemoryAllocator::main());
+			Mat temp(_columns, _columns, SpStackMemoryAllocator::main());
 
 			eigenVectors.setIdentity();
 
@@ -57,7 +57,7 @@ namespace NAMESPACE_PHYSICS
 				const sp_float cosTheta = ONE_FLOAT / sp_sqrt(ONE_FLOAT + tangentTheta * tangentTheta);
 				const sp_float sinTheta = cosTheta * tangentTheta;
 
-				Mat jacobiRotationMatrix(3, 3);
+				Mat jacobiRotationMatrix(3, 3, SpStackMemoryAllocator::main());
 				jacobiRotation(matrix, sinTheta, cosTheta, rowIndex, columnIndex, matrix, jacobiRotationMatrix);
 
 				multiply(eigenVectors, jacobiRotationMatrix, temp);
@@ -164,10 +164,10 @@ namespace NAMESPACE_PHYSICS
 
 	sp_bool Mat::svd(Mat& u, Mat& s, Mat& v, sp_uint& iterations, const sp_uint maxIterations, const sp_float _epsilon) const
 	{
-		Mat transposed(_columns, _rows);
+		Mat transposed(_columns, _rows, SpStackMemoryAllocator::main());
 		transpose(transposed);
 
-		Mat _symmetric(_columns, _columns);
+		Mat _symmetric(_columns, _columns, SpStackMemoryAllocator::main());
 		multiply(transposed, *this, _symmetric);
 
 		sp_float* eigenValues = ALLOC_NEW_ARRAY(sp_float, _columns);
@@ -182,7 +182,7 @@ namespace NAMESPACE_PHYSICS
 			if (!NAMESPACE_FOUNDATION::isCloseEnough(eigenValues[i], ZERO_FLOAT))
 				s.set(i, i, sp_sqrt(eigenValues[i]));
 
-		Mat temp(_rows, v.columns());
+		Mat temp(_rows, v.columns(), SpStackMemoryAllocator::main());
 		multiply(*this, v, temp);
 
 		for (sp_uint column = 0; column < temp.columns(); column++)
@@ -220,7 +220,7 @@ namespace NAMESPACE_PHYSICS
 
 	void multiply(const Mat& a, const Mat& b, const Mat& c, Mat& output)
 	{
-		Mat temp(a.rows(), b.columns());
+		Mat temp(a.rows(), b.columns(), SpStackMemoryAllocator::main());
 		std::memset(temp, 0, sizeof(sp_float) * temp.length());
 
 		multiply(a, b, temp);
@@ -518,7 +518,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		givensRotation(jacobiRotation, rowIndex, columnIndex, sinTheta, cosTheta);
 
-		Mat jacobiRotationT(jacobiRotation.rows(), jacobiRotation.columns());
+		Mat jacobiRotationT(jacobiRotation.rows(), jacobiRotation.columns(), SpStackMemoryAllocator::main());
 		jacobiRotation.transpose(jacobiRotationT);
 
 		multiply(jacobiRotationT, input, jacobiRotation, output);

@@ -9,6 +9,7 @@ namespace NAMESPACE_PHYSICS
 	class Mat
 	{
 	private:
+		SpMemoryAllocator* allocator;
 		sp_uint _rows, _columns;
 		sp_float* _values;
 
@@ -20,14 +21,18 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="rows">Row Length</param>
 		/// <param name="columns">Column Length</param>
 		/// <returns>void</returns>
-		API_INTERFACE inline Mat(const sp_uint rows, const sp_uint columns)
+		API_INTERFACE inline Mat(const sp_uint rows, const sp_uint columns, SpMemoryAllocator* allocator)
 		{
 			sp_assert(rows != ZERO_UINT, "InvalidArgumentException");
 			sp_assert(columns != ZERO_UINT, "InvalidArgumentException");
+			sp_assert(allocator != nullptr, "InvalidArgumentException");
+
+			this->allocator = allocator;
 
 			_rows = rows;
 			_columns = columns;
-			_values = sp_mem_new_array(sp_float, rows * columns);
+
+			_values = (sp_float*)allocator->alloc(sizeof(sp_float) * _rows * _columns);
 		}
 
 		/// <summary>
@@ -37,16 +42,19 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="columns">Column Length</param>
 		/// <param name="values">This parameter is kept by the matrix</param>
 		/// <returns>void</returns>
-		API_INTERFACE inline Mat(const sp_uint rows, const sp_uint columns, sp_float* values)
+		API_INTERFACE inline Mat(const sp_uint rows, const sp_uint columns, sp_float* values, SpMemoryAllocator* allocator)
 		{
 			sp_assert(rows != ZERO_UINT, "InvalidArgumentException");
 			sp_assert(columns != ZERO_UINT, "InvalidArgumentException");
+			sp_assert(allocator != nullptr, "InvalidArgumentException");
+
+			this->allocator = allocator;
 
 			_rows = rows;
 			_columns = columns;
-			_values = sp_mem_new_array(sp_float, rows * columns);
+			_values = (sp_float*)allocator->alloc(sizeof(sp_float) * _rows * _columns);
 
-			std::memcpy(_values, values, sizeof(sp_float) * rows * columns);
+			std::memcpy(_values, values, sizeof(sp_float) * _rows * _columns);
 		}
 
 		/// <summary>
@@ -55,14 +63,17 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="source">Matrix to be cloned</param>
 		/// <param name="columns">Column Length</param>
 		/// <returns>void</returns>
-		API_INTERFACE inline Mat(const Mat* source)
+		API_INTERFACE inline Mat(const Mat* source, SpMemoryAllocator* allocator)
 		{
 			sp_assert(source != nullptr, "InvalidArgumentException");
+			sp_assert(allocator != nullptr, "InvalidArgumentException");
+
+			this->allocator = allocator;
 
 			_rows = source->_rows;
 			_columns = source->_columns;
 
-			_values = sp_mem_new_array(sp_float, _rows * _columns);
+			_values = (sp_float*)allocator->alloc(sizeof(sp_float) * _rows * _columns);
 
 			std::memcpy(_values, source->_values, sizeof(sp_float) * _rows * _columns);
 		}
@@ -423,7 +434,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			if (_values != nullptr)
 			{
-				sp_mem_release(_values);
+				allocator->free(_values);
 				_values = nullptr;
 			}
 		}

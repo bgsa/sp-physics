@@ -280,6 +280,11 @@ namespace NAMESPACE_PHYSICS
 		SpRigidBodyShapeMatch** shapes = ALLOC_NEW_ARRAY(SpRigidBodyShapeMatch*, world->objectsLength());
 		std::memset(shapes, ZERO_INT, sizeof(sp_uint)* world->objectsLength());
 
+		// TODO: REMOVE
+		const sp_size frameIdTemp = SpPhysicSettings::instance()->frameId();
+		if (frameIdTemp > 2920)
+			int a = 1;
+
 		// init shapes
 		for (sp_uint i = 0; i < sapResult.length; i++)
 		{

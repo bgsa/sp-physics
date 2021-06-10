@@ -161,14 +161,16 @@ namespace NAMESPACE_PHYSICS
 	{
 		SpWorld* world = SpWorldManagerInstance->current();
 
-		Mat matrix(world->objectsLength(), 3u);
+		Mat matrix(world->objectsLength(), 3u, SpStackMemoryAllocator::main());
 		sp_float* values = matrix;
 
 		for (sp_uint i = 0; i < world->objectsLength(); i++)
 			std::memcpy(&values[i * 3u], world->transforms(i)->position, sizeof(Vec3));
 
 		sp_uint iterations;
-		Mat u(matrix.rows(), matrix.rows()), s(matrix.columns(), matrix.columns()), v(matrix.columns(), matrix.columns());
+		Mat u(matrix.rows(), matrix.rows(), SpStackMemoryAllocator::main()), 
+			s(matrix.columns(), matrix.columns(), SpStackMemoryAllocator::main()), 
+			v(matrix.columns(), matrix.columns(), SpStackMemoryAllocator::main());
 
 		if (!matrix.svd(u, s, v, iterations, maxIterations))
 			return false;
