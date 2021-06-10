@@ -259,6 +259,8 @@ namespace NAMESPACE_PHYSICS
 		gpu->releaseEvent(previousEvent);
 		gpu->releaseEvent(evt);
 
+		sp_assert(sapResult.length <= world->objectsLength() * SP_SAP_MAX_COLLISION_PER_OBJECT, "ApplicationException");
+
 		// release GPU shared buffer OpenCL and OpenGL
 		gpu->commandManager->releaseGLObjects(world->_transformsGPU, ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);

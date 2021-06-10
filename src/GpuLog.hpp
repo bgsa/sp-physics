@@ -54,13 +54,114 @@ namespace NAMESPACE_PHYSICS
 			}
 		}
 
+		/// <summary>
+		/// Get the runtime error message, given the opencl code
+		/// </summary>
+		/// <param name="errorCode"></param>
+		/// <param name="message"></param>
+		/// <returns></returns>
+		API_INTERFACE static void runtimeErrorMessage(sp_int errorCode, sp_char* message)
+		{
+			switch (errorCode)
+			{
+			case CL_SUCCESS:
+				std::strcpy(message, "Success");
+				return;
+
+			case CL_DEVICE_NOT_FOUND:
+				std::strcpy(message, "Device not found");
+				return;
+
+			case CL_DEVICE_NOT_AVAILABLE:
+				std::strcpy(message, "Device not available");
+				return;
+
+			case CL_COMPILER_NOT_AVAILABLE:
+				std::strcpy(message, "Compiler not available");
+				return;
+
+			case CL_MEM_OBJECT_ALLOCATION_FAILURE:
+				std::strcpy(message, "Memory allocation failure");
+				return;
+
+			case CL_OUT_OF_RESOURCES:
+				std::strcpy(message, "Out of resources");
+				return;
+
+			case CL_OUT_OF_HOST_MEMORY:
+				std::strcpy(message, "Out of host memory");
+				return;
+
+			case CL_PROFILING_INFO_NOT_AVAILABLE:
+				std::strcpy(message, "Profiling Info not available");
+				return;
+
+			case CL_MEM_COPY_OVERLAP:
+				std::strcpy(message, "Memory copy overlapy (eg: source and destination buffer are the same)");
+				return;
+
+			case CL_IMAGE_FORMAT_MISMATCH:
+				std::strcpy(message, "Image format mismatch (eg: the source and destination image do not use the same format)");
+				return;
+
+			case CL_IMAGE_FORMAT_NOT_SUPPORTED:
+				std::strcpy(message, "Image format not supported");
+				return;
+
+			case CL_BUILD_PROGRAM_FAILURE:
+				std::strcpy(message, "Build program failure");
+				return;
+
+			case CL_MAP_FAILURE:
+				std::strcpy(message, "Map failure: failure to map the requested region into the host address space");
+				return;
+
+			case CL_MISALIGNED_SUB_BUFFER_OFFSET:
+				std::strcpy(message, "Sub-buffer object is specified as the value for an argument that is a buffer object and the offset specified when the sub-buffer object is created is not aligned to the device memory allignment");
+				return;
+
+			case CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST:
+				std::strcpy(message, "The execution status of any of the events in event_list is a negative integer value");
+				return;
+
+			case CL_COMPILE_PROGRAM_FAILURE:
+				std::strcpy(message, "There is a failure to compile the program source");
+				return;
+
+			case CL_LINKER_NOT_AVAILABLE:
+				std::strcpy(message, "Linker is not available (eg: CL_DEVICE_LINKER_AVAILABLE specified in the table of allowed values for param_name for clGetDeviceInfo is set to CL_FALSE)");
+				return;
+
+			case CL_LINK_PROGRAM_FAILURE:
+				std::strcpy(message, "There is a failure to link the compiled binaries and/or libraries");
+				return;
+
+			case CL_DEVICE_PARTITION_FAILED:
+				std::strcpy(message, "The partition name is supported by the implementation but in_device could not be further partitioned");
+				return;
+
+			case CL_KERNEL_ARG_INFO_NOT_AVAILABLE:
+				std::strcpy(message, "The argument information is not available for kernel");
+				return;
+
+			case CL_INVALID_EVENT_WAIT_LIST:
+				std::strcpy(message, "Invalid Event Wait List");
+				return;
+
+			default:
+				std::strcpy(message, "Unknonwn OpenCL runtime error");
+				return;
+			}
+		}
+
 		///<summary>
 		///Handle Runtime errors
 		///</summary>
 		API_INTERFACE static void handleRuntimeError(sp_int errorCode)
 		{
-			std::string runtimeError = runtimeErrorMessage(errorCode);
-			sp_assert(errorCode == CL_SUCCESS, runtimeError.c_str());
+			sp_char message[1024];
+			runtimeErrorMessage(errorCode, message);
+			sp_assert(errorCode == CL_SUCCESS, message);
 		}
 
 		///<summary>
@@ -68,214 +169,181 @@ namespace NAMESPACE_PHYSICS
 		///</summary>
 		API_INTERFACE static void handleCompileError(sp_int errorCode)
 		{
-			std::string compileError = compileErrorMessage(errorCode);
-			sp_assert(errorCode == CL_SUCCESS, compileError.c_str());
+			sp_char message[1024];
+			compileErrorMessage(errorCode, message);
+			sp_assert(errorCode == CL_SUCCESS, message);
 		}
 
 		///<summary>
-		///Get the runtime error message, given the opencl code
+		///	Get the compile error message, given the opencl code
 		///</summary>
-		API_INTERFACE static std::string runtimeErrorMessage(sp_int errorCode)
+		API_INTERFACE static void compileErrorMessage(sp_int errorCode, sp_char* message)
 		{
 			switch (errorCode)
 			{
 			case CL_SUCCESS:
-				return "Success";
-
-			case CL_DEVICE_NOT_FOUND:
-				return "Device not found";
-
-			case CL_DEVICE_NOT_AVAILABLE:
-				return "Device not available";
-
-			case CL_COMPILER_NOT_AVAILABLE:
-				return "Compiler not available";
-
-			case CL_MEM_OBJECT_ALLOCATION_FAILURE :
-				return "Memory allocation failure";
-
-			case CL_OUT_OF_RESOURCES:
-				return "Out of resources";
-
-			case CL_OUT_OF_HOST_MEMORY:
-				return "Out of host memory";
-
-			case CL_PROFILING_INFO_NOT_AVAILABLE:
-				return "Profiling Info not available";
-
-			case CL_MEM_COPY_OVERLAP:
-				return "Memory copy overlapy (eg: source and destination buffer are the same)";
-
-			case CL_IMAGE_FORMAT_MISMATCH:
-				return "Image format mismatch (eg: the source and destination image do not use the same format)";
-
-			case CL_IMAGE_FORMAT_NOT_SUPPORTED:
-				return "Image format not supported";
-
-			case CL_BUILD_PROGRAM_FAILURE:
-				return "Build program failure";
-
-			case CL_MAP_FAILURE:
-				return "Map failure: failure to map the requested region into the host address space";
-
-			case CL_MISALIGNED_SUB_BUFFER_OFFSET:
-				return "Sub-buffer object is specified as the value for an argument that is a buffer object and the offset specified when the sub-buffer object is created is not aligned to the device memory allignment";
-
-			case CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST:
-				return "The execution status of any of the events in event_list is a negative integer value";
-
-			case CL_COMPILE_PROGRAM_FAILURE:
-				return "There is a failure to compile the program source";
-
-			case CL_LINKER_NOT_AVAILABLE:
-				return "Linker is not available (eg: CL_DEVICE_LINKER_AVAILABLE specified in the table of allowed values for param_name for clGetDeviceInfo is set to CL_FALSE)";
-
-			case CL_LINK_PROGRAM_FAILURE:
-				return "There is a failure to link the compiled binaries and/or libraries";
-
-			case CL_DEVICE_PARTITION_FAILED:
-				return "The partition name is supported by the implementation but in_device could not be further partitioned";
-
-			case CL_KERNEL_ARG_INFO_NOT_AVAILABLE:
-				return "The argument information is not available for kernel";
-
-			case CL_INVALID_EVENT_WAIT_LIST:
-				return "Invalid Event Wait List";
-
-			default:
-				return "Unknonwn OpenCL runtime error";
-			}
-		}
-
-		///<summary>
-		///Get the compile error message, given the opencl code
-		///</summary>
-		API_INTERFACE static std::string compileErrorMessage(sp_int errorCode)
-		{
-			switch (errorCode)
-			{
-			case CL_SUCCESS:
-				return "Success";
+				std::strcpy(message, "Success");
+				return;
 
 			case CL_INVALID_VALUE:
-				return "Invalid value";
+				std::strcpy(message, "Invalid value");
+				return;
 
 			case CL_INVALID_DEVICE_TYPE:
-				return "Invalid device type";
+				std::strcpy(message, "Invalid device type");
+				return;
 
 			case CL_INVALID_PLATFORM:
-				return "Invalid plataform";
+				std::strcpy(message, "Invalid plataform");
+				return;
 
 			case CL_INVALID_DEVICE:
-				return "Invalid device";
+				std::strcpy(message, "Invalid device");
+				return;
 
 			case CL_INVALID_CONTEXT:
-				return "Invalid context";
+				std::strcpy(message, "Invalid context");
+				return;
 
 			case CL_INVALID_QUEUE_PROPERTIES:
-				return "Invalid queue properties";
+				std::strcpy(message, "Invalid queue properties");
+				return;
 
 			case CL_INVALID_COMMAND_QUEUE:
-				return "Invalid command queue";
+				std::strcpy(message, "Invalid command queue");
+				return;
 
 			case CL_INVALID_HOST_PTR:
-				return "Invalid host pointer. This flag is valid only if host_ptr is not NULL";
+				std::strcpy(message, "Invalid host pointer. This flag is valid only if host_ptr is not NULL");
+				return;
 
 			case CL_INVALID_MEM_OBJECT:
-				return "Invalid memory object";
+				std::strcpy(message, "Invalid memory object");
+				return;
 
 			case CL_INVALID_IMAGE_FORMAT_DESCRIPTOR:
-				return "Invalid image format descriptor";
+				std::strcpy(message, "Invalid image format descriptor");
+				return;
 
 			case CL_INVALID_IMAGE_SIZE:
-				return "Invalid image size";
+				std::strcpy(message, "Invalid image size");
+				return;
 
 			case CL_INVALID_SAMPLER:
-				return "Invalid sampler";
+				std::strcpy(message, "Invalid sampler");
+				return;
 
 			case CL_INVALID_BINARY:
-				return "Invalid binary";
+				std::strcpy(message, "Invalid binary");
+				return;
 
 			case CL_INVALID_BUILD_OPTIONS:
-				return "Invalid build options";
+				std::strcpy(message, "Invalid build options");
+				return;
 
 			case CL_INVALID_PROGRAM:
-				return "Invalid program";
+				std::strcpy(message, "Invalid program");
+				return;
 
 			case CL_INVALID_PROGRAM_EXECUTABLE:
-				return "Invalid program executable";
+				std::strcpy(message, "Invalid program executable");
+				return;
 
 			case CL_INVALID_KERNEL_NAME:
-				return "Invalid kernel name";
+				std::strcpy(message, "Invalid kernel name");
+				return;
 
 			case CL_INVALID_KERNEL_DEFINITION:
-				return "Invalid kernel definition";
+				std::strcpy(message, "Invalid kernel definition");
+				return;
 
 			case CL_INVALID_KERNEL:
-				return "Invalid kernel";
+				std::strcpy(message, "Invalid kernel");
+				return;
 
 			case CL_INVALID_ARG_INDEX:
-				return "Invalid argument index";
+				std::strcpy(message, "Invalid argument index");
+				return;
 
 			case CL_INVALID_ARG_VALUE:
-				return "Invalid argument value";
+				std::strcpy(message, "Invalid argument value");
+				return;
 
 			case CL_INVALID_ARG_SIZE:
-				return "Invalid argument size";
+				std::strcpy(message, "Invalid argument size");
+				return;
 
 			case CL_INVALID_KERNEL_ARGS:
-				return "Invalid kernel arguments";
+				std::strcpy(message, "Invalid kernel arguments");
+				return;
 
 			case CL_INVALID_WORK_DIMENSION:
-				return "Invalid work dimension";
+				std::strcpy(message, "Invalid work dimension");
+				return;
 
 			case CL_INVALID_WORK_GROUP_SIZE:
-				return "Invalid work group size";
+				std::strcpy(message, "Invalid work group size");
+				return;
 
 			case CL_INVALID_WORK_ITEM_SIZE:
-				return "Invalid work item size";
+				std::strcpy(message, "Invalid work item size");
+				return;
 
 			case CL_INVALID_GLOBAL_OFFSET:
-				return "Invalid global offset";
+				std::strcpy(message, "Invalid global offset");
+				return;
 
 			case CL_INVALID_EVENT_WAIT_LIST:
-				return "Invalid event wait list";
+				std::strcpy(message, "Invalid event wait list");
+				return;
 
 			case CL_INVALID_EVENT:
-				return "Invalid event";
+				std::strcpy(message, "Invalid event");
+				return;
 
 			case CL_INVALID_OPERATION:
-				return "Invalid operation";
+				std::strcpy(message, "Invalid operation");
+				return;
 
 			case CL_INVALID_GL_OBJECT:
-				return "Invalid GL object";
+				std::strcpy(message, "Invalid GL object");
+				return;
 
 			case CL_INVALID_BUFFER_SIZE:
-				return "Invalid buffer size";
+				std::strcpy(message, "Invalid buffer size");
+				return;
 
 			case CL_INVALID_MIP_LEVEL:
-				return "MipLevel is greater than zero and the OpenGL implementation does not support creating from non-zero mipmap levels";
+				std::strcpy(message, "MipLevel is greater than zero and the OpenGL implementation does not support creating from non-zero mipmap levels");
+				return;
 
 			case CL_INVALID_GLOBAL_WORK_SIZE:
-				return "Invalid global work size";
+				std::strcpy(message, "Invalid global work size");
+				return;
 
 			case CL_INVALID_PROPERTY:
-				return "Invalid property";
+				std::strcpy(message, "Invalid property");
+				return;
 
 			case CL_INVALID_IMAGE_DESCRIPTOR:
-				return "Invalid image descriptor";
+				std::strcpy(message, "Invalid image descriptor");
+				return;
 
 			case CL_INVALID_COMPILER_OPTIONS:
-				return "Invalid compiler options";
+				std::strcpy(message, "Invalid compiler options");
+				return;
 
 			case CL_INVALID_LINKER_OPTIONS:
-				return "Invalid linker options";
+				std::strcpy(message, "Invalid linker options");
+				return;
 
 			case CL_INVALID_DEVICE_PARTITION_COUNT:
-				return "Invalid device partition count";
+				std::strcpy(message, "Invalid device partition count");
+				return;
 
 			case -13: // OPENCL_2.0 ->  CL_MISALIGNED_SUB _BUFFER_OFFSET
-				return "Misaligned subbuffer offset";
+				std::strcpy(message, "Misaligned subbuffer offset");
+				return;
 
 				/*
 			case CL_INVALID_PIPE_SIZE:
@@ -286,15 +354,33 @@ namespace NAMESPACE_PHYSICS
 				*/
 
 				// extensions error
-			case -1000: return "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR";
-			case -1001: return "CL_PLATFORM_NOT_FOUND_KHR";
-			case -1002: return "CL_INVALID_D3D10_DEVICE_KHR";
-			case -1003: return "CL_INVALID_D3D10_RESOURCE_KHR";
-			case -1004: return "CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR";
-			case -1005: return "CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR";
+			case -1000: 
+				std::strcpy(message, "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR");
+				return;
+
+			case -1001: 
+				std::strcpy(message, "CL_PLATFORM_NOT_FOUND_KHR");
+				return;
+
+			case -1002: 
+				std::strcpy(message, "CL_INVALID_D3D10_DEVICE_KHR");
+				return;
+
+			case -1003:
+				std::strcpy(message, "CL_INVALID_D3D10_RESOURCE_KHR");
+				return;
+
+			case -1004: 
+				std::strcpy(message, "CL_D3D10_RESOURCE_ALREADY_ACQUIRED_KHR");
+				return;
+
+			case -1005: 
+				std::strcpy(message, "CL_D3D10_RESOURCE_NOT_ACQUIRED_KHR");
+				return;
 
 			default:
-				return "Unknown OpenCL compile error";
+				std::strcpy(message, "Unknown OpenCL compile error");
+				return;
 			}
 		}
 	};
