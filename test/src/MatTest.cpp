@@ -28,7 +28,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			8.0f, 5.0f, 1.0f, 8.0f, 8.0f,
 			9.0f, 1.0f, 2.0f, 2.0f, 2.0f
 		};
-		Mat A(2, 5, a1);
+		Mat A(2, 5, a1, SpStackMemoryAllocator::main());
 
 		sp_float diagonal[2];
 		A.primaryDiagonal(diagonal);
@@ -43,7 +43,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			2.0f, 3.0f, 
 			2.0f, 1.0f
 		};
-		A = Mat(5, 2, a2);
+		A = Mat(5, 2, a2, SpStackMemoryAllocator::main());
 
 		A.primaryDiagonal(diagonal);
 
@@ -58,7 +58,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			1.0f, 8.0f, 5.0f,
 			3.0f, 4.0f, 9.0f
 		};
-		Mat A(3, 3, a);
+		Mat A(3, 3, a, SpStackMemoryAllocator::main());
 
 		sp_uint row, column;
 		sp_float value;
@@ -83,7 +83,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			1.0f, 8.0f, 5.0f,
 			3.0f, 4.0f, 9.0f
 		};
-		Mat A(3, 3, a);
+		Mat A(3, 3, a, SpStackMemoryAllocator::main());
 
 		sp_uint row, column;
 		sp_float value;
@@ -108,11 +108,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			1.0f, 8.0f, 4.0f, 
 			3.0f, 4.0f, 9.0f, 10.0f
 		};
-		Mat A(2, 5, a);
+		Mat A(2, 5, a, SpStackMemoryAllocator::main());
 
 		Assert::IsFalse(A.isSymmetric(), L"Wrong number", LINE_INFO());
 
-		A = Mat(3, 3, a);
+		A = Mat(3, 3, a, SpStackMemoryAllocator::main());
 
 		Assert::IsFalse(A.isSymmetric(), L"Wrong number", LINE_INFO());
 
@@ -130,9 +130,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.0f, 1.0f, 0.0f, 
 			1.0f, 1.0f, 0.0f
 		};
-		Mat A(5, 3, a);
+		Mat A(5, 3, a, SpStackMemoryAllocator::main());
 
-		Mat u(5, 5), s(5, 3), v(3, 3);
+		Mat u(5, 5, SpStackMemoryAllocator::main()), 
+			s(5, 3, SpStackMemoryAllocator::main()), 
+			v(3, 3, SpStackMemoryAllocator::main());
 
 		sp_uint iterations;
 		A.svd(u, s, v, iterations, SP_UINT_MAX, SP_EPSILON_TWO_DIGITS);
@@ -144,7 +146,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		   -0.3651f, -0.4082f,  0.0000f,  0.8003f, -0.2441f,
 		   -0.5477f,  0.0000f, -0.7071f, -0.1184f,  0.4313f
 		};
-		Mat uExpected(5, 5, uE);
+		Mat uExpected(5, 5, uE, SpStackMemoryAllocator::main());
 
 		sp_float sE[25] = {
 		   2.23610f, 0.0f,    0.0f, 0.0f, 0.0f,
@@ -153,23 +155,23 @@ namespace NAMESPACE_PHYSICS_TEST
 		   0.0f,     0.0f,    0.0f, 0.0f, 0.0f,
 		   0.0f,     0.0f,    0.0f, 0.0f, 0.0f
 		};
-		Mat sExpected(5, 5, sE);
+		Mat sExpected(5, 5, sE, SpStackMemoryAllocator::main());
 
 		sp_float vE[9] = {
 		   -0.4082f,  0.5774f, -0.7071f,
 		   -0.8165f, -0.5774f,  0.0f,
 		   -0.4082f,  0.5774f,  0.7071f
 		};
-		Mat vExpected(3, 3, vE);
+		Mat vExpected(3, 3, vE, SpStackMemoryAllocator::main());
 
 		Assert::IsTrue(isCloseEnough(u, uExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(s, sExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 		Assert::IsTrue(isCloseEnough(v, vExpected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 
-		Mat vt(3, 3);
+		Mat vt(3, 3, SpStackMemoryAllocator::main());
 		vExpected.transpose(vt);
 
-		Mat expected(3, 3, a);
+		Mat expected(3, 3, a, SpStackMemoryAllocator::main());
 		multiply(u, s, vt, expected);
 		Assert::IsTrue(isCloseEnough(A, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 
@@ -198,14 +200,14 @@ namespace NAMESPACE_PHYSICS_TEST
 			1.0f, 1.0f, 0.0f,
 			1.0f, 1.0f, 1.0f
 		};
-		Mat M1(3, 3, m1);
+		Mat M1(3, 3, m1, SpStackMemoryAllocator::main());
 		sp_float expected[9] = {
 			0.5773f, -0.8163f, 0.0f,
 			0.5773f, 0.4082f, -0.7071f,
 			0.5773f, 0.4082f, 0.7071f
 		};
 
-		Mat result(3, 3);
+		Mat result(3, 3, SpStackMemoryAllocator::main());
 		M1.gramSchmidt(result);
 
 		for (sp_uint i = 0; i < MAT3_LENGTH; i++)
@@ -219,8 +221,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.0f, 1.0f, 0.0f,
 			1.0f, 1.0f, 0.0f
 		};
-		Mat A(5, 3, a);
-		Mat R(5, 3);
+		Mat A(5, 3, a, SpStackMemoryAllocator::main());
+		Mat R(5, 3, SpStackMemoryAllocator::main());
 		A.gramSchmidt(R);
 
 		sp_float c[15] = {
@@ -230,7 +232,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.0f,     0.5345f, -0.1195f,
 			0.7071f,  0.2673f, -0.4781f
 		};
-		Mat C(5, 3, c);
+		Mat C(5, 3, c, SpStackMemoryAllocator::main());
 
 		Assert::IsTrue(isCloseEnough(C, R, SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
 
@@ -241,7 +243,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			6.0f, 0.0f, 7.0f,
 			7.0f, 2.0f, 6.0f
 		};
-		Mat T(5, 3, t);
+		Mat T(5, 3, t, SpStackMemoryAllocator::main());
 		T.gramSchmidt(R);
 
 		sp_float tr[15] = {
@@ -251,7 +253,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.5941f, -0.4589f,  0.3674f,
 			0.6931f, -0.1020f, -0.2612f
 		};
-		Mat TR(5, 3, tr);
+		Mat TR(5, 3, tr, SpStackMemoryAllocator::main());
 
 		Assert::IsTrue(isCloseEnough(TR, R, SP_EPSILON_THREE_DIGITS), L"Wrong value", LINE_INFO());
 	}
@@ -323,10 +325,10 @@ namespace NAMESPACE_PHYSICS_TEST
 			13.0f, 14.0f, 15.0f, 16.0f
 		};
 
-		Mat m(4,4, matrix);
-		Mat e(4,4, expected);
+		Mat m(4,4, matrix, SpStackMemoryAllocator::main());
+		Mat e(4,4, expected, SpStackMemoryAllocator::main());
 
-		Mat result(4, 4);
+		Mat result(4, 4, SpStackMemoryAllocator::main());
 		transpose(m, result);
 		
 		Assert::IsTrue(isCloseEnough(result, e, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
@@ -335,9 +337,9 @@ namespace NAMESPACE_PHYSICS_TEST
 			8.0f, 5.0f, 1.0f, 8.0f, 8.0f,
 			9.0f, 1.0f, 2.0f, 2.0f, 2.0f
 		};
-		m = Mat(2, 5, matrix);
+		m = Mat(2, 5, matrix, SpStackMemoryAllocator::main());
 
-		result = Mat(5, 2);
+		result = Mat(5, 2, SpStackMemoryAllocator::main());
 		transpose(m, result);
 
 		sp_float expected2[10] = {
@@ -347,7 +349,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			8.0f, 2.0f,
 			8.0f, 2.0f
 		};
-		Mat e2(5, 2, expected2);
+		Mat e2(5, 2, expected2, SpStackMemoryAllocator::main());
 
 		Assert::IsTrue(isCloseEnough(result, e2, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
 	}
@@ -371,11 +373,11 @@ namespace NAMESPACE_PHYSICS_TEST
 			102.0f, 75.0f
 		};
 
-		Mat A(2, 5, a);
-		Mat B(5, 2, b);
-		Mat expected(2, 2, e);
+		Mat A(2, 5, a, SpStackMemoryAllocator::main());
+		Mat B(5, 2, b, SpStackMemoryAllocator::main());
+		Mat expected(2, 2, e, SpStackMemoryAllocator::main());
 
-		Mat result(2, 2);
+		Mat result(2, 2, SpStackMemoryAllocator::main());
 		multiply(A, B, result);
 
 		Assert::IsTrue(isCloseEnough(result, expected, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());
@@ -390,14 +392,14 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.0f, 1.0f, 0.0f,
 			1.0f, 1.0f, 0.0f
 		};
-		Mat A(5, 3, a);
+		Mat A(5, 3, a, SpStackMemoryAllocator::main());
 
 		sp_float b[9] = {
 			0.4082f, 0.8164f, 0.4082f,
 			0.5773f, -0.5773f, 0.5773f,
 			-0.7071f, 0.0f, 0.7071f
 		};
-		Mat B(3, 3, b);
+		Mat B(3, 3, b, SpStackMemoryAllocator::main());
 
 		sp_float e[15] = {
 				   -0.2989f, 0.8164f, 1.1153f,
@@ -406,9 +408,9 @@ namespace NAMESPACE_PHYSICS_TEST
 					0.5773f, -0.5773f, 0.5773f,
 					0.9855f, 0.2391f, 0.9855f
 		};
-		Mat expected = Mat(5, 3, e);
+		Mat expected = Mat(5, 3, e, SpStackMemoryAllocator::main());
 
-		Mat result = Mat(5, 3);
+		Mat result = Mat(5, 3, SpStackMemoryAllocator::main());
 		multiply(A, B, result);
 
 		Assert::IsTrue(isCloseEnough(expected, result, SP_EPSILON_THREE_DIGITS), L"Wrong number", LINE_INFO());

@@ -10,28 +10,14 @@ namespace NAMESPACE_PHYSICS
 	{
 		this->platform = platform;
 
-		cl_uint devicesCount;
-		clGetDeviceIDs((cl_platform_id)platform->id, CL_DEVICE_TYPE_ALL, 0, NULL, &devicesCount);
-
-		_devices = sp_mem_new(SpArray<GpuDevice*>)(devicesCount);
-
-		cl_device_id* devicesAsArray = ALLOC_ARRAY(cl_device_id, devicesCount);
-		clGetDeviceIDs((cl_platform_id)platform->id, CL_DEVICE_TYPE_ALL, devicesCount, devicesAsArray, NULL);
-
-		for (sp_uint i = 0; i < devicesCount; i++) 
+		for (sp_uint i = 0; i < platform->gpuDevicesLength; i++) 
 		{
-			GpuDevice* device = sp_mem_new(GpuDevice)(devicesAsArray[i], (cl_platform_id)platform->id);
-
-			if (device->type & CL_DEVICE_TYPE_DEFAULT)
-				_defaultDevice = device;
-
-			_devices->add(device);
+			if (platform->gpuDevices[i]->type & CL_DEVICE_TYPE_DEFAULT)
+				_defaultDevice = platform->gpuDevices[i];
 		}
 
-		if (_defaultDevice == nullptr && devicesCount > 0)
-			_defaultDevice = _devices->data()[0];
-
-		ALLOC_RELEASE(devicesAsArray);
+		if (platform->gpuDevicesLength > 0)
+			_defaultDevice = platform->gpuDevices[0];
 	}
 
 	void GpuContext::init(SpGpuPlatform* platform)
@@ -48,9 +34,13 @@ namespace NAMESPACE_PHYSICS
 		init(SpGpuPlatformManagerInstance->defaultPlatform());
 	}
 
-	SpArray<GpuDevice*>* GpuContext::devices() const
+	void GpuContext::release()
 	{
-		return _devices;
+		if (GpuContextInstance != nullptr)
+		{
+			sp_mem_delete(GpuContextInstance, GpuContext);
+			GpuContextInstance = nullptr;
+		}
 	}
 
 	GpuDevice* GpuContext::defaultDevice() const
@@ -58,13 +48,6 @@ namespace NAMESPACE_PHYSICS
 		return _defaultDevice;
 	}
 
-	GpuContext::~GpuContext()
-	{
-		for (sp_uint i = ZERO_UINT; i < _devices->length(); i++)
-		{
-			sp_mem_delete(_devices->data()[i], GpuDevice);
-		}
-	}
 }
 
 #endif

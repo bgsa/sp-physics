@@ -15,21 +15,18 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		SpGpuPlatform* platform;
-		
-		GpuContext(SpGpuPlatform* platform);
+		GpuDevice* _defaultDevice;
 
-		SpArray<GpuDevice*>* _devices;
-		GpuDevice* _defaultDevice = nullptr;
+		GpuContext(SpGpuPlatform* platform);
 
 	public:
 		
 		API_INTERFACE static void init();
 		API_INTERFACE static void init(SpGpuPlatform* platform);
+		API_INTERFACE static void release();
 
-		API_INTERFACE SpArray<GpuDevice*>* devices() const;
 		API_INTERFACE GpuDevice* defaultDevice() const;
-		
-		~GpuContext();
+
 	};
 
 	extern GpuContext* GpuContextInstance;

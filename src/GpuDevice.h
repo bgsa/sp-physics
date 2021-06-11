@@ -10,6 +10,7 @@
 #include "GpuCommandManager.h"
 #include "SpGpuBuffer.h"
 #include "SpGpuTextureBuffer.h"
+#include "SpGpuPlatform.h"
 
 #ifdef LINUX
 	#include <GL/glx.h>
@@ -24,12 +25,15 @@ namespace NAMESPACE_PHYSICS
 		cl_context deviceContext;
 
 	public:
-		char* name;
-		char* version;
-		char* driverVersion;
+		sp_char* name;
+		sp_char* version;
+		sp_char* driverVersion;
+		sp_char* profile;
+		sp_size extensionsLength;
+		sp_char** extensions;
+
 		cl_device_type type;
 		cl_uint computeUnits;
-		std::vector<std::string> extensions;
 		sp_uint maxParameterSize = 256;
 
 		/// <summary>
@@ -37,7 +41,6 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		sp_uint maxWorkGroupSize = 1;
 
-		
 		/// <summary>
 		/// Maximum dimensions that specify the global and local work - item IDs used by the data parallel execution model
 		/// </summary>
@@ -58,11 +61,20 @@ namespace NAMESPACE_PHYSICS
 		cl_uint memoryBaseAddressAlign;
 		cl_uint memoryAlignmentRequirement;
 		cl_uint clockFrequency;
-		std::string profile;
-
+		
 		GpuCommandManager* commandManager = nullptr;
 		
-		API_INTERFACE GpuDevice(cl_device_id id, cl_platform_id platformId);
+		API_INTERFACE inline GpuDevice()
+		{
+			name = nullptr;
+			version = nullptr;
+			driverVersion = nullptr;
+			profile = nullptr;
+			extensionsLength = ZERO_SIZE;
+			extensions = nullptr;
+		}
+
+		API_INTERFACE void init(cl_device_id id, const SpGpuPlatform& platform);
 
 		API_INTERFACE inline sp_bool isGPU()
 		{

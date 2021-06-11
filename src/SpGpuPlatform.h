@@ -16,6 +16,8 @@ namespace NAMESPACE_PHYSICS
 		sp_char* profile;
 		sp_uint extensionsLength;
 		sp_char** extensions;
+		sp_uint gpuDevicesLength;
+		GpuDevice** gpuDevices;
 
 		/// <summary>
 		/// Default constructor
@@ -30,6 +32,8 @@ namespace NAMESPACE_PHYSICS
 			profile = nullptr;
 			extensionsLength = ZERO_UINT;
 			extensions = nullptr;
+			gpuDevicesLength = ZERO_UINT;
+			gpuDevices = nullptr;
 		}
 
 		/// <summary>
@@ -63,43 +67,7 @@ namespace NAMESPACE_PHYSICS
 		/// Release all allocated resources
 		/// </summary>
 		/// <returns></returns>
-		API_INTERFACE inline void dispose()
-		{
-			if (name != nullptr)
-			{
-				sp_mem_release(name);
-				name = nullptr;
-			}
-
-			if (version != nullptr)
-			{
-				sp_mem_release(version);
-				version = nullptr;
-			}
-
-			if (vendor != nullptr)
-			{
-				sp_mem_release(vendor);
-				vendor = nullptr;
-			}
-
-			if (profile != nullptr)
-			{
-				sp_mem_release(profile);
-				profile = nullptr;
-			}
-
-			if (extensions != nullptr)
-			{
-				for (sp_uint i = 0; i < extensionsLength; i++)
-				{
-					sp_mem_release(extensions[i]);
-					extensions[i] = nullptr;
-				}
-				sp_mem_release(extensions);
-				extensions = nullptr;
-			}
-		}
+		API_INTERFACE void dispose();
 
 		~SpGpuPlatform()
 		{

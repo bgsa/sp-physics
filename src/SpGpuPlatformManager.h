@@ -11,6 +11,9 @@ namespace NAMESPACE_PHYSICS
 
 	class SpGpuPlatformManager
 	{
+	private:
+		static void loadDevices(SpGpuPlatform& platform);
+
 	public:
 		sp_uint platformsLength;
 		SpGpuPlatform* platforms;

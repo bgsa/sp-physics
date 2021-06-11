@@ -1,8 +1,30 @@
 #include "SpGpuPlatformManager.h"
+#include "GpuDevice.h"
 
 namespace NAMESPACE_PHYSICS
 {
 	SpGpuPlatformManager* SpGpuPlatformManagerInstance = nullptr;
+
+	void SpGpuPlatformManager::loadDevices(SpGpuPlatform& platform)
+	{
+		clGetDeviceIDs((cl_platform_id)platform.id, CL_DEVICE_TYPE_ALL, 0, NULL, &platform.gpuDevicesLength);
+
+		if (platform.gpuDevicesLength > 0)
+		{
+			platform.gpuDevices = sp_mem_new_array(GpuDevice*, platform.gpuDevicesLength);
+
+			cl_device_id* devicesAsArray = ALLOC_ARRAY(cl_device_id, platform.gpuDevicesLength);
+			clGetDeviceIDs((cl_platform_id)platform.id, CL_DEVICE_TYPE_ALL, platform.gpuDevicesLength, devicesAsArray, NULL);
+
+			for (sp_uint i = 0; i < platform.gpuDevicesLength; i++)
+			{
+				platform.gpuDevices[i] = sp_mem_new(GpuDevice)();
+				platform.gpuDevices[i]->init(devicesAsArray[i], platform);
+			}
+
+			ALLOC_RELEASE(devicesAsArray);
+		}
+	}
 
 	void SpGpuPlatformManager::init()
 	{
@@ -69,6 +91,8 @@ namespace NAMESPACE_PHYSICS
 						SpGpuPlatformManagerInstance->platforms[i].extensions[j][size] = END_OF_STRING;
 					}
 				}
+
+				loadDevices(SpGpuPlatformManagerInstance->platforms[i]);
 			}
 
 			ALLOC_RELEASE(platformsTemp);

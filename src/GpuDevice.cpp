@@ -4,7 +4,7 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	GpuDevice::GpuDevice(cl_device_id id, cl_platform_id platformId)
+	void GpuDevice::init(cl_device_id id, const SpGpuPlatform& platform)
 	{
 		this->id = id;
 
@@ -16,7 +16,7 @@ namespace NAMESPACE_PHYSICS
 		HGLRC glCtx = wglGetCurrentContext();
 		if (glCtx != nullptr)
 		{
-			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platformId,
+			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platform.id,
 												CL_WGL_HDC_KHR,(intptr_t)wglGetCurrentDC(),
 												CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
 
@@ -41,16 +41,20 @@ namespace NAMESPACE_PHYSICS
 			
 		sp_size valueSize;
 		clGetDeviceInfo(id, CL_DEVICE_NAME, 0, NULL, &valueSize);
-		name = (sp_char*)ALLOC_SIZE(valueSize);
+		name = sp_mem_new_array(sp_char, valueSize);
 		clGetDeviceInfo(id, CL_DEVICE_NAME, valueSize, name, NULL);
 
 		clGetDeviceInfo(id, CL_DEVICE_VERSION, 0, NULL, &valueSize);
-		version = (sp_char*)ALLOC_SIZE(valueSize);
+		version = sp_mem_new_array(sp_char, valueSize);
 		clGetDeviceInfo(id, CL_DEVICE_VERSION, valueSize, version, NULL);
 
 		clGetDeviceInfo(id, CL_DRIVER_VERSION, 0, NULL, &valueSize);
-		driverVersion = (sp_char*)ALLOC_SIZE(valueSize);
+		driverVersion = sp_mem_new_array(sp_char, valueSize);
 		clGetDeviceInfo(id, CL_DRIVER_VERSION, valueSize, driverVersion, NULL);
+
+		clGetDeviceInfo(id, CL_DEVICE_PROFILE, 0, NULL, &valueSize);
+		profile = sp_mem_new_array(sp_char, valueSize);
+		clGetDeviceInfo(id, CL_DEVICE_PROFILE, valueSize, profile, NULL);
 		
 		//clGetDeviceInfo(id, CL_DEVICE_AVAILABLE, sizeof(isAvailable), &isAvailable, NULL);	
 		clGetDeviceInfo(id, CL_DEVICE_TYPE, sizeof(type), &type, NULL);
@@ -71,29 +75,34 @@ namespace NAMESPACE_PHYSICS
 		memoryAlignmentRequirement = lcm(1, memoryBaseAddressAlign);
 
 		localMemoryLength = divideBy4(localMemorySize);
-		
-		clGetDeviceInfo(id, CL_DEVICE_PROFILE, 0, NULL, &valueSize);
-		sp_char* profileAsArray = (sp_char*)ALLOC_SIZE(valueSize);
-		clGetDeviceInfo(id, CL_DEVICE_PROFILE, valueSize, profileAsArray, NULL);
-		profile = std::string(profileAsArray);
 
 		clGetDeviceInfo(id, CL_DEVICE_EXTENSIONS, 0, NULL, &valueSize);
-		sp_char* extensionsAsArray = (sp_char*)ALLOC_SIZE(valueSize);
+		sp_char* extensionsAsArray = ALLOC_ARRAY(sp_char, valueSize);
 		clGetDeviceInfo(id, CL_DEVICE_EXTENSIONS, valueSize, extensionsAsArray, NULL);
 
-		std::string extensionName;
-		for (sp_uint i = 0; i < valueSize; i++)
+		sp_size indexes[1000];
+		strCountChar(extensionsAsArray, ' ', extensionsLength, indexes);
+
+		if (extensionsLength > ZERO_SIZE)
 		{
-			if (extensionsAsArray[i] == ' ')
+			extensions = sp_mem_new_array(sp_char*, extensionsLength);
+
+			extensions[0] = sp_mem_new_array(sp_char, indexes[0] + 1);
+			std::memcpy(extensions[0], extensionsAsArray, indexes[0]);
+			extensions[0][indexes[0]] = END_OF_STRING;
+
+			for (sp_size j = 1; j < extensionsLength; j++)
 			{
-				extensions.emplace_back(extensionName);
-				extensionName.clear();
+				sp_size size = indexes[j] - indexes[j - 1];
+
+				extensions[j] = sp_mem_new_array(sp_char, size + 1);
+
+ 				std::memcpy(extensions[j], &extensionsAsArray[indexes[j - 1]], size);
+				extensions[j][size] = END_OF_STRING;
 			}
-			else
-				extensionName += extensionsAsArray[i];
 		}
 
-		ALLOC_RELEASE(profileAsArray);
+		ALLOC_RELEASE(extensionsAsArray);
 	}
 
 	sp_size GpuDevice::getThreadLength(sp_size inputLength)
@@ -164,6 +173,41 @@ namespace NAMESPACE_PHYSICS
 
 	GpuDevice::~GpuDevice()
 	{
+		if (name != nullptr)
+		{
+			sp_mem_release(name);
+			name = nullptr;
+		}
+
+		if (version != nullptr)
+		{
+			sp_mem_release(version);
+			version = nullptr;
+		}
+
+		if (driverVersion != nullptr)
+		{
+			sp_mem_release(driverVersion);
+			driverVersion = nullptr;
+		}
+
+		if (profile != nullptr)
+		{
+			sp_mem_release(profile);
+			profile = nullptr;
+		}
+
+		if (extensions != nullptr)
+		{
+			for (sp_size i = 0; i < extensionsLength; i++)
+			{
+				sp_mem_release(extensions[i]);
+				extensions[i] = nullptr;
+			}
+			extensions = nullptr;
+			extensionsLength = ZERO_SIZE;
+		}
+
 		if (commandManager != nullptr)
 		{
 			sp_mem_delete(commandManager, GpuCommandManager);
@@ -175,10 +219,6 @@ namespace NAMESPACE_PHYSICS
 			clReleaseContext(deviceContext);
 			deviceContext = nullptr;
 		}
-
-		ALLOC_RELEASE(driverVersion);
-		ALLOC_RELEASE(version);
-		ALLOC_RELEASE(name);
 	}
 }
 
