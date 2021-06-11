@@ -4,24 +4,23 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	static SpArray<cl_platform_id>* _platforms;
-	static GpuContext* _gpuContext;
+	GpuContext* GpuContextInstance = nullptr;
 
-	GpuContext::GpuContext(cl_platform_id platformId)
+	GpuContext::GpuContext(SpGpuPlatform* platform)
 	{
-		this->platformId = platformId;
+		this->platform = platform;
 
 		cl_uint devicesCount;
-		clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, 0, NULL, &devicesCount);
+		clGetDeviceIDs((cl_platform_id)platform->id, CL_DEVICE_TYPE_ALL, 0, NULL, &devicesCount);
 
 		_devices = sp_mem_new(SpArray<GpuDevice*>)(devicesCount);
 
 		cl_device_id* devicesAsArray = ALLOC_ARRAY(cl_device_id, devicesCount);
-		clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, devicesCount, devicesAsArray, NULL);		
+		clGetDeviceIDs((cl_platform_id)platform->id, CL_DEVICE_TYPE_ALL, devicesCount, devicesAsArray, NULL);
 
 		for (sp_uint i = 0; i < devicesCount; i++) 
 		{
-			GpuDevice* device = sp_mem_new(GpuDevice)(devicesAsArray[i], platformId);
+			GpuDevice* device = sp_mem_new(GpuDevice)(devicesAsArray[i], (cl_platform_id)platform->id);
 
 			if (device->type & CL_DEVICE_TYPE_DEFAULT)
 				_defaultDevice = device;
@@ -35,20 +34,18 @@ namespace NAMESPACE_PHYSICS
 		ALLOC_RELEASE(devicesAsArray);
 	}
 
-	GpuContext* GpuContext::init(cl_platform_id platformId)
+	void GpuContext::init(SpGpuPlatform* platform)
 	{
-		_gpuContext = sp_mem_new(GpuContext)(platformId);
-		return _gpuContext;
+		if (GpuContextInstance == nullptr)
+		{
+			GpuContextInstance = sp_mem_new(GpuContext)(platform);
+		}
 	}
 
-	GpuContext* GpuContext::instance()
+	void GpuContext::init()
 	{
-		return _gpuContext;
-	}
-
-	GpuContext* GpuContext::init()
-	{
-		return init(defaultPlatforms());
+		SpGpuPlatformManager::init();
+		init(SpGpuPlatformManagerInstance->defaultPlatform());
 	}
 
 	SpArray<GpuDevice*>* GpuContext::devices() const
@@ -59,31 +56,6 @@ namespace NAMESPACE_PHYSICS
 	GpuDevice* GpuContext::defaultDevice() const
 	{
 		return _defaultDevice;
-	}
-
-	SpArray<cl_platform_id>* GpuContext::platforms()
-	{
-		if (_platforms != nullptr)
-			return _platforms;
-		
-		cl_uint platformCount;
-		HANDLE_OPENCL_ERROR(clGetPlatformIDs(ZERO_UINT, NULL, &platformCount));
-
-		_platforms = sp_mem_new(SpArray< cl_platform_id>)(platformCount, platformCount);
-
-		HANDLE_OPENCL_ERROR(clGetPlatformIDs(platformCount, _platforms->data(), NULL));
-		
-		return _platforms;
-	}
-
-	cl_platform_id GpuContext::defaultPlatforms()
-	{
-		SpArray<cl_platform_id>* __platforms = platforms();
-
-		if (__platforms->length() > 1)
-			return __platforms->get(1);
-
-		return __platforms->get(0);
 	}
 
 	GpuContext::~GpuContext()

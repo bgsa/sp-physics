@@ -15,7 +15,7 @@ namespace NAMESPACE_PHYSICS
 		_objectMapper = sp_mem_new_array(SpCollisionFeatures, objectsLength);
 		_meshes = sp_mem_new(SpArray<SpMesh*>)(objectsLength, objectsLength);
 
-		gpu = GpuContext::instance()->defaultDevice();
+		gpu = GpuContextInstance->defaultDevice();
 
 		_transformsGPUBuffer = instanceGpuRendering->createTextureBuffer();
 		_transformsGPUBuffer

@@ -2409,7 +2409,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, buildInputElements1)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 5u;
@@ -2481,7 +2481,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, buildInputElements2)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 5u;
@@ -2553,7 +2553,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, buildInputElements3)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 5u;
@@ -2626,7 +2626,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, buildInputElements4)
 	{
 		SpPhysicSettings::instance()->boundingVolumeType(BoundingVolumeType::AABB);
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 5u;
@@ -2703,7 +2703,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, buildInputElements5)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 5u;
@@ -2778,7 +2778,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, buildInputElements6)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 5u;
@@ -2857,7 +2857,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, findCollisionsGPU_WithAABB)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		const size_t count = 20;
@@ -2912,7 +2912,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, findCollisionsGPU_WithKDOPs)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 		PerformanceCounter performanceCounter;
 		SweepAndPrune sap;

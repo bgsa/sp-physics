@@ -6,35 +6,33 @@
 #include "SpectrumPhysics.h"
 #include "GpuDevice.h"
 #include "SpArray.h"
+#include "SpGpuPlatformManager.h"
+#include "SpGpuPlatform.h"
 
 namespace NAMESPACE_PHYSICS
 {
 	class GpuContext
 	{
 	private:
-		cl_platform_id platformId;
+		SpGpuPlatform* platform;
 		
-		GpuContext(cl_platform_id platformId);
+		GpuContext(SpGpuPlatform* platform);
 
 		SpArray<GpuDevice*>* _devices;
 		GpuDevice* _defaultDevice = nullptr;
 
 	public:
 		
-		API_INTERFACE static GpuContext* init();
-		API_INTERFACE static GpuContext* init(cl_platform_id platformId);
-
-		API_INTERFACE static GpuContext* instance();
+		API_INTERFACE static void init();
+		API_INTERFACE static void init(SpGpuPlatform* platform);
 
 		API_INTERFACE SpArray<GpuDevice*>* devices() const;
 		API_INTERFACE GpuDevice* defaultDevice() const;
-
-		API_INTERFACE static SpArray<cl_platform_id>* platforms();
-
-		API_INTERFACE static cl_platform_id defaultPlatforms();
 		
 		~GpuContext();
 	};
+
+	extern GpuContext* GpuContextInstance;
 
 }
 

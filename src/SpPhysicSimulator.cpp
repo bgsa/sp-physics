@@ -8,7 +8,7 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::init()
 	{
-		gpu = GpuContext::instance()->defaultDevice();
+		gpu = GpuContextInstance->defaultDevice();
 
 		// Share OpenCL OpenGL Buffer
 		//int error = CL10GL.clEnqueueAcquireGLObjects(queue, glMem, null, null);

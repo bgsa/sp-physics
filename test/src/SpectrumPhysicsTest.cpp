@@ -33,7 +33,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		NAMESPACE_RENDERING::SpOpenGL::initOffScreenRendering();
 		NAMESPACE_RENDERING::SpGpuRenderingFactoryOpenGL::init();
-		GpuContext::init();
+		GpuContextInstance;
 
 		SpWorldManagerInstance->init();
 	}

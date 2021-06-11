@@ -22,7 +22,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, GpuReverse_Test)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		GpuReverse* commandReverse = ALLOC_NEW(GpuReverse)();

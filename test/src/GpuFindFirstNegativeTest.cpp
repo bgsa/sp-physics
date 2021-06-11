@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, execute_1)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		std::ostringstream buildOptions;
@@ -69,7 +69,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, execute_2)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 		
 		std::ostringstream buildOptions;
@@ -114,7 +114,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, execute_3)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		std::ostringstream buildOptions;

@@ -6,7 +6,7 @@ namespace NAMESPACE_PHYSICS
 
 	GpuBufferOpenCL::GpuBufferOpenCL()
 	{
-		_gpu = GpuContext::instance()->defaultDevice();
+		_gpu = GpuContextInstance->defaultDevice();
 		_buffer = nullptr;
 	}
 

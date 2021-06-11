@@ -19,7 +19,7 @@ namespace NAMESPACE_PHYSICS_TEST
 #ifdef OPENCL_ENABLED
 	SP_TEST_METHOD(CLASS_NAME, updateGPU_1)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		ObjModel model;

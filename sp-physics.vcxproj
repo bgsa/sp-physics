@@ -225,6 +225,7 @@
     <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp" />
     <ClCompile Include="src\SpFaceMesh.cpp" />
     <ClCompile Include="src\SpGJK.cpp" />
+    <ClCompile Include="src\SpGpuPlatformManager.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpMesh.cpp" />
     <ClCompile Include="src\SpMeshCache.cpp" />
@@ -311,6 +312,8 @@
     <ClInclude Include="src\SpGameObject.h" />
     <ClInclude Include="src\SpGameObjectManager.h" />
     <ClInclude Include="src\SpGJK.h" />
+    <ClInclude Include="src\SpGpuPlatform.h" />
+    <ClInclude Include="src\SpGpuPlatformManager.h" />
     <ClInclude Include="src\SpIGraphicObject.h" />
     <ClInclude Include="src\SpIGraphicObject2D.h" />
     <ClInclude Include="src\SpIGraphicObject3D.h" />

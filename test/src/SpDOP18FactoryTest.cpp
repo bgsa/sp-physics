@@ -157,7 +157,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			-1.05866706f, -36.0099869f,	-1.07571542f
 		};
 
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		ObjModel model;
@@ -239,7 +239,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		TestPhysic::lock();
 
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		ObjModel model;
@@ -385,7 +385,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		TestPhysic::lock();
 
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		ObjModel model;

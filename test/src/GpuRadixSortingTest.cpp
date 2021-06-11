@@ -165,7 +165,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 		
 		sp_uint count = (sp_uint)std::pow(2.0, 17.0);
@@ -250,7 +250,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count2)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 20;
@@ -374,7 +374,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count3)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 20;
@@ -490,7 +490,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count4)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 20;
@@ -607,7 +607,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Count_Negative5)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 20;
@@ -710,7 +710,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan2)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -859,7 +859,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan3)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -1008,7 +1008,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan4)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -1157,7 +1157,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_PrefixScan_Negative5)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -1305,7 +1305,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder2)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -1412,7 +1412,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder3)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -1519,7 +1519,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder4)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -1626,7 +1626,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_Reorder_Negative5)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		SpDirectory* filename = SpDirectory::currentDirectory()
@@ -1731,7 +1731,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_1)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = (sp_uint)std::pow(2.0, 17.0);
@@ -1789,7 +1789,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_2)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint iterations = 10u;
@@ -1851,7 +1851,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_3)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		GpuIndexes* createIndexes = ALLOC_NEW(GpuIndexes)();
@@ -1926,7 +1926,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_WithNegatives)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		sp_uint inputLength = 8u;
@@ -1968,7 +1968,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_WithKDOPs)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint maxIterations = 20;
@@ -2038,7 +2038,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_WithKDOPs_2)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 		sp_uint inputLength = 4u;
 
@@ -2088,7 +2088,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	
 	SP_TEST_METHOD(CLASS_NAME, radixGPU_manyTimes)
 	{
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
 		const sp_uint maxIterations = 3;

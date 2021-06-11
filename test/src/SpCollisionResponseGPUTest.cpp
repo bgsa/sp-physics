@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		TestPhysic::lock();
 
-		GpuContext* context = GpuContext::init();
+		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 	
 		SpCollisionResponseGPU response;
