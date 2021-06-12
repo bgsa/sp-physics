@@ -74,7 +74,7 @@ namespace NAMESPACE_PHYSICS
 
 				if (parameterSize > ZERO_SIZE)
 				{
-					SpGpuPlatformManagerInstance->platforms[i].extensionsLength = parameterSize;
+					SpGpuPlatformManagerInstance->platforms[i].extensionsLength = (sp_uint)parameterSize;
 					SpGpuPlatformManagerInstance->platforms[i].extensions = sp_mem_new_array(sp_char*, parameterSize + 1);
 
 					SpGpuPlatformManagerInstance->platforms[i].extensions[0] = sp_mem_new_array(sp_char, indexes[0] + 1);
