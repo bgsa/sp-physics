@@ -147,7 +147,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>DEBUG;ENV_64BITS;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;WINDOWS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;ENV_64BITS;MEMORY_PROFILING_ENABLED;OPENCL_ENABLED;OPENGL_ENABLED;MAJOR_COLUMN_ORDER;API_EXPORT;WINDOWS;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\include;$(SolutionDir)sp-foundation\src;$(OPENCL_INC_PATH);%(AdditionalIncludeDirectories);$(MSBuildThisFileDirectory)</AdditionalIncludeDirectories>
     </ClCompile>
