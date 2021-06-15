@@ -12,7 +12,11 @@ namespace NAMESPACE_PHYSICS
 	class SpGpuPlatformManager
 	{
 	private:
+		SpGpuPlatform* _defaultPlatform;
+
 		static void loadDevices(SpGpuPlatform& platform);
+
+		static void selectDefaultPlatform();
 
 	public:
 		sp_uint platformsLength;
@@ -22,14 +26,12 @@ namespace NAMESPACE_PHYSICS
 		{
 			platformsLength = ZERO_UINT;
 			platforms = nullptr;
+			_defaultPlatform = nullptr;
 		}
 
-		API_INTERFACE SpGpuPlatform* defaultPlatform() const
+		API_INTERFACE inline SpGpuPlatform* defaultPlatform() const
 		{
-			if (platformsLength > 1)
-				return &platforms[1];
-
-			return &platforms[0];
+			return _defaultPlatform;
 		}
 
 		API_INTERFACE inline void dispose()

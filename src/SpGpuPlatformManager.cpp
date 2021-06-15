@@ -26,6 +26,22 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
+	void SpGpuPlatformManager::selectDefaultPlatform()
+	{
+		for (sp_uint i = 0; i < SpGpuPlatformManagerInstance->platformsLength; i++)
+		{
+			if (SpGpuPlatformManagerInstance->platforms[i].isNvidia() ||
+				SpGpuPlatformManagerInstance->platforms[i].isAMD())
+			{
+				SpGpuPlatformManagerInstance->_defaultPlatform = &SpGpuPlatformManagerInstance->platforms[i];
+				return;
+			}
+		}
+
+		if (SpGpuPlatformManagerInstance->_defaultPlatform == nullptr && SpGpuPlatformManagerInstance->platformsLength > ZERO_UINT)
+			SpGpuPlatformManagerInstance->_defaultPlatform = &SpGpuPlatformManagerInstance->platforms[0];
+	}
+
 	void SpGpuPlatformManager::init()
 	{
 		if (SpGpuPlatformManagerInstance == nullptr)
@@ -94,6 +110,8 @@ namespace NAMESPACE_PHYSICS
 
 				loadDevices(SpGpuPlatformManagerInstance->platforms[i]);
 			}
+
+			selectDefaultPlatform();
 
 			ALLOC_RELEASE(platformsTemp);
 		}
