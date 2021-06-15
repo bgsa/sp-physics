@@ -26,7 +26,7 @@ namespace NAMESPACE_PHYSICS
 		GLXContext glCtx = glXGetCurrentContext();
 		if (glCtx != nullptr)
 		{			
-			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platformId,
+			cl_context_properties contextProperties[] = { CL_CONTEXT_PLATFORM,(cl_context_properties)platform.id,
 												CL_GLX_DISPLAY_KHR,(intptr_t)glXGetCurrentDisplay(),
 												CL_GL_CONTEXT_KHR,(intptr_t)glCtx,0 };
 			deviceContext = clCreateContext(contextProperties, 1, &id, NULL, NULL, &errorCode);
