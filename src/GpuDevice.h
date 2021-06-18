@@ -33,13 +33,13 @@ namespace NAMESPACE_PHYSICS
 		sp_char** extensions;
 
 		cl_device_type type;
-		cl_uint computeUnits;
-		sp_uint maxParameterSize = 256;
+		sp_uint computeUnits;
+		sp_size maxParameterSize = 256;
 
 		/// <summary>
 		/// Maximum number of work - items in a work - group executing a kernel using the data parallel execution model
 		/// </summary>
-		sp_uint maxWorkGroupSize = 1;
+		sp_size maxWorkGroupSize = 1;
 
 		/// <summary>
 		/// Maximum dimensions that specify the global and local work - item IDs used by the data parallel execution model
@@ -49,14 +49,14 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Maximum number of work - items that can be specified in each dimension of the work - group to clEnqueueNDRangeKernel
 		/// </summary>
-		sp_uint maxWorkItemSizes[3];
+		sp_size maxWorkItemSizes[3];
 
-		cl_ulong globalMemorySize;
-		cl_ulong globalMemoryCacheSize;
-		cl_ulong localMemorySize;
-		cl_ulong localMemoryLength;
-		cl_ulong maxMemoryAllocSize;
-		cl_ulong constantsBufferSize;
+		sp_size globalMemorySize;
+		sp_size globalMemoryCacheSize;
+		sp_size localMemorySize;
+		sp_size localMemoryLength;
+		sp_size maxMemoryAllocSize;
+		sp_size constantsBufferSize;
 		cl_uint maxConstantArgument;
 		cl_uint memoryBaseAddressAlign;
 		cl_uint memoryAlignmentRequirement;
