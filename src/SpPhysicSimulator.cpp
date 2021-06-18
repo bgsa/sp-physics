@@ -1,6 +1,7 @@
 #include "SpPhysicSimulator.h"
 #include "SpWorldManager.h"
 #include "SpString.h"
+#include "SpCollisionResponseShapeMatching.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -15,6 +16,8 @@ namespace NAMESPACE_PHYSICS
 		//error = CL10GL.clEnqueueReleaseGLObjects(queue, glMem, null, null);
 
 		// dispose: CL10.clReleaseMemObject(glMem);
+
+		collisionResponse = sp_mem_new(SpCollisionResponseShapeMatching);
 
 		SpWorld* world = SpWorldManagerInstance->current();
 
@@ -85,6 +88,7 @@ namespace NAMESPACE_PHYSICS
 
 	void SpPhysicSimulator::handleCollisionCPU(void* threadParameter)
 	{
+		/*
 		SpCollisionDetails* details = (SpCollisionDetails*)threadParameter;
 		sp_assert(details != nullptr, "InvalidArgumentException");
 		sp_assert(details->objIndex1 != details->objIndex2, "InvalidArgumentException");
@@ -104,10 +108,12 @@ namespace NAMESPACE_PHYSICS
 		sp_assert(details->contactPointsLength > 0u, "InvalidOperationException");
 
 		collisionResponse.handleCollisionResponse(details);
+		*/
 	}
 
 	void SpPhysicSimulator::handleCollisionGPU(void* threadParameter)
 	{
+		/*
 		//Timer timeDebug;
 		//timeDebug.start();
 
@@ -131,6 +137,7 @@ namespace NAMESPACE_PHYSICS
 		//sp_log_debug1sfnl("Collision Response: ", timeDebug.elapsedTime());
 
 		//sp_log_debug1sfnl("TASK END: ", timeDebug.elapsedTime());
+		*/
 	}
 
 	void SpPhysicSimulator::findCollisionsCpu(SweepAndPruneResult* result)
@@ -275,57 +282,7 @@ namespace NAMESPACE_PHYSICS
 		gpu->waitEvents(ONE_UINT, &evt);
 		gpu->releaseEvent(evt);
 
-		SpCollisionResponseShapeMatching shapeMatching;
-
-		SpRigidBodyShapeMatch** shapes = ALLOC_NEW_ARRAY(SpRigidBodyShapeMatch*, world->objectsLength());
-		std::memset(shapes, ZERO_INT, SIZEOF_WORD * world->objectsLength());
-
-		// init shapes
-		for (sp_uint i = 0; i < sapResult.length; i++)
-		{
-			const sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
-			const sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1u];
-
-			if (shapes[obj1] == nullptr)
-			{
-				shapes[obj1] = ALLOC_NEW(SpRigidBodyShapeMatch)();
-				shapeMatching.initShape(obj1, shapes[obj1]);
-			}
-
-			if (shapes[obj2] == nullptr)
-			{
-				shapes[obj2] = ALLOC_NEW(SpRigidBodyShapeMatch)();
-				shapeMatching.initShape(obj2, shapes[obj2]);
-			}
-		}
-
-		// many shape match iterations
-		for (sp_uint iterations = 0u; iterations < 10u; iterations++)
-		{
-			for (sp_uint i = 0u; i < sapResult.length; i++)
-				shapeMatching.solve(
-					shapes[sapResult.indexes[multiplyBy2(i)]],
-					shapes[sapResult.indexes[multiplyBy2(i) + 1u]]
-				);
-		}
-
-		for (sp_uint i = 0; i < sapResult.length; i++)
-		{
-			sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
-			sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1];
-
-			if (shapes[obj1]->isDirty && world->rigidBody3D(obj1)->isDynamic())
-			{
-				shapeMatching.updateFromShape(shapes[obj1]);
-				shapes[obj1]->isDirty = false;
-			}
-
-			if (shapes[obj2]->isDirty && world->rigidBody3D(obj2)->isDynamic())
-			{
-				shapeMatching.updateFromShape(shapes[obj2]);
-				shapes[obj2]->isDirty = false;
-			}
-		}
+		collisionResponse->run(sapResult);
 
 		ALLOC_RELEASE(sapResult.indexes);
 		sapResult.indexes = nullptr;

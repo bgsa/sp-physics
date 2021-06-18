@@ -4,8 +4,8 @@
 #include "SpectrumPhysics.h"
 #include "SpRigidBody3D.h"
 #include "SpCollisionDetails.h"
-#include "SpPhysicSimulator.h"
 #include "SpWorldManager.h"
+#include "SweepAndPrune.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -18,6 +18,8 @@ namespace NAMESPACE_PHYSICS
 	public:
 
 		API_INTERFACE void handleCollisionResponse(SpCollisionDetails* details);
+
+		API_INTERFACE virtual void run(const SweepAndPruneResult& sapResult) = 0;
 		
 	};
 

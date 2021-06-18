@@ -3,12 +3,10 @@
 
 #include "SpectrumPhysics.h"
 #include "SpCollisionDetails.h"
-#include "SpThreadPool.h"
-#include "SpPhysicSimulator.h"
 #include "SpCollisionFeatures.h"
-#include "SpArray.h"
 #include "SpMeshCache.h"
 #include "SpCollisionDetectorCache.h"
+#include "SpWorldManager.h"
 
 namespace NAMESPACE_PHYSICS
 {

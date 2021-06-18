@@ -4,9 +4,9 @@
 #include "SpectrumPhysics.h"
 #include "SpCollisionDetectorCache.h"
 #include "SpCollisionDetector.h"
-#include "SpPhysicSimulator.h"
 #include "SpMesh.h"
 #include "SpGJK.h"
+#include "SweepAndPrune.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -38,7 +38,8 @@ namespace NAMESPACE_PHYSICS
 		}
 	};
 
-	class SpCollisionResponseShapeMatching
+	class SpCollisionResponseShapeMatching :
+		public SpCollisionResponse
 	{
 	private:
 
@@ -56,7 +57,10 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void initShape(const sp_uint objIndex, SpRigidBodyShapeMatch* shape);
 
+		API_INTERFACE void run(const SweepAndPruneResult& sapResult) override;
+
 		API_INTERFACE void solve(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2);
+		API_INTERFACE void firstSolve(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2);
 
 		API_INTERFACE void updateFromShape(SpRigidBodyShapeMatch* shape);
 

@@ -24,6 +24,66 @@ namespace NAMESPACE_PHYSICS
 		}
 	}
 
+	void SpCollisionResponseShapeMatching::run(const SweepAndPruneResult& sapResult)
+	{
+		SpWorld* world = SpWorldManagerInstance->current();
+		SpRigidBodyShapeMatch** shapes = ALLOC_NEW_ARRAY(SpRigidBodyShapeMatch*, world->objectsLength());
+		std::memset(shapes, ZERO_INT, SIZEOF_WORD * world->objectsLength());
+
+		// init shapes
+		for (sp_uint i = 0; i < sapResult.length; i++)
+		{
+			const sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
+			const sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1u];
+
+			if (shapes[obj1] == nullptr)
+			{
+				shapes[obj1] = ALLOC_NEW(SpRigidBodyShapeMatch)();
+				initShape(obj1, shapes[obj1]);
+			}
+
+			if (shapes[obj2] == nullptr)
+			{
+				shapes[obj2] = ALLOC_NEW(SpRigidBodyShapeMatch)();
+				initShape(obj2, shapes[obj2]);
+			}
+		}
+
+		// first iteration shape matching
+		for (sp_uint i = 0u; i < sapResult.length; i++)
+			firstSolve(
+				shapes[sapResult.indexes[multiplyBy2(i)]],
+				shapes[sapResult.indexes[multiplyBy2(i) + 1u]]
+			);
+		// many shape match iterations
+		for (sp_uint iterations = 1u; iterations < 10u; iterations++)
+		{
+			for (sp_uint i = 0u; i < sapResult.length; i++)
+				solve(
+					shapes[sapResult.indexes[multiplyBy2(i)]],
+					shapes[sapResult.indexes[multiplyBy2(i) + 1u]]
+				);
+		}
+
+		for (sp_uint i = 0; i < sapResult.length; i++)
+		{
+			sp_uint obj1 = sapResult.indexes[multiplyBy2(i)];
+			sp_uint obj2 = sapResult.indexes[multiplyBy2(i) + 1];
+
+			if (shapes[obj1]->isDirty && world->rigidBody3D(obj1)->isDynamic())
+			{
+				updateFromShape(shapes[obj1]);
+				shapes[obj1]->isDirty = false;
+			}
+
+			if (shapes[obj2]->isDirty && world->rigidBody3D(obj2)->isDynamic())
+			{
+				updateFromShape(shapes[obj2]);
+				shapes[obj2]->isDirty = false;
+			}
+		}
+	}
+
 	sp_bool getShapeMatchingDetails(SpRigidBodyShapeMatch* shape, Vec3& newPosition, Mat3& rotation)
 	{
 		shape->centerOfMass(newPosition);
@@ -163,6 +223,18 @@ namespace NAMESPACE_PHYSICS
 		((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();
 		((sp_uint*)SpGlobalPropertiesInscance->get(ID_gjkEpaCount))[0] ++;
 		return true;
+	}
+
+	void SpCollisionResponseShapeMatching::firstSolve(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2)
+	{
+		SpCollisionDetails collisionManifold;
+
+		if (!hasCollision(shape1, shape2, &collisionManifold))
+			return;
+
+		((sp_uint*)SpGlobalPropertiesInscance->get(ID_paresReais))[0] ++;
+
+		updateParticles(shape1, shape2, collisionManifold);
 	}
 
 	void SpCollisionResponseShapeMatching::solve(SpRigidBodyShapeMatch* shape1, SpRigidBodyShapeMatch* shape2)

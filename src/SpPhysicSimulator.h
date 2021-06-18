@@ -19,7 +19,6 @@
 #include "SpDOP18Factory.h"
 #include "SpAABBFactory.h"
 #include "GpuBufferOpenCL.h"
-#include "SpCollisionResponseShapeMatching.h"
 #include "SpGlobalProperties.h"
 
 namespace NAMESPACE_PHYSICS
@@ -35,6 +34,7 @@ namespace NAMESPACE_PHYSICS
 		cl_mem _sapCollisionIndexesLengthGPU;
 	
 		SweepAndPrune* sap;
+		SpCollisionResponse* collisionResponse;
 		SpCollisionResponseGPU* collisionResponseGPU;
 
 		Timer timerToPhysic;
