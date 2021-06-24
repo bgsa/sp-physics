@@ -64,7 +64,6 @@
     <ClCompile Include="src\RayTest.cpp" />
     <ClCompile Include="src\SpAlgorithmsTest.cpp" />
     <ClCompile Include="src\SpCollisionDetectorTest.cpp" />
-    <ClCompile Include="src\SpCollisionResponseTest.cpp" />
     <ClCompile Include="src\SpectrumPhysicsTest.cpp" />
     <ClCompile Include="src\ParticleSystemTest.cpp" />
     <ClCompile Include="src\ParticleTest.cpp" />

@@ -3,6 +3,7 @@
 
 #include "SpectrumPhysics.h"
 #include "SpMesh.h"
+#include "SpFace.h"
 
 namespace NAMESPACE_PHYSICS
 {

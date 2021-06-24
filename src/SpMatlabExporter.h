@@ -58,11 +58,11 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[index + 12], "xlim(surf, [", 12);
 			index += 24;
 		
-			NAMESPACE_FOUNDATION::convert(xmin, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(xmin, &output[index], temp);
 			index += temp;
 			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(xmax, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(xmax, &output[index], temp);
 			index += temp;
 
 			std::memcpy(&output[index], "]);", 3);
@@ -71,11 +71,11 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[index], "ylim(surf, [", 12);
 			index += 12;
 
-			NAMESPACE_FOUNDATION::convert(ymin, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(ymin, &output[index], temp);
 			index += temp;
 			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(ymax, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(ymax, &output[index], temp);
 			index += temp;
 
 			std::memcpy(&output[index], "]);", 3);
@@ -84,11 +84,11 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[index], "zlim(surf, [", 12);
 			index += 12;
 
-			NAMESPACE_FOUNDATION::convert(zmin, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(zmin, &output[index], temp);
 			index += temp;
 			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(zmax, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(zmax, &output[index], temp);
 			index += temp;
 
 			std::memcpy(&output[index], "]);", 3);
@@ -105,17 +105,17 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_uint temp;
 			
-			NAMESPACE_FOUNDATION::convert(vector.x, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(vector.x, &output[index], temp);
 			index += temp;
 
 			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(vector.y, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(vector.y, &output[index], temp);
 			index += temp;
 
 			output[index++] = ' ';
 
-			NAMESPACE_FOUNDATION::convert(vector.z, &output[index], &temp);
+			NAMESPACE_FOUNDATION::convert(vector.z, &output[index], temp);
 			index += temp;
 
 			output[index] = END_OF_STRING;
@@ -133,7 +133,7 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[len], "x = x * ", 8);
 			len += 8;
 
-			NAMESPACE_FOUNDATION::convert(radius, &output[len], &temp);
+			NAMESPACE_FOUNDATION::convert(radius, &output[len], temp);
 			len += temp;
 			output[len] = ';';
 			output[len + 1] = END_OF_LINE;
@@ -142,7 +142,7 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[len], "y = y * ", 8);
 			len += 8;
 
-			NAMESPACE_FOUNDATION::convert(radius, &output[len], &temp);
+			NAMESPACE_FOUNDATION::convert(radius, &output[len], temp);
 			len += temp;
 			output[len] = ';';
 			output[len + 1] = END_OF_LINE;
@@ -151,7 +151,7 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[len], "z = z * ", 8);
 			len += 8;
 
-			NAMESPACE_FOUNDATION::convert(radius, &output[len], &temp);
+			NAMESPACE_FOUNDATION::convert(radius, &output[len], temp);
 			len += temp;
 			output[len] = ';';
 			output[len + 1] = END_OF_LINE;
@@ -160,19 +160,19 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&output[len], "mesh = surf2patch(x + ", 22);
 			len += 22;
 
-			NAMESPACE_FOUNDATION::convert(position.x, &output[len], &temp);
+			NAMESPACE_FOUNDATION::convert(position.x, &output[len], temp);
 			len += temp;
 
 			std::memcpy(&output[len], ", y + ", 6);
 			len += 6;
 
-			NAMESPACE_FOUNDATION::convert(position.y, &output[len], &temp);
+			NAMESPACE_FOUNDATION::convert(position.y, &output[len], temp);
 			len += temp;
 
 			std::memcpy(&output[len], ", z + ", 6);
 			len += 6;
 
-			NAMESPACE_FOUNDATION::convert(position.z, &output[len], &temp);
+			NAMESPACE_FOUNDATION::convert(position.z, &output[len], temp);
 			len += temp;
 
 			output[len] = ')';
@@ -229,17 +229,17 @@ namespace NAMESPACE_PHYSICS
 				SpFaceMesh* face = mesh.faces->get(i);
 
 				sp_uint len;
-				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[0] + shift, &output[index], &len);
+				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[0] + shift, &output[index], len);
 				index += len;
 
 				output[index++] = ' ';
 
-				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[1] + shift, &output[index], &len);
+				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[1] + shift, &output[index], len);
 				index += len;
 
 				output[index++] = ' ';
 
-				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[2] + shift, &output[index], &len);
+				NAMESPACE_FOUNDATION::convert(face->vertexesIndexes[2] + shift, &output[index], len);
 				index += len;
 
 				std::memcpy(&output[index], "; ", 2);
@@ -271,10 +271,10 @@ namespace NAMESPACE_PHYSICS
 
 			Quat q = Quat::createRotate(degreesToRadians(-90), plane.normalVector);
 			vertexes[0] = plane.point + tangent * 2.0f;
-			vertexes[1] = q.rotate(vertexes[0]);
-			vertexes[2] = q.rotate(vertexes[1]);
+			rotate(q, vertexes[0], vertexes[1]);
+			rotate(q, vertexes[1], vertexes[2]);
 			vertexes[2] = plane.point + -tangent * 2.0f;
-			vertexes[3] = q.rotate(vertexes[2]);
+			rotate(q, vertexes[2], vertexes[3]);
 
 			for (sp_uint i = 0; i < vertexesLength -1u; i++)
 			{

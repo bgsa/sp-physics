@@ -4,6 +4,7 @@
 #include "SpectrumPhysics.h"
 #include "SpStringId.h"
 #include "SpGameObjectManager.h"
+#include "SpCameraManager.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -12,6 +13,9 @@ namespace NAMESPACE_PHYSICS
 	private:
 		SpStringId _id;
 		SpGameObjectManager* gameObjectManager;
+		SpCameraManager* cameraManager;
+
+		//IObjectManager** managers; // mapeia game object TYPE pelo seu gerenciador
 
 	public:
 
@@ -22,6 +26,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpScene()
 		{
 			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
+			cameraManager = sp_mem_new(SpCameraManager)();
 		}
 
 		/// <summary>
@@ -33,6 +38,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			_id = name;
 			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
+			cameraManager = sp_mem_new(SpCameraManager)();
 		}
 
 		/// <summary>
@@ -89,6 +95,12 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline void dispose()
 		{
+			if (cameraManager != nullptr)
+			{
+				sp_mem_delete(cameraManager, SpCameraManager);
+				cameraManager = nullptr;
+			}
+
 			if (gameObjectManager != nullptr)
 			{
 				sp_mem_delete(gameObjectManager, SpGameObjectManager);

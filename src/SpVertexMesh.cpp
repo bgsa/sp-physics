@@ -29,9 +29,9 @@ namespace NAMESPACE_PHYSICS
 				facesVertexIndexes[1] == _index || 
 				facesVertexIndexes[2] == _index)
 			{
-				_mesh->vertex(facesVertexIndexes[0], *transform, &outputFaces[*facesLength].point1);
-				_mesh->vertex(facesVertexIndexes[1], *transform, &outputFaces[*facesLength].point2);
-				_mesh->vertex(facesVertexIndexes[2], *transform, &outputFaces[*facesLength].point3);
+				_mesh->vertex(facesVertexIndexes[0], *transform, outputFaces[*facesLength].point1);
+				_mesh->vertex(facesVertexIndexes[1], *transform, outputFaces[*facesLength].point2);
+				_mesh->vertex(facesVertexIndexes[2], *transform, outputFaces[*facesLength].point3);
 				facesLength[0] ++;
 			}
 		}
@@ -42,7 +42,7 @@ namespace NAMESPACE_PHYSICS
 		SpVertexMesh** allVertexesMesh = _mesh->vertexesMesh->data();
 
 		Vec3 currentVertex;
-		_mesh->vertex(_index, transform, &currentVertex);
+		_mesh->vertex(_index, transform, currentVertex);
 
 		const sp_float distance = currentVertex.squaredDistance(point);
 
@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint index = edgeVertexIndex(i);
 
 			Vec3 newVertex;
-			_mesh->vertex(index, transform, &newVertex);
+			_mesh->vertex(index, transform, newVertex);
 
 			if (newVertex.squaredDistance(point) < distance)
 				return allVertexesMesh[index]->findClosest(point, transform);
@@ -77,14 +77,14 @@ namespace NAMESPACE_PHYSICS
 		SpFaceMesh** faces = _mesh->faces->data();
 
 		Vec3 currentVertex;
-		_mesh->vertex(_index, meshTransform, &currentVertex);
+		_mesh->vertex(_index, meshTransform, currentVertex);
 
 		const sp_float distance = plane.distance(currentVertex);
 
 		for (sp_uint i = 0; i < edgeLength(); i++)
 		{
 			const sp_uint vertexIndex = edgeVertexIndex(i);
-			_mesh->vertex(vertexIndex, meshTransform, &currentVertex);
+			_mesh->vertex(vertexIndex, meshTransform, currentVertex);
 
 			const sp_float newDistance = plane.distance(currentVertex);
 

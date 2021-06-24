@@ -168,8 +168,8 @@ namespace NAMESPACE_PHYSICS
 			_position = Vec3Zeros;
 			_velocity = Vec3Zeros;
 			_acceleration = Vec3Zeros;
-			_orientation = Quat::identity();
 			_angularVelocity = Vec3Zeros;
+			identity(_orientation);
 		}
 
 	};

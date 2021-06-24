@@ -58,11 +58,12 @@ namespace NAMESPACE_PHYSICS
 			return this;
 		}
 
-		API_INTERFACE inline void transform(const Vec3& vertex, Vec3* output) const
+		API_INTERFACE inline void transform(const Vec3& vertex, Vec3& output) const
 		{
-			Vec3 scaled;
-			multiply(scaleVector, vertex, &scaled);
-			rotateAndTranslate(orientation, scaled, position, output);
+			Vec3 scaledVertex;
+			multiply(scaleVector, vertex, &scaledVertex); // scale
+			rotate(orientation, scaledVertex, output); // rotate
+			add(position, output, output); // translate
 		}
 
 		API_INTERFACE inline Mat4 toMat4(const Vec3& initialPosition = Vec3Zeros) const
@@ -72,9 +73,13 @@ namespace NAMESPACE_PHYSICS
 			NAMESPACE_PHYSICS::createTranslate(position, translation1);
 			NAMESPACE_PHYSICS::createTranslate(-initialPosition, translation2);
 
-			Mat4 temp1, temp2;
+			Mat4 rotation, temp1, temp2;;
+			mat4(orientation, rotation);
+
 			scale.multiply(translation2, temp1);
-			orientation.toMat4().multiply(temp1, temp2);
+
+			rotation.multiply(temp1, temp2);
+
 			translation1.multiply(temp2, temp1);
 
 			return temp1;
@@ -86,7 +91,8 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>void</returns>
 		API_INTERFACE inline void reset()
 		{
-			orientation = Quat::identity();
+			identity(orientation);
+
 			position = Vec3Zeros;
 			scaleVector = Vec3Ones;
 		}

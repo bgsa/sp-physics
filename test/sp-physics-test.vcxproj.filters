@@ -167,9 +167,6 @@
     <ClCompile Include="src\SpCollisionDetectorTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SpCollisionResponseTest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\SpTransformTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

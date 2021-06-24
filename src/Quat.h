@@ -6,8 +6,6 @@
 
 namespace NAMESPACE_PHYSICS
 {
-#define QUAT_LENGTH 4
-#define QUAT_SIZE (QUAT_LENGTH * sizeof(sp_float))
 
 	class Quat
 	{
@@ -16,12 +14,11 @@ namespace NAMESPACE_PHYSICS
 
 		/// <summary>
 		/// Default constructor
-		/// Load a empty quaternion = 0
 		/// </summary>
-#pragma warning(push, 0)
-#pragma warning(disable : 26495)
-		API_INTERFACE Quat()
+		/// <returns></returns>
+		API_INTERFACE inline Quat()
 		{
+			/*
 			static sp_float identityQuaternion[QUAT_LENGTH] = {
 				ONE_FLOAT,
 				ZERO_FLOAT,
@@ -30,36 +27,21 @@ namespace NAMESPACE_PHYSICS
 			};
 
 			std::memcpy(this, identityQuaternion, QUAT_SIZE);
-		}
-#pragma warning(pop)
-
-		/// <summary>
-		/// Default constructor
-		/// Load a empty quaternion = 0
-		/// </summary>
-		API_INTERFACE Quat(const sp_float value)
-		{
-			w = value;
-			x = value;
-			y = value;
-			z = value;
+			*/
 		}
 
 		/// <summary>
 		/// Constructor with initialized values
 		/// </summary>
-#pragma warning(push, 0)
-#pragma warning(disable : 26495)
-		API_INTERFACE Quat(sp_float* values)
+		API_INTERFACE inline Quat(const sp_float* values)
 		{
-			std::memcpy(this, values, QUAT_SIZE);
+			std::memcpy(this, values, sizeof(Quat));
 		}
-#pragma warning(pop)
 
 		/// <summary>
 		/// Constructor with initialized values
 		/// </summary>
-		API_INTERFACE Quat(const sp_float w, const sp_float x, const sp_float y, const sp_float z)
+		API_INTERFACE inline Quat(const sp_float w, const sp_float x, const sp_float y, const sp_float z)
 		{
 			this->w = w;
 			this->x = x;
@@ -76,66 +58,6 @@ namespace NAMESPACE_PHYSICS
 		/// Constructor with a 3D vector
 		/// </summary>
 		API_INTERFACE Quat(const sp_float w, const Vec3& vector);
-
-		/// <summary>
-		/// Create a new quanternion from euler angles provided
-		/// </summary>
-		API_INTERFACE static Quat fromEulerAngles(const sp_float roll, const sp_float pitch, const sp_float yaw)
-		{
-			const sp_float cosRoll = sp_cos(roll * HALF_FLOAT);
-			const sp_float sinRoll = sp_sin(roll * HALF_FLOAT);
-			const sp_float cosPitch = sp_cos(pitch * HALF_FLOAT);
-			const sp_float sinPitch = sp_sin(pitch * HALF_FLOAT);
-			const sp_float cosYaw = sp_cos(yaw * HALF_FLOAT);
-			const sp_float sinYaw = sp_sin(yaw * HALF_FLOAT);
-
-			return Quat(
-				cosYaw * cosPitch * cosRoll - sinYaw * sinPitch * sinRoll,
-				cosYaw * cosPitch * sinRoll + sinYaw * sinPitch * cosRoll,
-				cosYaw * sinPitch * cosRoll - sinYaw * cosPitch * sinRoll,
-				sinYaw * cosPitch * cosRoll + cosYaw * sinPitch * sinRoll
-			);
-		}
-
-		/// <summary>
-		/// Convert the quaternions to angles (x, y, z)
-		/// The quaternion has to be normalized !
-		/// </summary>
-		API_INTERFACE Vec3 toEulerAngles() const;
-
-		/// <summary>
-		/// Constructor with a 3D vector
-		/// </summary>
-		API_INTERFACE static Quat identity()
-		{
-			return Quat();
-		}
-
-		/// <summary>
-		/// Add/Sum two quaternions
-		/// </summary>
-		API_INTERFACE inline Quat add(const Quat& quatB) const
-		{
-			return Quat(
-				w + quatB.w,
-				x + quatB.x,
-				y + quatB.y,
-				z + quatB.z
-			);
-		}
-
-		/// <summary>
-		/// Subtract two quaternions
-		/// </summary>
-		API_INTERFACE inline Quat subtract(const Quat& quatB) const
-		{
-			return Quat(
-				w - quatB.w,
-				x - quatB.x,
-				y - quatB.y,
-				z - quatB.z
-			);
-		}
 
 		/// <summary>
 		/// Scale a quaternion
@@ -159,18 +81,6 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get the angle from this quaternion
-		/// </summary>
-		API_INTERFACE inline sp_float angle() const
-		{
-			// TODO: TESTS !!!!
-			if (sp_abs(w) > sp_cos(0.5f))
-				return sp_arcsin(sp_sqrt(x * x + y * y + z * z)) * TWO_FLOAT;
-
-			return acos(w) * TWO_FLOAT;
-		}
-
-		/// <summary>
 		/// Get the rotation axis from this quaternion
 		/// </summary>
 		API_INTERFACE Vec3 axis() const;
@@ -178,41 +88,20 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Product Scalar of two quaternion
 		/// </summary>
-		API_INTERFACE inline sp_float dot(const Quat& quatB) const
+		API_INTERFACE inline sp_float dot(const Quat& q) const
 		{
-			return (w * quatB.w) + (x * quatB.x) + (y * quatB.y) + (z * quatB.z);
+			return (w * q.w) + (x * q.x) + (y * q.y) + (z * q.z);
 		}
-
-		/// <summary>
-		/// Cross Product of two quaternion
-		/// </summary>
-		API_INTERFACE inline Quat cross(const Quat& quatB) const
-		{
-			return *this * quatB;
-		}
-
-		/// <summary>
-		/// Craete a Inversed Quaternion
-		/// Return a quaternion that if multiplied by current quaternion results in value 1 ot the current quternion ifs length/norm is zero
-		/// </summary>
-		API_INTERFACE inline Quat inverse() const;
-
-		/// <summary>
-		/// Rotate the point provided by this quaternion axis
-		/// This quaternion is the rotation axis
-		/// Returns the point rotated
-		/// </summary>
-		API_INTERFACE Vec3 rotate(const Vec3& point) const;
 
 		/// <summary>
 		/// Create a rotation unit quaternion bases on angle (in radians) and directional vector provided
 		/// </summary>
-		API_INTERFACE static Quat createRotate(sp_float angle, const Vec3& axis);
+		API_INTERFACE static Quat createRotate(const sp_float angle, const Vec3& axis);
 
 		/// <summary>
 		/// Create a quaternion rotation around X axis
 		/// </summary>
-		API_INTERFACE static Quat createRotationAxisX(sp_float angle)
+		API_INTERFACE static Quat createRotationAxisX(const sp_float angle)
 		{
 			return Quat(
 				sp_cos(angle * HALF_FLOAT),
@@ -225,7 +114,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Create a quaternion rotation around Y axis
 		/// </summary>
-		API_INTERFACE static Quat createRotationAxisY(sp_float angle)
+		API_INTERFACE static Quat createRotationAxisY(const sp_float angle)
 		{
 			return Quat(
 				sp_cos(angle * HALF_FLOAT),
@@ -238,7 +127,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Create a quaternion rotation around Z axis
 		/// </summary>
-		API_INTERFACE static Quat createRotationAxisZ(sp_float angle)
+		API_INTERFACE static Quat createRotationAxisZ(const sp_float angle)
 		{
 			return Quat(
 				sp_cos(angle * HALF_FLOAT),
@@ -247,65 +136,22 @@ namespace NAMESPACE_PHYSICS
 				sp_sin(angle * HALF_FLOAT)
 			);
 		}
-		
-		/// <summary>
-		/// Quaternion Linear Interpolation. This method is the quickest, but is also least accurate. The method does not always generate normalized output.
-		/// t parameter is [0,1]
-		/// </summary>
-		API_INTERFACE inline Quat lerp(const Quat& quatB, sp_float t) const
-		{
-			return scale(ONE_FLOAT - t) + quatB.scale(t);
-		}
-
-		/// <summary>
-		/// Spherical quaternion interpolation method
-		/// Both of quaternions should be normalized
-		/// t parameter is [0,1]
-		/// </summary>
-		API_INTERFACE Quat slerp(const Quat& quatB, sp_float t) const;
-
-		/// <summary>
-		/// Spherical quaternion interpolation method
-		/// Both of quaternions should be normalized
-		/// t parameter is [0,1]
-		/// </summary>
-		API_INTERFACE Quat slerp(const Quat& quatB, sp_float t, sp_int spinCount) const;
-
-		/// <summary>
-		/// Convertion to Vec3
-		/// </summary>
-		API_INTERFACE Vec3 toVec3() const;
-
-		/// <summary>
-		/// Convertion to rotational matrix 3x3
-		/// </summary>
-		API_INTERFACE Mat3 toMat3() const;
-
-		/// <summary>
-		/// Convertion to rotational and translation matrix 4x4
-		/// </summary>
-		API_INTERFACE Mat4 toMat4(const Vec3& position) const;
-
-		/// <summary>
-		/// Convertion to rotational matrix 4x4
-		/// </summary>
-		API_INTERFACE Mat4 toMat4() const;
 
 		/// <summary>
 		/// Get a index from the quaternion
 		/// </summary>
-		API_INTERFACE inline sp_float operator[](sp_int index) const
+		API_INTERFACE inline sp_float operator[](const sp_int index) const
 		{
-			sp_assert(index >= ZERO_INT && index < QUAT_LENGTH, "IndexOutOfrangeException");
+			sp_assert(index >= 0 && index < 4, "IndexOutOfrangeException");
 			return ((sp_float*)this)[index];
 		}
 
 		/// <summary>
 		/// Get a index from the quaternion
 		/// </summary>
-		API_INTERFACE inline sp_float operator[](sp_uint index) const
+		API_INTERFACE inline sp_float operator[](const sp_uint index) const
 		{
-			sp_assert(index >= ZERO_UINT && index < QUAT_LENGTH, "IndexOutOfrangeException");
+			sp_assert(index >= 0 && index < 4, "IndexOutOfrangeException");
 			return ((sp_float*)this)[index];
 		}
 
@@ -313,49 +159,79 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Get a index from the quaternion
 		/// </summary>
-		API_INTERFACE inline sp_float operator[](sp_size index) const;
+		API_INTERFACE inline sp_float operator[](const sp_size index) const
+		{
+			sp_assert(index >= 0 && index < 4, "InvalidArgumentException");
+			return ((sp_float*)this)[index];
+		}
 #endif
 
 		/// <summary>
 		/// Add/Sum two quaternions
 		/// </summary>
-		API_INTERFACE inline Quat operator+(const Quat& quatB) const
+		API_INTERFACE inline Quat operator+(const Quat& q) const
 		{
-			return add(quatB);
+			return Quat(
+				w + q.w,
+				x + q.x,
+				y + q.y,
+				z + q.z
+			);
+		}
+
+		/// <summary>
+		/// Add/Sum this quaternion to a scalar value
+		/// </summary>
+		API_INTERFACE inline Quat operator+(const sp_float value) const
+		{
+			return Quat(w + value, x, y, z);
 		}
 
 		/// <summary>
 		/// Sum this quaternion to another one
 		/// </summary>
-		API_INTERFACE inline void operator+=(const Quat& quaternion)
+		API_INTERFACE inline void operator+=(const Quat& q)
 		{
-			w += quaternion.w;
-			x += quaternion.x;
-			y += quaternion.y;
-			z += quaternion.z;
+			w += q.w;
+			x += q.x;
+			y += q.y;
+			z += q.z;
 		}
 
 		/// <summary>
-		/// Sibtract two quaternions
+		/// Subtract two quaternions
 		/// </summary>
-		API_INTERFACE inline Quat operator-(const Quat& quatB) const
+		API_INTERFACE inline Quat operator-(const Quat& q) const
 		{
-			return subtract(quatB);
+			return Quat(
+				w - q.w,
+				x - q.x,
+				y - q.y,
+				z - q.z
+			);
+		}
+
+		/// <summary>
+		/// Subtract this quaternion to a scalar value
+		/// </summary>
+		API_INTERFACE inline Quat operator-(const sp_float value) const
+		{
+			return Quat(w - value, x, y, z);
 		}
 
 		/// <summary>
 		/// Subtract this quaternion to another one
 		/// </summary>
-		API_INTERFACE inline void operator-=(const Quat& quaternion)
+		API_INTERFACE inline void operator-=(const Quat& q)
 		{
-			w -= quaternion.w;
-			x -= quaternion.x;
-			y -= quaternion.y;
-			z -= quaternion.z;
+			w -= q.w;
+			x -= q.x;
+			y -= q.y;
+			z -= q.z;
 		}
 
 		/// <summary>
-		/// Subtract the current quaternion
+		/// Negate the current quaternion
 		/// </summary>
 		API_INTERFACE inline Quat operator-() const
 		{
@@ -365,13 +241,13 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Multiply the quaternion to another one
 		/// </summary>
-		API_INTERFACE inline Quat operator*(const Quat& quat) const
+		API_INTERFACE inline Quat operator*(const Quat& q) const
 		{
 			return Quat(
-				(w * quat.w) - (x * quat.x) - (y * quat.y) - (z * quat.z),
-				(w * quat.x) + (x * quat.w) - (y * quat.z) + (z * quat.y),
-				(w * quat.y) + (x * quat.z) + (y * quat.w) - (z * quat.x),
-				(w * quat.z) - (x * quat.y) + (y * quat.x) + (z * quat.w)
+				(q.w * w) - (q.x * x) - (q.y * y) - (q.z * z),
+				(q.w * x) + (q.x * w) - (q.y * z) + (q.z * y),
+				(q.w * y) + (q.x * z) + (q.y * w) - (q.z * x),
+				(q.w * z) - (q.x * y) + (q.y * x) + (q.z * w)
 			);
 		}
 
@@ -413,8 +289,14 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE Quat operator/(const sp_float value) const
 		{
-			const sp_float temp = ONE_FLOAT / value;
-			return Quat(w*temp, x  * temp, y*temp, z*temp);
+			const sp_float temp = NAMESPACE_FOUNDATION::div(ONE_FLOAT, value);
+
+			return Quat(
+				w * temp, 
+				x * temp, 
+				y * temp,
+				z * temp
+			);
 		}
 		
 		/// <summary>
@@ -426,45 +308,149 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Auto convertion to Vec3
+		/// Auto convertion to sp_float*
 		/// </summary>
-		API_INTERFACE operator Vec3() const;
-
-		API_INTERFACE inline sp_bool isCloseEnough(const Quat& compare, const sp_float _epsilon = DefaultErrorMargin) const
+		API_INTERFACE inline operator sp_float* () const
 		{
-			return sp_abs(w - compare.w) <= _epsilon
-				&& sp_abs(x - compare.x) <= _epsilon
-				&& sp_abs(y - compare.y) <= _epsilon
-				&& sp_abs(z - compare.z) <= _epsilon;
+			return (sp_float*)this;
 		}
+
+		/// <summary>
+		/// Check quaterions are equal
+		/// </summary>
+		/// <param name="q">Other quaterion</param>
+		/// <returns>True if they are equals orelse False</returns>
+		API_INTERFACE inline sp_bool operator==(const Quat& q) const;
+
 	};
 
-	const Quat QUAT_UNIT(ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
-	const Quat QUAT_ZERO(ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+	const Quat QuatUnit(ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
+	const Quat QuatZeros(ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
 
-	API_INTERFACE inline void multiply(const Quat& quat1, const Quat& quat2, Quat* output)
+	/// <summary>
+	/// Check the quaternion "q1" is close enough quaternion "q2"
+	/// </summary>
+	/// <param name="q1">Quaternion 1</param>
+	/// <param name="q2">Quaternion 2</param>
+	/// <param name="_epsilon">Error Margin</param>
+	/// <returns>True if they are close enough orelse False</returns>
+	API_INTERFACE inline sp_bool isCloseEnough(const Quat& q1, const Quat& q2, const sp_float _epsilon = DefaultErrorMargin)
 	{
-		output->w = (quat1.w * quat2.w) - (quat1.x * quat2.x) - (quat1.y * quat2.y) - (quat1.z * quat2.z);
-		output->x = (quat1.w * quat2.x) + (quat1.x * quat2.w) - (quat1.y * quat2.z) + (quat1.z * quat2.y);
-		output->y = (quat1.w * quat2.y) + (quat1.x * quat2.z) + (quat1.y * quat2.w) - (quat1.z * quat2.x);
-		output->z = (quat1.w * quat2.z) - (quat1.x * quat2.y) + (quat1.y * quat2.x) + (quat1.z * quat2.w);
+		return NAMESPACE_FOUNDATION::isCloseEnough(q1.w, q2.w, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(q1.x, q2.x, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(q1.y, q2.y, _epsilon)
+			&& NAMESPACE_FOUNDATION::isCloseEnough(q1.z, q2.z, _epsilon);
 	}
-	API_INTERFACE void multiply(const Quat& quat1, const Quat& quat2, Vec3* output);
-	API_INTERFACE void multiply(const Vec3& vector, const Quat& quat, Quat* output);
-	API_INTERFACE void multiplyAndSum(const Quat& quat1, const Quat& quat2, const Vec3& sumVector, Vec3* output);
 
-	API_INTERFACE inline void normalize(Quat* quat)
+	/// <summary>
+	/// Check the quaternion is normalized
+	/// </summary>
+	/// <param name="q">Quaternion</param>
+	/// <returns>True if the quaternion os normalized orelse False</returns>
+	API_INTERFACE inline sp_bool isNormalized(const Quat& q)
 	{
-		sp_float magnitude = quat->length();
+		return NAMESPACE_FOUNDATION::isCloseEnough(q.length(), ONE_FLOAT, SP_EPSILON_THREE_DIGITS);
+	}
+
+	/// <summary>
+	/// Convert the quaternion "q" to Vec3
+	/// </summary>
+	/// <param name="q">Quaternion</param>
+	/// <param name="output">Vector</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE void vec3(const Quat& q, Vec3& output);
+
+	/// <summary>
+	/// Build an unit quaterion
+	/// </summary>
+	/// <param name="output">Quaterion</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE inline void identity(Quat& output)
+	{
+		output.w = ONE_FLOAT;
+		output.x = ZERO_FLOAT;
+		output.y = ZERO_FLOAT;
+		output.z = ZERO_FLOAT;
+	}
+
+	/// <summary>
+	/// Sum a quaternion by another one
+	/// </summary>
+	/// <param name="quat1">Quaternion 1</param>
+	/// <param name="quat2">Quaternion 2</param>
+	/// <param name="output">Result</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE inline void add(const Quat& q1, const Quat& q2, Quat& output)
+	{
+		output.w = q1.w + q2.w;
+		output.x = q1.x + q2.x;
+		output.y = q1.y + q2.y;
+		output.z = q1.z + q2.z;
+	}
+
+	/// <summary>
+	/// Multiply a quaternion by a scalar value
+	/// </summary>
+	/// <param name="q">Quaternion</param>
+	/// <param name="scalarValue">Scalar value</param>
+	/// <param name="output">Inverted quaternion</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE inline void multiply(const Quat& q, const sp_float scalarValue, Quat& output)
+	{
+		output.w = q.w * scalarValue;
+		output.x = q.x * scalarValue;
+		output.y = q.y * scalarValue;
+		output.z = q.z * scalarValue;
+	}
+
+	/// <summary>
+	/// Multiply a quaternion by another one
+	/// </summary>
+	/// <param name="quat1">Quaternion 1</param>
+	/// <param name="quat2">Quaternion 2</param>
+	/// <param name="output">Result</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE inline void multiply(const Quat& q1, const Quat& q2, Quat& output)
+	{
+		output.w = (q2.w * q1.w) - (q2.x * q1.x) - (q2.y * q1.y) - (q2.z * q1.z);
+		output.x = (q2.w * q1.x) + (q2.x * q1.w) - (q2.y * q1.z) + (q2.z * q1.y);
+		output.y = (q2.w * q1.y) + (q2.x * q1.z) + (q2.y * q1.w) - (q2.z * q1.x);
+		output.z = (q2.w * q1.z) - (q2.x * q1.y) + (q2.y * q1.x) + (q2.z * q1.w);
+	}
+
+	/// <summary>
+	/// Divide a quaternion to scalar value
+	/// </summary>
+	/// <param name="q">Quaternion</param>
+	/// <param name="value">Scalar value</param>
+	/// <param name="output">Quaternion divided</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE inline void div(const Quat& q, const sp_float value, Quat& output)
+	{
+		const sp_float temp = NAMESPACE_FOUNDATION::div(ONE_FLOAT, value);
+		output.w = q.w * temp;
+		output.x = q.x * temp;
+		output.y = q.y * temp;
+		output.z = q.z * temp;
+	}
+
+	API_INTERFACE inline void normalize(const Quat& q, Quat& output)
+	{
+		sp_float magnitude = q.length();
 
 		sp_assert(magnitude != ZERO_FLOAT, "InvalidArgumentException");
 
-		magnitude = ONE_FLOAT / magnitude;
+		magnitude = NAMESPACE_FOUNDATION::div(ONE_FLOAT, magnitude);
 
-		quat->w *= magnitude;
-		quat->x *= magnitude;
-		quat->y *= magnitude;
-		quat->z *= magnitude;
+		output.w = q.w * magnitude;
+		output.x = q.x * magnitude;
+		output.y = q.y * magnitude;
+		output.z = q.z * magnitude;
+	}
+
+	API_INTERFACE inline void normalize(Quat& q)
+	{
+		normalize(q, q);
 	}
 	
 	/// <summary>
@@ -473,16 +459,242 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="input">Quaterion</param>
 	/// <param name="output">Result</param>
 	/// <returns>void</returns>
-	API_INTERFACE inline void conjugate(const Quat& input, Quat* output)
+	API_INTERFACE inline void conjugate(const Quat& input, Quat& output)
 	{
-		output->w = input.w;
-		output->x = -input.x;
-		output->y = -input.y;
-		output->z = -input.z;
+		output.w = input.w;
+		output.x = -input.x;
+		output.y = -input.y;
+		output.z = -input.z;
 	}
 
-	API_INTERFACE void rotate(const Quat& rotation, const Vec3& point, Vec3* output);
-	API_INTERFACE void rotateAndTranslate(const Quat& rotation, const Vec3& point, const Vec3& translation, Vec3* output);
+	/// <summary>
+	/// Cross Product of two quaternion
+	/// </summary>
+	API_INTERFACE inline void cross(const Quat& q1, const Quat& q2, Quat& output)
+	{
+		multiply(q1, q2, output);
+	}
+
+	API_INTERFACE void rotate(const Quat& axis, const Vec3& point, Vec3& output);
+
+	/// <summary>
+	/// Create a new quanternion from euler angles provided
+	/// </summary>
+	API_INTERFACE inline void fromEulerAngles(const sp_float roll, const sp_float pitch, const sp_float yaw, Quat& output)
+	{
+		const sp_float cosRoll = sp_cos(roll * HALF_FLOAT);
+		const sp_float sinRoll = sp_sin(roll * HALF_FLOAT);
+		const sp_float cosPitch = sp_cos(pitch * HALF_FLOAT);
+		const sp_float sinPitch = sp_sin(pitch * HALF_FLOAT);
+		const sp_float cosYaw = sp_cos(yaw * HALF_FLOAT);
+		const sp_float sinYaw = sp_sin(yaw * HALF_FLOAT);
+
+		output.w = cosYaw * cosPitch * cosRoll - sinYaw * sinPitch * sinRoll;
+		output.x = cosYaw * cosPitch * sinRoll + sinYaw * sinPitch * cosRoll;
+		output.y = cosYaw * sinPitch * cosRoll - sinYaw * cosPitch * sinRoll;
+		output.z = sinYaw * cosPitch * cosRoll + cosYaw * sinPitch * sinRoll;
+	}
+
+	/// <summary>
+	/// Convert the quaternions to angles (x, y, z)
+	/// The quaternion has to be normalized !
+	/// </summary>
+	API_INTERFACE void eulerAnglesXYZ(const Quat& q, Vec3& output);
+
+	/// <summary>
+	/// Convert the quaternions to angles (z, y, x)
+	/// The quaternion has to be normalized !
+	/// </summary>
+	API_INTERFACE void eulerAnglesZYX(const Quat& q, Vec3& output);
+
+	/// <summary>
+	/// Get the angle (radians) between two quaternions
+	/// </summary>
+	/// <param name="q1">Quaternion 1</param>
+	/// <param name="q2">Quaternion 2</param>
+	/// <returns>Angle (radians)</returns>
+	API_INTERFACE inline sp_float angle(const Quat& q1, const Quat& q2)
+	{
+		Quat q3;
+		conjugate(q2, q3);
+
+		return sp_arccos((q1 * q3).w) * TWO_FLOAT;
+	}
+
+	/// <summary>
+	/// Craete a Inversed Quaternion
+	/// Return a quaternion that if multiplied by current quaternion results in value 1 of the current quternion ifs length/norm is zero
+	/// </summary>
+	API_INTERFACE inline void inverse(const Quat& q, Quat& output)
+	{
+		sp_assert(q.length() != ZERO_FLOAT, "InvalidOperationException");
+
+		conjugate(q, output);
+
+		const sp_float magnitude = NAMESPACE_FOUNDATION::div(ONE_FLOAT, (q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w));
+
+		multiply(output, magnitude, output);
+
+		sp_assert(q * output == QuatUnit, "ApplicationException");
+	}
+
+	/// <summary>
+	/// Craete a Inversed Quaternion
+	/// Return a quaternion that if multiplied by current quaternion results in value 1 of the current quternion ifs length/norm is zero
+	/// </summary>
+	API_INTERFACE inline void inverse(Quat& q)
+	{
+		sp_assert(q.length() != ZERO_FLOAT, "InvalidOperationException");
+
+		conjugate(q, q);
+
+		const sp_float magnitude = NAMESPACE_FOUNDATION::div(ONE_FLOAT, (q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w));
+
+		multiply(q, magnitude, q);
+
+		sp_assert(q.length() == ONE_FLOAT, "ApplicationException");
+	}
+
+	/// <summary>
+	/// Rotate the point provided by this quaternion axis
+	/// This quaternion is the rotation axis
+	/// Returns the point rotated
+	/// </summary>
+	API_INTERFACE inline void rotate(const Quat& rotation, const Vec3& point, Vec3& output);
+
+	/// <summary>
+	/// Quaternion Linear Interpolation. 
+	/// This method is the quickest, but is also least accurate. 
+	/// The method does not always generate normalized output.
+	/// </summary>
+	/// <param name="q">Quaternion</param>
+	/// <param name="t">Interval parameter should be in [0,1]</param>
+	/// <param name="output">Output quaternion</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE inline void lerp(const Quat& q1, const Quat& q2, const sp_float t, Quat& output)
+	{
+		sp_assert(isNormalized(q1), "InvalidArgumentException");
+		sp_assert(isNormalized(q2), "InvalidArgumentException");
+		sp_assert(t >= ZERO_FLOAT && t <= ONE_FLOAT, "InvalidArgumentException");
+		
+		Quat temp;
+		multiply(q1, ONE_FLOAT - t, temp);
+
+		multiply(q2, t, output);
+
+		add(temp, output, output);
+	}
+
+	/// <summary>
+	/// Spherical quaternion interpolation method
+	/// Both of quaternions should be normalized
+	/// t parameter is [0,1]
+	/// </summary>
+	API_INTERFACE inline void slerp(const Quat& q1, const Quat& q2, const sp_float t, Quat& output)
+	{
+		sp_assert(isNormalized(q1), "InvalidArgumentException");
+		sp_assert(isNormalized(q2), "InvalidArgumentException");
+
+		Quat copyQuat2;
+		sp_float cosTheta = q1.dot(q2);
+
+		// If cosTheta < 0, the interpolation will take the long way around the sphere.
+		// To fix this, one quat must be negated.
+		if (cosTheta < ZERO_FLOAT)
+		{
+			copyQuat2 = -q2;
+			cosTheta = -cosTheta;
+		}
+		else
+			copyQuat2 = q2;
+
+		// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+		if (NAMESPACE_FOUNDATION::isCloseEnough(cosTheta, ONE_FLOAT))
+		{
+			output.w = NAMESPACE_FOUNDATION::lerp(q1.w, copyQuat2.w, t);
+			output.x = NAMESPACE_FOUNDATION::lerp(q1.x, copyQuat2.x, t);
+			output.y = NAMESPACE_FOUNDATION::lerp(q1.y, copyQuat2.y, t);
+			output.z = NAMESPACE_FOUNDATION::lerp(q1.z, copyQuat2.z, t);
+			return;
+		}
+		else
+		{
+			const sp_float angle = sp_arccos(cosTheta);
+
+			Quat temp;
+			multiply(q1, sp_sin((ONE_FLOAT - t) * angle), temp);
+
+			multiply(copyQuat2, sp_sin(t * angle), output);
+
+			add(temp, output, output);
+
+			div(output, sp_sin(angle), output);
+		}
+	}
+
+	/// <summary>
+	/// Spherical quaternion interpolation method
+	/// Both of quaternions should be normalized
+	/// t parameter is [0,1]
+	/// </summary>
+	API_INTERFACE inline void slerp(const Quat& q1, const Quat& q2, sp_float t, sp_int spinCount, Quat& output)
+	{
+		sp_assert(isNormalized(q1), "InvalidArgumentException");
+		sp_assert(isNormalized(q2), "InvalidArgumentException");
+
+		Quat copyQuat2;
+		sp_float cosTheta = q1.dot(q2);
+
+		// If cosTheta < 0, the interpolation will take the long way around the sphere.
+		// To fix this, one quat must be negated.
+		if (cosTheta < ZERO_FLOAT)
+		{
+			copyQuat2 = -q2;
+			cosTheta = -cosTheta;
+		}
+		else
+			copyQuat2 = q2;
+
+		// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+		if (NAMESPACE_FOUNDATION::isCloseEnough(cosTheta, ONE_FLOAT))
+		{
+			output.w = NAMESPACE_FOUNDATION::lerp(q1.w, copyQuat2.w, t);
+			output.x = NAMESPACE_FOUNDATION::lerp(q1.x, copyQuat2.x, t);
+			output.y = NAMESPACE_FOUNDATION::lerp(q1.y, copyQuat2.y, t);
+			output.z = NAMESPACE_FOUNDATION::lerp(q1.z, copyQuat2.z, t);
+			return;
+		}
+		else
+		{
+			const sp_float angle = sp_arccos(cosTheta);
+			const sp_float phiT = (angle + spinCount * PI) * t;
+
+			Quat temp;
+			multiply(copyQuat2, sp_sin(phiT), temp);
+
+			multiply(q1, sp_sin(angle - phiT), output);
+
+			add(temp, output, output);
+
+			div(output, sp_sin(angle), output);
+		}
+	}
+
+	/// <summary>
+	/// Convertion to rotational matrix 3x3
+	/// </summary>
+	/// <param name="q">Quaternion</param>
+	/// <param name="output">Output matrix</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE void mat3(const Quat& q, Mat3& output);
+
+	/// <summary>
+	/// Convertion to rotational matrix 4x4
+	/// </summary>
+	/// <param name="q">Quaternion</param>
+	/// <param name="output">Output matrix</param>
+	/// <returns>output parameter</returns>
+	API_INTERFACE void mat4(const Quat& q, Mat4& output);
 
 }
 

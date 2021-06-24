@@ -34,8 +34,8 @@ namespace NAMESPACE_PHYSICS_TEST
 		propertiesObj2->mass(8.0f); // static object
 		propertiesObj2->currentState.position(Vec3(35.000000f, -0.454432f, 15.000000f));
 		propertiesObj2->previousState.position(Vec3(35.000000f, 0.197773f, 15.000000f));
-		propertiesObj2->currentState.orientation(QUAT_UNIT);
-		propertiesObj2->previousState.orientation(QUAT_UNIT);
+		propertiesObj2->currentState.orientation(QuatUnit);
+		propertiesObj2->previousState.orientation(QuatUnit);
 
 		sp_uint indexes[4] = { 0u, 0u, 0u, 1u };
 		cl_mem indexesGPU = gpu->createBuffer(indexes, 4 * sizeof(sp_uint), CL_MEM_USE_HOST_PTR | CL_MEM_READ_WRITE);

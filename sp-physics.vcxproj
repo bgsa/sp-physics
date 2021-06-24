@@ -297,6 +297,7 @@
     <ClInclude Include="src\SpAlgorithms.h" />
     <ClInclude Include="src\SpBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpCamera.h" />
+    <ClInclude Include="src\SpCameraManager.h" />
     <ClInclude Include="src\SpCollisionDetails.h" />
     <ClInclude Include="src\SpCollisionDetector.h" />
     <ClInclude Include="src\SpCollisionDetectorCache.h" />
@@ -306,12 +307,14 @@
     <ClInclude Include="src\SpCollisionResponseGPU.h" />
     <ClInclude Include="src\SpCollisionResponseShapeMatching.h" />
     <ClInclude Include="src\SpDOP18Factory.h" />
+    <ClInclude Include="src\SpFace.h" />
     <ClInclude Include="src\SpFaceMesh.h" />
     <ClInclude Include="src\SpGame.h" />
     <ClInclude Include="src\SpGame2D.h" />
     <ClInclude Include="src\SpGame3D.h" />
     <ClInclude Include="src\SpGameObject.h" />
     <ClInclude Include="src\SpGameObjectManager.h" />
+    <ClInclude Include="src\SpGameObjectType.h" />
     <ClInclude Include="src\SpGJK.h" />
     <ClInclude Include="src\SpGpuPlatform.h" />
     <ClInclude Include="src\SpGpuPlatformManager.h" />

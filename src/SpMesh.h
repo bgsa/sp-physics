@@ -49,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void vertex(const sp_uint index, Vec3* output) const;
 
-		API_INTERFACE void vertex(const sp_uint index, const SpTransform& transform, Vec3* output) const;
+		API_INTERFACE void vertex(const sp_uint index, const SpTransform& transform, Vec3& output) const;
 
 		API_INTERFACE sp_uint vertexLength() const;
 	

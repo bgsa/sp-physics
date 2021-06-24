@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 
 		for (sp_uint i = 0; i < shape->particlesLength; i++)
 		{
-			transformation->transform(mesh->vertexesMesh->get(i)->value(), &shape->particles[i]);
+			transformation->transform(mesh->vertexesMesh->get(i)->value(), shape->particles[i]);
 
 			// fill the initial shape with local coordinates
 			diff(shape->particles[i], transformation->position, shape->initialParticles[i]);
@@ -159,7 +159,32 @@ namespace NAMESPACE_PHYSICS
 			Quat newOrientation;
 			rotation.convert(newOrientation);
 
-			transformation->orientation *= newOrientation;
+			Quat finalOrientation;
+			multiply(newOrientation, transformation->orientation, finalOrientation);
+			normalize(finalOrientation, transformation->orientation);
+
+			/*
+			if (shape->objectIndex == 1)
+			{
+				Vec3 previousAngles;
+				eulerAnglesXYZ(transformation->orientation, previousAngles);
+
+				std::cout << "----------------------------" << std::endl;
+				std::cout << "PREV OBJ " << shape->objectIndex << std::endl;
+				std::cout << "X: " << degree(previousAngles.x) << std::endl;
+				std::cout << "Y: " << degree(previousAngles.y) << std::endl;
+				std::cout << "Z: " << degree(previousAngles.z) << std::endl;
+
+				Vec3 angles;
+				eulerAnglesXYZ(newOrientation, angles);
+
+				std::cout << "NEW OBJ " << shape->objectIndex << std::endl;
+				std::cout << "X: " << degree(angles.x) << std::endl;
+				std::cout << "Y: " << degree(angles.y) << std::endl;
+				std::cout << "Z: " << degree(angles.z) << std::endl;
+			}
+			*/
+
 			rigidBody->currentState.orientation(transformation->orientation);
 
 			transformation->position = centerOfMassAfterCollision;
@@ -291,6 +316,8 @@ namespace NAMESPACE_PHYSICS
 					normalToObj2 = collisionManifold.collisionNormal;
 				else
 					normalToObj2 = -collisionManifold.collisionNormal;
+
+				//normalToObj2 = direction;
 			}
 		}
 

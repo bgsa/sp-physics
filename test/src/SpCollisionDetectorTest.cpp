@@ -338,7 +338,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		const Vec3 defaultPositionObj2 = Vec3(0.0f, 4.0f, 0.0f);
 		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -20.0f, 0.0f);
 		const Quat defaultOrientationObj2 = Quat(Vec3(0.0f, 0.0f, 0.0f));
-		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+		const Vec3 defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
 
 		for (sp_float posX = -50.0f; posX < 50.0f; posX++)
 		{
@@ -464,7 +464,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 		
 		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -25.0f, 0.0f);
-		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+		const Vec3 defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
 
 		for (sp_float posX = -0.9f; posX < 0.9f; posX += 0.2f)
 		{
@@ -574,10 +574,10 @@ namespace NAMESPACE_PHYSICS_TEST
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 		world->transforms(0u)->scaleVector = Vec3(100.0f, 1.0f, 100.0f);
 
-		const Vec3 defaultPositionObj2 = Vec3(0.0f, 4.0f, 0.0f);
-		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -20.0f, 0.0f);
-		const Quat defaultOrientationObj2 = Quat(Vec3(0.0f, 0.0f, 0.0f));
-		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+		const Vec3 defaultPositionObj2(0.0f, 4.0f, 0.0f);
+		const Vec3 defaultVelocityObj2(0.0f, -20.0f, 0.0f);
+		const Quat defaultOrientationObj2(Vec3(0.0f, 0.0f, 0.0f));
+		const Vec3 defaultAngVelocityObj2(0.0f, 0.0f, 0.0f);
 
 		sp_float posX = -50.0f;
 		sp_float posY = 5.0f;
@@ -623,7 +623,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		world->transforms(0u)->scaleVector = Vec3(100.0f, 1.0f, 100.0f);
 
 		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -25.0f, 0.0f);
-		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+		const Vec3 defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
 
 		sp_float posX = 0.9f;
 		sp_float posY = 4.0f;
@@ -669,7 +669,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		world->transforms(0u)->scaleVector = Vec3(100.0f, 1.0f, 100.0f);
 
 		const Vec3 defaultVelocityObj2 = Vec3(0.0f, -25.0f, 0.0f);
-		const Quat defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
+		const Vec3 defaultAngVelocityObj2 = Vec3(0.0f, 0.0f, 0.0f);
 
 		sp_float posX = -0.9f;
 		sp_float posY = 4.0f;

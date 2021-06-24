@@ -197,7 +197,7 @@ namespace NAMESPACE_PHYSICS
 		output[0] = vertexesMesh->data()[index]->_value;
 	}
 
-	void SpMesh::vertex(const sp_uint index, const SpTransform& transform, Vec3* output) const
+	void SpMesh::vertex(const sp_uint index, const SpTransform& transform, Vec3& output) const
 	{
 		sp_assert(index < vertexesMesh->length(), "IndexOutOfRangeException");
 		transform.transform(vertexesMesh->get(index)->_value, output);
@@ -558,7 +558,7 @@ namespace NAMESPACE_PHYSICS
 		const Plane plane(transform.position, orientation);
 
 		Vec3 newVertexPosition;
-		vertex(from->index(), transform, &newVertexPosition);
+		vertex(from->index(), transform, newVertexPosition);
 
 		const sp_float distance = plane.distance(newVertexPosition);
 
@@ -567,7 +567,7 @@ namespace NAMESPACE_PHYSICS
 			const sp_uint newIndex = from->edgeVertexIndex(i);
 
 			Vec3 vertexPosition2;
-			vertex(newIndex, transform, &vertexPosition2);
+			vertex(newIndex, transform, vertexPosition2);
 
 			const sp_float newDistance = plane.distance(vertexPosition2);
 
@@ -597,7 +597,7 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint i = 0; i < vertexLength(); i++)
 		{
 			Vec3 vertex;
-			this->vertex(i, transformObj1, &vertex);
+			this->vertex(i, transformObj1, vertex);
 
 			for (sp_uint j = 0; j < facesLengthObj2; j++)
 			{
@@ -616,7 +616,7 @@ namespace NAMESPACE_PHYSICS
 	void SpMesh::convert(Vec3* vertexes, const SpTransform& transform) const
 	{
 		for (sp_uint i = 0; i < vertexLength(); i++)
-			vertex(i, transform, &vertexes[i]);
+			vertex(i, transform, vertexes[i]);
 	}
 
 }

@@ -39,30 +39,30 @@ namespace NAMESPACE_PHYSICS
 
 	void SpFaceMesh::convert(Vec3* vertexes, const SpTransform& transform) const
 	{
-		mesh->vertex(vertexesIndexes[0], transform, &vertexes[0]);
-		mesh->vertex(vertexesIndexes[1], transform, &vertexes[1]);
-		mesh->vertex(vertexesIndexes[2], transform, &vertexes[2]);
+		mesh->vertex(vertexesIndexes[0], transform, vertexes[0]);
+		mesh->vertex(vertexesIndexes[1], transform, vertexes[1]);
+		mesh->vertex(vertexesIndexes[2], transform, vertexes[2]);
 	}
 
 	void SpFaceMesh::convert(Plane* plane, const SpTransform& transform) const
 	{
-		mesh->vertex(vertexesIndexes[0], transform, &plane->point);
-		rotate(transform.orientation, faceNormal, &plane->normalVector);
+		mesh->vertex(vertexesIndexes[0], transform, plane->point);
+		rotate(transform.orientation, faceNormal, plane->normalVector);
 		plane->distanceFromOrigin = plane->normalVector.dot(plane->point);
 	}
 
 	void SpFaceMesh::convert(Triangle3D* triangle, const SpTransform& transform) const
 	{
-		mesh->vertex(vertexesIndexes[0], transform, &triangle->point1);
-		mesh->vertex(vertexesIndexes[1], transform, &triangle->point2);
-		mesh->vertex(vertexesIndexes[2], transform, &triangle->point3);
+		mesh->vertex(vertexesIndexes[0], transform, triangle->point1);
+		mesh->vertex(vertexesIndexes[1], transform, triangle->point2);
+		mesh->vertex(vertexesIndexes[2], transform, triangle->point3);
 	}
 
 	void SpFaceMesh::convert(Line3D lines[3], const SpTransform& transform) const
 	{
-		mesh->vertex(vertexesIndexes[0], transform, &lines[0].point1);
-		mesh->vertex(vertexesIndexes[1], transform, &lines[0].point2);
-		mesh->vertex(vertexesIndexes[2], transform, &lines[1].point2);
+		mesh->vertex(vertexesIndexes[0], transform, lines[0].point1);
+		mesh->vertex(vertexesIndexes[1], transform, lines[0].point2);
+		mesh->vertex(vertexesIndexes[2], transform, lines[1].point2);
 
 		lines[1].point1 = lines[0].point2;
 		lines[2].point1 = lines[1].point2;

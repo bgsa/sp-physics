@@ -236,6 +236,32 @@ namespace NAMESPACE_PHYSICS
 		// update mesh cache vertexes
 		world->_meshVertexCacheUpdater.execute(ZERO_UINT, NULL, &evt);
 		gpu->releaseEvent(evt);
+
+		/*
+		// TODO: REMOVE !!!
+		Vec3* vertexes = ALLOC_ARRAY(Vec3, 24 * 512);
+		gpu->commandManager->readBuffer(world->_meshVertexCacheGPU->buffer(), sizeof(Vec3) * 24 * 512, vertexes);
+		Vec3 firstVertex = vertexes[2601];
+
+		SpTransform* trans = ALLOC_ARRAY(SpTransform, 512);
+		gpu->commandManager->readBuffer(world->_transformsGPU, sizeof(SpTransform) * 512, trans);
+
+		Vec3 v;
+		world->mesh(1)->vertex(0, &v);
+
+		Vec3 scale = world->transforms(1)->scaleVector;
+		Vec3 vs(v.x * scale.x, v.y * scale.y, v.z * scale.z);
+
+		Vec3 vt;
+		world->mesh(1)->vertex(0, *world->transforms(1), vt);
+
+		Vec3 angles;
+		eulerAnglesXYZ(world->transforms(1)->orientation, angles);
+		std::cout << "NEW OBJ 0" << std::endl;
+		std::cout << "X: " << degree(angles.x) << std::endl;
+		std::cout << "Y: " << degree(angles.y) << std::endl;
+		std::cout << "Z: " << degree(angles.z) << std::endl;
+		*/
 		
 		if (pcaFrameCounter > SpPhysicSettings::instance()->pcaExecutionPerFrame())
 		{
@@ -259,6 +285,12 @@ namespace NAMESPACE_PHYSICS
 		world->boundingVolumeFactory->execute(ZERO_UINT, NULL, &previousEvent);
 		const sp_float timeBuildDOP18 = (sp_float)world->boundingVolumeFactory->timeOfLastExecution(previousEvent);
 		((sp_float*)SpGlobalPropertiesInscance->get(ID_buildVolumeTime))[0] = timeBuildDOP18;
+
+		/*
+		// TODO: REMOVE
+		DOP18 bvs[512];
+		gpu->commandManager->readBuffer(world->boundingVolumeFactory->boundingVolumeGPU(), sizeof(DOP18) * 512, bvs);
+		*/
 
 		// find collisions pair on GPU using Bounding Volume
 		findCollisionsGpu(sapResult, ONE_UINT, &previousEvent, &evt);

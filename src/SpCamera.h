@@ -59,16 +59,16 @@ namespace NAMESPACE_PHYSICS
 			return _invertY == -ONE_FLOAT;
 		}
 
-		API_INTERFACE virtual void zoom(sp_float scale) = 0;
-		API_INTERFACE virtual void moveForward(sp_float distance) = 0;
-		API_INTERFACE virtual void moveBackward(sp_float distance) = 0;
-		API_INTERFACE virtual void moveLeft(sp_float distance) = 0;
-		API_INTERFACE virtual void moveRight(sp_float distance) = 0;
-		API_INTERFACE virtual void lookAtHorizontal(sp_float angleInRadians) = 0;
-		API_INTERFACE virtual void lookAtVertical(sp_float angleInRadians) = 0;
-		API_INTERFACE virtual void rotateX(sp_float angle) = 0;
-		API_INTERFACE virtual void rotateY(sp_float angle) = 0;
-		API_INTERFACE virtual void rotateZ(sp_float angle) = 0;
+		API_INTERFACE virtual void zoom(sp_float scale) {};
+		API_INTERFACE virtual void moveForward(sp_float distance) {};
+		API_INTERFACE virtual void moveBackward(sp_float distance) {};
+		API_INTERFACE virtual void moveLeft(sp_float distance) {};
+		API_INTERFACE virtual void moveRight(sp_float distance) {};
+		API_INTERFACE virtual void lookAtHorizontal(sp_float angleInRadians) {};
+		API_INTERFACE virtual void lookAtVertical(sp_float angleInRadians) {};
+		API_INTERFACE virtual void rotateX(sp_float angle) {};
+		API_INTERFACE virtual void rotateY(sp_float angle) {};
+		API_INTERFACE virtual void rotateZ(sp_float angle) {};
 
 		API_INTERFACE inline Mat4& getProjectionMatrix() noexcept
 		{

@@ -1,5 +1,6 @@
 #include "SpectrumPhysicsTest.h"
 #include "Quat.h"
+#include "Asserts.h"
 
 #define CLASS_NAME QuatTest
 
@@ -8,7 +9,6 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_CLASS(CLASS_NAME)
 	{
 	public:
-		SP_TEST_METHOD_DEF(Quat_ConstructorEmpty_Test);
 		SP_TEST_METHOD_DEF(Quat_ConstructorWithValues1_Test);
 		SP_TEST_METHOD_DEF(Quat_ConstructorWithValues2_Test);
 		SP_TEST_METHOD_DEF(Quat_ConstructorWithVector_Test);
@@ -23,39 +23,35 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(Quat_scale_Test);
 		SP_TEST_METHOD_DEF(multiply_1);
 		SP_TEST_METHOD_DEF(multiply_2);
+		SP_TEST_METHOD_DEF(multiply_3);
 		SP_TEST_METHOD_DEF(Quat_length_Test);
 		SP_TEST_METHOD_DEF(Quat_normalize_Test);
 		SP_TEST_METHOD_DEF(conjugate);
 		SP_TEST_METHOD_DEF(Quat_dot_Test);
-		SP_TEST_METHOD_DEF(Quat_inverse_Test);
-		SP_TEST_METHOD_DEF(Quat_toVec3_Test);
+		SP_TEST_METHOD_DEF(inverse_Test);
+		SP_TEST_METHOD_DEF(vec3_Test);
 		SP_TEST_METHOD_DEF(createRotate);
-		SP_TEST_METHOD_DEF(rotate);
-		SP_TEST_METHOD_DEF(toMat3);
-		SP_TEST_METHOD_DEF(toEulerAngles);
+		SP_TEST_METHOD_DEF(rotate1);
+		SP_TEST_METHOD_DEF(rotate2);
+		SP_TEST_METHOD_DEF(rotate3);
+		SP_TEST_METHOD_DEF(rotate4);
 		SP_TEST_METHOD_DEF(axis);
-		SP_TEST_METHOD_DEF(angle);
-		SP_TEST_METHOD_DEF(fromEulerAngles);
-		SP_TEST_METHOD_DEF(lerp);
-		SP_TEST_METHOD_DEF(slerp);
+		SP_TEST_METHOD_DEF(angle_Test);
+		SP_TEST_METHOD_DEF(fromEulerAngles_Test);
+		SP_TEST_METHOD_DEF(eulerAnglesXYZ_Test);
+		SP_TEST_METHOD_DEF(eulerAnglesZYX_Test);
+		SP_TEST_METHOD_DEF(lerp_Test);
+		SP_TEST_METHOD_DEF(slerp_Test);
+		SP_TEST_METHOD_DEF(mat3_Test);
+		SP_TEST_METHOD_DEF(mat4_Test);
 	};
-
-	SP_TEST_METHOD(CLASS_NAME, Quat_ConstructorEmpty_Test)
-	{
-		Quat result;
-
-		Assert::AreEqual(ONE_FLOAT, result[0], L"", LINE_INFO());
-
-		for (sp_int i = 1; i < QUAT_LENGTH; i++)
-			Assert::AreEqual(ZERO_FLOAT, result[i], L"", LINE_INFO());
-	}
 
 	SP_TEST_METHOD(CLASS_NAME, Quat_ConstructorWithValues1_Test)
 	{
 		Quat result(2.0f, 3.0f, 4.0f, 1.0f);
 		sp_float expected[4] = {2.0f, 3.0f, 4.0f, 1.0f};
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::AreEqual(expected[i], result[i], L"", LINE_INFO());
 	}
 
@@ -64,7 +60,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_float expected[4] = {2.0f, 3.0f, 4.0f, 1.0f };
 		Quat result(expected);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::AreEqual(expected[i], result[i], L"", LINE_INFO());
 	}
 
@@ -72,9 +68,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec3 vector(1.0f, 2.0f, 3.0f);
 		Quat result(vector);
-		sp_float expected[QUAT_LENGTH] = { 1.0f, 1.0f, 2.0f, 3.0f };
+		sp_float expected[4] = { 1.0f, 1.0f, 2.0f, 3.0f };
 		
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::AreEqual(expected[i], result[i], L"", LINE_INFO());
 	}
 
@@ -84,7 +80,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Quat quat(expected);
 		sp_float* result = (sp_float*) &quat;
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::AreEqual(expected[i], result[i], L"", LINE_INFO());
 	}
 
@@ -172,13 +168,13 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Quat quat1(0.0f, 1.0f, 1.0f, 0.0f);
 		Quat quat2(2.0f, 3.0f, 5.0f, 7.0f);
-		Quat expected(-8.0f, -5.0f, 9.0f, -2.0f);
+		Quat expected(-8.0f, 9.0f, -5.0f, 2.0f);
 		Quat result;
 
 		PerformanceCounter counter;
 		
 		for (sp_uint i = 0; i < 100000; i++)
-			NAMESPACE_PHYSICS::multiply(quat1, quat2, &result);
+			NAMESPACE_PHYSICS::multiply(quat1, quat2, result);
 
 		counter.logElapsedTime("Quat::multiply: ");
 
@@ -193,7 +189,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Quat quat1(1.0f, 2.0f, 3.0f, 4.0f);
 		Quat quat2(-5.0f, 6.0f, -7.0f, 8.0f);
 		Quat result = quat1 * quat2;
-		Quat expected(-28.0f, -56.0f, -30.0f, 20.0f);
+		Quat expected = Quat(-28.0f, 48.0f, -14.0f, -44.0f);
 
 		Assert::AreEqual(expected.w, result.w, L"Wrong value", LINE_INFO());
 		Assert::AreEqual(expected.x, result.x, L"Wrong value", LINE_INFO());
@@ -201,7 +197,20 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::AreEqual(expected.z, result.z, L"Wrong value", LINE_INFO());
 
 		result = quat2 * quat1;
-		expected = Quat(-28.0f, 48.0f, -14.0f, -44.0f);
+		expected = Quat(-28.0f, -56.0f, -30.0f, 20.0f);
+
+		Assert::AreEqual(expected.w, result.w, L"Wrong value", LINE_INFO());
+		Assert::AreEqual(expected.x, result.x, L"Wrong value", LINE_INFO());
+		Assert::AreEqual(expected.y, result.y, L"Wrong value", LINE_INFO());
+		Assert::AreEqual(expected.z, result.z, L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, multiply_3)
+	{
+		Quat quat1(1.0f, 2.0f, 3.0f, 4.0f);
+		Quat quat2(9.0f, 8.0f, 7.0f, 6.0f);
+		Quat result = quat1 * quat2;
+		Quat expected(-52.0f, 16.0f, 54.0f, 32.0f);
 
 		Assert::AreEqual(expected.w, result.w, L"Wrong value", LINE_INFO());
 		Assert::AreEqual(expected.x, result.x, L"Wrong value", LINE_INFO());
@@ -221,18 +230,18 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Quat_normalize_Test)
 	{
 		Quat quat(2.0f, 5.0f, 1.0f, 6.0f);
-		normalize(&quat);
+		normalize(quat);
 
 		Quat expected(0.246182978f, 0.615457416f, 0.123091489f, 0.738548934f);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::IsTrue(isCloseEnough(quat[i], expected[i]), L"Wrong value", LINE_INFO());
 
 		quat = Quat(-5.0f, 6.0f, -7.0f, 8.0f);
-		normalize(&quat);
+		normalize(quat);
 		expected = Quat(-0.37905f, 0.45486f, -0.53067f, 0.60648f);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::IsTrue(isCloseEnough(quat[i], expected[i]), L"Wrong value", LINE_INFO());
 	}
 
@@ -240,7 +249,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Quat quat(2.0f, 5.0f, 1.0f, 6.0f);
 		Quat result;
-		NAMESPACE_PHYSICS::conjugate(quat, &result);
+		NAMESPACE_PHYSICS::conjugate(quat, result);
 		Quat expected(2.0f, -5.0f, -1.0f, -6.0f);
 
 		Assert::AreEqual(expected[0], result[0], L"Wrong value", LINE_INFO());
@@ -259,31 +268,33 @@ namespace NAMESPACE_PHYSICS_TEST
 		Assert::IsTrue(isCloseEnough(result, expected), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Quat_inverse_Test)
+	SP_TEST_METHOD(CLASS_NAME, inverse_Test)
 	{
 		Quat quat(2.0f, 5.0f, 1.0f, 6.0f);
-		Quat result = quat.inverse();
+
+		Quat result;
+		inverse(quat, result);
+
 		Quat expected(0.0303030275f, -0.0757575706f, -0.0151515137f, -0.0909090787f);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::IsTrue(isCloseEnough(result[i], expected[i]), L"Wrong value", LINE_INFO());
 
 		sp_float proof = sp_abs(result.dot(quat)); // sp_abs ???
 		Assert::AreEqual(1.0f, sp_ceil(proof), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, Quat_toVec3_Test)
+	SP_TEST_METHOD(CLASS_NAME, vec3_Test)
 	{
 		Quat quat(2.0f, 5.0f, 1.0f, 6.0f);
-		Vec3 result1 = quat.toVec3();
-		Vec3 result2 = quat;
+
+		Vec3 result1;
+		vec3(quat, result1);
 
 		Vec3 expected(5.0f, 1.0f, 6.0f);
 
-		for (sp_int i = 0; i < VEC3_LENGTH; i++) {
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
 			Assert::AreEqual(expected[i], result1[i], L"Wrong value", LINE_INFO());
-			Assert::AreEqual(expected[i], result2[i], L"Wrong value", LINE_INFO());
-		}			
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, createRotate)
@@ -295,27 +306,82 @@ namespace NAMESPACE_PHYSICS_TEST
 		Quat result = Quat::createRotate(angle, axis);
 		Quat expected(0.866f, 0.3535f, 0.0f, 0.3535f);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		for (sp_int i = 0; i < 4; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i], 0.009f), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, rotate)
+	SP_TEST_METHOD(CLASS_NAME, rotate1)
 	{
 		Vec3 point(0.7f, 0.5f, 0.0f);
 		Quat axis = Quat::createRotationAxisZ(degreesToRadians(30.0f));
 		
-		Vec3 result = axis.rotate(point);
+		Vec3 result;
+		rotate(axis, point, result);
+		
 		Vec3 expected(0.3562f, 0.7830f, 0.0f);
 
 		for (sp_int i = 0; i < VEC3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, toMat3)
+	SP_TEST_METHOD(CLASS_NAME, rotate2)
+	{
+		Vec3 point(-0.358606011f, -6.0f, -0.3586f);
+		Quat axis = Quat::createRotationAxisZ(degreesToRadians(90));
+
+		Vec3 result;
+		rotate(axis, point, result);
+
+		Vec3 expected(6.0f, -0.3586f, -0.3586f);
+
+		// Rotating in Z axis, the Z component should not be changed!
+		Asserts::isCloseEnough(point.z, result.z, SP_EPSILON_THREE_DIGITS, L"Wrong value", LINE_INFO());
+
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, rotate3)
+	{
+		Vec3 point(-0.3586f, -6.0f, -0.3586f);
+		Quat axis = Quat::createRotationAxisX(degreesToRadians(90));
+
+		Vec3 result;
+		rotate(axis, point, result);
+
+		Vec3 expected(-0.3586f, 0.3586f, -6.0f);
+
+		// Rotating in X axis, the X component should not be changed!
+		Asserts::isCloseEnough(point.x, result.x, SP_EPSILON_THREE_DIGITS, L"Wrong value", LINE_INFO());
+
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, rotate4)
+	{
+		Vec3 point(-0.3586f, -6.0f, -0.3586f);
+		Quat axis = Quat::createRotationAxisY(degreesToRadians(90));
+
+		Vec3 result;
+		rotate(axis, point, result);
+
+		Vec3 expected(-0.3586f, -6.0f, 0.3586f);
+
+		// Rotating in Y axis, the Y component should not be changed!
+		Asserts::isCloseEnough(point.y, result.y, SP_EPSILON_THREE_DIGITS, L"Wrong value", LINE_INFO());
+
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, mat3_Test)
 	{
 		Quat quat = Quat(1.0f, 3.0f, 6.0f, 2.0f);
 
-		Mat3 result = quat.toMat3();
+		Mat3 result;
+		mat3(quat, result);
+
 		Mat3 expected = {
 			 -0.6f, 0.64f, 0.48f,
 			 0.8f, 0.48f, 0.36f,
@@ -326,8 +392,8 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 
 		quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
+		mat3(quat, result);
 
-		result = quat.toMat3();
 		expected = {
 			0.3975904f,  0.7951807f,  0.4578313f,
 			0.8915663f, -0.2168675f, -0.3975904f,
@@ -338,32 +404,51 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, toEulerAngles)
+	SP_TEST_METHOD(CLASS_NAME, mat4_Test)
 	{
-		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
-		normalize(&quat);
+		Quat quat = Quat(1.0f, 3.0f, 6.0f, 2.0f);
 
-		Vec3 result = quat.toEulerAngles();
-		Vec3 expected = Vec3(2.677945f, 0.4755543f, -1.1071487f);
+		Mat4 result;
+		mat4(quat, result);
 
-		for (sp_int i = 0; i < VEC3_LENGTH; i++)
+		Mat4 expected = {
+			 -0.6f, 0.64f, 0.48f, 0.0f,
+			 0.8f, 0.48f, 0.36f, 0.0f,
+			 0.0f, 0.6f, -0.8f, 0.0f,
+			 0.0f, 0.0f, 0.0f, 1.0f
+		};
+
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
+
+		quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
+		mat4(quat, result);
+
+		expected = {
+			0.3975904f,  0.7951807f,  0.4578313f, 0.0f,
+			0.8915663f, -0.2168675f, -0.3975904f, 0.0f,
+			-0.2168675f,  0.5662650f, -0.7951807f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		};
+
+		for (sp_int i = 0; i < MAT3_LENGTH; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, angle)
+	SP_TEST_METHOD(CLASS_NAME, angle_Test)
 	{
-		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
-		normalize(&quat);
+		Quat q1 = Quat(0.968f, 0.008f, -0.008f, 0.252f);
+		Quat q2 = Quat(0.382f, 0.605f, 0.413f, 0.563f);
+		
+		const sp_float result = angle(q1, q2);
 
-		sp_float result = quat.angle();
-
-		Assert::IsTrue(isCloseEnough(result, 2.51023841f), L"Wrong value", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(result, 2.0639f), L"Wrong value", LINE_INFO());
 	}
 
 	SP_TEST_METHOD(CLASS_NAME, axis)
 	{
 		Quat quat = Quat(4.0f, 10.0f, 7.0f, 1.0f);
-		normalize(&quat);
+		normalize(quat);
 
 		Vec3 result = quat.axis();
 		Vec3 expected = Vec3(0.816496611f, 0.571547627f, 0.0816496611f);
@@ -372,40 +457,80 @@ namespace NAMESPACE_PHYSICS_TEST
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, fromEulerAngles)
+	SP_TEST_METHOD(CLASS_NAME, fromEulerAngles_Test)
 	{
 		Vec3 angles = Vec3(0.4f, 1.7f, 3.0f);
 
-		Quat result = Quat::fromEulerAngles(angles.x, angles.y, angles.z);
-		Quat expected = Quat(-0.1031277f, 0.7437353f, -0.0787058f, 0.6557651f);
+		Quat result;
+		fromEulerAngles(angles.x, angles.y, angles.z, result);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		Quat expected(-0.1031f, 0.7437f, -0.0787f, 0.6557f);
+
+		for (sp_int i = 0; i < 4; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, lerp)
+	SP_TEST_METHOD(CLASS_NAME, eulerAnglesXYZ_Test)
+	{
+		Quat quat(4.0f, 10.0f, 7.0f, 1.0f);
+		normalize(quat);
+
+		Vec3 result;
+		eulerAnglesXYZ(quat, result);
+
+		Vec3 expected(2.6779f, 0.4756f, -1.1071f);
+
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, eulerAnglesZYX_Test)
+	{
+		Quat quat(4.0f, 10.0f, 7.0f, 1.0f);
+		normalize(quat);
+
+		Vec3 result;
+		eulerAnglesZYX(quat, result);
+
+		Vec3 expected(1.1513f, 0.2186f, 2.5228f);
+
+		for (sp_int i = 0; i < VEC3_LENGTH; i++)
+			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, lerp_Test)
 	{
 		Quat quatA = Quat(0.0f, 10.0f, 20.0f, 30.0f);
+		normalize(quatA);
+
 		Quat quatB = Quat(10.0f, 20.0f, 30.0f, 40.0f);
+		normalize(quatB);
 
-		Quat result = quatA.lerp(quatB, 0.5f);
-		Quat expected = Quat(5.0f, 15.0f, 25.0f, 35.0f);
+		Quat result;
+		lerp(quatA, quatB, 0.5f, result);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		Quat expected(0.0912f, 0.3162f, 0.5411f, 0.7660f);
+
+		for (sp_int i = 0; i < 4; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
 
-	SP_TEST_METHOD(CLASS_NAME, slerp)
+	SP_TEST_METHOD(CLASS_NAME, slerp_Test)
 	{
 		Quat quatA = Quat(0.1f, 0.1f, 0.4f, 0.3f);
+		normalize(quatA);
 		Quat quatB = Quat(0.1f, 0.4f, 0.3f, 0.2f);
+		normalize(quatB);
 
-		Quat result = quatA.slerp(quatB, 0.3f);
-		Quat expected = Quat(0.1229720f, 0.2434743f, 0.4517205f, 0.3287485f);
+		Quat result;
+		slerp(quatA, quatB, 0.3f, result);
 
-		for (sp_int i = 0; i < QUAT_LENGTH; i++)
+		Quat expected(0.1977f, 0.3723f, 0.7324f, 0.5347f);
+
+		for (sp_int i = 0; i < 4; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], result[i]), L"Wrong value", LINE_INFO());
 	}
+
 }
 
 #undef CLASS_NAME

@@ -28,7 +28,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpWorldManagerInstance->current()->mesh(0, mesh0);
 		SpWorldManagerInstance->current()->collisionFeatures(0, 0);
 		SpWorldManagerInstance->current()->transforms(0)->position = Vec3Zeros;
-		SpWorldManagerInstance->current()->transforms(0)->orientation = QUAT_UNIT;
+		SpWorldManagerInstance->current()->transforms(0)->orientation = QuatUnit;
 
 		ObjModel model;
 		model.load("resources\\models\\rocks\\obj.obj");
@@ -317,7 +317,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpWorldManagerInstance->current()->mesh(0, mesh0);
 		SpWorldManagerInstance->current()->collisionFeatures(0, 0);
 		SpWorldManagerInstance->current()->transforms(0)->position = Vec3Zeros;
-		SpWorldManagerInstance->current()->transforms(0)->orientation = QUAT_UNIT;
+		SpWorldManagerInstance->current()->transforms(0)->orientation = QuatUnit;
 
 		ObjModel model;
 		model.load("resources\\models\\rocks\\obj.obj");

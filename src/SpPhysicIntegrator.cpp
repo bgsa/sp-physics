@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 angularAcceleration;
 		element->inertialTensorInverse().multiply(element->currentState.torque(), angularAcceleration);
 
-		const Quat newAngularAcceleration(ZERO_FLOAT, angularAcceleration);
+		const Vec3 newAngularAcceleration = angularAcceleration;
 
 		const Vec3 newAngularVelocity 
 			= (element->currentState.angularVelocity()
@@ -49,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 			+ element->currentState.torque() * newElapsedTime * halfElapsedTime);
 
 		Quat newOrientation = element->currentState.orientation() + temp;
-		normalize(&newOrientation);
+		normalize(newOrientation);
 
 		// update/sync transform
 		world->transforms(index)->position = newPosition;

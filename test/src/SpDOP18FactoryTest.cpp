@@ -122,6 +122,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(buildDOP18GPU);
 		SP_TEST_METHOD_DEF(buildDOP18GPU_2);
 		SP_TEST_METHOD_DEF(buildDOP18GPU_3);
+		SP_TEST_METHOD_DEF(buildDOP18GPU_4);
 #endif
 	};
 
@@ -524,6 +525,85 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		for (sp_uint i = 0; i < 18; i++)
 			Assert::IsTrue(isCloseEnough(expected[i], bv[i]), L"Wrong value.", LINE_INFO());
+
+		TestPhysic::unlock();
+	}
+
+	SP_TEST_METHOD(CLASS_NAME, buildDOP18GPU_4)
+	{
+		TestPhysic::lock();
+
+		GpuContext* context = GpuContextInstance;
+		GpuDevice* gpu = context->defaultDevice();
+
+		ObjModel model;
+		model.load("resources\\models\\rocks\\obj.obj");
+
+		SpMesh* mesh1 = sp_mem_new(SpMesh)();
+		model.buildMesh(mesh1);
+		Vec3 position = Vec3Zeros;
+		Quat orientation = Quat::createRotationAxisX(degreesToRadians(90));
+		Vec3 scale = Vec3(2.0f, 6.0f, 2.0f);
+
+		SpWorldManagerInstance->current()->mesh(0, mesh1);
+		SpWorldManagerInstance->current()->collisionFeatures(0, 0);
+		SpWorldManagerInstance->current()->transforms(0)->position = position;
+		SpWorldManagerInstance->current()->transforms(0)->orientation = orientation;
+		SpWorldManagerInstance->current()->transforms(0)->scaleVector = scale;
+
+		sp_float meshCache[24 * 3];
+		SpTransform* transformation = SpWorldManagerInstance->current()->transforms(0);
+		mesh1->convert((Vec3*)meshCache, *transformation);
+
+		SpDirectory* filename = SpDirectory::currentDirectory()
+			->add(SP_DIRECTORY_OPENCL_SOURCE)
+			->add("BoundingVolumeFactory.cl");
+
+		SP_FILE file;
+		file.open(filename->name()->data(), std::ios::in);
+		const sp_size fileSize = file.length();
+		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
+		file.read(source, fileSize);
+		file.close();
+
+		sp_mem_delete(filename, SpDirectory);
+
+		cl_program program;
+		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
+
+		ALLOC_RELEASE(source);
+
+		const sp_size globalWorkSize[3] = { 1, 0, 0 };
+		const sp_size localWorkSize[3] = { 1, 0, 0 };
+
+		sp_uint meshesLength = 1u;
+		sp_uint meshCacheIndex = 0u;
+		sp_uint meshCacheVertexesLength = mesh1->vertexLength();
+
+		cl_mem meshCacheLengthGPU = gpu->createBuffer(&meshesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheIndexesGPU = gpu->createBuffer(&meshCacheIndex, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheVertexesLengthGPU = gpu->createBuffer(&meshCacheVertexesLength, sizeof(sp_uint), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem meshCacheGPU = gpu->createBuffer(meshCache, sizeof(Vec3) * mesh1->vertexLength(), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem transformsGPU = gpu->createBuffer(SpWorldManagerInstance->current()->transforms(0), sizeof(SpTransform), CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
+		cl_mem dop18GPU = gpu->createBuffer(sizeof(DOP18), CL_MEM_READ_WRITE | CL_MEM_ALLOC_HOST_PTR);
+
+		GpuCommand* command = gpu->commandManager
+			->createCommand()
+			->setInputParameter(meshCacheLengthGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheIndexesGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheVertexesLengthGPU, sizeof(sp_uint))
+			->setInputParameter(meshCacheGPU, sizeof(Vec3) * mesh1->vertexLength())
+			->setInputParameter(transformsGPU, sizeof(SpTransform))
+			->setInputParameter(dop18GPU, sizeof(DOP18))
+			->buildFromProgram(program, "buildDOP18");
+
+		command->execute(1, globalWorkSize, localWorkSize, 0, 0, NULL, NULL);
+
+		sp_float bv[18];
+		command->fetchInOutParameter(bv, 5);
+
+		Assert::IsTrue(isCloseEnough(-6.0f, bv[DOP18_AXIS_Z]), L"Wrong value.", LINE_INFO());
+		Assert::IsTrue(isCloseEnough(6.0f, bv[DOP18_AXIS_Z + DOP18_ORIENTATIONS]), L"Wrong value.", LINE_INFO());
 
 		TestPhysic::unlock();
 	}

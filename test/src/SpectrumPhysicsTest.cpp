@@ -23,6 +23,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	
 	TEST_MODULE_INITIALIZE(ModuleInitialize)
 	{
+		SpMemoryProfiling::init();
 		NAMESPACE_FOUNDATION::SpStackMemoryAllocator::main()->init(ONE_MEGABYTE * 512);
 
 		SpLogMsTestProvider* logProvider = sp_mem_new(SpLogMsTestProvider);
@@ -33,7 +34,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		NAMESPACE_RENDERING::SpOpenGL::initOffScreenRendering();
 		NAMESPACE_RENDERING::SpGpuRenderingFactoryOpenGL::init();
-		GpuContextInstance;
+		GpuContext::init();
 
 		SpWorldManagerInstance->init();
 	}
@@ -42,8 +43,10 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		SpWorldManagerInstance->dispose();
 		NAMESPACE_RENDERING::SpOpenGL::dispose();
+		GpuContext::release();
 		NAMESPACE_FOUNDATION::SpStackMemoryAllocator::main()->dispose();
 		SpLogger::dispose();
+		SpMemoryProfiling::release();
 	}
 
 #endif // MSTEST_ENABLED

@@ -36,23 +36,23 @@ inline void sp_transformation_transform(__global sp_float* transformations, sp_u
 {
 	Quat orientation;
 	sp_transformation_get_orientation(transformations, stride, &orientation);
-
-	Quat orientationConjugated;
-	quat_conjugate(orientation, &orientationConjugated);
-
-	Vec3 position;
-	sp_transformation_get_position(transformations, stride, &position);
-
+	Vec3 translation;
+	sp_transformation_get_position(transformations, stride, &translation);
 	Vec3 scale;
 	sp_transformation_get_scale(transformations, stride, &scale);
 
 	Vec3 vertexScaled;
-	vec3_multiply_vec3(scale, vertex, &vertexScaled);
-	
-	Quat q1;
-	quat_multiply_vec3(vertexScaled, orientation, &q1);
+	vec3_multiply_vec3(scale, vertex, &vertexScaled); // scale
 
-	quat_multiply_sum_quat(orientationConjugated, q1, position, output);
+	Vec3 vertexRotated;
+	quat_rotate_vec3(orientation, vertexScaled, &vertexRotated); // rotate
+
+	Vec3 vertexTranslated;
+	vec3_add_vec3(vertexRotated, translation, vertexTranslated); // translate
+
+	output->x = vertexTranslated.x;
+	output->y = vertexTranslated.y;
+	output->z = vertexTranslated.z;
 }
 
 #endif // DOP18_OPENCL_HEADER

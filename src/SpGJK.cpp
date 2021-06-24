@@ -11,25 +11,25 @@ namespace NAMESPACE_PHYSICS
 #define EPA_BIAS 0.000001
 #define EPA_TOLERANCE 0.0001
 
-		Vec3 faces[EPA_MAX_NUM_FACES][4]; //Array of faces, each with 3 verts and a normal
+		SpFace faces[EPA_MAX_NUM_FACES]; //Array of faces, each with 3 verts and a normal
 
 		//Init with final simplex from GJK
-		faces[0][0] = faces[1][0] = faces[2][0] = tetrahedron[0];
-		faces[0][1] = faces[2][2] = faces[3][0] = tetrahedron[1];
-		faces[0][2] = faces[1][1] = faces[3][2] = tetrahedron[2];
-		faces[1][2] = faces[2][1] = faces[3][1] = tetrahedron[3];
+		faces[0].vertex1 = faces[1].vertex1 = faces[2].vertex1 = tetrahedron[0];
+		faces[0].vertex2 = faces[2].vertex3 = faces[3].vertex1 = tetrahedron[1];
+		faces[0].vertex3 = faces[1].vertex2 = faces[3].vertex3 = tetrahedron[2];
+		faces[1].vertex3 = faces[2].vertex2 = faces[3].vertex2 = tetrahedron[3];
 
-		cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0], faces[0][3]);
-		normalize(faces[0][3]); //ABC
+		cross(tetrahedron[1] - tetrahedron[0], tetrahedron[2] - tetrahedron[0], faces[0].normal);
+		normalize(faces[0].normal); //ABC
 
-		cross(tetrahedron[2] - tetrahedron[0], tetrahedron[3] - tetrahedron[0], faces[1][3]);
-		normalize(faces[1][3]); //ACD
+		cross(tetrahedron[2] - tetrahedron[0], tetrahedron[3] - tetrahedron[0], faces[1].normal);
+		normalize(faces[1].normal); //ACD
 
-		cross(tetrahedron[3] - tetrahedron[0], tetrahedron[1] - tetrahedron[0], faces[2][3]);
-		normalize(faces[2][3]); //ADB
+		cross(tetrahedron[3] - tetrahedron[0], tetrahedron[1] - tetrahedron[0], faces[2].normal);
+		normalize(faces[2].normal); //ADB
 
-		cross(tetrahedron[3] - tetrahedron[1], tetrahedron[2] - tetrahedron[1], faces[3][3]);
-		normalize(faces[3][3]); //BDC
+		cross(tetrahedron[3] - tetrahedron[1], tetrahedron[2] - tetrahedron[1], faces[3].normal);
+		normalize(faces[3].normal); //BDC
 
 		sp_uint num_faces = 4u;
 		sp_int closest_face;
@@ -38,11 +38,11 @@ namespace NAMESPACE_PHYSICS
 		for (sp_uint iterations = 0u; iterations < EPA_MAX_NUM_ITERATIONS; iterations++) 
 		{
 			//Find face that's closest to origin
-			depth = faces[0][0].dot(faces[0][3]);
+			depth = faces[0].vertex1.dot(faces[0].normal);
 			closest_face = 0;
 			for (sp_uint i = 1u; i < num_faces; i++) 
 			{
-				const sp_float dist = faces[i][0].dot(faces[i][3]);
+				const sp_float dist = faces[i].vertex1.dot(faces[i].normal);
 			
 				if (dist < depth)
 				{
@@ -52,7 +52,7 @@ namespace NAMESPACE_PHYSICS
 			}
 
 			//search normal to face that's closest to origin
-			search_dir = faces[closest_face][3];
+			search_dir = faces[closest_face].normal;
 			diff(
 				vertexesMesh2[mesh2->support(search_dir, vertexesMesh2)->index()], 
 				vertexesMesh1[mesh1->support(-search_dir, vertexesMesh1)->index()], 
@@ -64,11 +64,11 @@ namespace NAMESPACE_PHYSICS
 			{
 				//Convergence (new point is not significantly further from origin)
 				if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT, SP_EPSILON_THREE_DIGITS))
-					normal = faces[closest_face][3];
+					normal = faces[closest_face].normal;
 				else 
 				{
 					// dot vertex with normal to resolve collision along normal!
-					multiply(faces[closest_face][3], temp, normal); 
+					multiply(faces[closest_face].normal, temp, normal);
 					normalize(normal);
 				}
 				return true;
@@ -80,7 +80,7 @@ namespace NAMESPACE_PHYSICS
 			//Find all triangles that are facing newSimplexPoint
 			for (sp_uint i = 0u; i < num_faces; i++)
 			{
-				if (faces[i][3].dot(newSimplexPoint - faces[i][0]) > ZERO_FLOAT) //triangle i faces newSimplexPoint, remove it
+				if (faces[i].normal.dot(newSimplexPoint - faces[i].vertex1) > ZERO_FLOAT) //triangle i faces newSimplexPoint, remove it
 				{
 					//Add removed triangle's edges to loose edge list.
 					//If it's already there, remove it (both triangles it belonged to are gone)
@@ -116,7 +116,7 @@ namespace NAMESPACE_PHYSICS
 					}
 
 					//Remove triangle i from list
-					std::memcpy(faces[i], faces[num_faces - 1], VEC3_SIZE * 4);
+					std::memcpy(&faces[i], &faces[num_faces - 1], sizeof(SpFace));
 					num_faces--;
 					i--;
 				}
@@ -128,20 +128,20 @@ namespace NAMESPACE_PHYSICS
 				if (num_faces >= EPA_MAX_NUM_FACES) // if exceded max faces
 					break;
 
-				faces[num_faces][0] = loose_edges[i][0];
-				faces[num_faces][1] = loose_edges[i][1];
-				faces[num_faces][2] = newSimplexPoint;
-				cross(loose_edges[i][0] - loose_edges[i][1], loose_edges[i][0] - newSimplexPoint, faces[num_faces][3]);
+				faces[num_faces].vertex1 = loose_edges[i][0];
+				faces[num_faces].vertex2 = loose_edges[i][1];
+				faces[num_faces].vertex3 = newSimplexPoint;
+				cross(loose_edges[i][0] - loose_edges[i][1], loose_edges[i][0] - newSimplexPoint, faces[num_faces].normal);
 
-				if (faces[num_faces][3] != Vec3Zeros) // check the face is degenerated to a line (two vertexes are equal)
+				if (faces[num_faces].normal != Vec3Zeros) // check the face is degenerated to a line (two vertexes are equal)
 				{
-					normalize(faces[num_faces][3]);
+					normalize(faces[num_faces].normal);
 
 					//Check for wrong normal to maintain CCW winding
-					if (faces[num_faces][0].dot(faces[num_faces][3]) + EPA_BIAS < ZERO_FLOAT)
+					if (faces[num_faces].vertex1.dot(faces[num_faces].normal) + EPA_BIAS < ZERO_FLOAT)
 					{
-						NAMESPACE_PHYSICS::swap(faces[num_faces][0], faces[num_faces][1]);
-						faces[num_faces][3] = -faces[num_faces][3];
+						NAMESPACE_PHYSICS::swap(faces[num_faces].vertex1, faces[num_faces].vertex2);
+						faces[num_faces].normal = -faces[num_faces].normal;
 					}
 					num_faces++;
 				}
@@ -152,11 +152,11 @@ namespace NAMESPACE_PHYSICS
 		const sp_float temp = newSimplexPoint.dot(search_dir);
 		// dot vertex with normal to resolve collision along normal!
 		if (NAMESPACE_FOUNDATION::isCloseEnough(temp, ZERO_FLOAT, SP_EPSILON_THREE_DIGITS))
-			normal = faces[closest_face][3];
+			normal = faces[closest_face].normal;
 		else
 		{
-			// multiply(faces[closest_face][3], faces[closest_face][0].dot(faces[closest_face][3]), normal);
-			multiply(faces[closest_face][3], temp, normal);
+			// multiply(faces[closest_face].normal, faces[closest_face].vertex1.dot(faces[closest_face].normal), normal);
+			multiply(faces[closest_face].normal, temp, normal);
 			normalize(normal);
 		}
 			return true;

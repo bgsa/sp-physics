@@ -55,7 +55,9 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void inertialTensor(const Mat3& tensor)
 		{
-			const Mat3 orientationAsMatrix = currentState._orientation.toMat3();
+			Mat3 orientationAsMatrix;
+			mat3(currentState._orientation, orientationAsMatrix);
+
 			Mat3 orientationAsMatrixT;
 			orientationAsMatrix.transpose(orientationAsMatrixT);
 

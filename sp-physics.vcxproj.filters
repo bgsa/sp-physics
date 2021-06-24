@@ -1446,9 +1446,6 @@
     <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Plane3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Quat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1594,9 +1591,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ParticleSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Plane3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Quat.cpp">
@@ -4682,9 +4676,6 @@
     <ClInclude Include="src\ParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Plane3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Quat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -4854,9 +4845,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ParticleSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Plane3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Quat.h">
@@ -6588,6 +6576,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpGpuPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpGameObjectType.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpCameraManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpFace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

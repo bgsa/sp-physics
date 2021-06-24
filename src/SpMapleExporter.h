@@ -69,19 +69,19 @@ namespace NAMESPACE_PHYSICS
 			output[0] = '[';
 			output[1] = ' ';
 			
-			NAMESPACE_FOUNDATION::convert(vector.x, &output[2], &temp);
+			NAMESPACE_FOUNDATION::convert(vector.x, &output[2], temp);
 			length[0] = temp + 2;
 
 			std::memcpy(&output[*length], ", ", 2);
 			length[0] += 2;
 
-			NAMESPACE_FOUNDATION::convert(vector.y, &output[*length], &temp);
+			NAMESPACE_FOUNDATION::convert(vector.y, &output[*length], temp);
 			length[0] += temp;
 
 			std::memcpy(&output[*length], ", ", 2);
 			length[0] += 2;
 
-			NAMESPACE_FOUNDATION::convert(vector.z, &output[*length], &temp);
+			NAMESPACE_FOUNDATION::convert(vector.z, &output[*length], temp);
 			length[0] += temp;
 
 			output[*length] = ' ';
@@ -218,7 +218,7 @@ namespace NAMESPACE_PHYSICS
 				std::memcpy(&output[*index], "_poly", 5);
 				index[0] += 5;
 
-				NAMESPACE_FOUNDATION::convert(i, &output[*index], &len);
+				NAMESPACE_FOUNDATION::convert(i, &output[*index], len);
 				index[0] += len;
 
 				std::memcpy(&output[*index], " := polygon(", 12);
@@ -246,7 +246,7 @@ namespace NAMESPACE_PHYSICS
 				std::memcpy(&output[*index], "_poly", 5);
 				index[0] += 5;
 
-				NAMESPACE_FOUNDATION::convert(i, &output[*index], &len);
+				NAMESPACE_FOUNDATION::convert(i, &output[*index], len);
 				index[0] += len;
 			
 				std::memcpy(&output[*index], ", ", 2);

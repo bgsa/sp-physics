@@ -1039,7 +1039,7 @@ namespace NAMESPACE_PHYSICS
 			return false;
 
 		// all facesIndexesMesh1 are parallel, so get the first one
-		rotate(transform1.orientation, allFacesObj1[facesIndexesMesh1[0]]->faceNormal, &details->collisionNormal);
+		rotate(transform1.orientation, allFacesObj1[facesIndexesMesh1[0]]->faceNormal, details->collisionNormal);
 
 		if (intersectionPointsLength == 2u)
 		{
@@ -1181,7 +1181,7 @@ namespace NAMESPACE_PHYSICS
 						// get the first face from edge and this will be the collision normal
 						SpFaceMesh* face = mesh1->faces->get(edgeObj1->faces[0]);
 						SpTransform* transformation = world->transforms(details->objIndex1);
-						details->collisionNormal = transformation->orientation.rotate(face->faceNormal);
+						rotate(transformation->orientation, face->faceNormal, details->collisionNormal);
 
 						return true;
 					}
@@ -1197,7 +1197,7 @@ namespace NAMESPACE_PHYSICS
 						// get the first face from edge and this will be the collision normal
 						SpFaceMesh* face = mesh2->faces->get(edgeObj2->faces[0]);
 						SpTransform* transformation = world->transforms(details->objIndex2);
-						details->collisionNormal = transformation->orientation.rotate(face->faceNormal);
+						rotate(transformation->orientation, face->faceNormal, details->collisionNormal);
 
 						return true;
 					}
