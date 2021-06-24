@@ -2,6 +2,12 @@
 
 namespace NAMESPACE_PHYSICS
 {
+
+	void SpCamera::init()
+	{
+		init(Vec3(0.0f, 10.0f, 10.0f), Vec3Zeros);
+	}
+
 	void SpCamera::init(const Vec3& position, const Vec3& target, const Vec3& up, const sp_bool invertY)
 	{
 		this->position = position;

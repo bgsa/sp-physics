@@ -322,6 +322,7 @@
     <ClInclude Include="src\SpIGraphicObject2D.h" />
     <ClInclude Include="src\SpIGraphicObject3D.h" />
     <ClInclude Include="src\SpIGraphicObjectList3D.h" />
+    <ClInclude Include="src\SpObjectManager.h" />
     <ClInclude Include="src\SpIRendererManager.h" />
     <ClInclude Include="src\SpMapleExporter.h" />
     <ClInclude Include="src\SpMatlabExporter.h" />

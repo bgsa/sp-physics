@@ -4,6 +4,7 @@
 #include "SpectrumPhysics.h"
 #include "SpStringId.h"
 #include "SpGameObjectManager.h"
+#include "SpGameObjectType.h"
 #include "SpCameraManager.h"
 
 namespace NAMESPACE_PHYSICS
@@ -15,9 +16,14 @@ namespace NAMESPACE_PHYSICS
 		SpGameObjectManager* gameObjectManager;
 		SpCameraManager* cameraManager;
 
-		//IObjectManager** managers; // mapeia game object TYPE pelo seu gerenciador
-
+		void initGameObjectsType()
+		{
+			SpGameObjectType* typeCamera = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CAMERA, "Camera", cameraManager);
+			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_CAMERA, typeCamera);
+		}
+		
 	public:
+		SpMap<sp_uint, SpGameObjectType*> gameObjectsTypeList;
 
 		/// <summary>
 		/// Create a new scene
@@ -27,6 +33,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
 			cameraManager = sp_mem_new(SpCameraManager)();
+			initGameObjectsType();
 		}
 
 		/// <summary>
@@ -39,6 +46,7 @@ namespace NAMESPACE_PHYSICS
 			_id = name;
 			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
 			cameraManager = sp_mem_new(SpCameraManager)();
+			initGameObjectsType();
 		}
 
 		/// <summary>
@@ -64,9 +72,12 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="gameObject">New Game Object</param>
 		/// <returns></returns>
-		API_INTERFACE inline void addGameObject(const SpGameObject& gameObject)
+		API_INTERFACE inline SpGameObject& addGameObject(const sp_uint gameObjectType, const sp_char* name = nullptr)
 		{
-			gameObjectManager->add(gameObject);
+			SpObjectManager* manager = gameObjectsTypeList[gameObjectType]->manager();
+
+			const sp_uint objectIndex = manager->add();
+			return gameObjectManager->add(SP_GAME_OBJECT_TYPE_CAMERA, objectIndex, name);
 		}
 
 		/// <summary>
@@ -84,9 +95,18 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="index">Index</param>
 		/// <returns>Game Object</returns>
-		API_INTERFACE inline SpGameObject& getGameObject(const sp_uint index) const
+		API_INTERFACE inline SpGameObject& gameObject(const sp_uint index) const
 		{
 			return gameObjectManager->get(index);
+		}
+
+		/// <summary>
+		/// Get the game objects length
+		/// </summary>
+		/// <returns>Length</returns>
+		API_INTERFACE inline sp_uint gameObjectsLength() const
+		{
+			return gameObjectManager->length();
 		}
 
 		/// <summary>
@@ -100,6 +120,12 @@ namespace NAMESPACE_PHYSICS
 				sp_mem_delete(cameraManager, SpCameraManager);
 				cameraManager = nullptr;
 			}
+
+			for (SpVectorItem<SpPair<sp_uint, SpGameObjectType*>>* item = gameObjectsTypeList.begin(); item != nullptr; item = item->next())
+			{
+				sp_mem_delete(item->value().value, SpGameObjectType);
+			}
+			
 
 			if (gameObjectManager != nullptr)
 			{

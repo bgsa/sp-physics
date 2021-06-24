@@ -2,15 +2,16 @@
 #define SP_CAMERA_MANAGER_HEADER
 
 #include "SpectrumPhysics.h"
+#include "SpObjectManager.h"
 #include "SpCamera.h"
 
 namespace NAMESPACE_PHYSICS 
 {
 
 	class SpCameraManager
+		: public SpObjectManager
 	{
 	private:
-		sp_uint _length;
 		SpCamera* _cameras;
 
 	public:
@@ -21,29 +22,8 @@ namespace NAMESPACE_PHYSICS
 		/// <param name="maxLength">Max game object allowed</param>
 		/// <returns></returns>
 		API_INTERFACE inline SpCameraManager()
+			: SpObjectManager()
 		{
-			_length = ZERO_UINT;
-			_cameras = nullptr;
-		}
-
-		/// <summary>
-		/// Get the length of cameras
-		/// </summary>
-		/// <returns></returns>
-		API_INTERFACE inline sp_uint length()
-		{
-			return _length;
-		}
-
-		/// <summary>
-		/// Get a camera
-		/// </summary>
-		/// <param name="index">Index</param>
-		/// <returns>Camera</returns>
-		API_INTERFACE inline SpCamera& get(const sp_uint index) const
-		{
-			sp_assert(index < _length, "IndexOutOfRangeException");
-			return _cameras[index];
 		}
 
 		/// <summary>
@@ -51,21 +31,30 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="camera"></param>
 		/// <returns></returns>
-		API_INTERFACE inline void add(const SpCamera& camera)
-		{
-			const sp_size camerasSize = sizeof(SpCamera) * _length;
+		API_INTERFACE inline sp_uint add() override
+		{			
+			if (_length > 0)
+			{
+				const sp_size camerasSize = sizeof(SpCamera) * _length;
+				void* temp = ALLOC_SIZE(camerasSize);
+				std::memcpy(temp, _cameras, camerasSize);
 
-			void* temp = ALLOC_SIZE(camerasSize);
-			std::memcpy(temp, _cameras, camerasSize);
+				sp_mem_release(_cameras);
 
-			sp_mem_release(_cameras);
-			_cameras = sp_mem_new_array(SpCamera, ++_length);
+				_cameras = sp_mem_new_array(SpCamera, ++_length);
 
-			std::memcpy(_cameras, temp, camerasSize);
+				std::memcpy(_cameras, temp, camerasSize);
 
-			_cameras[_length - 1] = camera;
+				ALLOC_RELEASE(temp);
+			}
+			else
+			{
+				_length++;
+				_cameras = sp_mem_new_array(SpCamera, _length);
+			}
+			_cameras[_length - 1].init();
 
-			ALLOC_RELEASE(temp);
+			return _length - 1;
 		}
 
 		/// <summary>
@@ -73,7 +62,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="index">Index of Camera</param>
 		/// <returns>void</returns>
-		API_INTERFACE inline void remove(const sp_uint index)
+		API_INTERFACE inline void remove(const sp_uint index)  override
 		{
 			sp_assert(index < _length, "IndexOutOfRangeException");
 
@@ -84,7 +73,6 @@ namespace NAMESPACE_PHYSICS
 
 			sp_mem_release(_cameras);
 			_cameras = sp_mem_new_array(SpCamera, ++_length);
-
 
 			const sp_size camerasSizeBegin = sizeof(SpCamera) * (index + ONE_UINT);
 			std::memcpy(_cameras, temp, camerasSizeBegin);
@@ -99,7 +87,7 @@ namespace NAMESPACE_PHYSICS
 		/// Release all allocated resources
 		/// </summary>
 		/// <returns>void</returns>
-		API_INTERFACE inline void dispose()
+		API_INTERFACE inline void dispose() override
 		{
 			if (_cameras != nullptr)
 			{
@@ -107,7 +95,7 @@ namespace NAMESPACE_PHYSICS
 				_cameras = nullptr;
 			}
 
-			_length = ZERO_UINT;
+			SpObjectManager::dispose();
 		}
 
 		~SpCameraManager()

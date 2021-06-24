@@ -77,15 +77,33 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="gameObject"></param>
 		/// <returns></returns>
-		API_INTERFACE inline void add(const SpGameObject& gameObject)
+		API_INTERFACE inline SpGameObject& add(const sp_uint gameObjectType, const sp_uint index, const sp_char* name = nullptr)
 		{
 			sp_assert(_length < _maxLength, "InvalidOperationException");
 
-			_gameObjects[_length++] = gameObject;
+			_gameObjects[_length].type(gameObjectType);
+			_gameObjects[_length]._index = index;
+
+			if (name != nullptr)
+				_gameObjects[_length]._name = name;
+			else
+			{
+				sp_char newName[10];
+				sp_uint length1, length2;
+				convert(gameObjectType, newName, length1);
+				convert(index, &newName[length1], length2);
+				newName[length1 + length2 + 1] = END_OF_STRING;
+
+				_gameObjects[_length]._name = newName;
+			}
+
+			_length++;
 
 #ifdef OPENCL_ENABLED
 			_gpuBuffer->update(_gameObjects, ZERO_UINT, nullptr, nullptr);
 #endif
+
+			return _gameObjects[_length - 1];
 		}
 
 		/// <summary>

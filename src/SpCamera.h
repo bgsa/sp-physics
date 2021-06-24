@@ -37,6 +37,7 @@ namespace NAMESPACE_PHYSICS
 
 	public:
 		
+		API_INTERFACE void init();
 		API_INTERFACE void init(const Vec3& position, const Vec3& target, const Vec3& up = Vec3(ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT), const sp_bool invertY = false);
 		API_INTERFACE void initProjectionPerspective(const Vec3& position, const Vec3& target, sp_float aspectRatio);
 
