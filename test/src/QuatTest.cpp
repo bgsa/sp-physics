@@ -301,7 +301,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	{
 		Vec3 axis(1.0f, 0.0f, 1.0f);
 		normalize(axis);
-		SP_CONSTEXPR sp_float angle = degreesToRadians(60.0f);
+		SP_CONSTEXPR sp_float angle = radians(60.0f);
 
 		Quat result = Quat::createRotate(angle, axis);
 		Quat expected(0.866f, 0.3535f, 0.0f, 0.3535f);
@@ -313,7 +313,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, rotate1)
 	{
 		Vec3 point(0.7f, 0.5f, 0.0f);
-		Quat axis = Quat::createRotationAxisZ(degreesToRadians(30.0f));
+		Quat axis = Quat::createRotationAxisZ(radians(30.0f));
 		
 		Vec3 result;
 		rotate(axis, point, result);
@@ -327,7 +327,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, rotate2)
 	{
 		Vec3 point(-0.358606011f, -6.0f, -0.3586f);
-		Quat axis = Quat::createRotationAxisZ(degreesToRadians(90));
+		Quat axis = Quat::createRotationAxisZ(radians(90));
 
 		Vec3 result;
 		rotate(axis, point, result);
@@ -344,7 +344,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, rotate3)
 	{
 		Vec3 point(-0.3586f, -6.0f, -0.3586f);
-		Quat axis = Quat::createRotationAxisX(degreesToRadians(90));
+		Quat axis = Quat::createRotationAxisX(radians(90));
 
 		Vec3 result;
 		rotate(axis, point, result);
@@ -361,7 +361,7 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, rotate4)
 	{
 		Vec3 point(-0.3586f, -6.0f, -0.3586f);
-		Quat axis = Quat::createRotationAxisY(degreesToRadians(90));
+		Quat axis = Quat::createRotationAxisY(radians(90));
 
 		Vec3 result;
 		rotate(axis, point, result);

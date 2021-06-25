@@ -128,7 +128,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpWorldManagerInstance->current()->mesh(0, mesh1);
 		SpWorldManagerInstance->current()->collisionFeatures(0, 0);
 		 SpWorldManagerInstance->current()->transforms(0)->position = Vec3Zeros;
-		SpWorldManagerInstance->current()->transforms(0)->orientation = Quat::createRotationAxisX(degreesToRadians(90));
+		SpWorldManagerInstance->current()->transforms(0)->orientation = Quat::createRotationAxisX(radians(90));
 		SpWorldManagerInstance->current()->transforms(0)->scaleVector = Vec3(2.0f, 6.0f, 2.0f);
 
 		SpEdgeMesh* lastEdge = mesh1->edges->data()[mesh1->edges->length() - 1u];

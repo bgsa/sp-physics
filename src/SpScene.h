@@ -7,6 +7,8 @@
 #include "SpGameObjectType.h"
 #include "SpCameraManager.h"
 
+#define SP_SCENE_NAME_MAX_LENGTH (100)
+
 namespace NAMESPACE_PHYSICS
 {
 	class SpScene
@@ -95,7 +97,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="index">Index</param>
 		/// <returns>Game Object</returns>
-		API_INTERFACE inline SpGameObject& gameObject(const sp_uint index) const
+		API_INTERFACE inline SpGameObject* gameObject(const sp_uint index) const
 		{
 			return gameObjectManager->get(index);
 		}

@@ -810,7 +810,7 @@ namespace NAMESPACE_PHYSICS_TEST
 			0.0f, -0.5f, 0.866025388f
 		};
 
-		sp_float angle = (sp_float) degreesToRadians(30);
+		sp_float angle = (sp_float) radians(30);
 
 		Mat3 result = Mat3::createRotate(angle, 1.0f, 0.0f, 0.0f);
 

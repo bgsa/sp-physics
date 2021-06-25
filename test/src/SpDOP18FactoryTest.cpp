@@ -250,7 +250,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		model.buildMesh(mesh1);
 		Vec3 position(-2.0f, -3.0f, -4.0f);
 		Quat orientation;
-		Mat3 rotation = Mat3::createRotate(degreesToRadians(60.0f), 0.0f, 0.0f, 1.0f);
+		Mat3 rotation = Mat3::createRotate(radians(60.0f), 0.0f, 0.0f, 1.0f);
 		rotation.convert(orientation);
 
 		SpWorldManagerInstance->current()->mesh(0, mesh1);
@@ -396,7 +396,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		model.buildMesh(mesh1);
 		Vec3 position(-2.0f, -3.0f, -4.0f);
 		Quat orientation;
-		Mat3 rotation = Mat3::createRotate(degreesToRadians(60.0f), 1.0f, 1.0f, 0.0f);
+		Mat3 rotation = Mat3::createRotate(radians(60.0f), 1.0f, 1.0f, 0.0f);
 		rotation.convert(orientation);
 
 		SpWorldManagerInstance->current()->mesh(0, mesh1);
@@ -542,7 +542,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		SpMesh* mesh1 = sp_mem_new(SpMesh)();
 		model.buildMesh(mesh1);
 		Vec3 position = Vec3Zeros;
-		Quat orientation = Quat::createRotationAxisX(degreesToRadians(90));
+		Quat orientation = Quat::createRotationAxisX(radians(90));
 		Vec3 scale = Vec3(2.0f, 6.0f, 2.0f);
 
 		SpWorldManagerInstance->current()->mesh(0, mesh1);

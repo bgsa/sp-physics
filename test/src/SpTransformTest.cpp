@@ -16,7 +16,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec3 result;
 		SpTransform transform;
 		transform.position = Vec3(0.0f, 0.0f, -10.0f);
-		transform.orientation = Quat::createRotationAxisZ(degreesToRadians(45));
+		transform.orientation = Quat::createRotationAxisZ(radians(45));
 
 		PerformanceCounter counter;
 

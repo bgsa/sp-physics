@@ -51,7 +51,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec2 point = Vec2(3.0f, 3.0f);
 		Line2D line = Line2D({ 0.0f, 0.0f }, { 10.0f, 10.0f });
 
-		bool result = line.isOnTheLine(point);
+		sp_bool result = line.isOnTheLine(point);
 
 		Assert::IsTrue(result, L"Point should be on the line.", LINE_INFO());
 	}
@@ -61,7 +61,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec2 point = Vec2(3.0f, 5.0f);
 		Line2D line = Line2D({ 0.0f, 0.0f }, { 10.0f, 10.0f });
 
-		bool result = line.isOnTheLeft(point);
+		sp_bool result = line.isOnTheLeft(point);
 
 		Assert::IsTrue(result, L"Point should be on the left.", LINE_INFO());
 	}
@@ -71,7 +71,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		Vec2 point = Vec2(3.0f, 1.0f);
 		Line2D line = Line2D({ 0.0f, 0.0f }, { 10.0f, 10.0f });
 
-		bool result = line.isOnTheRight(point);
+		sp_bool result = line.isOnTheRight(point);
 
 		Assert::IsTrue(result, L"Point should be on the Right.", LINE_INFO());
 	}
@@ -79,9 +79,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Line2D_angle1_Test)
 	{
 		Line2D line = Line2D({ 10.0f, 10.0f }, { 100.0f, 100.0f });
-		float expected = 45.00f;
+		sp_float expected = 45.00f;
 
-		float result = (float) radiansToDegrees(line.angle());
+		sp_float result = degree(line.angle());
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}
@@ -89,8 +89,8 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Line2D_angle2_Test)
 	{
 		Line2D line = Line2D({ 10.0f, 10.0f }, { -20.0f, 100.0f });
-		float expected = -71.56f;
-		float result = (float)radiansToDegrees(line.angle());
+		sp_float expected = -71.56f;
+		sp_float result = degree(line.angle());
 		
 		Assert::IsTrue(isCloseEnough(result, expected, 0.09f), L"Wrong value.", LINE_INFO());
 	}
@@ -98,9 +98,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Line2D_angle3_Test)
 	{
 		Line2D line = Line2D({ 9.0f, 3.0f }, { -1.0f, 5.67949192f });
-		float expected = -15.0f;
+		sp_float expected = -15.0f;
 
-		float result = round((float)radiansToDegrees(line.angle()), 2);
+		sp_float result = round(degree(line.angle()), 2);
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}
@@ -108,9 +108,9 @@ namespace NAMESPACE_PHYSICS_TEST
 	SP_TEST_METHOD(CLASS_NAME, Line2D_slope_Test)
 	{
 		Line2D line = Line2D({ 10.0f, 10.0f }, { -20.0f, 100.0f });
-		float expected = -3.0f;
+		sp_float expected = -3.0f;
 
-		float result = line.slope();
+		sp_float result = line.slope();
 
 		Assert::AreEqual(expected, result, L"Wrong value.", LINE_INFO());
 	}

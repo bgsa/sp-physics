@@ -269,7 +269,7 @@ namespace NAMESPACE_PHYSICS
 			Vec3 tangent;
 			plane.tangent(tangent);
 
-			Quat q = Quat::createRotate(degreesToRadians(-90), plane.normalVector);
+			Quat q = Quat::createRotate(radians(-90), plane.normalVector);
 			vertexes[0] = plane.point + tangent * 2.0f;
 			rotate(q, vertexes[0], vertexes[1]);
 			rotate(q, vertexes[1], vertexes[2]);

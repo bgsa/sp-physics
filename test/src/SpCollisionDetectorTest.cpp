@@ -354,7 +354,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotationAxisX(degreesToRadians(angle)),
+							Quat::createRotationAxisX(radians(angle)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -372,7 +372,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotationAxisY(degreesToRadians(angle)),
+							Quat::createRotationAxisY(radians(angle)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -390,7 +390,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotationAxisZ(degreesToRadians(angle)),
+							Quat::createRotationAxisZ(radians(angle)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -408,7 +408,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotate(degreesToRadians(angle), Vec3(1.0f, 0.0f, 1.0f)),
+							Quat::createRotate(radians(angle), Vec3(1.0f, 0.0f, 1.0f)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -480,7 +480,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotationAxisX(degreesToRadians(angle)),
+							Quat::createRotationAxisX(radians(angle)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -498,7 +498,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotationAxisY(degreesToRadians(angle)),
+							Quat::createRotationAxisY(radians(angle)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -516,7 +516,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotationAxisZ(degreesToRadians(angle)),
+							Quat::createRotationAxisZ(radians(angle)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -534,7 +534,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 						setupObject(1u,
 							Vec3(posX, posY, posZ),
-							Quat::createRotate(degreesToRadians(angle), Vec3(1.0f, 0.0f, 1.0f)),
+							Quat::createRotate(radians(angle), Vec3(1.0f, 0.0f, 1.0f)),
 							defaultVelocityObj2,
 							defaultAngVelocityObj2
 						);
@@ -588,7 +588,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		setupObject(1u,
 			Vec3(posX, posY, posZ),
-			Quat::createRotationAxisX(degreesToRadians(angle)),
+			Quat::createRotationAxisX(radians(angle)),
 			defaultVelocityObj2,
 			defaultAngVelocityObj2
 		);
@@ -634,7 +634,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		setupObject(1u,
 			Vec3(posX, posY, posZ),
-			Quat::createRotationAxisX(degreesToRadians(angle)),
+			Quat::createRotationAxisX(radians(angle)),
 			defaultVelocityObj2,
 			defaultAngVelocityObj2
 		);
@@ -680,7 +680,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		setupObject(1u,
 			Vec3(posX, posY, posZ),
-			Quat::createRotate(degreesToRadians(angle), Vec3(1.0f, 0.0f, 1.0f)),
+			Quat::createRotate(radians(angle), Vec3(1.0f, 0.0f, 1.0f)),
 			defaultVelocityObj2,
 			defaultAngVelocityObj2
 		);
@@ -1219,7 +1219,7 @@ namespace NAMESPACE_PHYSICS_TEST
 		
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 
-		Quat orientationObj2 = Quat::createRotationAxisZ(degreesToRadians(45));
+		Quat orientationObj2 = Quat::createRotationAxisZ(radians(45));
 		world->transforms(1u)->position = Vec3(5.0f, 0.5f, -0.5f);
 		propertiesObj2->currentState.position(Vec3(5.0f, 0.5f, -0.5f));
 		propertiesObj2->previousState.position(Vec3(5.0f, 0.5f, -0.5f));
@@ -1264,13 +1264,13 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		details = newCollisionDetails();
 		
-		Quat orientationObj1 = Quat::createRotationAxisY(degreesToRadians(45));
+		Quat orientationObj1 = Quat::createRotationAxisY(radians(45));
 		world->transforms(0u)->orientation = orientationObj1;
 		world->rigidBody3D(0u)->currentState.orientation(orientationObj1);
 		world->rigidBody3D(0u)->previousState.orientation(orientationObj1);
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 		
-		Quat orientationObj2 = Quat::createRotationAxisZ(degreesToRadians(45));
+		Quat orientationObj2 = Quat::createRotationAxisZ(radians(45));
 		world->transforms(1u)->orientation = orientationObj2;
 		world->rigidBody3D(1u)->currentState.orientation(orientationObj2);
 		world->rigidBody3D(1u)->previousState.orientation(orientationObj2);
@@ -1315,7 +1315,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 		propertiesObj1->mass(ZERO_FLOAT); // static object
 
-		Quat orientationObj2 = Quat::createRotate(degreesToRadians(45), Vec3(0.0f, 1.0f, 1.0f));
+		Quat orientationObj2 = Quat::createRotate(radians(45), Vec3(0.0f, 1.0f, 1.0f));
 		
 		world->transforms(1u)->orientation = orientationObj2;
 		propertiesObj2->currentState.orientation(orientationObj2);
