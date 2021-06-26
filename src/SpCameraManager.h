@@ -84,6 +84,16 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get camera from index
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		API_INTERFACE inline SpCamera* get(const sp_uint index) const
+		{
+			return &_cameras[index];
+		}
+
+		/// <summary>
 		/// Release all allocated resources
 		/// </summary>
 		/// <returns>void</returns>

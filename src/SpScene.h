@@ -17,6 +17,7 @@ namespace NAMESPACE_PHYSICS
 		SpStringId _id;
 		SpGameObjectManager* gameObjectManager;
 		SpCameraManager* cameraManager;
+		sp_uint _activeCamera;
 
 		void initGameObjectsType()
 		{
@@ -35,7 +36,10 @@ namespace NAMESPACE_PHYSICS
 		{
 			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
 			cameraManager = sp_mem_new(SpCameraManager)();
+
 			initGameObjectsType();
+
+			_activeCamera = 0;
 		}
 
 		/// <summary>
@@ -103,12 +107,61 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get the game objects by type
+		/// </summary>
+		/// <param name="gameObjectsIndexes">Indexes of Game Objects</param>
+		/// <param name="gameObjectsIndexesLength">Length Indexes of Game Objects</param>
+		/// <returns>gameObjectsIndexes parameters</returns>
+		API_INTERFACE inline void gameObjectByType(const sp_uint gameObjectType, sp_size* gameObjectsIndexes, sp_size& gameObjectsIndexesLength) const
+		{
+			gameObjectsIndexesLength = 0;
+
+			for (sp_uint i = 0; i < gameObjectManager->length(); i++)
+				if (gameObjectManager->get(i)->type() == gameObjectType)
+					gameObjectsIndexes[gameObjectsIndexesLength++] = i;
+		}
+
+		/// <summary>
 		/// Get the game objects length
 		/// </summary>
 		/// <returns>Length</returns>
 		API_INTERFACE inline sp_uint gameObjectsLength() const
 		{
 			return gameObjectManager->length();
+		}
+
+		/// <summary>
+		/// Get the index of active camera
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_uint activeCameraIndex() const
+		{
+			return _activeCamera;
+		}
+
+		/// <summary>
+		/// Get the active camera
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline SpCamera* activeCamera() const
+		{
+			return cameraManager->get(_activeCamera);
+		}
+
+		API_INTERFACE inline SpCameraManager* cameras() const
+		{
+			return cameraManager;
+		}
+
+		/// <summary>
+		/// Active a camera by index
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		API_INTERFACE inline void activeCamera(const sp_uint index)
+		{
+			sp_assert(index <= cameraManager->length(), "IndexOutOfRangeException");
+			_activeCamera = index;
 		}
 
 		/// <summary>
