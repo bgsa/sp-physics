@@ -224,6 +224,7 @@
     <ClCompile Include="src\SpCollisionResponse.cpp" />
     <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp" />
     <ClCompile Include="src\SpFaceMesh.cpp" />
+    <ClCompile Include="src\SpGame.cpp" />
     <ClCompile Include="src\SpGJK.cpp" />
     <ClCompile Include="src\SpGpuPlatform.cpp" />
     <ClCompile Include="src\SpGpuPlatformManager.cpp" />
@@ -322,6 +323,9 @@
     <ClInclude Include="src\SpIGraphicObject2D.h" />
     <ClInclude Include="src\SpIGraphicObject3D.h" />
     <ClInclude Include="src\SpIGraphicObjectList3D.h" />
+    <ClInclude Include="src\SpMeshAttributes.h" />
+    <ClInclude Include="src\SpMeshData.h" />
+    <ClInclude Include="src\SpMeshManager.h" />
     <ClInclude Include="src\SpObjectManager.h" />
     <ClInclude Include="src\SpIRendererManager.h" />
     <ClInclude Include="src\SpMapleExporter.h" />
@@ -342,7 +346,14 @@
     <ClInclude Include="src\SpInertiaTensor.h" />
     <ClInclude Include="src\SpMeshCache.h" />
     <ClInclude Include="src\SpMeshCacheUpdaterGPU.h" />
+    <ClInclude Include="src\SpRenderableObject.h" />
+    <ClInclude Include="src\SpRenderableObjectManager.h" />
     <ClInclude Include="src\SpRenderData.h" />
+    <ClInclude Include="src\SpRenderingFactory.h" />
+    <ClInclude Include="src\SpShader.h" />
+    <ClInclude Include="src\SpShaderAttribute.h" />
+    <ClInclude Include="src\SpShaderUniform.h" />
+    <ClInclude Include="src\SpTransformManager.h" />
     <ClInclude Include="src\SpWorld.h" />
     <ClInclude Include="src\SpOptimization.h" />
     <ClInclude Include="src\SpPhysicIntegrator.h" />

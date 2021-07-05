@@ -3,14 +3,19 @@
 
 #include "SpectrumPhysics.h"
 #include "SpScene.h"
+#include "SpRenderingFactory.h"
+
+#define SP_RENDERING_API_OPENGL (1)
 
 namespace NAMESPACE_PHYSICS
 {
 	class SpGame
 	{
 	private:
+		sp_int _renderingApi;
 		SpVector<SpScene*>* _scenes;
-
+		SpRenderingFactory* _renderingFactory;
+		
 	public:
 		
 		/// <summary>
@@ -20,6 +25,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpGame()
 		{
 			_scenes = sp_mem_new(SpVector<SpScene*>);
+			_renderingFactory = nullptr;
 		}
 
 		/// <summary>
@@ -27,6 +33,17 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <returns>id</returns>
 		API_INTERFACE virtual sp_int gameType() const = 0;
+
+		API_INTERFACE inline void renderingApi(const sp_int api, SpRenderingFactory* factory)
+		{
+			_renderingApi = api;
+			_renderingFactory = factory;
+		}
+
+		API_INTERFACE inline SpRenderingFactory* renderingFactory() const
+		{
+			return _renderingFactory;
+		}
 
 		/// <summary>
 		/// Release all allocated resources
@@ -38,6 +55,12 @@ namespace NAMESPACE_PHYSICS
 			{
 				sp_mem_delete(_scenes, SpVector<SpScene*>);
 				_scenes = nullptr;
+			}
+
+			if (_renderingFactory != nullptr)
+			{
+				sp_mem_delete(_renderingFactory, SpRenderingFactory);
+				_renderingFactory = nullptr;
 			}
 		}
 
@@ -72,6 +95,10 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpScene* addScenes(const char* name)
 		{
 			SpScene* scene = sp_mem_new(SpScene)(name);
+
+			SpShader* primitiveShader = renderingFactory()->createPrimitiveShader();
+			scene->shaders.add(primitiveShader);
+
 			_scenes->add(scene);
 
 			return scene;
@@ -88,8 +115,15 @@ namespace NAMESPACE_PHYSICS
 			sp_mem_delete(sceneItem->value(), SpScene);
 		}
 
+		~SpGame()
+		{
+			dispose();
+		}
+
 	};
 
 }
 
-#endif // AABB_HEADER
+extern NAMESPACE_PHYSICS::SpGame* SpGameInstance;
+
+#endif // SP_GAME_HEADER

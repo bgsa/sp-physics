@@ -6,6 +6,10 @@
 #include "SpGameObjectManager.h"
 #include "SpGameObjectType.h"
 #include "SpCameraManager.h"
+#include "SpTransformManager.h"
+#include "SpRenderableObjectManager.h"
+#include "SpMeshManager.h"
+#include "SpShader.h"
 
 #define SP_SCENE_NAME_MAX_LENGTH (100)
 
@@ -15,18 +19,42 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		SpStringId _id;
+		sp_uint _activeCamera;
 		SpGameObjectManager* gameObjectManager;
 		SpCameraManager* cameraManager;
-		sp_uint _activeCamera;
-
+		SpTransformManager* transformManager;
+		SpRenderableObjectManager* _renderableObjectManager;
+		SpMeshManager* _meshManager;
+		
 		void initGameObjectsType()
 		{
 			SpGameObjectType* typeCamera = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CAMERA, "Camera", cameraManager);
 			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_CAMERA, typeCamera);
+
+			SpGameObjectType* typePlane = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_PLANE, "Plane", _renderableObjectManager);
+			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_PLANE, typePlane);
+
+			SpGameObjectType* typeCube = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CUBE, "Cube", _renderableObjectManager);
+			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_CUBE, typeCube);
 		}
 		
+		inline void init()
+		{
+			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
+			transformManager = sp_mem_new(SpTransformManager)();
+
+			cameraManager = sp_mem_new(SpCameraManager)();
+			_meshManager = sp_mem_new(SpMeshManager)();
+			_renderableObjectManager = sp_mem_new(SpRenderableObjectManager)();
+
+			initGameObjectsType();
+
+			_activeCamera = 0;
+		}
+
 	public:
 		SpMap<sp_uint, SpGameObjectType*> gameObjectsTypeList;
+		SpVector<SpShader*> shaders;
 
 		/// <summary>
 		/// Create a new scene
@@ -34,12 +62,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>void</returns>
 		API_INTERFACE inline SpScene()
 		{
-			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
-			cameraManager = sp_mem_new(SpCameraManager)();
-
-			initGameObjectsType();
-
-			_activeCamera = 0;
+			init();
 		}
 
 		/// <summary>
@@ -49,10 +72,8 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>void</returns>
 		API_INTERFACE inline SpScene(const sp_char* name)
 		{
-			_id = name;
-			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
-			cameraManager = sp_mem_new(SpCameraManager)();
-			initGameObjectsType();
+			_id = name;			
+			init();
 		}
 
 		/// <summary>
@@ -74,16 +95,27 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get the mesh manager
+		/// </summary>
+		/// <returns>Mesh Manager</returns>
+		API_INTERFACE inline SpMeshManager* meshManager() const
+		{
+			return _meshManager;
+		}
+
+		/// <summary>
 		/// Add a game object to a Scene
 		/// </summary>
 		/// <param name="gameObject">New Game Object</param>
 		/// <returns></returns>
 		API_INTERFACE inline SpGameObject& addGameObject(const sp_uint gameObjectType, const sp_char* name = nullptr)
 		{
+			transformManager->add();
+
 			SpObjectManager* manager = gameObjectsTypeList[gameObjectType]->manager();
 
 			const sp_uint objectIndex = manager->add();
-			return gameObjectManager->add(SP_GAME_OBJECT_TYPE_CAMERA, objectIndex, name);
+			return gameObjectManager->add(gameObjectType, objectIndex, name);
 		}
 
 		/// <summary>
@@ -153,6 +185,11 @@ namespace NAMESPACE_PHYSICS
 			return cameraManager;
 		}
 
+		API_INTERFACE inline SpRenderableObjectManager* renderableObjectManager() const
+		{
+			return _renderableObjectManager;
+		}
+
 		/// <summary>
 		/// Active a camera by index
 		/// </summary>
@@ -176,11 +213,16 @@ namespace NAMESPACE_PHYSICS
 				cameraManager = nullptr;
 			}
 
+			for (SpVectorItem<SpShader*>* item = shaders.begin(); item != nullptr; item = item->next())
+			{
+				item->value()->dispose();
+				sp_mem_release(item->value());
+			}
+
 			for (SpVectorItem<SpPair<sp_uint, SpGameObjectType*>>* item = gameObjectsTypeList.begin(); item != nullptr; item = item->next())
 			{
 				sp_mem_delete(item->value().value, SpGameObjectType);
 			}
-			
 
 			if (gameObjectManager != nullptr)
 			{

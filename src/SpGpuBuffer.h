@@ -6,7 +6,6 @@
 namespace NAMESPACE_PHYSICS
 {
 	class SpGpuBuffer
-		: public Object
 	{
 	protected:
 		sp_uint _id;
@@ -32,7 +31,7 @@ namespace NAMESPACE_PHYSICS
 			return this;
 		}
 
-		API_INTERFACE virtual SpGpuBuffer* updateData(sp_size size, void* data, sp_int usageType) = 0;
+		API_INTERFACE virtual SpGpuBuffer* updateData(const sp_size size, const void* data, const sp_int usageType) = 0;
 
 		API_INTERFACE virtual void disable() = 0;
 
