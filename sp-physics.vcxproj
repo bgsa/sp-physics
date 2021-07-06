@@ -349,7 +349,7 @@
     <ClInclude Include="src\SpRenderableObject.h" />
     <ClInclude Include="src\SpRenderableObjectManager.h" />
     <ClInclude Include="src\SpRenderData.h" />
-    <ClInclude Include="src\SpRenderingFactory.h" />
+    <ClInclude Include="src\SpRenderingAPI.h" />
     <ClInclude Include="src\SpShader.h" />
     <ClInclude Include="src\SpShaderAttribute.h" />
     <ClInclude Include="src\SpShaderUniform.h" />

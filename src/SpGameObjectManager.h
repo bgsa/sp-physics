@@ -95,7 +95,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="gameObject"></param>
 		/// <returns></returns>
-		API_INTERFACE inline SpGameObject& add(const sp_uint gameObjectType, const sp_uint index, const sp_char* name = nullptr)
+		API_INTERFACE inline SpGameObject* add(const sp_uint gameObjectType, const sp_uint index, const sp_char* name = nullptr)
 		{
 			sp_assert(_length < _maxLength, "InvalidOperationException");
 
@@ -123,7 +123,7 @@ namespace NAMESPACE_PHYSICS
 			_gpuGameObjects->update(_gameObjects, ZERO_UINT, nullptr, nullptr);
 			_gpuTransforms->update(_transforms, ZERO_UINT, nullptr, nullptr);
 #endif
-			return _gameObjects[_length - 1];
+			return &_gameObjects[_length - 1];
 		}
 
 		/// <summary>

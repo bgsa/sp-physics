@@ -6608,7 +6608,7 @@
     <ClInclude Include="src\SpShaderUniform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SpRenderingFactory.h">
+    <ClInclude Include="src\SpRenderingAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

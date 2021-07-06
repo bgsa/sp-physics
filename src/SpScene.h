@@ -103,12 +103,17 @@ namespace NAMESPACE_PHYSICS
 			return _meshManager;
 		}
 
+		API_INTERFACE inline SpTransform* transform(const sp_uint index) const
+		{
+			return transformManager->get(index);
+		}
+
 		/// <summary>
 		/// Add a game object to a Scene
 		/// </summary>
 		/// <param name="gameObject">New Game Object</param>
 		/// <returns></returns>
-		API_INTERFACE inline SpGameObject& addGameObject(const sp_uint gameObjectType, const sp_char* name = nullptr)
+		API_INTERFACE inline SpGameObject* addGameObject(const sp_uint gameObjectType, const sp_char* name = nullptr)
 		{
 			transformManager->add();
 
