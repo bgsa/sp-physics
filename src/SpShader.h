@@ -89,6 +89,16 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>Current shader</returns>
 		API_INTERFACE virtual SpShader* setUniform(const sp_int id, const sp_uint value) = 0;
 
+#ifdef ENV_64BITS
+		/// <summary>
+		/// Set the uniform with scalar unsigned size value
+		/// </summary>
+		/// <param name="id">Uniform Id</param>
+		/// <param name="value">unsigned size</param>
+		/// <returns>Current shader</returns>
+		API_INTERFACE virtual SpShader* setUniform(const sp_int id, const sp_size value) = 0;
+#endif
+
 		/// <summary>
 		/// Set the uniform with scalar flaot value
 		/// </summary>

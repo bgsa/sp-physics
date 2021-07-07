@@ -37,6 +37,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE virtual sp_int bufferUsageTypeStaticDraw() = 0;
 
+		API_INTERFACE virtual sp_int bufferUsageTypeDynamicDraw() = 0;
+
 		API_INTERFACE virtual sp_int typeFloatId() = 0;
 
 		API_INTERFACE virtual sp_int typeUIntId() = 0;
@@ -44,6 +46,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE virtual sp_int typeTriangleId() = 0;
 		
 		API_INTERFACE virtual SpGpuBuffer* createBuffer(const sp_int type) = 0;
+
+		API_INTERFACE virtual SpGpuTextureBuffer* createTextureBuffer() = 0;
 
 		API_INTERFACE virtual SpGpuBuffer* createArrayBuffer() = 0;
 

@@ -3126,6 +3126,9 @@
     <ClCompile Include="src\SpGame.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpTransformManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\AlgorithmAitken.h">

@@ -7,14 +7,12 @@
 namespace NAMESPACE_PHYSICS
 {
 	class SpGpuTextureBuffer
-		: public Object
 	{
 	protected:
 		SpSize<sp_int> _size;
 
-
-		sp_uint _textureId = ZERO_UINT;
-		sp_uint _bufferId = ZERO_UINT;
+		sp_uint _textureId = 0;
+		sp_uint _bufferId = 0;
 
 	public:
 
@@ -46,6 +44,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE virtual void updateData(const sp_size size, const void* buffer, sp_uint usage = GL_DYNAMIC_DRAW) = 0;
 
 		API_INTERFACE virtual void disable() = 0;
+
+		API_INTERFACE virtual void dispose() = 0;
 
 	};
 }

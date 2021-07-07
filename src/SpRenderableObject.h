@@ -16,6 +16,7 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _type;
 		
 	public:
+		sp_uint gameObjectIndex;
 		sp_uint meshDataIndex;
 		sp_uint shaderIndex;
 		SpVector<SpGpuBuffer*> buffers;

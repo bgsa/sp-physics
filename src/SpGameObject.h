@@ -13,6 +13,7 @@ namespace NAMESPACE_PHYSICS
 	private:
 		sp_uint _type;
 		sp_size _index;
+		sp_size _managerIndex;
 		SpStringId _name;
 
 	public:
@@ -24,7 +25,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpGameObject()
 		{
 			_type = SP_GAME_OBJECT_TYPE_NONE;
-			_index = ZERO_SIZE;
+			_index = 0;
+			_managerIndex = 0;
 		}
 		
 		/// <summary>
@@ -48,12 +50,21 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get the index of game object in the list manager
+		/// Get the index of game object in the list
 		/// </summary>
 		/// <returns></returns>
 		API_INTERFACE inline sp_uint index() const
 		{
 			return _index;
+		}
+
+		/// <summary>
+		/// Get the index of game object in the list Manager
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_uint managerIndex() const
+		{
+			return _managerIndex;
 		}
 
 		/// <summary>

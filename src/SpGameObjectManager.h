@@ -100,7 +100,8 @@ namespace NAMESPACE_PHYSICS
 			sp_assert(_length < _maxLength, "InvalidOperationException");
 
 			_gameObjects[_length].type(gameObjectType);
-			_gameObjects[_length]._index = index;
+			_gameObjects[_length]._managerIndex = index;
+			_gameObjects[_length]._index = _length;
 
 			if (name != nullptr)
 				_gameObjects[_length]._name = name;

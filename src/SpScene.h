@@ -19,10 +19,11 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		SpStringId _id;
+		sp_bool _loaded;
 		sp_uint _activeCamera;
 		SpGameObjectManager* gameObjectManager;
 		SpCameraManager* cameraManager;
-		SpTransformManager* transformManager;
+		SpTransformManager* _transformManager;
 		SpRenderableObjectManager* _renderableObjectManager;
 		SpMeshManager* _meshManager;
 		
@@ -41,7 +42,7 @@ namespace NAMESPACE_PHYSICS
 		inline void init()
 		{
 			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
-			transformManager = sp_mem_new(SpTransformManager)();
+			_transformManager = sp_mem_new(SpTransformManager)();
 
 			cameraManager = sp_mem_new(SpCameraManager)();
 			_meshManager = sp_mem_new(SpMeshManager)();
@@ -50,6 +51,7 @@ namespace NAMESPACE_PHYSICS
 			initGameObjectsType();
 
 			_activeCamera = 0;
+			_loaded = false;
 		}
 
 	public:
@@ -103,9 +105,23 @@ namespace NAMESPACE_PHYSICS
 			return _meshManager;
 		}
 
+		/// <summary>
+		/// Get transform by game object index
+		/// </summary>
+		/// <param name="index">Game Object Index</param>
+		/// <returns>Transform</returns>
 		API_INTERFACE inline SpTransform* transform(const sp_uint index) const
 		{
-			return transformManager->get(index);
+			return _transformManager->get(index);
+		}
+
+		/// <summary>
+		/// Get transform manager
+		/// </summary>
+		/// <returns>Transform Manager</returns>
+		API_INTERFACE inline SpTransformManager* transformManager() const
+		{
+			return _transformManager;
 		}
 
 		/// <summary>
@@ -115,7 +131,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline SpGameObject* addGameObject(const sp_uint gameObjectType, const sp_char* name = nullptr)
 		{
-			transformManager->add();
+			_transformManager->add();
 
 			SpObjectManager* manager = gameObjectsTypeList[gameObjectType]->manager();
 
@@ -204,6 +220,44 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index <= cameraManager->length(), "IndexOutOfRangeException");
 			_activeCamera = index;
+		}
+
+		/// <summary>
+		/// Update this scene
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline void update()
+		{
+			_transformManager->updateGpuBuffer(); // update transform in GPU
+		}
+
+		/// <summary>
+		/// Check the scene is loaded
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_bool isLoaded() const
+		{
+			return _loaded;
+		}
+
+		/// <summary>
+		/// Load this scene
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline void load()
+		{
+			sp_assert(!_loaded, "InvalidOperationException");
+			_loaded = true;
+		}
+
+		/// <summary>
+		/// Load this scene
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline void unload()
+		{
+			sp_assert(_loaded, "InvalidOperationException");
+			_loaded = false;
 		}
 
 		/// <summary>

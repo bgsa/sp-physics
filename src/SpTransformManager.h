@@ -4,6 +4,7 @@
 #include "SpectrumPhysics.h"
 #include "SpObjectManager.h"
 #include "SpTransform.h"
+#include "SpGpuTextureBuffer.h"
 
 namespace NAMESPACE_PHYSICS 
 {
@@ -13,6 +14,8 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		SpTransform* _transforms;
+		SpGpuTextureBuffer* _textureBuffer;
+		sp_int usageType;
 
 	public:
 	
@@ -21,10 +24,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="maxLength">Max game object allowed</param>
 		/// <returns></returns>
-		API_INTERFACE inline SpTransformManager()
-			: SpObjectManager()
-		{
-		}
+		API_INTERFACE SpTransformManager();
 
 		/// <summary>
 		/// Add a camera in list
@@ -53,6 +53,8 @@ namespace NAMESPACE_PHYSICS
 				_transforms = sp_mem_new_array(SpTransform, _length);
 			}
 
+			updateGpuBuffer();
+
 			return _length - 1;
 		}
 
@@ -80,6 +82,8 @@ namespace NAMESPACE_PHYSICS
 			std::memcpy(&_transforms[index + ONE_UINT], &temp[_length - index], transformsSizeEnd);
 
 			ALLOC_RELEASE(temp);
+
+			updateGpuBuffer();
 		}
 
 		/// <summary>
@@ -93,11 +97,39 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get the transform texture buffer in GPU
+		/// </summary>
+		/// <returns>Texture Buffer</returns>
+		API_INTERFACE inline SpGpuTextureBuffer* gpuBuffer() const
+		{
+			return _textureBuffer;
+		}
+
+		/// <summary>
+		/// Update texture buffer with the transform
+		/// </summary>
+		API_INTERFACE inline void updateGpuBuffer()
+		{
+			const sp_size bufferSize = sizeof(SpTransform) * _length;
+
+			_textureBuffer
+				->use()
+				->updateData(bufferSize, _transforms, usageType);
+		}
+
+		/// <summary>
 		/// Release all allocated resources
 		/// </summary>
 		/// <returns>void</returns>
 		API_INTERFACE inline void dispose() override
 		{
+			if (_textureBuffer != nullptr)
+			{
+				_textureBuffer->dispose();
+				sp_mem_release(_textureBuffer);
+				_textureBuffer = nullptr;
+			}
+
 			if (_transforms != nullptr)
 			{
 				sp_mem_release(_transforms);
