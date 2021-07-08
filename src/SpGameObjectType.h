@@ -3,6 +3,7 @@
 
 #include "SpMap.h"
 #include "SpObjectManager.h"
+#include "SpGameObjectFactory.h"
 
 #define SP_GAME_OBJECT_TYPE_NONE   0
 #define SP_GAME_OBJECT_TYPE_CAMERA 1
@@ -18,23 +19,14 @@ namespace NAMESPACE_PHYSICS
 	private:		
 		sp_uint _type;
 		SpObjectManager* _manager;
+		SpGameObjectFactory* _factory;
 		sp_char* _name;
 
 	public:
 
-		API_INTERFACE inline SpGameObjectType(const sp_uint type, SpObjectManager* manager)
-		{
-			_type = type;
-			_manager = manager;
-			_name = nullptr;
-		}
+		API_INTERFACE SpGameObjectType(const sp_uint type, SpObjectManager* manager, SpGameObjectFactory* factory);
 
-		API_INTERFACE inline SpGameObjectType(const sp_uint type, const sp_char* name, SpObjectManager* manager)
-		{
-			_type = type;
-			_manager = manager;
-			this->name(name, std::strlen(name));
-		}
+		API_INTERFACE SpGameObjectType(const sp_uint type, const sp_char* name, SpObjectManager* manager, SpGameObjectFactory* factory);
 
 		API_INTERFACE inline sp_uint type()
 		{
@@ -51,6 +43,11 @@ namespace NAMESPACE_PHYSICS
 			return _name;
 		}
 
+		API_INTERFACE inline SpGameObjectFactory* factory() const
+		{
+			return _factory;
+		}
+
 		API_INTERFACE inline void name(const sp_char* newName, const sp_size newNameLength)
 		{
 			_name = sp_mem_new_array(sp_char, newNameLength + 1);
@@ -58,14 +55,7 @@ namespace NAMESPACE_PHYSICS
 			_name[newNameLength + 1] = END_OF_STRING;
 		}
 
-		API_INTERFACE inline void dispose()
-		{
-			if (_name != nullptr)
-			{
-				sp_mem_release(_name);
-				_name = nullptr;
-			}
-		}
+		API_INTERFACE void dispose();
 
 		~SpGameObjectType()
 		{

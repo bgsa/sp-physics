@@ -10,6 +10,7 @@
 #include "SpRenderableObjectManager.h"
 #include "SpMeshManager.h"
 #include "SpShader.h"
+#include "SpGameObjectFactoryPlane.h"
 
 #define SP_SCENE_NAME_MAX_LENGTH (100)
 
@@ -29,13 +30,15 @@ namespace NAMESPACE_PHYSICS
 		
 		void initGameObjectsType()
 		{
-			SpGameObjectType* typeCamera = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CAMERA, "Camera", cameraManager);
+			SpGameObjectType* typeCamera = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CAMERA, "Camera", cameraManager, nullptr);
 			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_CAMERA, typeCamera);
 
-			SpGameObjectType* typePlane = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_PLANE, "Plane", _renderableObjectManager);
+			SpGameObjectFactory* planeFactory = sp_mem_new(SpGameObjectFactoryPlane)();
+			planeFactory->init(this);
+			SpGameObjectType* typePlane = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_PLANE, "Plane", _renderableObjectManager, planeFactory);
 			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_PLANE, typePlane);
 
-			SpGameObjectType* typeCube = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CUBE, "Cube", _renderableObjectManager);
+			SpGameObjectType* typeCube = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CUBE, "Cube", _renderableObjectManager, nullptr);
 			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_CUBE, typeCube);
 		}
 		

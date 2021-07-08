@@ -85,6 +85,9 @@ namespace NAMESPACE_PHYSICS
 	class SpWorldManager;
 	class SpPhysicSimulator;
 
+	class SpGame;
+	class SpScene;
+
 #ifdef OPENCL_ENABLED
 	class GpuDevice;
 	class GpuBufferOpenCL;

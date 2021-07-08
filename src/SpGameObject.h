@@ -2,7 +2,7 @@
 #define SP_GAME_OBJECT_HEADER
 
 #include "SpectrumPhysics.h"
-#include "SpGameObjectType.h"
+#include "SpStringId.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline SpGameObject()
 		{
-			_type = SP_GAME_OBJECT_TYPE_NONE;
+			_type = SP_UINT_MAX;
 			_index = 0;
 			_managerIndex = 0;
 		}
@@ -45,7 +45,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline void type(const sp_uint newType)
 		{
-			sp_assert(newType >= SP_GAME_OBJECT_TYPE_NONE && newType <= SP_GAME_OBJECT_TYPE_END, "InvalidArgumentException");
+			//sp_assert(newType >= SP_GAME_OBJECT_TYPE_NONE && newType <= SP_GAME_OBJECT_TYPE_END, "InvalidArgumentException");
 			_type = newType;
 		}
 

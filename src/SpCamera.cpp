@@ -5,7 +5,7 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCamera::init()
 	{
-		init(Vec3(0.0f, 10.0f, 10.0f), Vec3Zeros);
+		init(Vec3(0.0f, 5.0f, 5.0f), Vec3Zeros);
 	}
 
 	void SpCamera::init(const Vec3& position, const Vec3& target, const Vec3& up, const sp_bool invertY)
@@ -17,7 +17,7 @@ namespace NAMESPACE_PHYSICS
 		this->_invertY = invertY ? -ONE_FLOAT : ONE_FLOAT;
 		this->_velocity = 0.2f;
 
-		this->_fieldOfView = SP_DEFAULT_FIELD_OF_VIEW;
+		this->_fieldOfView = SP_CAMERA_DEFAULT_FIELD_OF_VIEW;
 		this->nearFrustum = ONE_FLOAT;
 		this->farFrustum = 1000.0f;
 
@@ -59,12 +59,11 @@ namespace NAMESPACE_PHYSICS
 	void SpCamera::updateProjectionPerspectiveAspect(sp_float aspectRatio)
 	{
 		this->aspectRatio = aspectRatio;
-		setProjectionPerspective(_fieldOfView, aspectRatio, nearFrustum, farFrustum);
+		setProjectionPerspective(aspectRatio, nearFrustum, farFrustum);
 	}
 
-	void SpCamera::setProjectionPerspective(sp_float fieldOfView, sp_float aspectRatio, sp_float near, sp_float far)
+	void SpCamera::setProjectionPerspective(sp_float aspectRatio, sp_float near, sp_float far)
 	{
-		this->_fieldOfView = fieldOfView;
 		this->aspectRatio = aspectRatio;
 		this->nearFrustum = near;
 		this->farFrustum = far;
@@ -73,7 +72,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float xFmin, xFmax, yFmin, yFmax;   // Dimensions of far  clipping plane
 
 		// Do the Math for the near clipping plane
-		ymax = near * tanf(sp_float(fieldOfView * PI_DIV_360));
+		ymax = near * tanf(sp_float(_fieldOfView * PI_DIV_360));
 		ymin = -ymax;
 		xmin = ymin * aspectRatio;
 		xmax = -xmin;
@@ -90,7 +89,7 @@ namespace NAMESPACE_PHYSICS
 		projectionMatrix[15] = ZERO_FLOAT;
 
 		// Do the Math for the far clipping plane
-		yFmax = far * tanf((sp_float)(fieldOfView * PI_DIV_360));
+		yFmax = far * tanf((sp_float)(_fieldOfView * PI_DIV_360));
 		yFmin = -yFmax;
 		xFmin = yFmin * aspectRatio;
 		xFmax = -xFmin;

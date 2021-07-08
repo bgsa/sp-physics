@@ -41,7 +41,8 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_transforms);
 
-				_transforms = sp_mem_new_array(SpTransform, ++_length);
+				_length++;
+				_transforms = sp_mem_new_array(SpTransform, _length);
 
 				std::memcpy(_transforms, temp, transformsSize);
 
@@ -110,7 +111,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void updateGpuBuffer()
 		{
-			const sp_size bufferSize = sizeof(SpTransform) * _length;
+			sp_size bufferSize = sizeof(SpTransform) * _length;
 
 			_textureBuffer
 				->use()

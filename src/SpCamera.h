@@ -4,9 +4,9 @@
 #include "SpectrumPhysics.h"
 #include "SpViewportData.h"
 
-#define SP_MIN_FIELD_OF_VIEW     1.0f
-#define SP_DEFAULT_FIELD_OF_VIEW 60.0f
-#define SP_MAX_FIELD_OF_VIEW     90.0f
+#define SP_CAMERA_MIN_FIELD_OF_VIEW     1.0f
+#define SP_CAMERA_DEFAULT_FIELD_OF_VIEW 60.0f
+#define SP_CAMERA_MAX_FIELD_OF_VIEW     90.0f
 
 namespace NAMESPACE_PHYSICS
 {
@@ -46,11 +46,17 @@ namespace NAMESPACE_PHYSICS
 			return _fieldOfView;
 		}
 
+		API_INTERFACE inline void fieldOfView(const sp_float newFieldOfView)
+		{
+			sp_assert(_fieldOfView >= SP_CAMERA_MIN_FIELD_OF_VIEW && _fieldOfView <= SP_CAMERA_MAX_FIELD_OF_VIEW, "InvalidArgumentException");
+			_fieldOfView = newFieldOfView;
+		}
+
 		API_INTERFACE inline sp_float velocity() const
 		{
 			return _velocity;
 		}
-		API_INTERFACE inline void velocity(sp_float newVelocity)
+		API_INTERFACE inline void velocity(const sp_float newVelocity)
 		{
 			_velocity = newVelocity;
 		}
@@ -83,7 +89,7 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE void getHUDProjectionMatrix(sp_float width, sp_float height, Mat4& output) const;
 
-		API_INTERFACE void setProjectionPerspective(sp_float fieldOfView, sp_float aspect, sp_float near, sp_float far);
+		API_INTERFACE void setProjectionPerspective(sp_float aspect, sp_float near, sp_float far);
 		API_INTERFACE void setProjectionOrthographic(sp_float xMin, sp_float xMax, sp_float yMin, sp_float yMax, sp_float zMin, sp_float zMax);
 
 		API_INTERFACE void updateProjectionPerspectiveAspect(sp_float aspectRatio);

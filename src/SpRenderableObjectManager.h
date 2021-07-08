@@ -40,7 +40,8 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_renderableObjects);
 
-				_renderableObjects = sp_mem_new_array(SpRenderableObject, ++_length);
+				_length++;
+				_renderableObjects = sp_mem_new_array(SpRenderableObject, _length);
 
 				std::memcpy(_renderableObjects, temp, objectSize);
 
