@@ -10,9 +10,9 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCamera::init(const Vec3& position, const Vec3& target, const Vec3& up, const sp_bool invertY)
 	{
-		this->position = position;
-		this->target = target;
-		this->_up = up;
+		_position = position;
+		_target = target;
+		_up = up;
 
 		this->_invertY = invertY ? -ONE_FLOAT : ONE_FLOAT;
 		this->_velocity = 0.2f;
@@ -26,23 +26,22 @@ namespace NAMESPACE_PHYSICS
 
 	void SpCamera::updateViewMatrix()
 	{
-		normalize(position - target, _forward);   //zAxis
+		normalize(_position - _target, _forward);   //zAxis
 		
 		cross(_forward, _up, _right);
 		normalize(_right);     //xAxis
 
-		Vec3 cameraUp;
-		cross(_right, _forward, cameraUp);      //yAxis
+		cross(_right, _forward, _up);      //yAxis
 
 		viewMatrix = {
-			_right[0], cameraUp[0], _forward[0], ZERO_FLOAT,
-			_right[1], cameraUp[1], _forward[1], ZERO_FLOAT,
-			_right[2], cameraUp[2], _forward[2], ZERO_FLOAT,
+			_right[0], _up[0], _forward[0], ZERO_FLOAT,
+			_right[1], _up[1], _forward[1], ZERO_FLOAT,
+			_right[2], _up[2], _forward[2], ZERO_FLOAT,
 			ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
 		};
 
 		Mat4 translation;
-		createTranslate(-position[0], -position[1], -position[2], translation);
+		createTranslate(-_position[0], -_position[1], -_position[2], translation);
 
 		Mat4 temp;
 		viewMatrix.multiply(translation, temp);

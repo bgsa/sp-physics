@@ -16,8 +16,8 @@ namespace NAMESPACE_PHYSICS
 		Mat4 projectionMatrix;
 		Mat4 viewMatrix;
 
-		Vec3 position;
-		Vec3 target;
+		Vec3 _position;
+		Vec3 _target;
 		Vec3 _up;
 		Vec3 _forward;
 		Vec3 _right;
@@ -40,6 +40,31 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE void init();
 		API_INTERFACE void init(const Vec3& position, const Vec3& target, const Vec3& up = Vec3(ZERO_FLOAT, ONE_FLOAT, ZERO_FLOAT), const sp_bool invertY = false);
 		API_INTERFACE void initProjectionPerspective(const Vec3& position, const Vec3& target, sp_float aspectRatio);
+
+		API_INTERFACE inline Vec3 position() const
+		{
+			return _position;
+		}
+
+		API_INTERFACE inline Vec3 target() const
+		{
+			return _target;
+		}
+
+		API_INTERFACE inline Vec3 right() const
+		{
+			return _right;
+		}
+
+		API_INTERFACE inline Vec3 up() const
+		{
+			return _up;
+		}
+
+		API_INTERFACE inline Vec3 forward() const
+		{
+			return _forward;
+		}
 
 		API_INTERFACE inline sp_float fieldOfView() const
 		{

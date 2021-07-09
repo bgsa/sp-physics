@@ -17,6 +17,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE virtual void disable(const sp_uint propertyId) = 0;
 
+		API_INTERFACE virtual void disableDepthTest() = 0;
+
 		API_INTERFACE virtual void enableLineSmooth() = 0;
 
 		API_INTERFACE virtual void enableDepthTest() = 0;
@@ -35,15 +37,17 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE virtual void setScissor(const SpRect<sp_int>& area) = 0;
 
-		API_INTERFACE virtual sp_int bufferUsageTypeStaticDraw() = 0;
+		API_INTERFACE virtual sp_uint bufferUsageTypeStaticDraw() = 0;
 
-		API_INTERFACE virtual sp_int bufferUsageTypeDynamicDraw() = 0;
+		API_INTERFACE virtual sp_uint bufferUsageTypeDynamicDraw() = 0;
 
-		API_INTERFACE virtual sp_int typeFloatId() = 0;
+		API_INTERFACE virtual sp_uint typeFloatId() = 0;
 
-		API_INTERFACE virtual sp_int typeUIntId() = 0;
+		API_INTERFACE virtual sp_uint typeUIntId() = 0;
 
-		API_INTERFACE virtual sp_int typeTriangleId() = 0;
+		API_INTERFACE virtual sp_uint typeTriangleId() = 0;
+
+		API_INTERFACE virtual sp_uint typeLinesId() = 0;
 		
 		API_INTERFACE virtual SpGpuBuffer* createBuffer(const sp_int type) = 0;
 
@@ -56,6 +60,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE virtual SpShader* createShader() = 0;
 
 		API_INTERFACE virtual SpShader* createPrimitiveShader() = 0;
+
+		API_INTERFACE virtual SpShader* createLinesShader() = 0;
 
 	};
 

@@ -119,9 +119,11 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE virtual SpShader* disableVertexAttribute(const sp_uint index) = 0;
 
-		API_INTERFACE virtual SpShader* drawElements(const sp_int primitiveTypeId, const sp_size indexesLength, const sp_int indexTypeId, const void* indexes = NULL) = 0;
+		API_INTERFACE virtual SpShader* drawArray(const sp_uint primitiveTypeId, const sp_int first, const sp_size count) = 0;
 
-		API_INTERFACE virtual SpShader* drawElementsInstanced(const sp_int primitiveTypeId, const sp_size indexesLength, const sp_int indexTypeId, const void* indexes = NULL, const sp_size primitiveCount = 0) = 0;
+		API_INTERFACE virtual SpShader* drawElements(const sp_uint primitiveTypeId, const sp_size indexesLength, const sp_int indexTypeId, const void* indexes = NULL) = 0;
+
+		API_INTERFACE virtual SpShader* drawElementsInstanced(const sp_uint primitiveTypeId, const sp_size indexesLength, const sp_int indexTypeId, const void* indexes = NULL, const sp_size primitiveCount = 0) = 0;
 
 		/// <summary>
 		/// Release all allocated resources

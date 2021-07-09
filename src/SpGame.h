@@ -99,6 +99,9 @@ namespace NAMESPACE_PHYSICS
 			SpShader* primitiveShader = renderingAPI()->createPrimitiveShader();
 			scene->shaders.add(primitiveShader);
 
+			SpShader* linesShader = renderingAPI()->createLinesShader();
+			scene->shaders.add(linesShader);
+
 			_scenes->add(scene);
 
 			return scene;

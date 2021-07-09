@@ -48,6 +48,18 @@ namespace NAMESPACE_PHYSICS
 
 	void SpGameObjectFactoryPlane::dispose()
 	{
+		if (gpuVertexBuffer != nullptr)
+		{
+			gpuVertexBuffer->dispose();
+			sp_mem_release(gpuVertexBuffer);
+			gpuVertexBuffer = nullptr;
+		}
 
+		if (gpuIndexBuffer != nullptr)
+		{
+			gpuIndexBuffer->dispose();
+			sp_mem_release(gpuIndexBuffer);
+			gpuIndexBuffer = nullptr;
+		}
 	}
 }

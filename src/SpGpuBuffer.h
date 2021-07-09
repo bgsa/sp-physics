@@ -35,6 +35,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE virtual void disable() = 0;
 
+		API_INTERFACE virtual void dispose() = 0;
+
 	};
 
 }
