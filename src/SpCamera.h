@@ -13,9 +13,6 @@ namespace NAMESPACE_PHYSICS
 	class SpCamera
 	{
 	protected:
-		Mat4 projectionMatrix;
-		Mat4 viewMatrix;
-
 		Vec3 _position;
 		Vec3 _target;
 		Vec3 _up;
@@ -23,13 +20,16 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _right;
 		
 		sp_float _fieldOfView;
-		sp_float aspectRatio;
-		sp_float nearFrustum;
-		sp_float farFrustum ;
 
+		sp_float _nearFrustum;
+		sp_float _farFrustum;
 		Vec4 nearUpperLeft, nearLowerLeft, nearUpperRight, nearLowerRight;
 		Vec4 farUpperLeft, farLowerLeft, farUpperRright, farLowerRight;
 
+		Mat4 projectionMatrix;
+		Mat4 viewMatrix;
+
+		sp_float _aspectRatio;
 		sp_float _invertY;
 		sp_float _velocity;
 
@@ -112,12 +112,12 @@ namespace NAMESPACE_PHYSICS
 			return viewMatrix;
 		}
 
-		API_INTERFACE void getHUDProjectionMatrix(sp_float width, sp_float height, Mat4& output) const;
+		API_INTERFACE void getHUDProjectionMatrix(const sp_float width, const sp_float height, Mat4& output) const;
 
-		API_INTERFACE void setProjectionPerspective(sp_float aspect, sp_float near, sp_float far);
-		API_INTERFACE void setProjectionOrthographic(sp_float xMin, sp_float xMax, sp_float yMin, sp_float yMax, sp_float zMin, sp_float zMax);
+		API_INTERFACE void setProjectionPerspective(const sp_float aspect, const sp_float near, const sp_float far);
+		API_INTERFACE void setProjectionOrthographic(const sp_float xMin, const sp_float xMax, const sp_float yMin, const sp_float yMax, const sp_float zMin, const sp_float zMax);
 
-		API_INTERFACE void updateProjectionPerspectiveAspect(sp_float aspectRatio);
+		API_INTERFACE void updateProjectionPerspectiveAspect(const sp_float aspectRatio);
 
 		API_INTERFACE Vec3 getFromWorldToScreen(const Vec3& vertex, const Mat4& modelViewMatrix, const SpViewportData* viewport);
 	};

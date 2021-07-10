@@ -14,12 +14,12 @@ namespace NAMESPACE_PHYSICS
 		_target = target;
 		_up = up;
 
-		this->_invertY = invertY ? -ONE_FLOAT : ONE_FLOAT;
-		this->_velocity = 0.2f;
+		_invertY = invertY ? -ONE_FLOAT : ONE_FLOAT;
+		_velocity = 0.2f;
 
 		this->_fieldOfView = SP_CAMERA_DEFAULT_FIELD_OF_VIEW;
-		this->nearFrustum = ONE_FLOAT;
-		this->farFrustum = 1000.0f;
+		_nearFrustum = ONE_FLOAT;
+		_farFrustum = 1000.0f;
 
 		updateViewMatrix();
 	}
@@ -55,148 +55,91 @@ namespace NAMESPACE_PHYSICS
 		updateProjectionPerspectiveAspect(aspectRatio);
 	}
 
-	void SpCamera::updateProjectionPerspectiveAspect(sp_float aspectRatio)
+	void SpCamera::updateProjectionPerspectiveAspect(const sp_float aspectRatio)
 	{
-		this->aspectRatio = aspectRatio;
-		setProjectionPerspective(aspectRatio, nearFrustum, farFrustum);
+		_aspectRatio = aspectRatio;
+		setProjectionPerspective(aspectRatio, _nearFrustum, _farFrustum);
 	}
 
-	void SpCamera::setProjectionPerspective(sp_float aspectRatio, sp_float near, sp_float far)
+	void SpCamera::setProjectionPerspective(const sp_float aspectRatio, const sp_float near, const sp_float far)
 	{
-		this->aspectRatio = aspectRatio;
-		this->nearFrustum = near;
-		this->farFrustum = far;
+		_aspectRatio = aspectRatio;
+		_nearFrustum = near;
+		_farFrustum = far;
 
 		sp_float xmin, xmax, ymin, ymax;       // Dimensions of near clipping plane
 		sp_float xFmin, xFmax, yFmin, yFmax;   // Dimensions of far  clipping plane
 
 		// Do the Math for the near clipping plane
-		ymax = near * tanf(sp_float(_fieldOfView * PI_DIV_360));
+		ymax = near * sp_tan(_fieldOfView * PI_DIV_360);
 		ymin = -ymax;
 		xmin = ymin * aspectRatio;
 		xmax = -xmin;
 
 		// Construct the projection matrix
 		projectionMatrix = Mat4Identity;
-		projectionMatrix[0] = (TWO_FLOAT * near) / (xmax - xmin);
-		projectionMatrix[5] = (TWO_FLOAT * near) / (ymax - ymin);
-		projectionMatrix[8] = (xmax + xmin) / (xmax - xmin);
-		projectionMatrix[9] = (ymax + ymin) / (ymax - ymin);
-		projectionMatrix[10] = -((far + near) / (far - near));
-		projectionMatrix[11] = -ONE_FLOAT;
-		projectionMatrix[14] = -((TWO_FLOAT * far * near) / (far - near));
-		projectionMatrix[15] = ZERO_FLOAT;
+		projectionMatrix.m11 = (TWO_FLOAT * near) / (xmax - xmin);
+		projectionMatrix.m22 = (TWO_FLOAT * near) / (ymax - ymin);
+		projectionMatrix.m31 = (xmax + xmin) / (xmax - xmin);
+		projectionMatrix.m32 = (ymax + ymin) / (ymax - ymin);
+		projectionMatrix.m33 = -((far + near) / (far - near));
+		projectionMatrix.m34 = -ONE_FLOAT;
+		projectionMatrix.m43 = -((TWO_FLOAT * far * near) / (far - near));
+		projectionMatrix.m44 = ZERO_FLOAT;
 
 		// Do the Math for the far clipping plane
-		yFmax = far * tanf((sp_float)(_fieldOfView * PI_DIV_360));
+		yFmax = far * sp_tan(_fieldOfView * PI_DIV_360);
 		yFmin = -yFmax;
 		xFmin = yFmin * aspectRatio;
 		xFmax = -xFmin;
 
 		// Fill in values for untransformed Frustum corners
-		// Near Upper Left
-		nearUpperLeft[0] = xmin;
-		nearUpperLeft[1] = ymax;
-		nearUpperLeft[2] = -near;
-		nearUpperLeft[3] = ONE_FLOAT;
+		nearUpperLeft.x = nearLowerLeft.x = xmin;
+		nearUpperLeft.y = nearUpperRight.y = ymax;		
+		nearLowerLeft.y = nearLowerRight.y = ymin;
+		nearUpperRight.x = nearLowerRight.x = xmax;
+		farUpperLeft.x = farLowerLeft.x = xFmin;
+		farUpperLeft.y = farUpperRright.y = yFmax;
+		farLowerLeft.y = farLowerRight.y = yFmin;
+		farUpperRright.x = farLowerRight.x = xFmax;
+		nearUpperLeft.z = nearLowerLeft.z = nearUpperRight.z = nearLowerRight.z = -near;
+		farUpperLeft.z = farLowerLeft.z = farUpperRright.z = farLowerRight.z = -far;
 
-		// Near Lower Left
-		nearLowerLeft[0] = xmin;
-		nearLowerLeft[1] = ymin;
-		nearLowerLeft[2] = -near;
-		nearLowerLeft[3] = ONE_FLOAT;
-
-		// Near Upper Right
-		nearUpperRight[0] = xmax;
-		nearUpperRight[1] = ymax;
-		nearUpperRight[2] = -near;
-		nearUpperRight[3] = ONE_FLOAT;
-
-		// Near Lower Right
-		nearLowerRight[0] = xmax;
-		nearLowerRight[1] = ymin;
-		nearLowerRight[2] = -near;
-		nearLowerRight[3] = ONE_FLOAT;
-
-		// Far Upper Left
-		farUpperLeft[0] = xFmin;
-		farUpperLeft[1] = yFmax;
-		farUpperLeft[2] = -far;
-		farUpperLeft[3] = ONE_FLOAT;
-
-		// Far Lower Left
-		farLowerLeft[0] = xFmin;
-		farLowerLeft[1] = yFmin;
-		farLowerLeft[2] = -far;
-		farLowerLeft[3] = ONE_FLOAT;
-
-		// Far Upper Right
-		farUpperRright[0] = xFmax;
-		farUpperRright[1] = yFmax;
-		farUpperRright[2] = -far;
-		farUpperRright[3] = ONE_FLOAT;
-
-		// Far Lower Right
-		farLowerRight[0] = xFmax;
-		farLowerRight[1] = yFmin;
-		farLowerRight[2] = -far;
-		farLowerRight[3] = ONE_FLOAT;
+		nearUpperLeft.w
+			= nearLowerLeft.w
+			= nearUpperRight.w
+			= nearLowerRight.w
+			= farUpperLeft.w
+			= farLowerLeft.w
+			= farUpperRright.w
+			= farLowerRight.w
+			= ONE_FLOAT;
 	}
 
-	void SpCamera::setProjectionOrthographic(sp_float xMin, sp_float xMax, sp_float yMin, sp_float yMax, sp_float zMin, sp_float zMax)
+	void SpCamera::setProjectionOrthographic(const sp_float xMin, const sp_float xMax, const sp_float yMin, const sp_float yMax, const sp_float zMin, const sp_float zMax)
 	{
 		createOrthographicMatrix(xMin, xMax, yMin, yMax, zMin, zMax, projectionMatrix);
 
 		// Fill in values for untransformed Frustum corners	// Near Upper Left
-		nearUpperLeft[0] = xMin;
-		nearUpperLeft[1] = yMax;
-		nearUpperLeft[2] = zMin;
-		nearUpperLeft[3] = ONE_FLOAT;
+		nearUpperLeft.x = nearLowerLeft.x = farUpperLeft.x = farLowerLeft.x = xMin;
+		nearUpperRight.x = nearLowerRight.x = farUpperRright.x = farLowerRight.x = xMax;
+		nearLowerLeft.y = nearLowerRight.y = farLowerLeft.y = farLowerRight.y = yMin;
+		nearUpperLeft.y = nearUpperRight.y = farUpperLeft.y = farUpperRright.y = yMax;
+		nearUpperLeft.z = nearLowerLeft.z = nearUpperRight.z = nearLowerRight.z = zMin;
+		farUpperLeft.z = farLowerLeft.z = farUpperRright.z = farLowerRight.z = zMax;
 
-		// Near Lower Left
-		nearLowerLeft[0] = xMin;
-		nearLowerLeft[1] = yMin;
-		nearLowerLeft[2] = zMin;
-		nearLowerLeft[3] = ONE_FLOAT;
-
-		// Near Upper Right
-		nearUpperRight[0] = xMax;
-		nearUpperRight[1] = yMax;
-		nearUpperRight[2] = zMin;
-		nearUpperRight[3] = ONE_FLOAT;
-
-		// Near Lower Right
-		nearLowerRight[0] = xMax;
-		nearLowerRight[1] = yMin;
-		nearLowerRight[2] = zMin;
-		nearLowerRight[3] = ONE_FLOAT;
-
-		// Far Upper Left
-		farUpperLeft[0] = xMin;
-		farUpperLeft[1] = yMax;
-		farUpperLeft[2] = zMax;
-		farUpperLeft[3] = ONE_FLOAT;
-
-		// Far Lower Left
-		farLowerLeft[0] = xMin;
-		farLowerLeft[1] = yMin;
-		farLowerLeft[2] = zMax;
-		farLowerLeft[3] = ONE_FLOAT;
-
-		// Far Upper Right
-		farUpperRright[0] = xMax;
-		farUpperRright[1] = yMax;
-		farUpperRright[2] = zMax;
-		farUpperRright[3] = ONE_FLOAT;
-
-		// Far Lower Right
-		farLowerRight[0] = xMax;
-		farLowerRight[1] = yMin;
-		farLowerRight[2] = zMax;
-		farLowerRight[3] = ONE_FLOAT;
+		nearUpperLeft.w
+			= nearLowerLeft.w
+			= nearUpperRight.w
+			= nearLowerRight.w
+			= farUpperLeft.w
+			= farLowerLeft.w
+			= farUpperRright.w
+			= farLowerRight.w
+			= ONE_FLOAT;
 	}
 
-	void SpCamera::getHUDProjectionMatrix(sp_float width, sp_float height, Mat4& output) const
+	void SpCamera::getHUDProjectionMatrix(const sp_float width, const sp_float height, Mat4& output) const
 	{
 		createOrthographicMatrix(ZERO_FLOAT, width, ZERO_FLOAT, height, -ONE_FLOAT, ONE_FLOAT, output);
 	}
