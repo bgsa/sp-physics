@@ -30,9 +30,6 @@ namespace NAMESPACE_PHYSICS
 		
 		void initGameObjectsType()
 		{
-			SpGameObjectType* typeCamera = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CAMERA, "Camera", cameraManager, nullptr);
-			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_CAMERA, typeCamera);
-
 			SpGameObjectFactory* planeFactory = sp_mem_new(SpGameObjectFactoryPlane)();
 			planeFactory->init(this);
 			SpGameObjectType* typePlane = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_PLANE, "Plane", _renderableObjectManager, planeFactory);
@@ -187,6 +184,20 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Add a camera to a Scene
+		/// </summary>
+		/// <param name="name">name (optional)</param>
+		/// <returns></returns>
+		API_INTERFACE inline sp_uint addCamera(const sp_char* name = nullptr, const sp_size nameLength = 0)
+		{
+			const sp_uint cameraId = cameraManager->add();
+
+			cameraManager->name(cameraId, name, nameLength);
+
+			return cameraId;
+		}
+
+		/// <summary>
 		/// Get the index of active camera
 		/// </summary>
 		/// <returns></returns>
@@ -204,7 +215,7 @@ namespace NAMESPACE_PHYSICS
 			return cameraManager->get(_activeCamera);
 		}
 
-		API_INTERFACE inline SpCameraManager* cameras() const
+		API_INTERFACE inline SpCameraManager* camerasManager() const
 		{
 			return cameraManager;
 		}
