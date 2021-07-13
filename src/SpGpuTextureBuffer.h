@@ -36,7 +36,7 @@ namespace NAMESPACE_PHYSICS
 			_size = newSize;
 		}
 
-		API_INTERFACE virtual SpGpuTextureBuffer* use() = 0;
+		API_INTERFACE virtual SpGpuTextureBuffer* use(const sp_uint textureIndex = 0) = 0;
 
 #ifndef GL_DYNAMIC_DRAW
 	#define GL_DYNAMIC_DRAW 0x88E8
