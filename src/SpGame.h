@@ -102,6 +102,9 @@ namespace NAMESPACE_PHYSICS
 			SpShader* linesShader = renderingAPI()->createLinesShader();
 			scene->shaders.add(linesShader);
 
+			SpShader* manipulatorShader = renderingAPI()->createManipulatorShader();
+			scene->shaders.add(manipulatorShader);
+
 			_scenes->add(scene);
 
 			return scene;

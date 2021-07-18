@@ -48,10 +48,10 @@ namespace NAMESPACE_PHYSICS
 			sp_size idx = 0;
 			_meshesData[idx].attributesLength = 4;
 			_meshesData[idx].attributes = sp_mem_new_array(SpMeshAttribute, 4);
-			_meshesData[idx].attributes[0].vertex = Vec3(-0.5f, 1.0f, 0.5f);
-			_meshesData[idx].attributes[1].vertex = Vec3(0.5f, 1.0f, 0.5f);
-			_meshesData[idx].attributes[2].vertex = Vec3(0.5f, 1.0f, -0.5f);
-			_meshesData[idx].attributes[3].vertex = Vec3(-0.5f, 1.0f, -0.5f);
+			_meshesData[idx].attributes[0].vertex = Vec3(-0.5f, 0.0f, 0.5f);
+			_meshesData[idx].attributes[1].vertex = Vec3(0.5f, 0.0f, 0.5f);
+			_meshesData[idx].attributes[2].vertex = Vec3(0.5f, 0.0f, -0.5f);
+			_meshesData[idx].attributes[3].vertex = Vec3(-0.5f, 0.0f, -0.5f);
 
 			_meshesData[idx].attributes[0].normal = Vec3Up;
 			_meshesData[idx].attributes[1].normal = Vec3Up;

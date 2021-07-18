@@ -63,6 +63,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE virtual SpShader* createLinesShader() = 0;
 
+		API_INTERFACE virtual SpShader* createManipulatorShader() = 0;
+
 	};
 
 }

@@ -74,6 +74,22 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE virtual SpShader* setUniform(const sp_int id, const Mat4& value) = 0;
 
 		/// <summary>
+		/// Set the uniform with vec3 value
+		/// </summary>
+		/// <param name="id">Uniform Id</param>
+		/// <param name="value">Vec3</param>
+		/// <returns>Current shader</returns>
+		API_INTERFACE virtual SpShader* setUniform(const sp_int id, const Vec3& value) = 0;
+
+		/// <summary>
+		/// Set the uniform with vec4 value
+		/// </summary>
+		/// <param name="id">Uniform Id</param>
+		/// <param name="value">Vec4</param>
+		/// <returns>Current shader</returns>
+		API_INTERFACE virtual SpShader* setUniform(const sp_int id, const Vec4& value) = 0;
+
+		/// <summary>
 		/// Set the uniform with scalar int value
 		/// </summary>
 		/// <param name="id">Uniform Id</param>
