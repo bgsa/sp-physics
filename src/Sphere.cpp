@@ -212,14 +212,13 @@ namespace NAMESPACE_PHYSICS
 	{
 		sp_float maxDistance = aabb.maxPoint[0] - aabb.minPoint[0];
 
-		maxDistance = std::max(maxDistance, aabb.maxPoint[1] - aabb.minPoint[1]);
-
-		maxDistance = std::max(maxDistance, aabb.maxPoint[2] - aabb.minPoint[2]);
+		maxDistance = sp_max(maxDistance, aabb.maxPoint[1] - aabb.minPoint[1]);
+		maxDistance = sp_max(maxDistance, aabb.maxPoint[2] - aabb.minPoint[2]);
 
 		return Sphere(
 			aabb.center(),
 			maxDistance / 2.0f
-			);
+		);
 	}
 
 	Sphere Sphere::buildFrom(const Vec3List& pointList)

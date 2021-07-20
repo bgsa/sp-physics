@@ -132,7 +132,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			std::chrono::high_resolution_clock::time_point currentTime2 = std::chrono::high_resolution_clock::now();
 			times[i] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-			minTime = std::min(times[i], minTime);
+			minTime = sp_min(times[i], minTime);
 
 			sp_float* result = ALLOC_ARRAY(sp_float, 2);
 			gpu->commandManager->readBuffer(findMinMax->output, 2 * sizeof(sp_float), result, ZERO_UINT, NULL);

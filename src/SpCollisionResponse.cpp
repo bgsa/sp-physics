@@ -92,7 +92,7 @@ namespace NAMESPACE_PHYSICS
 		SpRigidBody3D* obj2Properties = world->rigidBody3D(details->objIndex2);
 
 		const sp_float invMassSum = obj1Properties->massInverse() + obj2Properties->massInverse();
-		const sp_float cor = std::min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
+		const sp_float cor = sp_min(obj1Properties->coeficientOfRestitution(), obj2Properties->coeficientOfRestitution());
 		const Vec3 collisionNormal = details->collisionNormal;
 
 		const Vec3 centerObj1 = world->transforms(details->objIndex1)->position;

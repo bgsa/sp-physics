@@ -311,8 +311,8 @@ namespace NAMESPACE_PHYSICS
 					std::swap(t1, t2); 
 				
 				// Compute the intersection of slab intersection intervals 
-				tmin = std::max(tmin, t1); 
-				tmax = std::min(tmax, t2); 
+				tmin = sp_max(tmin, t1);
+				tmax = sp_min(tmax, t2);
 				
 				// Exit with no collision as soon as slab intersection becomes empty 
 				if (tmin > tmax) 

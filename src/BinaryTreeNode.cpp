@@ -150,7 +150,7 @@ namespace NAMESPACE_PHYSICS
 		if (rNode != nullptr)
 			rightHeight = rNode->height() + 1;
 
-		return std::max(leftHeight, rightHeight);
+		return sp_max(leftHeight, rightHeight);
 	}
 
 	template <typename T>

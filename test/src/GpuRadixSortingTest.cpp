@@ -2015,7 +2015,7 @@ namespace NAMESPACE_PHYSICS_TEST
 
 			currentTime2 = std::chrono::high_resolution_clock::now();
 			times[i] = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime2 - currentTime);
-			minTime = std::min(times[i], minTime);
+			minTime = sp_min(times[i], minTime);
 
 			sp_uint* orderedIndexes = ALLOC_ARRAY(sp_uint, inputLength);
 			gpu->commandManager->readBuffer(output, inputLength * sizeof(sp_uint), orderedIndexes, ONE_UINT, &evt);

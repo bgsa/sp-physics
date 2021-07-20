@@ -159,7 +159,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			std::memset(_values, 0, sizeof(sp_float) * length());
 
-			const sp_uint minOrder = std::min(_rows, _columns);
+			const sp_uint minOrder = sp_min(_rows, _columns);
 
 			for (sp_uint i = 0; i < minOrder; i++)
 				set(i, i, ONE_FLOAT);
@@ -180,7 +180,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>output parameter</returns>
 		API_INTERFACE inline void primaryDiagonal(sp_float* output) const
 		{
-			const sp_uint m = std::min(_rows, _columns);
+			const sp_uint m = sp_min(_rows, _columns);
 
 			for (sp_uint i = 0; i < m; i++)
 				output[i] = get(i, i);

@@ -110,8 +110,8 @@ namespace NAMESPACE_PHYSICS
 			gpu->releaseEvent(previousEvent);
 			std::swap(currentEvent, previousEvent);
 
-			globalWorkSize[0] = std::max((sp_size)std::ceil(globalWorkSize[0] / TWO_DOUBLE), ONE_SIZE);
-			localWorkSize[0]  = std::max((sp_size)std::ceil(localWorkSize[0] / TWO_DOUBLE), ONE_SIZE);
+			globalWorkSize[0] = sp_max((sp_size)std::ceil(globalWorkSize[0] / TWO_DOUBLE), ONE_SIZE);
+			localWorkSize[0]  = sp_max((sp_size)std::ceil(localWorkSize[0] / TWO_DOUBLE), ONE_SIZE);
 
 			while (globalWorkSize[0] != localWorkSize[0])
 			{

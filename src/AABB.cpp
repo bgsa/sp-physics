@@ -50,8 +50,8 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_float v = target[axis];
 					
-			v = std::max(v, minPoint[axis]);
-			v = std::min(v, maxPoint[axis]);
+			v = sp_max(v, minPoint[axis]);
+			v = sp_min(v, maxPoint[axis]);
 			
 			result[axis] = v;
 		}
@@ -102,14 +102,14 @@ namespace NAMESPACE_PHYSICS
 	{
 		return AABB(
 			Vec3(
-				std::min(this->minPoint.x, aabb.minPoint.x),
-				std::min(this->minPoint.y, aabb.minPoint.y),
-				std::min(this->minPoint[2], aabb.minPoint.z)
+				sp_min(this->minPoint.x, aabb.minPoint.x),
+				sp_min(this->minPoint.y, aabb.minPoint.y),
+				sp_min(this->minPoint[2], aabb.minPoint.z)
 			),
 			Vec3(
-				std::max(this->maxPoint.x, aabb.maxPoint.x),
-				std::max(this->maxPoint.y, aabb.maxPoint.y),
-				std::max(this->maxPoint.z, aabb.maxPoint.z)
+				sp_max(this->maxPoint.x, aabb.maxPoint.x),
+				sp_max(this->maxPoint.y, aabb.maxPoint.y),
+				sp_max(this->maxPoint.z, aabb.maxPoint.z)
 			)
 		);
 	}
