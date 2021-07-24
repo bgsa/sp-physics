@@ -2,7 +2,6 @@
 #define PLANE_HEADER
 
 #include "SpectrumPhysics.h"
-#include "Ray.h"
 #include "Line3D.h"
 #include "Orientation.h"
 #include "Triangle3D.h"
@@ -81,54 +80,6 @@ namespace NAMESPACE_PHYSICS
 			vector->y = normalVector.y;
 			vector->z = normalVector.z;
 			vector->w = distanceFromOrigin;
-		}
-
-		/// <summary>
-		/// Test if the ray cross the plane
-		/// </summary>
-		API_INTERFACE inline sp_bool intersection(const Ray& ray, Vec3* contactPoint) const
-		{
-#ifdef AVX_ENABLED
-			const __m128 normal_simd = sp_vec3_convert_simd(normalVector);
-			const __m128 ray_point_simd = sp_vec3_convert_simd(ray.point);
-			const __m128 ray_direction_simd = sp_vec3_convert_simd(ray.direction);
-			__m128 output;
-
-			sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, output, sp_bool hasIntersection)
-			
-			std::memcpy(contactPoint, output.m128_f32, sizeof(sp_float) * 3u);
-
-			/*
-			const __m128 _angle = sp_vec3_dot_simd(normal_simd, ray_direction_simd);
-
-			if (isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT))
-				return false;
-
-			const __m128 ray_point_simd = sp_vec3_convert_simd(ray.point);
-
-			__m128 temp1 = sp_vec3_dot_simd(normal_simd, ray_point_simd);
-			temp1 = sp_vec3_sub_simd(sp_vec4_create_simd1f(distanceFromOrigin), temp1);
-
-			temp1 = sp_vec3_div_simd(temp1, _angle);
-
-			temp1 = sp_vec3_mult_simd(ray_direction_simd, temp1);
-			temp1 = sp_vec3_add_simd(ray_point_simd, temp1);
-
-			std::memcpy(contactPoint, temp1.m128_f32, sizeof(sp_float) * 3u);
-			*/
-
-#else
-			const sp_float angle = normalVector.dot(ray.direction);
-
-			if (NAMESPACE_FOUNDATION::isCloseEnough(angle, ZERO_FLOAT))
-				return false;
-
-			const sp_float numerator = distanceFromOrigin - normalVector.dot(ray.point);
-			const sp_float t = numerator / angle;
-
-			contactPoint[0] = ray.point + ray.direction * t;
-#endif
-			return true;
 		}
 
 		/// <summary>

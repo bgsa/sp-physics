@@ -165,7 +165,7 @@ namespace NAMESPACE_PHYSICS
 		std::memcpy(output, contact.m128_f32, sizeof(sp_float) * 3u);
 #else
 		Ray ray(target, -normalVector);
-		intersection(ray, output);
+		ray.intersection(*this, output[0]);
 #endif
 	}
 

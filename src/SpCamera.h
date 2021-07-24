@@ -3,10 +3,11 @@
 
 #include "SpectrumPhysics.h"
 #include "SpViewportData.h"
+#include "SpPhysicSettings.h"
 
-#define SP_CAMERA_MIN_FIELD_OF_VIEW     1.0f
-#define SP_CAMERA_DEFAULT_FIELD_OF_VIEW 60.0f
-#define SP_CAMERA_MAX_FIELD_OF_VIEW     90.0f
+#define SP_CAMERA_MIN_FIELD_OF_VIEW     (0.017453f) /* one degree */
+#define SP_CAMERA_DEFAULT_FIELD_OF_VIEW (1.0472f) /* 60 degrees */
+#define SP_CAMERA_MAX_FIELD_OF_VIEW     (1.5708f) /* 90 degrees */
 
 #define SP_CAMERA_PROJECTION_TYPE_PERSPECTIVE  (0)
 #define SP_CAMERA_PROJECTION_TYPE_ORTHOGRAPHIC (1)
@@ -21,6 +22,7 @@ namespace NAMESPACE_PHYSICS
 		Vec3 _up;
 		Vec3 _forward;
 		Vec3 _right;
+		Vec3 _direction;
 		
 		sp_float _fieldOfView;
 		sp_float _aspectRatio;
@@ -47,15 +49,17 @@ namespace NAMESPACE_PHYSICS
 
 			cross(_right, _forward, _up);      //yAxis
 
+			_direction = _forward * SpPhysicSettings::instance()->windingOrder();
+
 			_viewMatrix = {
-				_right[0], _up[0], _forward[0], ZERO_FLOAT,
-				_right[1], _up[1], _forward[1], ZERO_FLOAT,
-				_right[2], _up[2], _forward[2], ZERO_FLOAT,
+				_right.x, _up.x, _forward.x, ZERO_FLOAT,
+				_right.y, _up.y, _forward.y, ZERO_FLOAT,
+				_right.z, _up.z, _forward.z, ZERO_FLOAT,
 				ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ONE_FLOAT
 			};
 
 			Mat4 translation;
-			createTranslate(-_position[0], -_position[1], -_position[2], translation);
+			createTranslate(-_position.x, -_position.y, -_position.z, translation);
 
 			Mat4 temp;
 			_viewMatrix.multiply(translation, temp);
@@ -138,6 +142,11 @@ namespace NAMESPACE_PHYSICS
 			return _forward;
 		}
 
+		API_INTERFACE inline Vec3 direction() const
+		{
+			return _direction;
+		}
+
 		API_INTERFACE inline sp_float fieldOfView() const
 		{
 			return _fieldOfView;
@@ -206,7 +215,7 @@ namespace NAMESPACE_PHYSICS
 			sp_float xFmin, xFmax, yFmin, yFmax;   // Dimensions of far  clipping plane
 
 			// Do the Math for the near clipping plane
-			ymax = near * sp_tan(_fieldOfView * PI_DIV_360);
+			ymax = near * sp_tan(_fieldOfView * 0.5f); // field-of-view in radians = 0.5f, in degree = PI_DIV_360
 			ymin = -ymax;
 			xmin = ymin * aspectRatio;
 			xmax = -xmin;
@@ -223,7 +232,7 @@ namespace NAMESPACE_PHYSICS
 			_projectionMatrix.m44 = ZERO_FLOAT;
 
 			// Do the Math for the far clipping plane
-			yFmax = far * sp_tan(_fieldOfView * PI_DIV_360);
+			yFmax = far * sp_tan(_fieldOfView * 0.5f); // field-of-view in radians = 0.5f, in degree = PI_DIV_360
 			yFmin = -yFmax;
 			xFmin = yFmin * aspectRatio;
 			xFmax = -xFmin;

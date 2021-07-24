@@ -10,8 +10,21 @@ namespace NAMESPACE_PHYSICS_TEST
 	public:
 
 		SP_TEST_METHOD_DEF(intersection);
+		SP_TEST_METHOD_DEF(intersection_plane);
 
 	};
+
+	SP_TEST_METHOD(CLASS_NAME, intersection_plane)
+	{
+		Ray r(Vec3(1.019f, -1.0f, -1.0f), Vec3(0.0f, -0.0f, -1.0f));
+		Plane plane(Vec3(-1.0f, -1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f));
+
+		Vec3 contact;
+		const sp_bool result = r.intersection(plane, contact);
+
+		Assert::IsTrue(result);
+		Assert::IsTrue(isCloseEnough(Vec3(1.019f, -1.0f, 1.0f), contact, ERROR_MARGIN_PHYSIC));
+	}
 
 	SP_TEST_METHOD(CLASS_NAME, intersection)
 	{

@@ -16,7 +16,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(equation_Test2);
 		SP_TEST_METHOD_DEF(equation_Test3);
 		SP_TEST_METHOD_DEF(intersection_line);
-		SP_TEST_METHOD_DEF(intersection_ray);
 		SP_TEST_METHOD_DEF(intersection_plane);
 		SP_TEST_METHOD_DEF(angle_Test1);
 		SP_TEST_METHOD_DEF(angle_Test2);
@@ -36,18 +35,6 @@ namespace NAMESPACE_PHYSICS_TEST
 		SP_TEST_METHOD_DEF(isPerpendicular_Test1);
 		SP_TEST_METHOD_DEF(isPerpendicular_Test2);
 	};
-
-	SP_TEST_METHOD(CLASS_NAME, intersection_ray)
-	{
-		Ray r(Vec3(1.019f, -1.0f, -1.0f), Vec3(0.0f, -0.0f, -1.0f));
-		Plane plane(Vec3(-1.0f, -1.0f, 1.0f), Vec3(0.0f, 0.0f, 1.0f));
-
-		Vec3 contact;
-		sp_bool result = plane.intersection(r, &contact);
-		
-		Assert::IsTrue(result);
-		Assert::IsTrue(isCloseEnough(Vec3(1.019f, -1.0f, 1.0f), contact, ERROR_MARGIN_PHYSIC));
-	}
 
 	SP_TEST_METHOD(CLASS_NAME, contructorWithThreePoints_Test)
 	{

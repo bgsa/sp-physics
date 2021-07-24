@@ -8,9 +8,13 @@
 
 namespace NAMESPACE_PHYSICS
 {
+#define SP_WINDING_ORDER_CW  ( 1.0f)
+#define SP_WINDING_ORDER_CCW (-1.0f)
+
 	class SpPhysicSettings
 	{
 	private:
+		sp_float _windingOrder;
 		sp_float _physicVelocity;
 		sp_float _restingVelocityEpsilon;
 		sp_size _frameId;
@@ -23,6 +27,7 @@ namespace NAMESPACE_PHYSICS
 		SpPhysicSettings()
 		{
 			_frameId = ZERO_SIZE;
+			_windingOrder = SP_WINDING_ORDER_CCW;
 			_physicVelocity = 0.003f;
 			_gravityForce = Vec3(0.0f, -9.8f, 0.0f);
 			_restingVelocityEpsilon = 0.09f;
@@ -38,6 +43,16 @@ namespace NAMESPACE_PHYSICS
 		{
 			static SpPhysicSettings* _settings = sp_mem_new(SpPhysicSettings)();
 			return _settings;
+		}
+
+		/// <summary>
+		/// Check the windig order is "Clockwise" or "Counter Clockwise".
+		/// The accepted values are defined in SP_WINDING_ORDER_CW or SP_WINDING_ORDER_CCW
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_float windingOrder() const
+		{
+			return _windingOrder;
 		}
 
 		/// <summary>

@@ -3,6 +3,93 @@
 namespace NAMESPACE_PHYSICS
 {
 
+	sp_bool Ray::intersection(const Plane& p, Vec3& contact) const
+	{
+#ifdef AVX_ENABLED
+		const __m128 normal_simd = sp_vec3_convert_simd(p.normalVector);
+		const __m128 ray_point_simd = sp_vec3_convert_simd(point);
+		const __m128 ray_direction_simd = sp_vec3_convert_simd(direction);
+		__m128 output;
+
+		sp_plane3D_intersection_ray_simd(normal_simd, ray_point_simd, ray_direction_simd, output, sp_bool hasIntersection)
+
+			std::memcpy(contact, output.m128_f32, sizeof(sp_float) * 3u);
+
+		/*
+		const __m128 _angle = sp_vec3_dot_simd(normal_simd, ray_direction_simd);
+
+		if (isCloseEnough(_angle.m128_f32[0], ZERO_FLOAT))
+			return false;
+
+		const __m128 ray_point_simd = sp_vec3_convert_simd(ray.point);
+
+		__m128 temp1 = sp_vec3_dot_simd(normal_simd, ray_point_simd);
+		temp1 = sp_vec3_sub_simd(sp_vec4_create_simd1f(distanceFromOrigin), temp1);
+
+		temp1 = sp_vec3_div_simd(temp1, _angle);
+
+		temp1 = sp_vec3_mult_simd(ray_direction_simd, temp1);
+		temp1 = sp_vec3_add_simd(ray_point_simd, temp1);
+
+		std::memcpy(contactPoint, temp1.m128_f32, sizeof(sp_float) * 3u);
+		*/
+
+#else
+		const sp_float angle = p.normalVector.dot(direction);
+
+		if (NAMESPACE_FOUNDATION::isCloseEnough(angle, ZERO_FLOAT))
+			return false;
+
+		const sp_float numerator = p.distanceFromOrigin - p.normalVector.dot(point);
+		const sp_float t = numerator / angle;
+
+		contact = point + direction * t;
+#endif
+		return true;
+	}
+
+	sp_bool Ray::intersection(const AABB& aabb, Vec3 contact[2], sp_float& distanceToFirstContact, sp_float& distanceToSecondContact, const sp_float _epsilon) const
+	{
+		distanceToFirstContact = 0.0f; // set to -FLT_MAX to get first hit on line
+		distanceToSecondContact = SP_FLOAT_MAX; // set to max distance ray can travel (for segment)
+
+		// For all three slabs
+		for (sp_int i = 0; i < 3; i++)
+		{  
+			if (sp_abs(direction[i]) < _epsilon)
+			{  
+				// Ray is parallel to slab. No hit if origin not within slab
+				if (point[i] < aabb.minPoint[i] || point[i] > aabb.maxPoint[i])
+					return false;
+			} 
+			else 
+			{
+				// Compute intersection t value of ray with near and far plane of slab
+				const sp_float ood = NAMESPACE_FOUNDATION::div(1.0f, direction[i]);
+				sp_float t1 = (aabb.minPoint[i] - point[i]) * ood;
+				sp_float t2 = (aabb.maxPoint[i] - point[i]) * ood;
+				
+				// Make t1 be intersection with near plane, t2 with far plane
+				if (t1 > t2) 
+					std::swap(t1, t2);  
+				
+				// Compute the intersection of slab intersection intervals
+				distanceToFirstContact = sp_max(distanceToFirstContact, t1);
+				distanceToSecondContact = sp_min(distanceToSecondContact, t2);
+				
+				// Exit with no collision as soon as slab intersection becomes empty
+				if (distanceToFirstContact > distanceToSecondContact)
+					return false;
+			}  
+		}  
+		
+		// Ray intersects all 3 slabs. Return point (q) and intersection t value (tmin)
+		contact[0] = point + direction * distanceToFirstContact;
+		contact[1] = point + direction * distanceToSecondContact;
+
+		return true; 
+	}
+
 	sp_bool Ray::intersection(const Ray& ray, Vec3* contact, const sp_float _epsilon) const
 	{
 		Vec3 contact1, contact2;
