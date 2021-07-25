@@ -4,6 +4,8 @@
 #include "SpectrumPhysics.h"
 #include "SpViewportData.h"
 #include "SpPhysicSettings.h"
+#include "Ray.h"
+#include "SpSize.h"
 
 #define SP_CAMERA_MIN_FIELD_OF_VIEW     (0.017453f) /* one degree */
 #define SP_CAMERA_DEFAULT_FIELD_OF_VIEW (1.0472f) /* 60 degrees */
@@ -189,6 +191,16 @@ namespace NAMESPACE_PHYSICS
 			return _invertY;
 		}
 
+		API_INTERFACE inline sp_float nearFrustum() const
+		{
+			return _nearFrustum;
+		}
+
+		API_INTERFACE inline sp_float farFrustum() const
+		{
+			return _farFrustum;
+		}
+
 		API_INTERFACE inline Mat4 projectionMatrix() const noexcept
 		{
 			return _projectionMatrix;
@@ -303,6 +315,29 @@ namespace NAMESPACE_PHYSICS
 			updateViewMatrix();
 
 			_isDirty = false;
+		}
+
+		API_INTERFACE inline void raycast(const Vec2& screenCoordinates, const SpSize<sp_float>& viewport, Ray& ray) const
+		{
+			//const sp_float tangentFoV = sp_abs(sp_tan(_fieldOfView * 0.5f));
+	
+			const sp_float windingOrder = SpPhysicSettings::instance()->windingOrder();
+			const Vec2 screenCenter(viewport.width * 0.5f, viewport.height * 0.5f);
+
+			const sp_float angleIncrementX = (_fieldOfView / viewport.width) * _aspectRatio;
+			const sp_float angleIncrementY = (_fieldOfView / viewport.height);
+
+			const sp_float angleX = (screenCoordinates.x - screenCenter.x + 0.5f) * angleIncrementX;
+			const sp_float angleY = (screenCoordinates.y - screenCenter.y + 0.5f) * angleIncrementY;
+
+			const Quat xAxis = Quat::createRotate(angleX * windingOrder, up());
+			const Quat yAxis = Quat::createRotate(angleY * windingOrder, right());
+
+			Vec3 rayTemp;
+			rotate(xAxis, direction(), rayTemp);
+			rotate(yAxis, rayTemp, ray.direction);
+			normalize(ray.direction);
+			ray.point = _position;
 		}
 
 		API_INTERFACE inline void fromWorldToScreen(const Vec3& vertex, const Mat4& modelViewMatrix, const SpViewportData* viewport, Vec3& output)
