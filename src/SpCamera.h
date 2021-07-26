@@ -7,9 +7,9 @@
 #include "Ray.h"
 #include "SpSize.h"
 
-#define SP_CAMERA_MIN_FIELD_OF_VIEW     (0.017453f) /* one degree */
-#define SP_CAMERA_DEFAULT_FIELD_OF_VIEW (1.0472f) /* 60 degrees */
-#define SP_CAMERA_MAX_FIELD_OF_VIEW     (1.5708f) /* 90 degrees */
+#define SP_CAMERA_MIN_FIELD_OF_VIEW     (0.01745329f) /* one degree */
+#define SP_CAMERA_DEFAULT_FIELD_OF_VIEW (1.04719755f) /* 60 degrees */
+#define SP_CAMERA_MAX_FIELD_OF_VIEW     (1.57079632f) /* 90 degrees */
 
 #define SP_CAMERA_PROJECTION_TYPE_PERSPECTIVE  (0)
 #define SP_CAMERA_PROJECTION_TYPE_ORTHOGRAPHIC (1)
@@ -46,7 +46,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			normalize(_position - _target, _forward);   //zAxis
 
-			cross(_forward, _up, _right);
+			cross(_forward, Vec3Up, _right);
 			normalize(_right);     //xAxis
 
 			cross(_right, _forward, _up);      //yAxis
