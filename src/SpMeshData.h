@@ -42,7 +42,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline sp_size lastAddress() const
 		{
-			return (sp_size)faceIndexes[facesLength * 3 - 1];
+			return (sp_size)&faceIndexes[facesLength * 3 - 1];
 		}
 
 		/// <summary>

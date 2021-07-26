@@ -226,6 +226,7 @@
     <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp" />
     <ClCompile Include="src\SpFaceMesh.cpp" />
     <ClCompile Include="src\SpGame.cpp" />
+    <ClCompile Include="src\SpGameObjectFactoryCube.cpp" />
     <ClCompile Include="src\SpGameObjectFactoryPlane.cpp" />
     <ClCompile Include="src\SpGameObjectType.cpp" />
     <ClCompile Include="src\SpGJK.cpp" />
@@ -319,6 +320,7 @@
     <ClInclude Include="src\SpGame3D.h" />
     <ClInclude Include="src\SpGameObject.h" />
     <ClInclude Include="src\SpGameObjectFactory.h" />
+    <ClInclude Include="src\SpGameObjectFactoryCube.h" />
     <ClInclude Include="src\SpGameObjectFactoryPlane.h" />
     <ClInclude Include="src\SpGameObjectManager.h" />
     <ClInclude Include="src\SpGameObjectType.h" />

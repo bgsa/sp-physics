@@ -1,5 +1,5 @@
-#ifndef SP_GAME_OBJECT_FACTORY_PLANE_HEADER
-#define SP_GAME_OBJECT_FACTORY_PLANE_HEADER
+#ifndef SP_GAME_OBJECT_FACTORY_CUBE_HEADER
+#define SP_GAME_OBJECT_FACTORY_CUBE_HEADER
 
 #include "SpectrumPhysics.h"
 #include "SpGameObjectFactory.h"
@@ -7,21 +7,21 @@
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpGameObjectFactoryPlane
+	class SpGameObjectFactoryCube
 		: public SpGameObjectFactory
 	{
 	private:
 		SpGpuBuffer* gpuVertexBuffer;
 		SpGpuBuffer* gpuIndexBuffer;
-		sp_uint planeMeshIndex;
+		sp_uint cubeMeshIndex;
 
 		void initMesh(SpScene* scene);
 
 	public:
 
-		API_INTERFACE inline SpGameObjectFactoryPlane()
+		API_INTERFACE inline SpGameObjectFactoryCube()
 		{
-			planeMeshIndex = SP_UINT_MAX;
+			cubeMeshIndex = SP_UINT_MAX;
 		}
 
 		API_INTERFACE void init(SpScene* scene) override;
@@ -33,4 +33,4 @@ namespace NAMESPACE_PHYSICS
 	};
 }
 
-#endif // SP_GAME_OBJECT_FACTORY_PLANE_HEADER
+#endif // SP_GAME_OBJECT_FACTORY_CUBE_HEADER

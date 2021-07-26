@@ -5,8 +5,7 @@
 #include "SpObjectManager.h"
 #include "SpMeshData.h"
 
-#define SP_MESH_INDEX_PLANE (0)
-#define SP_MESH_INDEX_CUBE  (1)
+#define SP_MESH_NAME_MAX_LENGTH (100)
 
 namespace NAMESPACE_PHYSICS 
 {
@@ -14,7 +13,7 @@ namespace NAMESPACE_PHYSICS
 		: public SpObjectManager
 	{
 	private:
-		sp_char** _meshesName;
+		sp_char* _meshesName;
 		SpMeshData* _meshesData;
 
 		inline sp_size meshesDataSize() const
@@ -32,81 +31,9 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpMeshManager()
 			: SpObjectManager()
 		{
-			_length = 2;
-
-			_meshesName = sp_mem_new_array(sp_char*, _length);
-
-			_meshesName[0] = sp_mem_new_array(sp_char, 6);
-			std::memcpy(_meshesName[0], "Plane\0", sizeof(sp_char) * 6);
-
-			_meshesName[1] = sp_mem_new_array(sp_char, 5);
-			std::memcpy(_meshesName[1], "Cube\0", sizeof(sp_char) * 5);
-
-			_meshesData = sp_mem_new_array(SpMeshData, _length);
-
-			// create plane mesh
-			sp_size idx = 0;
-			_meshesData[idx].attributesLength = 4;
-			_meshesData[idx].attributes = sp_mem_new_array(SpMeshAttribute, 4);
-			_meshesData[idx].attributes[0].vertex = Vec3(-0.5f, 0.0f, 0.5f);
-			_meshesData[idx].attributes[1].vertex = Vec3(0.5f, 0.0f, 0.5f);
-			_meshesData[idx].attributes[2].vertex = Vec3(0.5f, 0.0f, -0.5f);
-			_meshesData[idx].attributes[3].vertex = Vec3(-0.5f, 0.0f, -0.5f);
-
-			_meshesData[idx].attributes[0].normal = Vec3Up;
-			_meshesData[idx].attributes[1].normal = Vec3Up;
-			_meshesData[idx].attributes[2].normal = Vec3Up;
-			_meshesData[idx].attributes[3].normal = Vec3Up;
-
-			_meshesData[idx].facesLength = 2u;
-			_meshesData[idx].faceIndexes = sp_mem_new_array(sp_size, 2 * 3);
-			_meshesData[idx].faceIndexes[0] = 0;
-			_meshesData[idx].faceIndexes[1] = 1;
-			_meshesData[idx].faceIndexes[2] = 2;
-			_meshesData[idx].faceIndexes[3] = 2;
-			_meshesData[idx].faceIndexes[4] = 3;
-			_meshesData[idx].faceIndexes[5] = 0;
-
-			// create cube mesh
-			idx = 1;
-			_meshesData[idx].attributesLength = 8;
-			_meshesData[idx].attributes = sp_mem_new_array(SpMeshAttribute, 8);
-			_meshesData[idx].attributes[0].vertex = Vec3(0.5f, -0.5f, -0.5f);  // left-bottom-front
-			_meshesData[idx].attributes[1].vertex = Vec3(-0.5f, -0.5f, -0.5f); // right-bottom-front
-			_meshesData[idx].attributes[2].vertex = Vec3(-0.5f, 0.5f, -0.5f);  // right-top-front
-			_meshesData[idx].attributes[3].vertex = Vec3(0.5f, 0.5f, -0.5f);   // left-top-front
-
-			_meshesData[idx].attributes[4].vertex = Vec3(-0.5f, -0.5f, 0.5f); // left-bottom-back
-			_meshesData[idx].attributes[5].vertex = Vec3(0.5f, -0.5f, 0.5f);  // right-bottom-back
-			_meshesData[idx].attributes[6].vertex = Vec3(0.5f, 0.5f, 0.5f);   // right-top-back
-			_meshesData[idx].attributes[7].vertex = Vec3(-0.5f, 0.5f, 0.5f);  // left-top-back
-
-			_meshesData[idx].attributes[0].normal = Vec3(0.577350259f, -0.577350259f, -0.577350259f);  //bottom-right-back
-			_meshesData[idx].attributes[1].normal = Vec3(-0.577350259f, -0.577350259f, -0.577350259f); //bottom-left-back
-			_meshesData[idx].attributes[2].normal = Vec3(-0.577350259f, 0.577350259f, -0.577350259f);  //top-left-back
-			_meshesData[idx].attributes[3].normal = Vec3(0.577350259f, 0.577350259f, -0.577350259f);   //top-right-back
-			_meshesData[idx].attributes[4].normal = Vec3(-0.577350259f, -0.577350259f, 0.577350259f);  //bottom-left-front
-			_meshesData[idx].attributes[5].normal = Vec3(0.577350259f, -0.577350259f, 0.577350259f);   //bottom-right-front
-			_meshesData[idx].attributes[6].normal = Vec3(0.577350259f, 0.577350259f, 0.577350259f);    //top-right-front
-			_meshesData[idx].attributes[7].normal = Vec3(-0.577350259f, 0.577350259f, 0.577350259f);    //top-left-front
-
-			const sp_uint cubeIndices[36] = {
-				0,1,2, //face frontal
-				2,3,0,
-				4,5,6, //face-traseira
-				6,7,4,
-				0,5,4, //fundo
-				4,1,0,
-				3,2,7, //topo
-				7,6,3,
-				6,5,0,
-				0,3,6,
-				1,4,7, //face direita
-				7,2,1
-			};
-			_meshesData[idx].facesLength = 12u;
-			_meshesData[idx].faceIndexes = sp_mem_new_array(sp_size, _meshesData[idx].facesLength * 3);
-			std::memcpy(_meshesData[idx].faceIndexes, cubeIndices, 36 * sizeof(sp_float));
+			_length = 0;
+			_meshesName = nullptr;
+			_meshesData = nullptr;
 		}
 		
 		/// <summary>
@@ -117,22 +44,34 @@ namespace NAMESPACE_PHYSICS
 		{			
 			if (_length > 0)
 			{
+				// realloc meshes names
+				void* temp = ALLOC_SIZE(_length * SP_MESH_NAME_MAX_LENGTH);
+				std::memcpy(temp, _meshesName, _length * SP_MESH_NAME_MAX_LENGTH);
+
+				sp_mem_release(_meshesName);
+				_meshesName = sp_mem_new_array(sp_char, (_length + 1) * SP_MESH_NAME_MAX_LENGTH);
+
+				std::memcpy(_meshesName, temp, _length * SP_MESH_NAME_MAX_LENGTH);
+				ALLOC_RELEASE(temp);
+
+				// realloc meshes data
 				const sp_size _meshesDataSize = meshesDataSize();
 
-				void* temp = ALLOC_SIZE(_meshesDataSize);
+				temp = ALLOC_SIZE(_meshesDataSize);
 				std::memcpy(temp, _meshesData, _meshesDataSize);
 
 				sp_mem_release(_meshesData);
 
-				_meshesData = sp_mem_new_array(SpMeshData, ++_length);
+				_length++;
+				_meshesData = sp_mem_new_array(SpMeshData, _length);
 
 				std::memcpy(_meshesData, temp, _meshesDataSize);
-
 				ALLOC_RELEASE(temp);
 			}
 			else
 			{
 				_length++;
+				_meshesName = sp_mem_new_array(sp_char, _length * SP_MESH_NAME_MAX_LENGTH);
 				_meshesData = sp_mem_new_array(SpMeshData, _length);
 			}
 
@@ -173,7 +112,22 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline sp_char* name(const sp_uint index) const
 		{
-			return _meshesName[index];
+			return &_meshesName[index * SP_MESH_NAME_MAX_LENGTH];
+		}
+
+		/// <summary>
+		/// Set a mesh name to mesh index
+		/// </summary>
+		/// <param name="index">Mesh Index</param>
+		/// <param name="newName">New name</param>
+		/// <param name="newNameLength">New name length</param>
+		/// <returns></returns>
+		API_INTERFACE inline void name(const sp_uint index, const sp_char* newName, const sp_size newNameLength) const
+		{
+			sp_assert(newNameLength + 1 > SP_MESH_NAME_MAX_LENGTH, "IndexOutOfRangeException");
+
+			std::memcpy(&_meshesName[index * SP_MESH_NAME_MAX_LENGTH], newName, sizeof(sp_char) * newNameLength);
+			_meshesName[index * SP_MESH_NAME_MAX_LENGTH + newNameLength] = END_OF_STRING;
 		}
 
 		/// <summary>
