@@ -29,6 +29,7 @@ namespace NAMESPACE_PHYSICS
 		sp_float _fieldOfView;
 		sp_float _aspectRatio;
 		sp_float _invertY;
+		sp_float _velocity;
 		sp_int _projectionType;
 		sp_float _nearFrustum;
 		sp_float _farFrustum;
@@ -40,7 +41,6 @@ namespace NAMESPACE_PHYSICS
 		Mat4 _viewMatrix;
 
 		sp_bool _isDirty;
-		sp_float _velocity;
 
 		inline void updateViewMatrix()
 		{
