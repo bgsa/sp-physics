@@ -8,6 +8,7 @@
 #include "SpCameraManager.h"
 #include "SpTransformManager.h"
 #include "SpRenderableObjectManager.h"
+#include "SpLightingManager.h"
 #include "SpMeshManager.h"
 #include "SpShader.h"
 #include "SpGameObjectFactoryPlane.h"
@@ -28,6 +29,7 @@ namespace NAMESPACE_PHYSICS
 		SpTransformManager* _transformManager;
 		SpRenderableObjectManager* _renderableObjectManager;
 		SpMeshManager* _meshManager;
+		SpLightingManager* _lightingManager;
 		
 		void initGameObjectsType()
 		{
@@ -54,6 +56,7 @@ namespace NAMESPACE_PHYSICS
 			cameraManager = sp_mem_new(SpCameraManager)();
 			_meshManager = sp_mem_new(SpMeshManager)();
 			_renderableObjectManager = sp_mem_new(SpRenderableObjectManager)();
+			_lightingManager = sp_mem_new(SpLightingManager)();
 
 			initGameObjectsType();
 
@@ -101,6 +104,15 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_char* name() const
 		{
 			return _id.name;
+		}
+
+		/// <summary>
+		/// Get the lighting manager
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline SpLightingManager* lightingManager() const
+		{
+			return _lightingManager;
 		}
 
 		/// <summary>
@@ -250,6 +262,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void update()
 		{
 			_transformManager->updateGpuBuffer(); // update transform in GPU
+			_lightingManager->updateGpuBuffer(); // update lighting in GPU
 		}
 
 		/// <summary>
@@ -291,6 +304,12 @@ namespace NAMESPACE_PHYSICS
 			{
 				sp_mem_delete(cameraManager, SpCameraManager);
 				cameraManager = nullptr;
+			}
+
+			if (_lightingManager != nullptr)
+			{
+				sp_mem_delete(_lightingManager, SpLightingManager);
+				_lightingManager = nullptr;
 			}
 
 			for (SpVectorItem<SpShader*>* item = shaders.begin(); item != nullptr; item = item->next())

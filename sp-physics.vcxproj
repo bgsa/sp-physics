@@ -233,6 +233,7 @@
     <ClCompile Include="src\SpGpuPlatform.cpp" />
     <ClCompile Include="src\SpGpuPlatformManager.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
+    <ClCompile Include="src\SpLightingManager.cpp" />
     <ClCompile Include="src\SpMesh.cpp" />
     <ClCompile Include="src\SpMeshCache.cpp" />
     <ClCompile Include="src\SpOptimization.cpp" />
@@ -331,6 +332,8 @@
     <ClInclude Include="src\SpIGraphicObject2D.h" />
     <ClInclude Include="src\SpIGraphicObject3D.h" />
     <ClInclude Include="src\SpIGraphicObjectList3D.h" />
+    <ClInclude Include="src\SpLightingManager.h" />
+    <ClInclude Include="src\SpLightSource.h" />
     <ClInclude Include="src\SpMeshAttributes.h" />
     <ClInclude Include="src\SpMeshData.h" />
     <ClInclude Include="src\SpMeshManager.h" />
