@@ -9,6 +9,7 @@ namespace NAMESPACE_PHYSICS
 	{
 		_textureBuffer = SpGameInstance->renderingAPI()->createTextureBuffer();
 		usageType = SpGameInstance->renderingAPI()->bufferUsageTypeDynamicDraw();
+		_names = nullptr;
 
 		addDefaultAmbientLight();
 		addDefaultDiffuseLight();

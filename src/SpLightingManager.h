@@ -6,9 +6,10 @@
 #include "SpLightSource.h"
 #include "SpGpuTextureBuffer.h"
 
+#define SP_LIGHT_NAME_MAX_LENGTH (100)
+
 namespace NAMESPACE_PHYSICS 
 {
-
 	class SpLightingManager
 		: public SpObjectManager
 	{
@@ -16,6 +17,7 @@ namespace NAMESPACE_PHYSICS
 		SpLightSource* _lights;
 		SpGpuTextureBuffer* _textureBuffer;
 		sp_int usageType;
+		sp_char* _names;
 
 		inline void addDefaultAmbientLight()
 		{
@@ -27,6 +29,8 @@ namespace NAMESPACE_PHYSICS
 			_lights[index].direction(Vec3Zeros);
 			_lights[index].lightSwitch(true);
 			_lights[index].staticLight(true);
+
+			name(index, "Global Ambient", 14);
 		}
 
 		inline void addDefaultDiffuseLight()
@@ -39,6 +43,24 @@ namespace NAMESPACE_PHYSICS
 			_lights[index].direction(Vec3Zeros);
 			_lights[index].lightSwitch(true);
 			_lights[index].staticLight(true);
+
+			name(index, "Global Diffuse", 14);
+		}
+
+		inline void addName()
+		{
+			const sp_size namesSize = sizeof(sp_char) * (_length-1) * SP_LIGHT_NAME_MAX_LENGTH;
+			void* temp = ALLOC_SIZE(namesSize);
+			std::memcpy(temp, _names, namesSize);
+
+			sp_mem_release(_names);
+
+			_names = sp_mem_new_array(sp_char, _length * SP_LIGHT_NAME_MAX_LENGTH);
+			std::memcpy(_names, temp, namesSize);
+
+			ALLOC_RELEASE(temp);
+
+			std::memset(&_names[(_length - 1) * SP_LIGHT_NAME_MAX_LENGTH], 0, SP_LIGHT_NAME_MAX_LENGTH);
 		}
 
 	public:
@@ -70,11 +92,16 @@ namespace NAMESPACE_PHYSICS
 				std::memcpy(_lights, temp, objectSize);
 
 				ALLOC_RELEASE(temp);
+
+				addName();
 			}
 			else
 			{
 				_length++;
 				_lights = sp_mem_new_array(SpLightSource, _length);
+
+				_names = sp_mem_new_array(sp_char, _length * SP_LIGHT_NAME_MAX_LENGTH);
+				std::memset(_names, 0, SP_LIGHT_NAME_MAX_LENGTH);
 			}
 
 			return _length - 1;
@@ -108,13 +135,34 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get camera from index
+		/// Get light by index
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
 		API_INTERFACE inline SpLightSource* get(const sp_uint index) const
 		{
 			return &_lights[index];
+		}
+
+		/// <summary>
+		/// Get name og the light
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		API_INTERFACE inline sp_char* name(const sp_uint index) const
+		{
+			return &_names[index * SP_LIGHT_NAME_MAX_LENGTH];
+		}
+
+		/// <summary>
+		/// Set name og the light
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		API_INTERFACE inline void name(const sp_uint index, const sp_char* newName, const sp_size newNameLength)
+		{
+			std::memcpy(&_names[index * SP_LIGHT_NAME_MAX_LENGTH], newName, newNameLength);
+			_names[index * SP_LIGHT_NAME_MAX_LENGTH + newNameLength] = END_OF_STRING;
 		}
 
 		/// <summary>
