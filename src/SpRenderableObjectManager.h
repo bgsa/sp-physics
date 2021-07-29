@@ -4,6 +4,8 @@
 #include "SpectrumPhysics.h"
 #include "SpObjectManager.h"
 #include "SpRenderableObject.h"
+#include "SpMaterial.h"
+#include "SpGpuTextureBuffer.h"
 
 namespace NAMESPACE_PHYSICS 
 {
@@ -13,6 +15,24 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		SpRenderableObject* _renderableObjects;
+		SpMaterial* _materials;
+		SpGpuTextureBuffer* _materialsBuffer;
+		sp_int usageType;
+
+		inline void addMaterial()
+		{
+			const sp_size objectSize = sizeof(SpMaterial) * (_length - 1);
+			void* temp = ALLOC_SIZE(objectSize);
+			std::memcpy(temp, _materials, objectSize);
+
+			sp_mem_release(_materials);
+
+			_materials = sp_mem_new_array(SpMaterial, _length);
+
+			std::memcpy(_materials, temp, objectSize);
+
+			ALLOC_RELEASE(temp);
+		}
 
 	public:
 	
@@ -20,10 +40,7 @@ namespace NAMESPACE_PHYSICS
 		/// Default constructor
 		/// </summary>
 		/// <returns></returns>
-		API_INTERFACE inline SpRenderableObjectManager()
-			: SpObjectManager()
-		{
-		}
+		API_INTERFACE SpRenderableObjectManager();
 
 		/// <summary>
 		/// Add a camera in list
@@ -34,7 +51,7 @@ namespace NAMESPACE_PHYSICS
 		{			
 			if (_length > 0)
 			{
-				const sp_size objectSize = sizeof(SpRenderableObject) * _length;
+				sp_size objectSize = sizeof(SpRenderableObject) * _length;
 				void* temp = ALLOC_SIZE(objectSize);
 				std::memcpy(temp, _renderableObjects, objectSize);
 
@@ -46,11 +63,14 @@ namespace NAMESPACE_PHYSICS
 				std::memcpy(_renderableObjects, temp, objectSize);
 
 				ALLOC_RELEASE(temp);
+
+				addMaterial();
 			}
 			else
 			{
 				_length++;
 				_renderableObjects = sp_mem_new_array(SpRenderableObject, _length);
+				_materials = sp_mem_new_array(SpMaterial, _length);
 			}
 
 			return _length - 1;
@@ -83,7 +103,7 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get camera from index
+		/// Get renderable object byindex
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
@@ -93,11 +113,55 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Get material from index
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		API_INTERFACE inline SpMaterial* material(const sp_uint index) const
+		{
+			return &_materials[index];
+		}
+
+		/// <summary>
+		/// Get the materials buffer in GPU
+		/// </summary>
+		/// <returns>Texture Buffer</returns>
+		API_INTERFACE inline SpGpuTextureBuffer* gpuBufferMaterials() const
+		{
+			return _materialsBuffer;
+		}
+
+		/// <summary>
+		/// Update texture buffer with the materials
+		/// </summary>
+		API_INTERFACE inline void updateGpuBuffer()
+		{
+			sp_size bufferSize = sizeof(SpMaterial) * _length;
+
+			_materialsBuffer
+				->use()
+				->updateData(bufferSize, _materials, usageType);
+		}
+
+		/// <summary>
 		/// Release all allocated resources
 		/// </summary>
 		/// <returns>void</returns>
 		API_INTERFACE inline void dispose() override
 		{
+			if (_materialsBuffer != nullptr)
+			{
+				_materialsBuffer->dispose();
+				sp_mem_release(_materialsBuffer);
+				_materialsBuffer = nullptr;
+			}
+
+			if (_materials != nullptr)
+			{
+				sp_mem_release(_materials);
+				_materials = nullptr;
+			}
+
 			if (_renderableObjects != nullptr)
 			{
 				sp_mem_release(_renderableObjects);

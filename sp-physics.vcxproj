@@ -239,6 +239,7 @@
     <ClCompile Include="src\SpOptimization.cpp" />
     <ClCompile Include="src\SpPhysicIntegrator.cpp" />
     <ClCompile Include="src\SpPhysicSimulator.cpp" />
+    <ClCompile Include="src\SpRenderableObjectManager.cpp" />
     <ClCompile Include="src\SpSceneManager.cpp" />
     <ClCompile Include="src\SpTransformManager.cpp" />
     <ClCompile Include="src\SpVertexMesh.cpp" />
@@ -334,6 +335,7 @@
     <ClInclude Include="src\SpIGraphicObjectList3D.h" />
     <ClInclude Include="src\SpLightingManager.h" />
     <ClInclude Include="src\SpLightSource.h" />
+    <ClInclude Include="src\SpMaterial.h" />
     <ClInclude Include="src\SpMeshAttributes.h" />
     <ClInclude Include="src\SpMeshData.h" />
     <ClInclude Include="src\SpMeshManager.h" />

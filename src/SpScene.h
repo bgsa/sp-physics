@@ -263,6 +263,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			_transformManager->updateGpuBuffer(); // update transform in GPU
 			_lightingManager->updateGpuBuffer(); // update lighting in GPU
+			_renderableObjectManager->updateGpuBuffer(); // update materials in GPU
 		}
 
 		/// <summary>
