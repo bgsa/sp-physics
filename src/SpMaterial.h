@@ -3,6 +3,7 @@
 
 #include "SpectrumPhysics.h"
 #include "SpColorRGBA.h"
+#include "SpColorRGB.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -11,9 +12,9 @@ namespace NAMESPACE_PHYSICS
 	public:
 		SpColorRGBA color;
 		sp_float shininessFactor;
-		Vec3 ambient;
-		Vec3 diffuse;
-		Vec3 specular;
+		SpColorRGB ambient;
+		SpColorRGB diffuse;
+		SpColorRGB specular;
 
 		/// <summary>
 		/// Default constructor
@@ -22,9 +23,9 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpMaterial()
 		{
 			color = SpColorRGBAWhite;
-			ambient  = Vec3Ones;
-			diffuse  = Vec3Ones;
-			specular = Vec3Ones;
+			ambient  = SpColorRGBWhite;
+			diffuse  = SpColorRGBWhite;
+			specular = SpColorRGBWhite;
 			shininessFactor = 1000.0f;
 		}
 

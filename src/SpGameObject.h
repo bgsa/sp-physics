@@ -13,6 +13,7 @@ namespace NAMESPACE_PHYSICS
 	private:
 		sp_uint _type;
 		sp_size _index;
+		sp_size _renderableObjectIndex;
 		sp_size _managerIndex;
 		SpStringId _name;
 
@@ -26,6 +27,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			_type = SP_UINT_MAX;
 			_index = 0;
+			_renderableObjectIndex = SP_UINT_MAX;
 			_managerIndex = 0;
 		}
 		
@@ -57,6 +59,35 @@ namespace NAMESPACE_PHYSICS
 		{
 			return _index;
 		}
+
+		/// <summary>
+		/// Check this game object is renderable
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_uint isRenderableObject() const
+		{
+			return _renderableObjectIndex != SP_UINT_MAX;
+		}
+
+		/// <summary>
+		/// Get the renderable object index
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_uint renderableObjectIndex() const
+		{
+			return _renderableObjectIndex;
+		}
+
+		/// <summary>
+		/// Set the renderable object to this game object
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline void renderableObjectIndex(const sp_uint index)
+		{
+			sp_assert(index != SP_UINT_MAX, "InvalidArgumentException");
+			_renderableObjectIndex = index;
+		}
+
 
 		/// <summary>
 		/// Get the index of game object in the list Manager

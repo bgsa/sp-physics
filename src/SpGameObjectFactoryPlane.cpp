@@ -70,6 +70,8 @@ namespace NAMESPACE_PHYSICS
 		planeName[6 + len] = END_OF_STRING;
 
 		SpGameObject* gameObject = scene->addGameObject(SP_GAME_OBJECT_TYPE_PLANE, planeName);
+		gameObject->renderableObjectIndex(gameObject->managerIndex());
+
 		SpRenderableObject* renderableObject = scene->renderableObjectManager()->get(gameObject->managerIndex());
 		renderableObject->type(SP_RENDERABLE_OBJECT_TYPE_PLANE);
 		renderableObject->gameObjectIndex = gameObject->index();

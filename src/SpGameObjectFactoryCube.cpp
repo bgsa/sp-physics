@@ -89,6 +89,8 @@ namespace NAMESPACE_PHYSICS
 		cubeName[5 + len] = END_OF_STRING;
 
 		SpGameObject* gameObject = scene->addGameObject(SP_GAME_OBJECT_TYPE_CUBE, cubeName);
+		gameObject->renderableObjectIndex(gameObject->managerIndex());
+
 		SpRenderableObject* renderableObject = scene->renderableObjectManager()->get(gameObject->managerIndex());
 		renderableObject->type(SP_RENDERABLE_OBJECT_TYPE_CUBE);
 		renderableObject->gameObjectIndex = gameObject->index();
