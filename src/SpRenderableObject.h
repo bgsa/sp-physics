@@ -15,6 +15,7 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		sp_uint _type;
+		sp_int _visible;
 		
 	public:
 		sp_uint gameObjectIndex;
@@ -29,6 +30,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpRenderableObject()
 		{
 			shaderIndex = 0;
+			_visible = (sp_int)true;
 		}
 
 		/// <summary>
@@ -48,6 +50,24 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline sp_uint type() const
 		{
 			return _type;
+		}
+
+		/// <summary>
+		/// Check this object is visible
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_bool isVisible() const
+		{
+			return _visible == 1;
+		}
+
+		/// <summary>
+		/// Change the object visibility
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline void visible(const sp_bool visibility)
+		{
+			_visible = (sp_bool)visibility;
 		}
 
 	};
