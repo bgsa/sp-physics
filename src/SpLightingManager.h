@@ -63,6 +63,46 @@ namespace NAMESPACE_PHYSICS
 			std::memset(&_names[(_length - 1) * SP_LIGHT_NAME_MAX_LENGTH], 0, SP_LIGHT_NAME_MAX_LENGTH);
 		}
 
+		inline void removeName(const sp_uint index)
+		{
+			void* previousNames = nullptr, * nextNames = nullptr;
+
+			const sp_size previousNamesSize = SP_LIGHT_NAME_MAX_LENGTH * index;
+			if (previousNamesSize != 0)
+			{
+				previousNames = ALLOC_SIZE(previousNamesSize);
+				std::memcpy(previousNames, _names, previousNamesSize);
+			}
+
+			const sp_size nextNamesSize = SP_LIGHT_NAME_MAX_LENGTH * (_length - index);
+			if (nextNamesSize != 0)
+			{
+				nextNames = ALLOC_SIZE(nextNamesSize);
+				std::memcpy(nextNames, &_names[(index + 1) * SP_LIGHT_NAME_MAX_LENGTH], nextNamesSize);
+			}
+
+			sp_mem_release(_names);
+
+			if (_length == 0)
+			{
+				_names = nullptr;
+				return;
+			}
+
+			_names = sp_mem_new_array(sp_char, _length * SP_LIGHT_NAME_MAX_LENGTH);
+
+			if (previousNamesSize != 0)
+				std::memcpy(_names, previousNames, previousNamesSize);
+
+			if (nextNamesSize != 0)
+				std::memcpy(&_names[index * SP_LIGHT_NAME_MAX_LENGTH], nextNames, nextNamesSize);
+
+			if (previousNamesSize != 0)
+				ALLOC_RELEASE(previousNames);
+			else if (nextNamesSize != 0)
+				ALLOC_RELEASE(nextNames);
+		}
+
 	public:
 	
 		/// <summary>
@@ -116,22 +156,45 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index < _length, "IndexOutOfRangeException");
 
-			const sp_size objectSize = sizeof(SpLightSource) * _length;
+			void* previousLight = nullptr, *nextLight = nullptr;
+			
+			const sp_size previousLightSize = sizeof(SpLightSource) * index;
+			if (previousLightSize != 0)
+			{
+				previousLight = ALLOC_SIZE(previousLightSize);
+				std::memcpy(previousLight, _lights, previousLightSize);
+			}
 
-			SpLightSource* temp = (SpLightSource*)ALLOC_SIZE(objectSize);
-			std::memcpy(temp, _lights, objectSize);
+			const sp_size nextLightSize = sizeof(SpLightSource) * (_length - index - 1);
+			if (nextLightSize != 0)
+			{
+				nextLight = ALLOC_SIZE(nextLightSize);
+				std::memcpy(nextLight, &_lights[index + 1], nextLightSize);
+			}
 
 			sp_mem_release(_lights);
-			_length++;
+			_length--;
+
+			if (_length == 0)
+			{
+				_lights = nullptr;
+				return;
+			}
+
 			_lights = sp_mem_new_array(SpLightSource, _length);
 
-			const sp_size objectSizeBegin = sizeof(SpLightSource) * (index + ONE_UINT);
-			std::memcpy(_lights, temp, objectSizeBegin);
+			if (previousLightSize != 0)
+				std::memcpy(_lights, previousLight, previousLightSize);
 
-			const sp_size objectSizeEnd = sizeof(SpLightSource) * (_length - index);
-			std::memcpy(&_lights[index + ONE_UINT], &temp[_length - index], objectSizeEnd);
+			if (nextLightSize != 0)
+				std::memcpy(&_lights[index], nextLight, nextLightSize);
 
-			ALLOC_RELEASE(temp);
+			if (previousLightSize != 0)
+				ALLOC_RELEASE(previousLight);
+			else if (nextLightSize != 0)
+				ALLOC_RELEASE(nextLight);
+
+			removeName(index);
 		}
 
 		/// <summary>
