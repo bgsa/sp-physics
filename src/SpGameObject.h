@@ -14,8 +14,6 @@ namespace NAMESPACE_PHYSICS
 		sp_uint _type;
 		sp_size _index;
 		sp_size _renderableObjectIndex;
-		sp_size _managerIndex;
-		SpStringId _name;
 
 	public:
 
@@ -26,9 +24,8 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpGameObject()
 		{
 			_type = SP_UINT_MAX;
-			_index = 0;
+			_index = SP_UINT_MAX;
 			_renderableObjectIndex = SP_UINT_MAX;
-			_managerIndex = 0;
 		}
 		
 		/// <summary>
@@ -86,25 +83,6 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index != SP_UINT_MAX, "InvalidArgumentException");
 			_renderableObjectIndex = index;
-		}
-
-
-		/// <summary>
-		/// Get the index of game object in the list Manager
-		/// </summary>
-		/// <returns></returns>
-		API_INTERFACE inline sp_uint managerIndex() const
-		{
-			return _managerIndex;
-		}
-
-		/// <summary>
-		/// Get the name of game object
-		/// </summary>
-		/// <returns></returns>
-		API_INTERFACE inline sp_char* name() const
-		{
-			return _name.name;
 		}
 
 	};

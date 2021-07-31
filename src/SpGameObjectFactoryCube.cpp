@@ -89,16 +89,18 @@ namespace NAMESPACE_PHYSICS
 		cubeName[5 + len] = END_OF_STRING;
 
 		SpGameObject* gameObject = scene->addGameObject(SP_GAME_OBJECT_TYPE_CUBE, cubeName);
-		gameObject->renderableObjectIndex(gameObject->managerIndex());
 
-		SpRenderableObject* renderableObject = scene->renderableObjectManager()->get(gameObject->managerIndex());
+		const sp_uint renderableObjectIndex = scene->renderableObjectManager()->add();
+		gameObject->renderableObjectIndex(renderableObjectIndex);
+
+		SpRenderableObject* renderableObject = scene->renderableObjectManager()->get(renderableObjectIndex);
 		renderableObject->type(SP_RENDERABLE_OBJECT_TYPE_CUBE);
-		renderableObject->gameObjectIndex = gameObject->index();
-		renderableObject->meshDataIndex = cubeMeshIndex;
-		renderableObject->shaderIndex = 0;
+		renderableObject->gameObject(gameObject->index());
+		renderableObject->meshData(cubeMeshIndex);
+		renderableObject->shader(0);
 
-		renderableObject->buffers.add(gpuVertexBuffer);
-		renderableObject->buffers.add(gpuIndexBuffer);
+		renderableObject->addBuffer(gpuVertexBuffer);
+		renderableObject->addBuffer(gpuIndexBuffer);
 
 		return gameObject->index();
 	}

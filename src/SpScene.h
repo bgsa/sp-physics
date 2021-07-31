@@ -24,7 +24,7 @@ namespace NAMESPACE_PHYSICS
 		SpStringId _id;
 		sp_bool _loaded;
 		sp_uint _activeCamera;
-		SpGameObjectManager* gameObjectManager;
+		SpGameObjectManager* _gameObjectManager;
 		SpCameraManager* cameraManager;
 		SpTransformManager* _transformManager;
 		SpRenderableObjectManager* _renderableObjectManager;
@@ -36,13 +36,13 @@ namespace NAMESPACE_PHYSICS
 			SpGameObjectFactory* planeFactory = sp_mem_new(SpGameObjectFactoryPlane)();
 			planeFactory->init(this);
 
-			SpGameObjectType* typePlane = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_PLANE, "Plane", _renderableObjectManager, planeFactory);
+			SpGameObjectType* typePlane = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_PLANE, "Plane", planeFactory);
 			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_PLANE, typePlane);
 
 			SpGameObjectFactory* cubeFactory = sp_mem_new(SpGameObjectFactoryCube)();
 			cubeFactory->init(this);
 
-			SpGameObjectType* typeCube = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CUBE, "Cube", _renderableObjectManager, cubeFactory);
+			SpGameObjectType* typeCube = sp_mem_new(SpGameObjectType)(SP_GAME_OBJECT_TYPE_CUBE, "Cube", cubeFactory);
 			gameObjectsTypeList.add(SP_GAME_OBJECT_TYPE_CUBE, typeCube);
 
 			// load custom game object types from plug-ins
@@ -50,7 +50,7 @@ namespace NAMESPACE_PHYSICS
 		
 		inline void init()
 		{
-			gameObjectManager = sp_mem_new(SpGameObjectManager)(1000);
+			_gameObjectManager = sp_mem_new(SpGameObjectManager)();
 			_transformManager = sp_mem_new(SpTransformManager)();
 
 			cameraManager = sp_mem_new(SpCameraManager)();
@@ -152,10 +152,23 @@ namespace NAMESPACE_PHYSICS
 		{
 			_transformManager->add();
 
-			SpObjectManager* manager = gameObjectsTypeList[gameObjectType]->manager();
+			const sp_uint gameObjIndex = _gameObjectManager->add();
+			SpGameObject* gameObj = _gameObjectManager->get(gameObjIndex);
+			gameObj->type(gameObjectType);
 
-			const sp_uint objectIndex = manager->add();
-			return gameObjectManager->add(gameObjectType, objectIndex, name);
+			if (name != nullptr)
+				_gameObjectManager->name(gameObjIndex, name, std::strlen(name));
+			else
+			{
+				sp_char tempName[10];
+				sp_uint length1;
+				convert(gameObjIndex, tempName, length1);
+				tempName[length1 + 1] = END_OF_STRING;
+
+				_gameObjectManager->name(gameObjIndex, tempName, length1 + 1);
+			}
+
+			return gameObj;
 		}
 
 		/// <summary>
@@ -165,7 +178,38 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline void removeGameObject(const sp_uint index)
 		{
-			gameObjectManager->remove(index);
+			SpGameObject* gameObj = gameObject(index);
+
+			if (gameObj->isRenderableObject())
+			{
+				const sp_uint renderableObjIndex = gameObj->renderableObjectIndex();
+
+				renderableObjectManager()->remove(renderableObjIndex);
+
+				// fix the objects indexes
+				for (sp_uint i = index; i < _renderableObjectManager->length(); i++)
+					_renderableObjectManager->get(i)->gameObject(_renderableObjectManager->get(i)->gameObject() - 1);
+
+				for (sp_uint i = 0; i < _gameObjectManager->length(); i++)
+				{
+					const sp_uint currentRenderableObjIndex = _gameObjectManager->get(i)->renderableObjectIndex();
+
+					if (currentRenderableObjIndex > renderableObjIndex)
+						_gameObjectManager->get(i)->renderableObjectIndex(currentRenderableObjIndex - 1);
+				}
+			}
+
+			_transformManager->remove(index);
+			_gameObjectManager->remove(index);
+		}
+
+		/// <summary>
+		/// Get a game object manager
+		/// </summary>
+		/// <returns>Game Object Manager</returns>
+		API_INTERFACE inline SpGameObjectManager* gameObjectManager() const
+		{
+			return _gameObjectManager;
 		}
 
 		/// <summary>
@@ -175,7 +219,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>Game Object</returns>
 		API_INTERFACE inline SpGameObject* gameObject(const sp_uint index) const
 		{
-			return gameObjectManager->get(index);
+			return _gameObjectManager->get(index);
 		}
 
 		/// <summary>
@@ -188,8 +232,8 @@ namespace NAMESPACE_PHYSICS
 		{
 			gameObjectsIndexesLength = 0;
 
-			for (sp_uint i = 0; i < gameObjectManager->length(); i++)
-				if (gameObjectManager->get(i)->type() == gameObjectType)
+			for (sp_uint i = 0; i < _gameObjectManager->length(); i++)
+				if (_gameObjectManager->get(i)->type() == gameObjectType)
 					gameObjectsIndexes[gameObjectsIndexesLength++] = i;
 		}
 
@@ -199,7 +243,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>Length</returns>
 		API_INTERFACE inline sp_uint gameObjectsLength() const
 		{
-			return gameObjectManager->length();
+			return _gameObjectManager->length();
 		}
 
 		/// <summary>
@@ -324,10 +368,10 @@ namespace NAMESPACE_PHYSICS
 				sp_mem_delete(item->value().value, SpGameObjectType);
 			}
 
-			if (gameObjectManager != nullptr)
+			if (_gameObjectManager != nullptr)
 			{
-				sp_mem_delete(gameObjectManager, SpGameObjectManager);
-				gameObjectManager = nullptr;
+				sp_mem_delete(_gameObjectManager, SpGameObjectManager);
+				_gameObjectManager = nullptr;
 			}
 		}
 

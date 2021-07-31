@@ -68,21 +68,43 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index < _length, "IndexOutOfRangeException");
 
-			const sp_size transformsSize = sizeof(SpTransform) * _length;
+			void* previousTransforms = nullptr, * nextTransforms = nullptr;
 
-			SpTransform* temp = (SpTransform*)ALLOC_SIZE(transformsSize);
-			std::memcpy(temp, _transforms, transformsSize);
+			const sp_size previousTransformsSize = sizeof(SpTransform) * index;
+			if (previousTransformsSize != 0)
+			{
+				previousTransforms = ALLOC_SIZE(previousTransformsSize);
+				std::memcpy(previousTransforms, _transforms, previousTransformsSize);
+			}
+
+			const sp_size nextTransformsSize = sizeof(SpTransform) * (_length - index - 1);
+			if (nextTransformsSize != 0)
+			{
+				nextTransforms = ALLOC_SIZE(nextTransformsSize);
+				std::memcpy(nextTransforms, &_transforms[index + 1], nextTransformsSize);
+			}
 
 			sp_mem_release(_transforms);
-			_transforms = sp_mem_new_array(SpTransform, ++_length);
+			_length--;
 
-			const sp_size transformsSizeBegin = sizeof(SpTransform) * (index + ONE_UINT);
-			std::memcpy(_transforms, temp, transformsSizeBegin);
+			if (_length == 0)
+			{
+				_transforms = nullptr;
+				return;
+			}
 
-			const sp_size transformsSizeEnd = sizeof(SpTransform) * (_length - index);
-			std::memcpy(&_transforms[index + ONE_UINT], &temp[_length - index], transformsSizeEnd);
+			_transforms = sp_mem_new_array(SpTransform, _length);
 
-			ALLOC_RELEASE(temp);
+			if (previousTransformsSize != 0)
+				std::memcpy(_transforms, previousTransforms, previousTransformsSize);
+
+			if (nextTransformsSize != 0)
+				std::memcpy(&_transforms[index], nextTransforms, nextTransformsSize);
+
+			if (previousTransformsSize != 0)
+				ALLOC_RELEASE(previousTransforms);
+			else if (nextTransformsSize != 0)
+				ALLOC_RELEASE(nextTransforms);
 
 			updateGpuBuffer();
 		}

@@ -18,24 +18,18 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:		
 		sp_uint _type;
-		SpObjectManager* _manager;
 		SpGameObjectFactory* _factory;
 		sp_char* _name;
 
 	public:
 
-		API_INTERFACE SpGameObjectType(const sp_uint type, SpObjectManager* manager, SpGameObjectFactory* factory);
+		API_INTERFACE SpGameObjectType(const sp_uint type, SpGameObjectFactory* factory);
 
-		API_INTERFACE SpGameObjectType(const sp_uint type, const sp_char* name, SpObjectManager* manager, SpGameObjectFactory* factory);
+		API_INTERFACE SpGameObjectType(const sp_uint type, const sp_char* name, SpGameObjectFactory* factory);
 
 		API_INTERFACE inline sp_uint type()
 		{
 			return _type;
-		}
-
-		API_INTERFACE inline SpObjectManager* manager()
-		{
-			return _manager;
 		}
 
 		API_INTERFACE inline sp_char* name()

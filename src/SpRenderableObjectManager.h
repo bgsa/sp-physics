@@ -21,17 +21,64 @@ namespace NAMESPACE_PHYSICS
 
 		inline void addMaterial()
 		{
-			const sp_size objectSize = sizeof(SpMaterial) * (_length - 1);
-			void* temp = ALLOC_SIZE(objectSize);
-			std::memcpy(temp, _materials, objectSize);
+			if (_materials != nullptr)
+			{
+				const sp_size objectSize = sizeof(SpMaterial) * (_length - 1);
+				void* temp = ALLOC_SIZE(objectSize);
+				std::memcpy(temp, _materials, objectSize);
 
-			sp_mem_release(_materials);
+				sp_mem_release(_materials);
 
-			_materials = sp_mem_new_array(SpMaterial, _length);
+				_materials = sp_mem_new_array(SpMaterial, _length);
 
-			std::memcpy(_materials, temp, objectSize);
+				std::memcpy(_materials, temp, objectSize);
 
-			ALLOC_RELEASE(temp);
+				ALLOC_RELEASE(temp);
+			}
+			else
+				_materials = sp_mem_new_array(SpMaterial, _length);
+		}
+
+		inline void removeMaterial(const sp_uint index)
+		{
+			if (_length != 0)
+			{
+				void* previousMaterials = nullptr, * nextMaterials = nullptr;
+
+				const sp_size previousMaterialsSize = sizeof(SpMaterial) * index;
+				if (previousMaterialsSize != 0)
+				{
+					previousMaterials = ALLOC_SIZE(previousMaterialsSize);
+					std::memcpy(previousMaterials, _materials, previousMaterialsSize);
+				}
+
+				const sp_size nextMaterialsSize = sizeof(SpMaterial) * (_length - index);
+				if (nextMaterialsSize != 0)
+				{
+					nextMaterials = ALLOC_SIZE(nextMaterialsSize);
+					std::memcpy(nextMaterials, &_materials[index + 1], nextMaterialsSize);
+				}
+
+				sp_mem_release(_materials);
+
+				_materials = sp_mem_new_array(SpMaterial, _length);
+
+				if (previousMaterialsSize != 0)
+					std::memcpy(_materials, previousMaterials, previousMaterialsSize);
+
+				if (nextMaterialsSize != 0)
+					std::memcpy(&_materials[index], nextMaterials, nextMaterialsSize);
+
+				if (previousMaterialsSize != 0)
+					ALLOC_RELEASE(previousMaterials);
+				else if (nextMaterialsSize != 0)
+					ALLOC_RELEASE(nextMaterials);
+			}
+			else
+			{
+				sp_mem_release(_materials);
+				_materials = nullptr;
+			}
 		}
 
 	public:
@@ -85,21 +132,48 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index < _length, "IndexOutOfRangeException");
 
-			const sp_size objectSize = sizeof(SpRenderableObject) * _length;
+			void* previousRenderables = nullptr, * nextRenderables = nullptr;
 
-			SpRenderableObject* temp = (SpRenderableObject*)ALLOC_SIZE(objectSize);
-			std::memcpy(temp, _renderableObjects, objectSize);
+			const sp_size previousRenderablesSize = sizeof(SpRenderableObject) * index;
+			if (previousRenderablesSize != 0)
+			{
+				previousRenderables = ALLOC_SIZE(previousRenderablesSize);
+				std::memcpy(previousRenderables, _renderableObjects, previousRenderablesSize);
+			}
+
+			const sp_size nextRenderablesSize = sizeof(SpRenderableObject) * (_length - index - 1);
+			if (nextRenderablesSize != 0)
+			{
+				nextRenderables = ALLOC_SIZE(nextRenderablesSize);
+				std::memcpy(nextRenderables, &_renderableObjects[index + 1], nextRenderablesSize);
+			}
 
 			sp_mem_release(_renderableObjects);
-			_renderableObjects = sp_mem_new_array(SpRenderableObject, ++_length);
+			_length--;
 
-			const sp_size objectSizeBegin = sizeof(SpRenderableObject) * (index + ONE_UINT);
-			std::memcpy(_renderableObjects, temp, objectSizeBegin);
+			if (_length == 0)
+			{
+				_renderableObjects = nullptr;
+				removeMaterial(index);
+				return;
+			}
 
-			const sp_size objectSizeEnd = sizeof(SpRenderableObject) * (_length - index);
-			std::memcpy(&_renderableObjects[index + ONE_UINT], &temp[_length - index], objectSizeEnd);
+			_renderableObjects = sp_mem_new_array(SpRenderableObject, _length);
 
-			ALLOC_RELEASE(temp);
+			if (previousRenderablesSize != 0)
+				std::memcpy(_renderableObjects, previousRenderables, previousRenderablesSize);
+
+			if (nextRenderablesSize != 0)
+				std::memcpy(&_renderableObjects[index], nextRenderables, nextRenderablesSize);
+
+			if (previousRenderablesSize != 0)
+				ALLOC_RELEASE(previousRenderables);
+			else if (nextRenderablesSize != 0)
+				ALLOC_RELEASE(nextRenderables);
+
+			removeMaterial(index);
+
+			updateGpuBuffer();
 		}
 
 		/// <summary>

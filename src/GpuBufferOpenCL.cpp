@@ -20,6 +20,9 @@ namespace NAMESPACE_PHYSICS
 
 	GpuBufferOpenCL* GpuBufferOpenCL::init(const sp_size size, void* value, cl_mem_flags flags)
 	{
+		if (_buffer != nullptr)
+			dispose();
+
 		_size = size;
 		_buffer = _gpu->createBuffer(value, _size, flags, true);
 

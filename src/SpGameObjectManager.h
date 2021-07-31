@@ -9,6 +9,8 @@
 	#include "GpuBufferOpenCL.h"
 #endif
 
+#define SP_GAME_OBJECT_NAME_MAX_LENGTH (100)
+
 namespace NAMESPACE_PHYSICS 
 {
 
@@ -16,14 +18,78 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		sp_uint _length;
-		sp_uint _maxLength;
 		SpGameObject* _gameObjects;
-		SpTransform* _transforms;
+		sp_char* _names;
 
 #ifdef OPENCL_ENABLED
 		GpuBufferOpenCL* _gpuGameObjects;
-		GpuBufferOpenCL* _gpuTransforms;
 #endif
+
+		inline void addName()
+		{
+			if (_names != nullptr)
+			{
+				const sp_size namesSize = sizeof(sp_char) * (_length - 1) * SP_GAME_OBJECT_NAME_MAX_LENGTH;
+
+				void* temp = ALLOC_SIZE(namesSize);
+				std::memcpy(temp, _names, namesSize);
+
+				sp_mem_release(_names);
+
+				_names = sp_mem_new_array(sp_char, _length * SP_GAME_OBJECT_NAME_MAX_LENGTH);
+
+				std::memcpy(_names, temp, namesSize);
+				ALLOC_RELEASE(temp);
+			}
+			else
+			{
+				_names = sp_mem_new_array(sp_char, SP_GAME_OBJECT_NAME_MAX_LENGTH);
+			}
+
+			std::memset(&_names[(_length - 1) * SP_GAME_OBJECT_NAME_MAX_LENGTH], 0, SP_GAME_OBJECT_NAME_MAX_LENGTH);
+		}
+
+		inline void removeName(const sp_uint index)
+		{
+			if (_length != 0)
+			{
+				void* previousNames = nullptr, *nextNames = nullptr;
+
+				const sp_size previousNamesSize = sizeof(sp_char) * index * SP_GAME_OBJECT_NAME_MAX_LENGTH;
+				if (previousNamesSize != 0)
+				{
+					previousNames = ALLOC_SIZE(previousNamesSize);
+					std::memcpy(previousNames, _names, previousNamesSize);
+				}
+
+				const sp_size nextNamesSize = sizeof(sp_char) * (_length - index) * SP_GAME_OBJECT_NAME_MAX_LENGTH;
+				if (nextNamesSize != 0)
+				{
+					nextNames = ALLOC_SIZE(nextNamesSize);
+					std::memcpy(nextNames, &_names[(index + 1) * SP_GAME_OBJECT_NAME_MAX_LENGTH], nextNamesSize);
+				}
+
+				sp_mem_release(_names);
+
+				_names = sp_mem_new_array(sp_char, _length * SP_GAME_OBJECT_NAME_MAX_LENGTH);
+
+				if (previousNamesSize != 0)
+					std::memcpy(_names, previousNames, previousNamesSize);
+
+				if (nextNamesSize != 0)
+					std::memcpy(&_names[index * SP_GAME_OBJECT_NAME_MAX_LENGTH], nextNames, nextNamesSize);
+
+				if (previousNamesSize != 0)
+					ALLOC_RELEASE(previousNames);
+				else if (nextNamesSize != 0)
+					ALLOC_RELEASE(nextNames);
+			}
+			else
+			{
+				sp_mem_release(_names);
+				_names = nullptr;
+			}
+		}
 
 	public:
 	
@@ -32,38 +98,22 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="maxLength">Max game object allowed</param>
 		/// <returns></returns>
-		API_INTERFACE inline SpGameObjectManager(const sp_uint maxLength)
+		API_INTERFACE inline SpGameObjectManager()
 		{
-			sp_assert(maxLength > ZERO_UINT, "InvalidArgumentException");
-
 			_length = ZERO_UINT;
-			_maxLength = maxLength;
-			_gameObjects = sp_mem_new_array(SpGameObject, _maxLength);
-			_transforms = sp_mem_new_array(SpTransform, _maxLength);
+			_gameObjects = nullptr;
+			_names = nullptr;
 
 #ifdef OPENCL_ENABLED
 			_gpuGameObjects = sp_mem_new(GpuBufferOpenCL);
-			_gpuGameObjects->init(sizeof(SpGameObject) * _maxLength, _gameObjects, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY);
-
-			_gpuTransforms = sp_mem_new(GpuBufferOpenCL);
-			_gpuTransforms->init(sizeof(SpTransform) * _maxLength, _transforms, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY);
 #endif
-		}
-
-		/// <summary>
-		/// Max of game object allowed in this list
-		/// </summary>
-		/// <returns></returns>
-		API_INTERFACE inline sp_uint maxLength()
-		{
-			return _maxLength;
 		}
 
 		/// <summary>
 		/// Length of game objects in list
 		/// </summary>
 		/// <returns></returns>
-		API_INTERFACE inline sp_uint length()
+		API_INTERFACE inline sp_uint length() const
 		{
 			return _length;
 		}
@@ -80,51 +130,67 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
-		/// Get a transformation from index
+		/// Get the name of game object by index
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		API_INTERFACE inline SpTransform& transform(const sp_uint index) const
+		API_INTERFACE inline sp_char* name(const sp_uint index) const
 		{
 			sp_assert(index < _length, "IndexOutOfRangeException");
-			return _transforms[index];
+			return &_names[index * SP_GAME_OBJECT_NAME_MAX_LENGTH];
 		}
 
 		/// <summary>
-		/// Add game object to list
+		/// Set the name of game object by index
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="newName"></param>
+		/// <param name="newNameLength"></param>
+		/// <returns></returns>
+		API_INTERFACE inline void name(const sp_uint index, const sp_char* newName, const sp_size newNameLength) const
+		{
+			sp_assert(index < _length, "IndexOutOfRangeException");
+
+			std::memcpy(&_names[index * SP_GAME_OBJECT_NAME_MAX_LENGTH], newName, newNameLength);
+			_names[index * SP_GAME_OBJECT_NAME_MAX_LENGTH + newNameLength] = END_OF_STRING;
+		}
+
+		/// <summary>
+		/// Add new game object to list
 		/// </summary>
 		/// <param name="gameObject"></param>
 		/// <returns></returns>
-		API_INTERFACE inline SpGameObject* add(const sp_uint gameObjectType, const sp_uint index, const sp_char* name = nullptr)
+		API_INTERFACE inline sp_uint add()
 		{
-			sp_assert(_length < _maxLength, "InvalidOperationException");
+			if (_length > 0)
+			{
+				const sp_size gameObjsSize = sizeof(SpGameObject) * _length;
+				void* temp = ALLOC_SIZE(gameObjsSize);
+				std::memcpy(temp, _gameObjects, gameObjsSize);
 
-			_gameObjects[_length].type(gameObjectType);
-			_gameObjects[_length]._managerIndex = index;
-			_gameObjects[_length]._index = _length;
+				sp_mem_release(_gameObjects);
 
-			if (name != nullptr)
-				_gameObjects[_length]._name = name;
+				_length++;
+				_gameObjects = sp_mem_new_array(SpGameObject, _length);
+
+				std::memcpy(_gameObjects, temp, gameObjsSize);
+
+				ALLOC_RELEASE(temp);
+			}
 			else
 			{
-				sp_char newName[10];
-				sp_uint length1, length2;
-				convert(gameObjectType, newName, length1);
-				convert(index, &newName[length1], length2);
-				newName[length1 + length2 + 1] = END_OF_STRING;
-
-				_gameObjects[_length]._name = newName;
+				_length++;
+				_gameObjects = sp_mem_new_array(SpGameObject, _length);
 			}
 
-			_transforms[_length].reset();
+			_gameObjects[_length - 1]._index = _length - 1;
 
-			_length++;
+			addName();
 
 #ifdef OPENCL_ENABLED
-			_gpuGameObjects->update(_gameObjects, ZERO_UINT, nullptr, nullptr);
-			_gpuTransforms->update(_transforms, ZERO_UINT, nullptr, nullptr);
+			_gpuGameObjects->init(sizeof(SpGameObject) * _length, _gameObjects, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY);
 #endif
-			return &_gameObjects[_length - 1];
+			return _length - 1;
 		}
 
 		/// <summary>
@@ -136,20 +202,50 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(index < _length, "IndexOutOfRangeException");
 
-			const sp_size sizeToMove = (_length - index - 1u) * sizeof(SpGameObject);
-			if (sizeToMove != ZERO_SIZE)
-				std::memcpy(&_gameObjects[index], &_gameObjects[index + 1u], sizeToMove);
+			void* previousGameObjs = nullptr, * nextGameObjs = nullptr;
 
-			const sp_size sizeToMoveTransform = (_length - index - 1u) * sizeof(SpTransform);
-			if (sizeToMoveTransform != ZERO_SIZE)
-				std::memcpy(&_transforms[index], &_transforms[index + 1u], sizeToMoveTransform);
+			const sp_size previousGameObjsSize = sizeof(SpGameObject) * index;
+			if (previousGameObjsSize != 0)
+			{
+				previousGameObjs = ALLOC_SIZE(previousGameObjsSize);
+				std::memcpy(previousGameObjs, _gameObjects, previousGameObjsSize);
+			}
+
+			const sp_size nextGameObjsSize = sizeof(SpGameObject) * (_length - index - 1);
+			if (nextGameObjsSize != 0)
+			{
+				nextGameObjs = ALLOC_SIZE(nextGameObjsSize);
+				std::memcpy(nextGameObjs, &_gameObjects[index + 1], nextGameObjsSize);
+			}
+
+			sp_mem_release(_gameObjects);
+			_length--;
+
+			if (_length == 0)
+			{
+				_gameObjects = nullptr;
+				removeName(index);
+				return;
+			}
+
+			_gameObjects = sp_mem_new_array(SpGameObject, _length);
+
+			if (previousGameObjsSize != 0)
+				std::memcpy(_gameObjects, previousGameObjs, previousGameObjsSize);
+
+			if (nextGameObjsSize != 0)
+				std::memcpy(&_gameObjects[index], nextGameObjs, nextGameObjsSize);
+
+			if (previousGameObjsSize != 0)
+				ALLOC_RELEASE(previousGameObjs);
+			else if (nextGameObjsSize != 0)
+				ALLOC_RELEASE(nextGameObjs);
+
+			removeName(index);
 
 #ifdef OPENCL_ENABLED
-			_gpuGameObjects->update(_gameObjects, ZERO_UINT, nullptr, nullptr);
-			_gpuTransforms->update(_transforms, ZERO_UINT, nullptr, nullptr);
+			_gpuGameObjects->init(sizeof(SpGameObject) * _length, _gameObjects, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY);
 #endif
-
-			_length--;
 		}
 
 #ifdef OPENCL_ENABLED
@@ -161,15 +257,6 @@ namespace NAMESPACE_PHYSICS
 		{
 			return _gpuGameObjects;
 		}
-
-		/// <summary>
-		/// Get the gpu buffer of transforms
-		/// </summary>
-		/// <returns>Gpu Buffer</returns>
-		API_INTERFACE inline GpuBufferOpenCL* gpuTransforms() const
-		{
-			return _gpuTransforms;
-		}
 #endif
 
 		/// <summary>
@@ -179,24 +266,12 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void dispose()
 		{
 #ifdef OPENCL_ENABLED
-			if (_gpuTransforms != nullptr)
-			{
-				sp_mem_delete(_gpuTransforms, GpuBufferOpenCL);
-				_gpuTransforms = nullptr;
-			}
-
 			if (_gpuGameObjects != nullptr)
 			{
 				sp_mem_delete(_gpuGameObjects, GpuBufferOpenCL);
 				_gpuGameObjects = nullptr;
 			}
 #endif
-			if (_transforms != nullptr)
-			{
-				sp_mem_release(_transforms);
-				_transforms = nullptr;
-
-			}
 			if (_gameObjects != nullptr)
 			{
 				sp_mem_release(_gameObjects);

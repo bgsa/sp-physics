@@ -70,16 +70,18 @@ namespace NAMESPACE_PHYSICS
 		planeName[6 + len] = END_OF_STRING;
 
 		SpGameObject* gameObject = scene->addGameObject(SP_GAME_OBJECT_TYPE_PLANE, planeName);
-		gameObject->renderableObjectIndex(gameObject->managerIndex());
 
-		SpRenderableObject* renderableObject = scene->renderableObjectManager()->get(gameObject->managerIndex());
+		const sp_uint renderableObjectIndex = scene->renderableObjectManager()->add();
+		gameObject->renderableObjectIndex(renderableObjectIndex);
+
+		SpRenderableObject* renderableObject = scene->renderableObjectManager()->get(renderableObjectIndex);
 		renderableObject->type(SP_RENDERABLE_OBJECT_TYPE_PLANE);
-		renderableObject->gameObjectIndex = gameObject->index();
-		renderableObject->meshDataIndex = planeMeshIndex;
-		renderableObject->shaderIndex = 0;
+		renderableObject->gameObject(gameObject->index());
+		renderableObject->meshData(planeMeshIndex);
+		renderableObject->shader(0);
 
-		renderableObject->buffers.add(gpuVertexBuffer);
-		renderableObject->buffers.add(gpuIndexBuffer);
+		renderableObject->addBuffer(gpuVertexBuffer);
+		renderableObject->addBuffer(gpuIndexBuffer);
 
 		return gameObject->index();
 	}
