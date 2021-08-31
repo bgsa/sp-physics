@@ -14,17 +14,17 @@ namespace NAMESPACE_PHYSICS
 		commandIndexes = ALLOC_NEW(GpuIndexes)();
 		commandIndexes->init(gpu, buildOptions);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("FindMinMax.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, std::strlen(SP_DIRECTORY_OPENCL_SOURCE));
+		directoryAddPath(filename, std::strlen(filename), "FindMinMax.cl", 13);
 
 		SP_FILE file;
-		SpString* source = file.readTextFile(filename->name()->data());
+		SpString* source = file.readTextFile(filename);
 		
 		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions, &findMinMaxProgram);
 		
 		sp_mem_delete(source, SpString);
-		sp_mem_delete(filename, SpDirectory);
 		return this;
 	}
 

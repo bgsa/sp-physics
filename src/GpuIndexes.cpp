@@ -12,13 +12,13 @@ namespace NAMESPACE_PHYSICS
 
 		this->gpu = gpu;
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("Indexes.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, std::strlen(SP_DIRECTORY_OPENCL_SOURCE));
+		directoryAddPath(filename, std::strlen(filename), "Indexes.cl", 10);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
-		sp_mem_delete(filename, SpDirectory);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* sourceBasic = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(sourceBasic, fileSize);

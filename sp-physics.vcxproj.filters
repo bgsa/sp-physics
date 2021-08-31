@@ -2526,9 +2526,6 @@
     <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Plane3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Quat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -2683,9 +2680,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ParticleSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Plane3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Quat.cpp">
@@ -3136,6 +3130,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\SpRenderableObjectManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpAssetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpMaterialsManager.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpMaterialsManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SpGameEngineSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -5945,9 +5951,6 @@
     <ClInclude Include="src\ParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Plane3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Quat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -6135,9 +6138,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ParticleSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Plane3D.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Quat.h">
@@ -6629,7 +6629,19 @@
     <ClInclude Include="src\SpLightSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SpBaseMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpAssetManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpAsset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="src\SpMaterial.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpGameEngineSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

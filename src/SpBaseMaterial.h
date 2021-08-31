@@ -1,41 +1,35 @@
-#ifndef SP_MATERIAL_HEADER
-#define SP_MATERIAL_HEADER
+#ifndef SP_BASE_MATERIAL_HEADER
+#define SP_BASE_MATERIAL_HEADER
 
 #include "SpectrumPhysics.h"
-#include "SpColorRGB.h"
 #include "SpColorRGBA.h"
+#include "SpColorRGB.h"
 
 namespace NAMESPACE_PHYSICS
 {
-	class SpMaterial
+	class SpBaseMaterial
 	{
 	public:
 		SpColorRGBA color;
-		SpColorRGB ambient;
-		sp_uint albedoMapTexture;
-		SpColorRGB diffuse;
-		sp_uint normalMapTexture;
-		SpColorRGB specular;
 		sp_float shininessFactor;
+		SpColorRGB ambient;
+		SpColorRGB diffuse;
+		SpColorRGB specular;
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
 		/// <returns></returns>
-		API_INTERFACE inline SpMaterial()
+		API_INTERFACE inline SpBaseMaterial()
 		{
 			color = SpColorRGBAWhite;
-			ambient = SpColorRGBWhite;
-			diffuse = SpColorRGBWhite;
+			ambient  = SpColorRGBWhite;
+			diffuse  = SpColorRGBWhite;
 			specular = SpColorRGBWhite;
 			shininessFactor = 1.0f;
-
-			albedoMapTexture = SP_UINT_MAX;
-			normalMapTexture = SP_UINT_MAX;
 		}
 
 	};
-
 }
 
-#endif // SP_MATERIAL_HEADER
+#endif // SP_BASE_MATERIAL_HEADER

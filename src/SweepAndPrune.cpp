@@ -209,13 +209,13 @@ namespace NAMESPACE_PHYSICS
 		radixSorting = sp_mem_new(GpuRadixSorting)();
 		radixSorting->init(gpu, nullptr);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SweepAndPrune.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "SweepAndPrune.cl", 16);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
-		sp_mem_delete(filename, SpDirectory);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);

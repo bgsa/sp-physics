@@ -57,6 +57,8 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE virtual SpGpuBuffer* createElementArrayBuffer() = 0;
 
+		API_INTERFACE virtual SpGpuBuffer* createShaderStorageBufferObject() = 0;
+
 		API_INTERFACE virtual SpShader* createShader() = 0;
 
 		API_INTERFACE virtual SpShader* createPrimitiveShader() = 0;

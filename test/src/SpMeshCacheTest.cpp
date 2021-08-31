@@ -39,18 +39,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_size lastMemoryAddress = (sp_size)&lastEdge->faces.data()[lastEdge->faces.length() - 1u];
 		sp_uint mesh1Size = lastMemoryAddress - ((sp_size)mesh1);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpMeshCache.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "SpMeshCache.cl", 14);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -135,18 +134,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		sp_size lastMemoryAddress = (sp_size)&lastEdge->faces.data()[lastEdge->faces.length() - 1u];
 		sp_uint mesh1Size = lastMemoryAddress - ((sp_size)mesh1);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpMeshCache.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "SpMeshCache.cl", 14);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);

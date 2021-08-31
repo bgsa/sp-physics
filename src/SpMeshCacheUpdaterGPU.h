@@ -33,13 +33,13 @@ namespace NAMESPACE_PHYSICS
 		{
 			this->gpu = gpu;
 
-			SpDirectory* filename = SpDirectory::currentDirectory()
-				->add(SP_DIRECTORY_OPENCL_SOURCE)
-				->add("SpMeshCache.cl");
+			sp_char filename[512];
+			currentDirectory(filename, 512);
+			directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+			directoryAddPath(filename, std::strlen(filename), "SpMeshCache.cl", 24);
 
 			SP_FILE file;
-			file.open(filename->name()->data(), std::ios::in);
-			sp_mem_delete(filename, SpDirectory);
+			file.open(filename, std::ios::in);
 			const sp_size fileSize = file.length();
 			sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 			file.read(source, fileSize);

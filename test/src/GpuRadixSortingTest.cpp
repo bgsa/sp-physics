@@ -175,18 +175,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(count);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -288,18 +287,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		commandIndexes->init(gpu, nullptr);
 		commandIndexes->setParametersCreateIndexes(inputLength);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -411,18 +409,17 @@ namespace NAMESPACE_PHYSICS_TEST
 			0, 0, 1, 0, 0, 0, 0, 0, 0, 0
 		};
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -527,18 +524,17 @@ namespace NAMESPACE_PHYSICS_TEST
 			1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 		};
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -644,18 +640,17 @@ namespace NAMESPACE_PHYSICS_TEST
 			0, 1
 		};
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -713,18 +708,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -862,18 +856,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -1011,18 +1004,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -1160,18 +1152,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -1308,18 +1299,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -1415,18 +1405,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -1522,18 +1511,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);
@@ -1629,18 +1617,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		GpuContext* context = GpuContextInstance;
 		GpuDevice* gpu = context->defaultDevice();
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("RadixSorting.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "RadixSorting.cl", 15);
 
 		SP_FILE file;
-		file.open(filename->name()->data(), std::ios::in);
+		file.open(filename, std::ios::in);
 		const sp_size fileSize = file.length();
 		sp_char* source = ALLOC_ARRAY(sp_char, fileSize);
 		file.read(source, fileSize);
 		file.close();
-
-		sp_mem_delete(filename, SpDirectory);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source, sizeof(sp_char) * fileSize, nullptr, &program);

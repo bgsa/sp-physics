@@ -74,12 +74,14 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem physcPropertiesGpu = gpu->createBuffer(rigidBodies, sizePhysicProperties * length, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, true);
 		cl_mem outputGpu = gpu->createBuffer(sizePhysicProperties, CL_MEM_READ_ONLY | CL_MEM_ALLOC_HOST_PTR);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpRigidBody3D.cl");
+
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "SpRigidBody3D.cl", 16);
 
 		SP_FILE file;
-		SpString* source = file.readTextFile(filename->name()->data());
+		SpString* source = file.readTextFile(filename);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), nullptr, &program);
@@ -155,12 +157,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem physcPropertiesGpu = gpu->createBuffer(rigidBodies3D, sizeof(SpRigidBody3D) * length, CL_MEM_READ_ONLY, true);
 		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody3D), CL_MEM_READ_ONLY);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpRigidBody3D.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "SpRigidBody3D.cl", 16);
 
 		SP_FILE file;
-		SpString* source = file.readTextFile(filename->name()->data());
+		SpString* source = file.readTextFile(filename);
 
 		cl_program program; 
 		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), nullptr, &program);
@@ -206,12 +209,13 @@ namespace NAMESPACE_PHYSICS_TEST
 		cl_mem rigidBodies3DGpu = gpu->createBuffer(rigidBodies3D, sizeof(SpRigidBody3D) * 2u, CL_MEM_READ_ONLY, true);
 		cl_mem outputGpu = gpu->createBuffer(sizeof(SpRigidBody3D), CL_MEM_READ_ONLY);
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("SpRigidBody3D.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "SpRigidBody3D.cl", 16);
 
 		SP_FILE file;
-		SpString* source = file.readTextFile(filename->name()->data());
+		SpString* source = file.readTextFile(filename);
 
 		cl_program program;
 		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), nullptr, &program);

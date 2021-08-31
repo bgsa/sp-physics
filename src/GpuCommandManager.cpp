@@ -40,11 +40,13 @@ namespace NAMESPACE_PHYSICS
 		sp_uint computeUnits;
 		clGetDeviceInfo(deviceId, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(computeUnits), &computeUnits, NULL);
 
-		SpDirectory* sourceDirectory = SpDirectory::currentDirectory()->add(SP_DIRECTORY_OPENCL_SOURCE);
+		sp_char openCLDir[512];
+		currentDirectory(openCLDir, 512);
+		directoryAddPath(openCLDir, std::strlen(openCLDir), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
 
 		std::ostringstream options;
 		options << " -I . "
-			<< " -I " << sourceDirectory->name()->data()
+			<< " -I " << openCLDir
 			<< " -Werror "
 			<< " -cl-denorms-are-zero "
 			<< " -cl-mad-enable "
@@ -58,8 +60,6 @@ namespace NAMESPACE_PHYSICS
 	#endif
 #endif
 		// -cl-no-signed-zero   -cl-fast-relaxed-math    not working
-
-		sp_mem_delete(sourceDirectory, SpDirectory);
 
 		if (buildOptions != NULL)
 			options	<< " " << buildOptions;

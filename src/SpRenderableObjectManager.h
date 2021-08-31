@@ -4,7 +4,7 @@
 #include "SpectrumPhysics.h"
 #include "SpObjectManager.h"
 #include "SpRenderableObject.h"
-#include "SpMaterial.h"
+#include "SpBaseMaterial.h"
 #include "SpGpuTextureBuffer.h"
 
 namespace NAMESPACE_PHYSICS 
@@ -15,7 +15,7 @@ namespace NAMESPACE_PHYSICS
 	{
 	private:
 		SpRenderableObject* _renderableObjects;
-		SpMaterial* _materials;
+		SpBaseMaterial* _materials;
 		SpGpuTextureBuffer* _materialsBuffer;
 		sp_int usageType;
 
@@ -23,20 +23,20 @@ namespace NAMESPACE_PHYSICS
 		{
 			if (_materials != nullptr)
 			{
-				const sp_size objectSize = sizeof(SpMaterial) * (_length - 1);
+				const sp_size objectSize = sizeof(SpBaseMaterial) * (_length - 1);
 				void* temp = ALLOC_SIZE(objectSize);
 				std::memcpy(temp, _materials, objectSize);
 
 				sp_mem_release(_materials);
 
-				_materials = sp_mem_new_array(SpMaterial, _length);
+				_materials = sp_mem_new_array(SpBaseMaterial, _length);
 
 				std::memcpy(_materials, temp, objectSize);
 
 				ALLOC_RELEASE(temp);
 			}
 			else
-				_materials = sp_mem_new_array(SpMaterial, _length);
+				_materials = sp_mem_new_array(SpBaseMaterial, _length);
 		}
 
 		inline void removeMaterial(const sp_uint index)
@@ -45,14 +45,14 @@ namespace NAMESPACE_PHYSICS
 			{
 				void* previousMaterials = nullptr, * nextMaterials = nullptr;
 
-				const sp_size previousMaterialsSize = sizeof(SpMaterial) * index;
+				const sp_size previousMaterialsSize = sizeof(SpBaseMaterial) * index;
 				if (previousMaterialsSize != 0)
 				{
 					previousMaterials = ALLOC_SIZE(previousMaterialsSize);
 					std::memcpy(previousMaterials, _materials, previousMaterialsSize);
 				}
 
-				const sp_size nextMaterialsSize = sizeof(SpMaterial) * (_length - index);
+				const sp_size nextMaterialsSize = sizeof(SpBaseMaterial) * (_length - index);
 				if (nextMaterialsSize != 0)
 				{
 					nextMaterials = ALLOC_SIZE(nextMaterialsSize);
@@ -61,7 +61,7 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_materials);
 
-				_materials = sp_mem_new_array(SpMaterial, _length);
+				_materials = sp_mem_new_array(SpBaseMaterial, _length);
 
 				if (previousMaterialsSize != 0)
 					std::memcpy(_materials, previousMaterials, previousMaterialsSize);
@@ -117,7 +117,7 @@ namespace NAMESPACE_PHYSICS
 			{
 				_length++;
 				_renderableObjects = sp_mem_new_array(SpRenderableObject, _length);
-				_materials = sp_mem_new_array(SpMaterial, _length);
+				_materials = sp_mem_new_array(SpBaseMaterial, _length);
 			}
 
 			return _length - 1;
@@ -191,7 +191,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		API_INTERFACE inline SpMaterial* material(const sp_uint index) const
+		API_INTERFACE inline SpBaseMaterial* material(const sp_uint index) const
 		{
 			return &_materials[index];
 		}
@@ -210,7 +210,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		API_INTERFACE inline void updateGpuBuffer()
 		{
-			sp_size bufferSize = sizeof(SpMaterial) * _length;
+			sp_size bufferSize = sizeof(SpBaseMaterial) * _length;
 
 			_materialsBuffer
 				->use()

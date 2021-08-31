@@ -218,6 +218,7 @@
     <ClCompile Include="src\Ray.cpp" />
     <ClCompile Include="src\Rectangle2D.cpp" />
     <ClCompile Include="src\SpAlgorithms.cpp" />
+    <ClCompile Include="src\SpAssetManager.cpp" />
     <ClCompile Include="src\SpBoundingVolumeFactory.cpp" />
     <ClCompile Include="src\SpCamera.cpp" />
     <ClCompile Include="src\SpCameraManager.cpp" />
@@ -226,6 +227,7 @@
     <ClCompile Include="src\SpCollisionResponseShapeMatching.cpp" />
     <ClCompile Include="src\SpFaceMesh.cpp" />
     <ClCompile Include="src\SpGame.cpp" />
+    <ClCompile Include="src\SpGameEngineSettings.cpp" />
     <ClCompile Include="src\SpGameObjectFactoryCube.cpp" />
     <ClCompile Include="src\SpGameObjectFactoryPlane.cpp" />
     <ClCompile Include="src\SpGameObjectType.cpp" />
@@ -234,6 +236,8 @@
     <ClCompile Include="src\SpGpuPlatformManager.cpp" />
     <ClCompile Include="src\Sphere.cpp" />
     <ClCompile Include="src\SpLightingManager.cpp" />
+    <ClCompile Include="src\SpMaterialsManager.cpp" />
+    <ClCompile Include="src\SpMaterialsManager.h" />
     <ClCompile Include="src\SpMesh.cpp" />
     <ClCompile Include="src\SpMeshCache.cpp" />
     <ClCompile Include="src\SpOptimization.cpp" />
@@ -303,6 +307,8 @@
     <ClInclude Include="src\Ray.h" />
     <ClInclude Include="src\SpAABBFactory.h" />
     <ClInclude Include="src\SpAlgorithms.h" />
+    <ClInclude Include="src\SpAsset.h" />
+    <ClInclude Include="src\SpAssetManager.h" />
     <ClInclude Include="src\SpBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpCamera.h" />
     <ClInclude Include="src\SpCameraManager.h" />
@@ -320,6 +326,7 @@
     <ClInclude Include="src\SpGame.h" />
     <ClInclude Include="src\SpGame2D.h" />
     <ClInclude Include="src\SpGame3D.h" />
+    <ClInclude Include="src\SpGameEngineSettings.h" />
     <ClInclude Include="src\SpGameObject.h" />
     <ClInclude Include="src\SpGameObjectFactory.h" />
     <ClInclude Include="src\SpGameObjectFactoryCube.h" />
@@ -335,6 +342,7 @@
     <ClInclude Include="src\SpIGraphicObjectList3D.h" />
     <ClInclude Include="src\SpLightingManager.h" />
     <ClInclude Include="src\SpLightSource.h" />
+    <ClInclude Include="src\SpBaseMaterial.h" />
     <ClInclude Include="src\SpMaterial.h" />
     <ClInclude Include="src\SpMeshAttributes.h" />
     <ClInclude Include="src\SpMeshData.h" />

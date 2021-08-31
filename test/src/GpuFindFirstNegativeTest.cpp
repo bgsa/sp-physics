@@ -30,17 +30,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_STRIDE=1 -DINPUT_OFFSET=0";
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("FindFirstNegative.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "FindFirstNegative.cl", 20);
 
 		SP_FILE file;
-		SpString* source = file.readTextFile(filename->name()->data());
+		SpString* source = file.readTextFile(filename);
 		cl_program program;
 		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions.str().c_str(), &program);
 
 		sp_mem_delete(source, SpString);
-		sp_mem_delete(filename, SpDirectory);
 
 		sp_uint length = 6u;
 		sp_float input[] = { 1.0f, -4.0f, 2.0f, 3.0f, -5.0f, -6.0f };
@@ -75,18 +75,18 @@ namespace NAMESPACE_PHYSICS_TEST
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_STRIDE=1 -DINPUT_OFFSET=0";
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("FindFirstNegative.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "FindFirstNegative.cl", 20);
 
 		SP_FILE file;
-		SpString* source = file.readTextFile(filename->name()->data());
+		SpString* source = file.readTextFile(filename);
 		cl_program program;
 		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions.str().c_str(), &program);
 		
 		sp_mem_delete(source, SpString);
-		sp_mem_delete(filename, SpDirectory);
-
+		
 		sp_uint length = 6u;
 		sp_float input[] = { -1.0f, -2.0f, -3.0f, -4.0f, -5.0f, -6.0f };
 		sp_uint indexes[] = { 0, 1, 2, 3, 4, 5 };
@@ -120,17 +120,17 @@ namespace NAMESPACE_PHYSICS_TEST
 		std::ostringstream buildOptions;
 		buildOptions << " -DINPUT_STRIDE=1 -DINPUT_OFFSET=0";
 
-		SpDirectory* filename = SpDirectory::currentDirectory()
-			->add(SP_DIRECTORY_OPENCL_SOURCE)
-			->add("FindFirstNegative.cl");
+		sp_char filename[512];
+		currentDirectory(filename, 512);
+		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, SP_DIRECTORY_OPENCL_SOURCE_LENGTH);
+		directoryAddPath(filename, std::strlen(filename), "FindFirstNegative.cl", 20);
 
 		SP_FILE file;
-		SpString* source = file.readTextFile(filename->name()->data());
+		SpString* source = file.readTextFile(filename);
 		cl_program program;
 		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions.str().c_str(), &program);
 		
 		sp_mem_delete(source, SpString);
-		sp_mem_delete(filename, SpDirectory);
 
 		sp_uint length = 6u;
 		sp_float input[] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f };
