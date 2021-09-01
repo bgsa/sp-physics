@@ -8,6 +8,7 @@
 namespace NAMESPACE_PHYSICS
 {
 #define SP_GJK_MAX_ITERATIONS 64
+#define SP_EPA_MAX_ITERATIONS 64
 
 	void update_simplex3(Vec3& a, Vec3& b, Vec3& c, Vec3& d, sp_int& simp_dim, Vec3& search_dir);
 
@@ -37,7 +38,7 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="mesh2">Mesh 2</param>
 	/// <param name="output"></param>
 	/// <returns>True if the algorithm converged orelse False</returns>
-	API_INTERFACE sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS);
+	API_INTERFACE sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_uint maxIterations = SP_EPA_MAX_ITERATIONS, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS);
 
 	/// <summary>
 	/// Get the Minkowsky differeces vertexes from two meshes

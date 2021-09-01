@@ -3,7 +3,7 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_float _epsilon)
+	sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_uint maxIterations, const sp_float _epsilon)
 	{
 #define EPA_MAX_NUM_FACES 128
 #define EPA_MAX_NUM_LOOSE_EDGES 64
@@ -35,7 +35,7 @@ namespace NAMESPACE_PHYSICS
 		sp_int closest_face;
 		Vec3 newSimplexPoint, search_dir;
 
-		for (sp_uint iterations = 0u; iterations < EPA_MAX_NUM_ITERATIONS; iterations++) 
+		for (sp_uint iterations = 0u; iterations < maxIterations; iterations++)
 		{
 			//Find face that's closest to origin
 			depth = faces[0].vertex1.dot(faces[0].normal);

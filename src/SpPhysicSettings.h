@@ -23,6 +23,8 @@ namespace NAMESPACE_PHYSICS
 		sp_bool _profilingEnabled;
 		sp_uint _pcaExecutionPerFrame;
 		BoundingVolumeType _boundingVolumeType;
+		sp_float _gjkPrecision;
+		sp_float _epaPrecision;
 
 		SpPhysicSettings()
 		{
@@ -34,6 +36,8 @@ namespace NAMESPACE_PHYSICS
 			_pcaExecutionPerFrame = 30u;
 			_profilingEnabled = false;
 			_boundingVolumeType = BoundingVolumeType::DOP18;
+			_gjkPrecision = 0.03f; // 3% percent of iterations is enough for GJK
+			_epaPrecision = 0.03f; // 3% percent of iterations is enough for EPA
 			enableSimulation();
 		}
 		
@@ -64,6 +68,23 @@ namespace NAMESPACE_PHYSICS
 			return _pcaExecutionPerFrame;
 		}
 		
+		/// <summary>
+		/// Get the GJK precision
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_float gjkPrecision() const
+		{
+			return _gjkPrecision;
+		}
+
+		/// <summary>
+		/// Get the EPA precision
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_float epaPrecision() const
+		{
+			return _epaPrecision;
+		}
 
 		API_INTERFACE inline sp_size frameId() const
 		{
