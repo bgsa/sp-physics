@@ -261,6 +261,15 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Check the scene has any active camera
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline sp_bool hasActiveCamera() const
+		{
+			return _activeCamera != SP_UINT_MAX;
+		}
+
+		/// <summary>
 		/// Get the index of active camera
 		/// </summary>
 		/// <returns></returns>
