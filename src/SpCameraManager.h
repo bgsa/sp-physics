@@ -65,17 +65,26 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_cameras);
 
-				_cameras = sp_mem_new_array(SpCamera, ++_length);
+				_length++;
+				_cameras = sp_mem_new_array(SpCamera, _length);
 
 				std::memcpy(_cameras, temp, camerasSize);
+				ALLOC_RELEASE(temp);
 
+
+				const sp_size camerasNameSize = sizeof(sp_char) * SP_CAMERA_NAME_MAX_LENGTH * (_length - 1);
+				temp = ALLOC_SIZE(camerasNameSize);
+				std::memcpy(temp, _cameraNames, camerasNameSize);
+
+				sp_mem_release(_cameraNames);
+				_cameraNames = sp_mem_new_array(sp_char, SP_CAMERA_NAME_MAX_LENGTH * _length);
+				std::memcpy(_cameraNames, temp, camerasNameSize);
 				ALLOC_RELEASE(temp);
 			}
 			else
 			{
 				_length++;
 				_cameras = sp_mem_new_array(SpCamera, _length);
-
 				_cameraNames = sp_mem_new_array(sp_char, _length * SP_CAMERA_NAME_MAX_LENGTH);
 			}
 			_cameras[_length - 1].init();
@@ -141,6 +150,21 @@ namespace NAMESPACE_PHYSICS
 		{
 			std::memcpy(&_cameraNames[index * SP_CAMERA_NAME_MAX_LENGTH], name, nameLength + 1);
 			_cameraNames[index * SP_CAMERA_NAME_MAX_LENGTH + nameLength] = END_OF_STRING;
+		}
+
+		/// <summary>
+		/// Find a camera by name.
+		/// Returns SP_UINT_MAX if not found.
+		/// </summary>
+		/// <param name="name">Name</param>
+		/// <returns></returns>
+		API_INTERFACE inline sp_uint find(const sp_char* name) const
+		{
+			for (sp_size i = 0; i < _length; i++)
+				if (strcmp(name, &_cameraNames[i * SP_CAMERA_NAME_MAX_LENGTH]) == 0)
+					return i;
+			
+			return SP_UINT_MAX;
 		}
 
 		/// <summary>
