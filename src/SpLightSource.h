@@ -151,7 +151,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="newType">SP_LIGHT_SOURCE_SPORTLIGHT_*</param>
 		/// <returns>void</returns>
-		API_INTERFACE inline void spotlightAngle(const sp_int newType)
+		API_INTERFACE inline void spotlightType(const sp_int newType)
 		{
 			_spotlightType = newType;
 		}

@@ -40,7 +40,7 @@ namespace NAMESPACE_PHYSICS
 		/// Add a mesh in list
 		/// </summary>
 		/// <returns></returns>
-		API_INTERFACE inline sp_uint add() override
+		API_INTERFACE inline sp_uint add(const sp_uint length = 1) override
 		{			
 			if (_length > 0)
 			{
@@ -49,7 +49,7 @@ namespace NAMESPACE_PHYSICS
 				std::memcpy(temp, _meshesName, _length * SP_MESH_NAME_MAX_LENGTH);
 
 				sp_mem_release(_meshesName);
-				_meshesName = sp_mem_new_array(sp_char, (_length + 1) * SP_MESH_NAME_MAX_LENGTH);
+				_meshesName = sp_mem_new_array(sp_char, (_length + length) * SP_MESH_NAME_MAX_LENGTH);
 
 				std::memcpy(_meshesName, temp, _length * SP_MESH_NAME_MAX_LENGTH);
 				ALLOC_RELEASE(temp);
@@ -62,7 +62,7 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_meshesData);
 
-				_length++;
+				_length += length;
 				_meshesData = sp_mem_new_array(SpMeshData, _length);
 
 				std::memcpy(_meshesData, temp, _meshesDataSize);
@@ -70,12 +70,12 @@ namespace NAMESPACE_PHYSICS
 			}
 			else
 			{
-				_length++;
+				_length = length;
 				_meshesName = sp_mem_new_array(sp_char, _length * SP_MESH_NAME_MAX_LENGTH);
 				_meshesData = sp_mem_new_array(SpMeshData, _length);
 			}
 
-			return _length - 1;
+			return _length - length;
 		}
 
 		/// <summary>

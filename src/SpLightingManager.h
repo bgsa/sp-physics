@@ -19,34 +19,6 @@ namespace NAMESPACE_PHYSICS
 		sp_int usageType;
 		sp_char* _names;
 
-		inline void addDefaultAmbientLight()
-		{
-			const sp_uint index = add();
-
-			_lights[index].type(SP_LIGHT_SOURCE_TYPE_AMBIENT);
-			_lights[index].color(SpColorRGB(0.1f, 0.1f, 0.1f));
-			_lights[index].position(Vec3Zeros);
-			_lights[index].direction(Vec3Zeros);
-			_lights[index].lightSwitch(true);
-			_lights[index].staticLight(true);
-
-			name(index, "Global Ambient", 14);
-		}
-
-		inline void addDefaultDiffuseLight()
-		{
-			const sp_uint index = add();
-
-			_lights[index].type(SP_LIGHT_SOURCE_TYPE_DIFFUSE);
-			_lights[index].color(SpColorRGB(1.0f, 1.0f, 1.0f));
-			_lights[index].position(Vec3(0.0f, 10.0f, 0.0f));
-			_lights[index].direction(Vec3Zeros);
-			_lights[index].lightSwitch(true);
-			_lights[index].staticLight(true);
-
-			name(index, "Global Diffuse", 14);
-		}
-
 		inline void addName()
 		{
 			const sp_size namesSize = sizeof(sp_char) * (_length-1) * SP_LIGHT_NAME_MAX_LENGTH;
@@ -116,7 +88,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="camera"></param>
 		/// <returns></returns>
-		API_INTERFACE inline sp_uint add() override
+		API_INTERFACE inline sp_uint add(const sp_uint length = 1) override
 		{			
 			if (_length > 0)
 			{
@@ -126,7 +98,7 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_lights);
 
-				_length++;
+				_length += length;
 				_lights = sp_mem_new_array(SpLightSource, _length);
 
 				std::memcpy(_lights, temp, objectSize);
@@ -137,14 +109,14 @@ namespace NAMESPACE_PHYSICS
 			}
 			else
 			{
-				_length++;
+				_length = length;
 				_lights = sp_mem_new_array(SpLightSource, _length);
 
 				_names = sp_mem_new_array(sp_char, _length * SP_LIGHT_NAME_MAX_LENGTH);
 				std::memset(_names, 0, SP_LIGHT_NAME_MAX_LENGTH);
 			}
 
-			return _length - 1;
+			return _length - length;
 		}
 
 		/// <summary>
@@ -247,6 +219,34 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline SpGpuTextureBuffer* gpuBuffer() const
 		{
 			return _textureBuffer;
+		}
+
+		API_INTERFACE inline void addDefaultAmbientLight()
+		{
+			const sp_uint index = add();
+
+			_lights[index].type(SP_LIGHT_SOURCE_TYPE_AMBIENT);
+			_lights[index].color(SpColorRGB(0.1f, 0.1f, 0.1f));
+			_lights[index].position(Vec3Zeros);
+			_lights[index].direction(Vec3Zeros);
+			_lights[index].lightSwitch(true);
+			_lights[index].staticLight(true);
+
+			name(index, "Global Ambient", 14);
+		}
+
+		API_INTERFACE inline void addDefaultDiffuseLight()
+		{
+			const sp_uint index = add();
+
+			_lights[index].type(SP_LIGHT_SOURCE_TYPE_DIFFUSE);
+			_lights[index].color(SpColorRGB(1.0f, 1.0f, 1.0f));
+			_lights[index].position(Vec3(0.0f, 10.0f, 0.0f));
+			_lights[index].direction(Vec3Zeros);
+			_lights[index].lightSwitch(true);
+			_lights[index].staticLight(true);
+
+			name(index, "Global Diffuse", 14);
 		}
 
 		/// <summary>

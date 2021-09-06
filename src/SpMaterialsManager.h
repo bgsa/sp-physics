@@ -29,7 +29,7 @@ namespace NAMESPACE_PHYSICS
 		/// Add new material
 		/// </summary>
 		/// <returns></returns>
-		API_INTERFACE inline sp_uint add() override
+		API_INTERFACE inline sp_uint add(const sp_uint length = 1) override
 		{
 			sp_uint index = _materials.add();
 			_length = _materials.length();

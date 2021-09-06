@@ -31,7 +31,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="camera"></param>
 		/// <returns></returns>
-		API_INTERFACE inline sp_uint add() override
+		API_INTERFACE inline sp_uint add(const sp_uint length = 1) override
 		{			
 			if (_length > 0)
 			{
@@ -41,7 +41,7 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_transforms);
 
-				_length++;
+				_length += length;
 				_transforms = sp_mem_new_array(SpTransform, _length);
 
 				std::memcpy(_transforms, temp, transformsSize);
@@ -50,13 +50,13 @@ namespace NAMESPACE_PHYSICS
 			}
 			else
 			{
-				_length++;
+				_length = length;
 				_transforms = sp_mem_new_array(SpTransform, _length);
 			}
 
 			updateGpuBuffer();
 
-			return _length - 1;
+			return _length - length;
 		}
 
 		/// <summary>

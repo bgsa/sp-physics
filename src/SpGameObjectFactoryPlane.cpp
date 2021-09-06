@@ -50,12 +50,12 @@ namespace NAMESPACE_PHYSICS
 		const sp_size arrayBufferSize = sizeof(SpMeshAttribute) * meshData->attributesLength;
 		const sp_int staticDraw = SpGameInstance->renderingAPI()->bufferUsageTypeStaticDraw();
 
-		gpuVertexBuffer
+		buffers[0]
 			= SpGameInstance->renderingAPI()->createArrayBuffer()
 			->use()
 			->updateData(arrayBufferSize, (sp_float*)meshData->attributes, staticDraw);
 
-		gpuIndexBuffer
+		buffers[1]
 			= SpGameInstance->renderingAPI()->createElementArrayBuffer()
 			->use()
 			->updateData(meshData->facesLength * 3 * sizeof(sp_size), meshData->faceIndexes, staticDraw);
@@ -80,26 +80,24 @@ namespace NAMESPACE_PHYSICS
 		renderableObject->meshData(planeMeshIndex);
 		renderableObject->shader(0);
 
-		renderableObject->addBuffer(gpuVertexBuffer);
-		renderableObject->addBuffer(gpuIndexBuffer);
+		renderableObject->addBuffer(buffers[0]);
+		renderableObject->addBuffer(buffers[1]);
 
 		return gameObject->index();
 	}
 
 	void SpGameObjectFactoryPlane::dispose()
 	{
-		if (gpuVertexBuffer != nullptr)
+		for (sp_uint i = 0; i < _buffersLength; i++)
 		{
-			gpuVertexBuffer->dispose();
-			sp_mem_release(gpuVertexBuffer);
-			gpuVertexBuffer = nullptr;
-		}
+			SpGpuBuffer* buffer = buffers[i];
 
-		if (gpuIndexBuffer != nullptr)
-		{
-			gpuIndexBuffer->dispose();
-			sp_mem_release(gpuIndexBuffer);
-			gpuIndexBuffer = nullptr;
+			if (buffer != nullptr)
+			{
+				buffer->dispose();
+				sp_mem_release(buffer);
+				buffer = nullptr;
+			}
 		}
 	}
 }

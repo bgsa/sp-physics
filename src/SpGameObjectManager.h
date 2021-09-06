@@ -25,11 +25,11 @@ namespace NAMESPACE_PHYSICS
 		GpuBufferOpenCL* _gpuGameObjects;
 #endif
 
-		inline void addName()
+		inline void addName(const sp_uint length)
 		{
 			if (_names != nullptr)
 			{
-				const sp_size namesSize = sizeof(sp_char) * (_length - 1) * SP_GAME_OBJECT_NAME_MAX_LENGTH;
+				const sp_size namesSize = sizeof(sp_char) * (_length - length) * SP_GAME_OBJECT_NAME_MAX_LENGTH;
 
 				void* temp = ALLOC_SIZE(namesSize);
 				std::memcpy(temp, _names, namesSize);
@@ -43,10 +43,10 @@ namespace NAMESPACE_PHYSICS
 			}
 			else
 			{
-				_names = sp_mem_new_array(sp_char, SP_GAME_OBJECT_NAME_MAX_LENGTH);
+				_names = sp_mem_new_array(sp_char, (length * SP_GAME_OBJECT_NAME_MAX_LENGTH));
 			}
 
-			std::memset(&_names[(_length - 1) * SP_GAME_OBJECT_NAME_MAX_LENGTH], 0, SP_GAME_OBJECT_NAME_MAX_LENGTH);
+			std::memset(&_names[(_length - length) * SP_GAME_OBJECT_NAME_MAX_LENGTH], 0, SP_GAME_OBJECT_NAME_MAX_LENGTH);
 		}
 
 		inline void removeName(const sp_uint index)
@@ -160,7 +160,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="gameObject"></param>
 		/// <returns></returns>
-		API_INTERFACE inline sp_uint add()
+		API_INTERFACE inline sp_uint add(const sp_uint length = 1)
 		{
 			if (_length > 0)
 			{
@@ -170,7 +170,7 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_gameObjects);
 
-				_length++;
+				_length += length;
 				_gameObjects = sp_mem_new_array(SpGameObject, _length);
 
 				std::memcpy(_gameObjects, temp, gameObjsSize);
@@ -179,18 +179,18 @@ namespace NAMESPACE_PHYSICS
 			}
 			else
 			{
-				_length++;
+				_length += length;
 				_gameObjects = sp_mem_new_array(SpGameObject, _length);
 			}
 
-			_gameObjects[_length - 1]._index = _length - 1;
+			_gameObjects[_length - length]._index = _length - length;
 
-			addName();
+			addName(length);
 
 #ifdef OPENCL_ENABLED
 			_gpuGameObjects->init(sizeof(SpGameObject) * _length, _gameObjects, CL_MEM_USE_HOST_PTR | CL_MEM_READ_ONLY);
 #endif
-			return _length - 1;
+			return _length - length;
 		}
 
 		/// <summary>

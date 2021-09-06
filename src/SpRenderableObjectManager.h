@@ -94,7 +94,7 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="camera"></param>
 		/// <returns></returns>
-		API_INTERFACE inline sp_uint add() override
+		API_INTERFACE inline sp_uint add(const sp_uint length = 1) override
 		{			
 			if (_length > 0)
 			{
@@ -104,7 +104,7 @@ namespace NAMESPACE_PHYSICS
 
 				sp_mem_release(_renderableObjects);
 
-				_length++;
+				_length += length;
 				_renderableObjects = sp_mem_new_array(SpRenderableObject, _length);
 
 				std::memcpy(_renderableObjects, temp, objectSize);
@@ -115,12 +115,12 @@ namespace NAMESPACE_PHYSICS
 			}
 			else
 			{
-				_length++;
+				_length = length;
 				_renderableObjects = sp_mem_new_array(SpRenderableObject, _length);
 				_materials = sp_mem_new_array(SpBaseMaterial, _length);
 			}
 
-			return _length - 1;
+			return _length - length;
 		}
 
 		/// <summary>

@@ -25,7 +25,7 @@ namespace NAMESPACE_PHYSICS
 		/// Add a new object in list
 		/// </summary>
 		/// <returns></returns>
-		API_INTERFACE virtual sp_uint add() = 0;
+		API_INTERFACE virtual sp_uint add(const sp_uint length = 1) = 0;
 
 		/// <summary>
 		/// Remove the object in list

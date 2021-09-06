@@ -11,8 +11,8 @@ namespace NAMESPACE_PHYSICS
 		usageType = SpGameInstance->renderingAPI()->bufferUsageTypeDynamicDraw();
 		_names = nullptr;
 
-		addDefaultAmbientLight();
-		addDefaultDiffuseLight();
+		//addDefaultAmbientLight();
+		//addDefaultDiffuseLight();
 	}
 
 }
