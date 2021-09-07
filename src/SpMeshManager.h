@@ -52,6 +52,7 @@ namespace NAMESPACE_PHYSICS
 				_meshesName = sp_mem_new_array(sp_char, (_length + length) * SP_MESH_NAME_MAX_LENGTH);
 
 				std::memcpy(_meshesName, temp, _length * SP_MESH_NAME_MAX_LENGTH);
+				std::memset(&_meshesName[_length * SP_MESH_NAME_MAX_LENGTH], 0, sizeof(sp_char) * length * SP_MESH_NAME_MAX_LENGTH);
 				ALLOC_RELEASE(temp);
 
 				// realloc meshes data
@@ -71,8 +72,9 @@ namespace NAMESPACE_PHYSICS
 			else
 			{
 				_length = length;
-				_meshesName = sp_mem_new_array(sp_char, _length * SP_MESH_NAME_MAX_LENGTH);
 				_meshesData = sp_mem_new_array(SpMeshData, _length);
+				_meshesName = sp_mem_new_array(sp_char, _length * SP_MESH_NAME_MAX_LENGTH);
+				std::memset(_meshesName, 0, sizeof(sp_char) * _length * SP_MESH_NAME_MAX_LENGTH);
 			}
 
 			return _length - length;
@@ -124,7 +126,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline void name(const sp_uint index, const sp_char* newName, const sp_size newNameLength) const
 		{
-			sp_assert(newNameLength + 1 > SP_MESH_NAME_MAX_LENGTH, "IndexOutOfRangeException");
+			sp_assert(SP_MESH_NAME_MAX_LENGTH > newNameLength + 1, "IndexOutOfRangeException");
 
 			std::memcpy(&_meshesName[index * SP_MESH_NAME_MAX_LENGTH], newName, sizeof(sp_char) * newNameLength);
 			_meshesName[index * SP_MESH_NAME_MAX_LENGTH + newNameLength] = END_OF_STRING;

@@ -16,6 +16,7 @@ namespace NAMESPACE_PHYSICS
 		SpPoolMemoryAllocator::main()->enableMemoryAlignment();
 
 		planeMeshIndex = scene->meshManager()->add();
+		scene->meshManager()->name(planeMeshIndex, "PlaneMesh", 9);
 
 		SpMeshData* meshData = scene->meshManager()->get(planeMeshIndex);
 		meshData->attributesLength = 4;

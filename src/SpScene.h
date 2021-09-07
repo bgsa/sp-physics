@@ -329,6 +329,15 @@ namespace NAMESPACE_PHYSICS
 		}
 
 		/// <summary>
+		/// Set the scene is loaded or not
+		/// </summary>
+		/// <returns></returns>
+		API_INTERFACE inline void isLoaded(const sp_bool loaded)
+		{
+			_loaded = loaded;
+		}
+
+		/// <summary>
 		/// Load this scene
 		/// </summary>
 		/// <returns></returns>

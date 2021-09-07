@@ -16,6 +16,7 @@ namespace NAMESPACE_PHYSICS
 		SpPoolMemoryAllocator::main()->enableMemoryAlignment();
 
 		cubeMeshIndex = scene->meshManager()->add();
+		scene->meshManager()->name(cubeMeshIndex, "CubeMesh", 8);
 
 		SpMeshData* meshData = scene->meshManager()->get(cubeMeshIndex);
 		meshData->attributesLength = 8;
