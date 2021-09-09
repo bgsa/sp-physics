@@ -40,7 +40,7 @@ namespace NAMESPACE_PHYSICS
 		Mat4 _projectionMatrix;
 		Mat4 _viewMatrix;
 
-		sp_bool _isDirty;
+		//sp_bool _isDirty;
 
 		inline void updateViewMatrix()
 		{
@@ -93,7 +93,7 @@ namespace NAMESPACE_PHYSICS
 			perspectiveProjection(1.0f, _nearFrustum, _farFrustum);
 			updateViewMatrix();
 
-			_isDirty = false;
+			//_isDirty = false;
 		}
 
 		API_INTERFACE inline void initProjectionPerspective(const Vec3& position, const Vec3& target, const sp_float aspectRatio)
@@ -109,7 +109,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void position(const Vec3& newPosition)
 		{
 			_position = newPosition;
-			_isDirty = true;
+			//_isDirty = true;
 		}
 
 		API_INTERFACE inline Vec3 target() const
@@ -120,7 +120,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void target(const Vec3& newTarget)
 		{
 			_target = newTarget;
-			_isDirty = true;
+			//_isDirty = true;
 		}
 
 		API_INTERFACE inline Vec3 up() const
@@ -131,7 +131,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void up(const Vec3& newUp)
 		{
 			_up = newUp;
-			_isDirty = true;
+			//_isDirty = true;
 		}
 
 		API_INTERFACE inline Vec3 right() const
@@ -158,7 +158,7 @@ namespace NAMESPACE_PHYSICS
 		{
 			sp_assert(_fieldOfView >= SP_CAMERA_MIN_FIELD_OF_VIEW && _fieldOfView <= SP_CAMERA_MAX_FIELD_OF_VIEW, "InvalidArgumentException");
 			_fieldOfView = newFieldOfView;
-			_isDirty = true;
+			//_isDirty = true;
 		}
 
 		API_INTERFACE inline sp_float aspectRatio() const
@@ -169,7 +169,7 @@ namespace NAMESPACE_PHYSICS
 		API_INTERFACE inline void aspectRatio(const sp_float newAspectRatio)
 		{
 			_aspectRatio = newAspectRatio;
-			_isDirty = true;
+			//_isDirty = true;
 		}
 
 		API_INTERFACE inline sp_float velocity() const
@@ -314,7 +314,7 @@ namespace NAMESPACE_PHYSICS
 
 			updateViewMatrix();
 
-			_isDirty = false;
+			//_isDirty = false;
 		}
 
 		API_INTERFACE inline void raycast(const Vec2& screenCoordinates, const SpSize<sp_float>& viewport, Ray& ray) const
