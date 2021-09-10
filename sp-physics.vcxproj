@@ -308,6 +308,7 @@
     <ClInclude Include="src\SpAlgorithms.h" />
     <ClInclude Include="src\SpAsset.h" />
     <ClInclude Include="src\SpAssetManager.h" />
+    <ClInclude Include="src\SpAssetMaterial.h" />
     <ClInclude Include="src\SpBoundingVolumeFactory.h" />
     <ClInclude Include="src\SpCamera.h" />
     <ClInclude Include="src\SpCameraManager.h" />
@@ -343,6 +344,7 @@
     <ClInclude Include="src\SpLightSource.h" />
     <ClInclude Include="src\SpBaseMaterial.h" />
     <ClInclude Include="src\SpMaterial.h" />
+    <ClInclude Include="src\SpAssetMaterialSerializerJson.h" />
     <ClInclude Include="src\SpMeshAttributes.h" />
     <ClInclude Include="src\SpMeshData.h" />
     <ClInclude Include="src\SpMeshManager.h" />

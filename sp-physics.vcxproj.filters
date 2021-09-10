@@ -2988,9 +2988,6 @@
     <ClCompile Include="src\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Plane3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Quat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -6633,6 +6630,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\SpGameEngineSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpAssetMaterialSerializerJson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpAssetMaterial.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
