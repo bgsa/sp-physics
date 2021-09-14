@@ -25,7 +25,8 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="output">4 vertex of tetrahedron</param>
 	/// <param name="maxIterations">(optional) Maximum iterations</param>
 	/// <returns>True if the method converged orelse False</returns>
-	API_INTERFACE sp_bool gjk(const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3* output, sp_uint maxIterations = SP_GJK_MAX_ITERATIONS);
+	//API_INTERFACE sp_bool gjk(const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3* output, sp_uint maxIterations = SP_GJK_MAX_ITERATIONS, sp_uint& iterations);
+	API_INTERFACE sp_bool gjk(const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3* output, sp_uint maxIterations, sp_uint& iterations);
 
 	/// <summary>
 	/// Given a tetrahedron and a Minkowski Difference Simplex, find the closest edge to origin and the depth
@@ -38,7 +39,7 @@ namespace NAMESPACE_PHYSICS
 	/// <param name="mesh2">Mesh 2</param>
 	/// <param name="output"></param>
 	/// <returns>True if the algorithm converged orelse False</returns>
-	API_INTERFACE sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_uint maxIterations = SP_EPA_MAX_ITERATIONS, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS);
+	API_INTERFACE sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_uint maxIterations, sp_uint& iterations, const sp_float _epsilon = SP_EPSILON_TWO_DIGITS);
 
 	/// <summary>
 	/// Get the Minkowsky differeces vertexes from two meshes

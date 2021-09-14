@@ -15,6 +15,7 @@ namespace NAMESPACE_PHYSICS
 		SpColorRGB ambient;
 		SpColorRGB diffuse;
 		SpColorRGB specular;
+		sp_uint materialInstance;
 
 		/// <summary>
 		/// Default constructor
@@ -27,6 +28,7 @@ namespace NAMESPACE_PHYSICS
 			diffuse  = SpColorRGBWhite;
 			specular = SpColorRGBWhite;
 			shininessFactor = 1.0f;
+			materialInstance = SP_UINT_MAX;
 		}
 
 	};

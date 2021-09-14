@@ -3,7 +3,7 @@
 namespace NAMESPACE_PHYSICS
 {
 
-	sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_uint maxIterations, const sp_float _epsilon)
+	sp_bool epa(const Vec3 tetrahedron[4], const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3& normal, sp_float& depth, const sp_uint maxIterations, sp_uint& iterations, const sp_float _epsilon)
 	{
 #define EPA_MAX_NUM_FACES 128
 #define EPA_MAX_NUM_LOOSE_EDGES 64
@@ -35,8 +35,11 @@ namespace NAMESPACE_PHYSICS
 		sp_int closest_face;
 		Vec3 newSimplexPoint, search_dir;
 
-		for (sp_uint iterations = 0u; iterations < maxIterations; iterations++)
+		iterations = 0;
+		for (sp_uint i = 0u; i < maxIterations; i++)
 		{
+			iterations++;
+
 			//Find face that's closest to origin
 			depth = faces[0].vertex1.dot(faces[0].normal);
 			closest_face = 0;
@@ -293,7 +296,7 @@ namespace NAMESPACE_PHYSICS
 		//to just one of the faces, maybe test it later.
 	}
 
-	sp_bool gjk(const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3* output, sp_uint maxIterations)
+	sp_bool gjk(const SpMesh* mesh1, const Vec3* vertexesMesh1, const SpMesh* mesh2, const Vec3* vertexesMesh2, Vec3* output, sp_uint maxIterations, sp_uint& iterations)
 	{
 		Vec3 a, b, c, d; //Simplex: just a set of points (a is always most recently added)
 		Vec3 search_dir = Vec3Ones; //initial search direction between colliders
@@ -322,8 +325,11 @@ namespace NAMESPACE_PHYSICS
 		}
 		sp_int simp_dim = 2; //simplex dimension
 
-		for (sp_uint iterations = 0u; iterations < maxIterations; iterations++)
+		iterations = 0;
+		for (sp_uint i = 0u; i < maxIterations; i++)
 		{
+			iterations++;
+
 			a = vertexesMesh2[mesh2->support(search_dir, vertexesMesh2)->index()] - vertexesMesh1[mesh1->support(-search_dir, vertexesMesh1)->index()];
 			if (a.dot(search_dir) < 0)
 				return false; //we didn't reach the origin, won't enclose it
