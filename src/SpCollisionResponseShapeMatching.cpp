@@ -231,8 +231,8 @@ namespace NAMESPACE_PHYSICS
 		t.start();
 
 		const sp_uint maxIterations = mesh1->vertexLength() * mesh2->vertexLength();
-		sp_uint gjkIterations = sp_max((sp_uint)(maxIterations * SpPhysicSettings::instance()->gjkPrecision()), 10u);
-		sp_uint epaIterations = sp_max((sp_uint)(maxIterations * SpPhysicSettings::instance()->epaPrecision()), 10u);
+		sp_uint gjkIterations = sp_max((sp_uint)(maxIterations * SpPhysicSettings::instance()->gjkPrecision()), (sp_uint)10);
+		sp_uint epaIterations = sp_max((sp_uint)(maxIterations * SpPhysicSettings::instance()->epaPrecision()), (sp_uint)10);
 
 		sp_uint iterations = 0;
 		static sp_uint mIterations = 0;
@@ -249,7 +249,7 @@ namespace NAMESPACE_PHYSICS
 			avgIterations += iterations;
 
 			if (gjk(mesh1, shape1->particles, mesh2, shape2->particles, tetrahedron, 576, iterations))
-				gjkErro++; // gjkIterations iterações não foram suficientes
+				gjkErro++; // gjkIterations iteraï¿½ï¿½es nï¿½o foram suficientes
 			else
 				gjkAcerto++;
 
@@ -288,7 +288,7 @@ namespace NAMESPACE_PHYSICS
 		collisionManifold->depth = 0.0f;
 		epaCouter++;
 		if (iterations != 576)
-			epaMIterations = sp_max(epaMIterations, iterations);
+			epaMIterations = sp_max((sp_uint)epaMIterations, iterations);
 
 		epaAverage += iterations;
 
@@ -302,7 +302,7 @@ namespace NAMESPACE_PHYSICS
 		if (depth != collisionManifold->depth)
 		{
 			if (iterations != 576)
-				epaMIterations = sp_max(epaMIterations, iterations);
+				epaMIterations = sp_max((sp_uint)epaMIterations, iterations);
 
 			epaErro++;
 		}

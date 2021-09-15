@@ -37,7 +37,7 @@ namespace NAMESPACE_PHYSICS
 		/// <summary>
 		/// Check if the ray intersect the plane
 		/// </summary>
-		API_INTERFACE inline sp_bool intersection(const Plane& p, Vec3& contact) const;
+		API_INTERFACE sp_bool intersection(const Plane& p, Vec3& contact) const;
 
 		API_INTERFACE sp_bool intersection(const AABB& aabb, Vec3 contact[2], sp_float& distanceToFirstContact, sp_float& distanceToSecondContact, const sp_float _epsilon = DefaultErrorMargin) const;
 

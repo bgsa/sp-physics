@@ -1,4 +1,5 @@
 #include "SpCollisionResponse.h"
+#include "SpWorldManager.h"
 
 namespace NAMESPACE_PHYSICS
 {

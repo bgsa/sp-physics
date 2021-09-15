@@ -1,6 +1,7 @@
 #ifdef OPENCL_ENABLED
 
 #include "GpuFindMinMax.h"
+#include "FileSystem.h"
 
 namespace NAMESPACE_PHYSICS
 {
@@ -19,12 +20,15 @@ namespace NAMESPACE_PHYSICS
 		directoryAddPath(filename, std::strlen(filename), SP_DIRECTORY_OPENCL_SOURCE, std::strlen(SP_DIRECTORY_OPENCL_SOURCE));
 		directoryAddPath(filename, std::strlen(filename), "FindMinMax.cl", 13);
 
-		SP_FILE file;
-		SpString* source = file.readTextFile(filename);
+		const sp_size fSize = fileSize(filename);
+
+		sp_char* content = ALLOC_ARRAY(sp_char, fSize);
+		readTextFile(filename, content, sizeof(sp_char) * fSize);
+
+		gpu->commandManager->buildProgram(content, sizeof(sp_char) * fSize, buildOptions, &findMinMaxProgram);
 		
-		gpu->commandManager->buildProgram(source->data(), sizeof(sp_char) * source->length(), buildOptions, &findMinMaxProgram);
-		
-		sp_mem_delete(source, SpString);
+		ALLOC_RELEASE(content);
+
 		return this;
 	}
 

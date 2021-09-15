@@ -4,7 +4,6 @@
 #include "SpectrumPhysics.h"
 #include "SpRigidBody3D.h"
 #include "SpCollisionDetails.h"
-#include "SpWorldManager.h"
 #include "SweepAndPrune.h"
 
 namespace NAMESPACE_PHYSICS

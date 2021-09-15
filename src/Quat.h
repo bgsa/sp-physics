@@ -320,8 +320,8 @@ namespace NAMESPACE_PHYSICS
 		/// </summary>
 		/// <param name="q">Other quaterion</param>
 		/// <returns>True if they are equals orelse False</returns>
-		API_INTERFACE inline sp_bool operator==(const Quat& q) const;
-
+		API_INTERFACE sp_bool operator==(const Quat& q) const;
+		
 	};
 
 	const Quat QuatUnit(ONE_FLOAT, ZERO_FLOAT, ZERO_FLOAT, ZERO_FLOAT);
@@ -560,7 +560,7 @@ namespace NAMESPACE_PHYSICS
 	/// This quaternion is the rotation axis
 	/// Returns the point rotated
 	/// </summary>
-	API_INTERFACE inline void rotate(const Quat& rotation, const Vec3& point, Vec3& output);
+	API_INTERFACE void rotate(const Quat& rotation, const Vec3& point, Vec3& output);
 
 	/// <summary>
 	/// Quaternion Linear Interpolation. 

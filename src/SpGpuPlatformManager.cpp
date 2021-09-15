@@ -65,23 +65,23 @@ namespace NAMESPACE_PHYSICS
 				SpGpuPlatformManagerInstance->platforms[i].id = id;
 				
 				sp_size parameterSize;
-				clGetPlatformInfo(id, CL_PLATFORM_NAME, NULL, NULL, &parameterSize);
+				clGetPlatformInfo(id, CL_PLATFORM_NAME, 0, NULL, &parameterSize);
 				SpGpuPlatformManagerInstance->platforms[i].name = sp_mem_new_array(sp_char, parameterSize);
 				clGetPlatformInfo(id, CL_PLATFORM_NAME, parameterSize, SpGpuPlatformManagerInstance->platforms[i].name, NULL);
 				
-				clGetPlatformInfo(id, CL_PLATFORM_VERSION, NULL, NULL, &parameterSize);
+				clGetPlatformInfo(id, CL_PLATFORM_VERSION, 0, NULL, &parameterSize);
 				SpGpuPlatformManagerInstance->platforms[i].version = sp_mem_new_array(sp_char, parameterSize);
 				clGetPlatformInfo(id, CL_PLATFORM_VERSION, parameterSize, SpGpuPlatformManagerInstance->platforms[i].version, NULL);
 
-				clGetPlatformInfo(id, CL_PLATFORM_VENDOR, NULL, NULL, &parameterSize);
+				clGetPlatformInfo(id, CL_PLATFORM_VENDOR, 0, NULL, &parameterSize);
 				SpGpuPlatformManagerInstance->platforms[i].vendor = sp_mem_new_array(sp_char, parameterSize);
 				clGetPlatformInfo(id, CL_PLATFORM_VENDOR, parameterSize, SpGpuPlatformManagerInstance->platforms[i].vendor, NULL);
 
-				clGetPlatformInfo(id, CL_PLATFORM_PROFILE, NULL, NULL, &parameterSize);
+				clGetPlatformInfo(id, CL_PLATFORM_PROFILE, 0, NULL, &parameterSize);
 				SpGpuPlatformManagerInstance->platforms[i].profile = sp_mem_new_array(sp_char, parameterSize);
 				clGetPlatformInfo(id, CL_PLATFORM_PROFILE, parameterSize, SpGpuPlatformManagerInstance->platforms[i].profile, NULL);
 
-				clGetPlatformInfo(id, CL_PLATFORM_EXTENSIONS, NULL, NULL, &parameterSize);
+				clGetPlatformInfo(id, CL_PLATFORM_EXTENSIONS, 0, NULL, &parameterSize);
 				sp_char* extensions = ALLOC_NEW_ARRAY(sp_char, parameterSize);
 				clGetPlatformInfo(id, CL_PLATFORM_EXTENSIONS, parameterSize, extensions, NULL);
 

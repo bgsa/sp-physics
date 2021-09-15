@@ -7,6 +7,7 @@
 #include "SpMesh.h"
 #include "SpGJK.h"
 #include "SweepAndPrune.h"
+#include "SpCollisionResponse.h"
 
 namespace NAMESPACE_PHYSICS
 {
