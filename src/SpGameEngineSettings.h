@@ -107,10 +107,7 @@ namespace NAMESPACE_PHYSICS
 			sp_char filename[SP_DIRECTORY_MAX_LENGTH];
 			gameEngineSettingsFilename(filename);
 
-			SP_FILE file;
-			file.open(filename, std::ios_base::out);
-			file.write(jsonAsString.c_str());
-			file.close();
+			writeTextFile(filename, jsonAsString.c_str(), jsonAsString.length());
 		}
 
 		/// <summary>
@@ -123,6 +120,9 @@ namespace NAMESPACE_PHYSICS
 			gameEngineSettingsFilename(filename);
 
 			const sp_size size = fileSize(filename);
+
+			if (size == 0)
+				return;
 
 			sp_char* content = (sp_char*)ALLOC_SIZE(size);
 
