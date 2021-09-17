@@ -131,11 +131,11 @@ namespace NAMESPACE_PHYSICS
 		/// <returns>Current shader</returns>
 		API_INTERFACE virtual SpShader* setUniform(const sp_int id, const sp_double value) = 0;
 
-		API_INTERFACE virtual SpShader* enableVertexAttribute(const sp_uint index, sp_int size, sp_int type, sp_bool normalized, sp_size stride, const void* pointer) = 0;
+		API_INTERFACE virtual SpShader* enableVertexAttribute(const sp_uint index, sp_int size, sp_int type, sp_bool normalized, sp_int stride, const void* pointer) = 0;
 
 		API_INTERFACE virtual SpShader* disableVertexAttribute(const sp_uint index) = 0;
 
-		API_INTERFACE virtual SpShader* drawArray(const sp_uint primitiveTypeId, const sp_int first, const sp_size count) = 0;
+		API_INTERFACE virtual SpShader* drawArray(const sp_uint primitiveTypeId, const sp_int first, const sp_uint count) = 0;
 
 		API_INTERFACE virtual SpShader* drawElements(const sp_uint primitiveTypeId, const sp_size indexesLength, const sp_int indexTypeId, const void* indexes = NULL) = 0;
 

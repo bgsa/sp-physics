@@ -160,7 +160,7 @@ namespace NAMESPACE_PHYSICS
 		/// <returns></returns>
 		API_INTERFACE inline sp_uint find(const sp_char* name) const
 		{
-			for (sp_size i = 0; i < _length; i++)
+			for (sp_uint i = 0; i < _length; i++)
 				if (strcmp(name, &_cameraNames[i * SP_CAMERA_NAME_MAX_LENGTH]) == 0)
 					return i;
 			

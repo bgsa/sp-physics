@@ -12,8 +12,8 @@ namespace NAMESPACE_PHYSICS
 
 	private:
 		sp_uint _type;
-		sp_size _index;
-		sp_size _renderableObjectIndex;
+		sp_uint _index;
+		sp_uint _renderableObjectIndex;
 
 	public:
 
