@@ -29,12 +29,12 @@ namespace NAMESPACE_PHYSICS
 
 		API_INTERFACE inline void acquireGLObjects(cl_mem buffer, sp_uint eventLength, cl_event* events, cl_event* evt)
 		{	
-			clEnqueueAcquireGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, evt);
+			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueAcquireGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, evt));
 		}
 
 		API_INTERFACE inline void releaseGLObjects(cl_mem buffer, sp_uint eventLength, cl_event* events, cl_event* evt)
 		{
-			clEnqueueReleaseGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, evt);
+			HANDLE_OPENCL_RUNTIME_ERROR(clEnqueueReleaseGLObjects(commandQueue, ONE_UINT, &buffer, eventLength, events, evt));
 		}
 
 		API_INTERFACE cl_event readBuffer(cl_mem gpuBuffer, sp_size bufferSize, void* cpuBuffer, sp_uint eventsLength = ZERO_UINT, cl_event* eventsToWait = nullptr)
