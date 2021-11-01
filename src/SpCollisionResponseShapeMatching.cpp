@@ -235,83 +235,22 @@ namespace NAMESPACE_PHYSICS
 		sp_uint epaIterations = sp_max((sp_uint)(maxIterations * SpPhysicSettings::instance()->epaPrecision()), (sp_uint)10);
 
 		sp_uint iterations = 0;
-		static sp_uint mIterations = 0;
-		static sp_uint avgIterations = 0;
-		static sp_size gjkErro = 0;
-		static sp_size gjkAcerto = 0;
-		static sp_uint gjkCounter = 0;
 
 		Vec3 tetrahedron[4];
 		if (!gjk(mesh1, shape1->particles, mesh2, shape2->particles, tetrahedron, gjkIterations, iterations))
 		{
-			gjkCounter++;
-			mIterations = sp_max(mIterations, iterations);
-			avgIterations += iterations;
-
-			if (gjk(mesh1, shape1->particles, mesh2, shape2->particles, tetrahedron, 576, iterations))
-				gjkErro++; // gjkIterations itera��es n�o foram suficientes
-			else
-				gjkAcerto++;
-
 			((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();
 			((sp_uint*)SpGlobalPropertiesInscance->get(ID_gjkEpaCount))[0] ++;
 			return false;
 		}
 
-		if (iterations > 100 || mIterations > 100)
-			int a = 1;
-
-		mIterations = sp_max(mIterations, iterations);
-		avgIterations += iterations;
-		gjkAcerto++;
-		gjkCounter++;
-
-		if (gjkCounter == 10000000)
-		{
-			int a = 1;
-		}
-
-		static sp_size epaErro = 0;
-		static sp_size epaAcerto = 0;
-		static sp_size epaGlobalErro = 0;
-		static sp_size epaMIterations = 0;
-		static sp_size epaAverage = 0;
-		static sp_size epaCouter = 0;
 		iterations = 0;
-		sp_float depth;
-
-		if (epa(tetrahedron, mesh1, shape1->particles, mesh2, shape2->particles, collisionManifold->collisionNormal, collisionManifold->depth, maxIterations, iterations))
-			depth = collisionManifold->depth;
-		else
-			epaGlobalErro++;
-
-		collisionManifold->depth = 0.0f;
-		epaCouter++;
-		if (iterations != 576)
-			epaMIterations = sp_max((sp_uint)epaMIterations, iterations);
-
-		epaAverage += iterations;
 
 		if (!epa(tetrahedron, mesh1, shape1->particles, mesh2, shape2->particles, collisionManifold->collisionNormal, collisionManifold->depth, epaIterations, iterations))
 		{
 			((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();
 			((sp_uint*)SpGlobalPropertiesInscance->get(ID_gjkEpaCount))[0] ++;
 			return false;
-		}
-
-		if (depth != collisionManifold->depth)
-		{
-			if (iterations != 576)
-				epaMIterations = sp_max((sp_uint)epaMIterations, iterations);
-
-			epaErro++;
-		}
-		else
-			epaAcerto++;
-
-		if (epaCouter == 10000000)
-		{
-			int a = 1;
 		}
 
 		((sp_float*)SpGlobalPropertiesInscance->get(ID_gjkEpaTime))[0] += t.elapsedTime();

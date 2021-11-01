@@ -249,7 +249,7 @@ __kernel void reorderNegatives(
     __private const sp_uint offsetTable_LastBucketIndex = THREAD_LENGTH * 2u - 2u;
 
     __private const sp_uint negativeTotal = offsetTable[offsetTable_LastBucketIndex    ];
-    __private const sp_uint positiveTotal = offsetTable[offsetTable_LastBucketIndex + 1u];
+    //__private const sp_uint positiveTotal = offsetTable[offsetTable_LastBucketIndex + 1u];
 
     __private const sp_uint previousPositives = offsetTable_Index == 0u ? 0u : offsetTable[offsetTable_Index - 1u];
     __private const sp_bool isPositive = offsetTable[offsetTable_Index + 1] - previousPositives == 1;
